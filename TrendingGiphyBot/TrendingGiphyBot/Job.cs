@@ -16,10 +16,10 @@ namespace TrendingGiphyBot
             _Timer.Elapsed += Elapsed;
             StartTimerWithCloseInterval();
         }
-        void Elapsed(object sender, ElapsedEventArgs e)
+        async void Elapsed(object sender, ElapsedEventArgs e)
         {
             _Timer.Stop();
-            WorkToDo();
+            await WorkToDo();
             StartTimerWithCloseInterval();
         }
         internal void Restart(JobConfig jobConfig)
