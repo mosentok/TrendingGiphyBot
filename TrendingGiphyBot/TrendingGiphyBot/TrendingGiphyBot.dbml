@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?><Database Name="TrendingGiphyBot" Class="TrendingGiphyBotDataContext" xmlns="http://schemas.microsoft.com/linqtosql/dbml/2007">
+  <Connection Mode="AppSettings" ConnectionString="Data Source=(localdb)\ProjectsV13;Initial Catalog=TrendingGiphyBot;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True" SettingsObjectName="TrendingGiphyBot.Properties.Settings" SettingsPropertyName="TrendingGiphyBotConnectionString" Provider="System.Data.SqlClient" />
+  <Table Name="dbo.JobConfig" Member="JobConfigs">
+    <Type Name="JobConfig">
+      <Column Name="ChannelId" Type="System.Decimal" DbType="Decimal(20,0) NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="Interval" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="Time" Type="System.String" DbType="VarChar(16) NOT NULL" CanBeNull="false" />
+    </Type>
+  </Table>
+</Database>

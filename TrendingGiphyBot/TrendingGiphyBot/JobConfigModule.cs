@@ -1,17 +1,21 @@
-﻿using System.Configuration;
-using System.IO;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Discord.Commands;
 using System.Reflection;
 using System.Linq;
+using System.Collections.Generic;
+using GiphyDotNet.Manager;
+using Discord.WebSocket;
+using System;
 
 namespace TrendingGiphyBot
 {
     [Group(nameof(JobConfig))]
     public class JobConfigModule : ModuleBase
     {
-        Job _Job => (Context as JobConfigCommandContext).Job;
+        List<Job> _Jobs => (Context as JobConfigCommandContext).Jobs;
+        JobConfigDal _ChannelJobConfigDal => (Context as JobConfigCommandContext).ChannelJobConfigDal;
+        Giphy _GiphyClient => (Context as JobConfigCommandContext).GiphyClient;
         [Command]
         [Summary("Help menu for " + nameof(JobConfig) + ".")]
         [Alias(nameof(Help))]
@@ -50,8 +54,15 @@ namespace TrendingGiphyBot
         [Summary("Gets the " + nameof(JobConfig) + ".")]
         public async Task Get()
         {
-            var serialized = JsonConvert.SerializeObject(_Job.JobConfig, Formatting.Indented);
-            await ReplyAsync(serialized);
+            var any = await _ChannelJobConfigDal.Any(Context.Channel.Id);
+            if (any)
+            {
+                var config = await _ChannelJobConfigDal.Get(Context.Channel.Id);
+                var serialized = JsonConvert.SerializeObject(config, Formatting.Indented);
+                await ReplyAsync(serialized);
+            }
+            else
+                await ReplyAsync($"{Context.Channel.Id} not configured.");
         }
         [Command(nameof(Set))]
         [Summary("Sets the " + nameof(JobConfig) + ".")]
@@ -61,20 +72,46 @@ namespace TrendingGiphyBot
             [Summary(nameof(JobConfig.Time) + " to set.")]
             Time time)
         {
-            var configPath = ConfigurationManager.AppSettings["ConfigPath"];
-            var contents = File.ReadAllText(configPath);
-            var config = JsonConvert.DeserializeObject<Config>(contents);
-            config.JobConfig.Interval = interval;
-            config.JobConfig.Time = time;
-            if (config.JobConfig.IsValid)
+            var isValid = IsValid(interval, time);
+            if (isValid)
             {
-                var serialized = JsonConvert.SerializeObject(config, Formatting.Indented);
-                File.WriteAllText(configPath, serialized);
-                _Job.Restart(config.JobConfig);
+                var config = new JobConfig
+                {
+                    ChannelId = Context.Channel.Id,
+                    Interval = interval,
+                    Time = time.ToString()
+                };
+                var any = await _ChannelJobConfigDal.Any(Context.Channel.Id);
+                if (any)
+                    await _ChannelJobConfigDal.Update(config);
+                else
+                {
+                    await _ChannelJobConfigDal.Insert(config);
+                    _Jobs.Add(new Job(_GiphyClient, Context.Client as DiscordSocketClient, config));
+                }
                 await Get();
             }
             else
-                await ReplyAsync(config.JobConfig.MinMinutesMessage);
+                await ReplyAsync($"{nameof(JobConfig.Interval)} and {nameof(JobConfig.Time)} must combine to at least 10 minutes.");
+        }
+        static bool IsValid(int interval, Time time)
+        {
+            var configgedMinutes = DetermineJobIntervalSeconds(interval, time);
+            return configgedMinutes >= 10;
+        }
+        static double DetermineJobIntervalSeconds(int interval, Time time)
+        {
+            switch (time)
+            {
+                case Time.Hours:
+                    return TimeSpan.FromHours(interval).TotalMinutes;
+                case Time.Minutes:
+                    return TimeSpan.FromMinutes(interval).TotalMinutes;
+                case Time.Seconds:
+                    return TimeSpan.FromSeconds(interval).TotalMinutes;
+                default:
+                    throw new InvalidTimeException(time);
+            }
         }
     }
 }
