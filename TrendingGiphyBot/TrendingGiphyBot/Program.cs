@@ -90,6 +90,7 @@ namespace TrendingGiphyBot
         {
             await _Client?.LogoutAsync();
             _Client?.Dispose();
+            _Timer?.Dispose();
         }
     }
 }
