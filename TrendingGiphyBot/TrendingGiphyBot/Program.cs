@@ -34,29 +34,29 @@ namespace TrendingGiphyBot
         Task Ready()
         {
             _Giphy = new Giphy(_Config.GiphyToken);
-            CreateTimer();
-            return Task.CompletedTask;
-        }
-        void CreateTimer()
-        {
             _Timer = new Timer();
             _Timer.Elapsed += (a, b) => Elapsed();
-            var difference = DetermineDifference();
+            StartTimerWithCloseInterval();
+            return Task.CompletedTask;
+        }
+        void StartTimerWithCloseInterval()
+        {
+            var differenceSeconds = DetermineDifference(_Config.RunEveryXSeconds);
             var now = DateTime.Now;
-            var nextElapse = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second).AddSeconds(difference);
+            var nextElapse = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second).AddSeconds(differenceSeconds);
             var interval = (nextElapse - DateTime.Now).TotalMilliseconds;
             _Timer.Interval = interval;
             _Timer.Start();
         }
-        int DetermineDifference()
+        static int DetermineDifference(int runEveryXSeconds)
         {
             var waitSeconds = 0;
             var currentSeconds = DateTime.Now.Second;
             while (waitSeconds < currentSeconds)
-                waitSeconds += _Config.RunEveryXSeconds;
+                waitSeconds += runEveryXSeconds;
             var difference = waitSeconds - currentSeconds;
             if (difference == 0)
-                return _Config.RunEveryXSeconds;
+                return runEveryXSeconds;
             return difference;
         }
         async void Elapsed()
@@ -71,11 +71,7 @@ namespace TrendingGiphyBot
             //    {
             //        var restUserMessage = await textChannel.SendMessageAsync(url);
             //    }
-            var now = DateTime.Now;
-            var nextElapse = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second).AddSeconds(_Config.RunEveryXSeconds);
-            var difference = nextElapse - DateTime.Now;
-            _Timer.Interval = difference.TotalMilliseconds;
-            _Timer.Start();
+            StartTimerWithCloseInterval();
         }
         Task Log(LogMessage logMessage)
         {
