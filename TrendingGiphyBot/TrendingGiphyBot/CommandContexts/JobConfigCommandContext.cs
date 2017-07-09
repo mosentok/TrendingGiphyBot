@@ -3,7 +3,7 @@ using Discord;
 using System.Collections.Generic;
 using GiphyDotNet.Manager;
 
-namespace TrendingGiphyBot
+namespace TrendingGiphyBot.CommandContexts
 {
     class JobConfigCommandContext : CommandContext
     {

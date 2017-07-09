@@ -1,4 +1,4 @@
-﻿namespace TrendingGiphyBot
+﻿namespace TrendingGiphyBot.Containers
 {
     class ParameterContainer
     {
