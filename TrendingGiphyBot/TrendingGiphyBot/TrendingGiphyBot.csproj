@@ -152,6 +152,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="HelpContainer.cs" />
+    <Compile Include="InvalidTimeException.cs" />
     <Compile Include="JobConfigCommandContext.cs" />
     <Compile Include="JobConfigModule.cs" />
     <Compile Include="MethodContainer.cs" />

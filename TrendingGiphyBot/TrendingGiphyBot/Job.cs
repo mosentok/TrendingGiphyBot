@@ -51,7 +51,7 @@ namespace TrendingGiphyBot
                     difference = DetermineDifference(now.Second);
                     return new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second).AddSeconds(difference);
                 default:
-                    throw new InvalidOperationException();
+                    throw new InvalidTimeException(JobConfig.Time);
             }
         }
         int DetermineDifference(int component)

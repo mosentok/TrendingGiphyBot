@@ -19,7 +19,7 @@ namespace TrendingGiphyBot
                 return configgedMinutes >= MinMinutes;
             }
         }
-        internal double DetermineJobIntervalSeconds()
+        double DetermineJobIntervalSeconds()
         {
             switch (Time)
             {
@@ -30,7 +30,7 @@ namespace TrendingGiphyBot
                 case Time.Seconds:
                     return (int)TimeSpan.FromSeconds(Interval).TotalMinutes;
                 default:
-                    throw new InvalidOperationException($"{Time} is an invalid {nameof(Time)}.");
+                    throw new InvalidTimeException(Time);
             }
         }
     }
