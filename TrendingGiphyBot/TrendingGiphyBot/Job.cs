@@ -30,31 +30,33 @@ namespace TrendingGiphyBot
         }
         void StartTimerWithCloseInterval()
         {
-            var jobIntervalSeconds = DetermineJobIntervalSeconds();
-            var differenceSeconds = DetermineDifferenceSeconds(jobIntervalSeconds);
             var now = DateTime.Now;
-            var nextElapse = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second).AddSeconds(differenceSeconds);
-            var interval = (nextElapse - DateTime.Now).TotalMilliseconds;
+            var nextElapse = DetermineNextElapse(now);
+            var interval = (nextElapse - now).TotalMilliseconds;
             _Timer.Interval = interval;
             _Timer.Start();
         }
-        int DetermineJobIntervalSeconds()
+        DateTime DetermineNextElapse(DateTime now)
         {
+            int difference;
             switch (JobConfig.Time)
             {
                 case Time.Hours:
-                    return (int)TimeSpan.FromHours(JobConfig.Interval).TotalSeconds;
+                    difference = DetermineDifference(now.Hour);
+                    return new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0).AddHours(difference);
                 case Time.Minutes:
-                    return (int)TimeSpan.FromMinutes(JobConfig.Interval).TotalSeconds;
+                    difference = DetermineDifference(now.Minute);
+                    return new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0).AddMinutes(difference);
                 case Time.Seconds:
-                    return (int)TimeSpan.FromSeconds(JobConfig.Interval).TotalSeconds;
+                    difference = DetermineDifference(now.Second);
+                    return new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second).AddSeconds(difference);
                 default:
-                    throw new InvalidOperationException($"{JobConfig.Time} is an invalid {nameof(Time)}.");
+                    throw new InvalidOperationException();
             }
         }
-        static int DetermineDifferenceSeconds(int runEveryXSeconds)
+        int DetermineDifference(int component)
         {
-            return runEveryXSeconds - DateTime.Now.Second % runEveryXSeconds;
+            return JobConfig.Interval - component % JobConfig.Interval;
         }
         public void Dispose()
         {

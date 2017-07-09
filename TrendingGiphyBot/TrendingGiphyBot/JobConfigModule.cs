@@ -66,10 +66,15 @@ namespace TrendingGiphyBot
             var config = JsonConvert.DeserializeObject<Config>(contents);
             config.JobConfig.Interval = interval;
             config.JobConfig.Time = time;
-            var serialized = JsonConvert.SerializeObject(config, Formatting.Indented);
-            File.WriteAllText(configPath, serialized);
-            _Job.Restart(config.JobConfig);
-            await Get();
+            if (config.JobConfig.IsValid)
+            {
+                var serialized = JsonConvert.SerializeObject(config, Formatting.Indented);
+                File.WriteAllText(configPath, serialized);
+                _Job.Restart(config.JobConfig);
+                await Get();
+            }
+            else
+                await ReplyAsync(config.JobConfig.MinMinutesMessage);
         }
     }
 }
