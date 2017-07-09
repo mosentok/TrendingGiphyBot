@@ -11,6 +11,7 @@ namespace TrendingGiphyBot
     [Group(nameof(JobConfig))]
     public class JobConfigModule : ModuleBase
     {
+        Job _Job => (Context as JobConfigCommandContext).Job;
         [Command]
         [Summary("Help menu for " + nameof(JobConfig) + ".")]
         [Alias(nameof(Help))]
@@ -49,10 +50,7 @@ namespace TrendingGiphyBot
         [Summary("Gets the " + nameof(JobConfig) + ".")]
         public async Task Get()
         {
-            var configPath = ConfigurationManager.AppSettings["ConfigPath"];
-            var contents = File.ReadAllText(configPath);
-            var config = JsonConvert.DeserializeObject<Config>(contents);
-            var serialized = JsonConvert.SerializeObject(config.JobConfig, Formatting.Indented);
+            var serialized = JsonConvert.SerializeObject(_Job.JobConfig, Formatting.Indented);
             await ReplyAsync(serialized);
         }
         [Command(nameof(Set))]
@@ -70,6 +68,7 @@ namespace TrendingGiphyBot
             config.JobConfig.Time = time;
             var serialized = JsonConvert.SerializeObject(config, Formatting.Indented);
             File.WriteAllText(configPath, serialized);
+            _Job.Restart(config.JobConfig);
             await Get();
         }
     }
