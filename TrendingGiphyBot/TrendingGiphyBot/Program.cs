@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Configuration;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
-using System.Timers;
 using Discord;
 using Discord.WebSocket;
 using GiphyDotNet.Manager;
@@ -14,8 +12,8 @@ namespace TrendingGiphyBot
 {
     class Program : IDisposable
     {
-        DiscordSocketClient _Client;
-        Giphy _Giphy;
+        DiscordSocketClient _DiscordClient;
+        Giphy _GiphyClient;
         Config _Config;
         Job _Job;
         static void Main(string[] args) => new Program().MainAsync().GetAwaiter().GetResult();
@@ -24,16 +22,16 @@ namespace TrendingGiphyBot
             var configPath = ConfigurationManager.AppSettings["ConfigPath"];
             var contents = File.ReadAllText(configPath);
             _Config = JsonConvert.DeserializeObject<Config>(contents);
-            _Client = new DiscordSocketClient();
-            _Client.Log += Log;
-            _Client.Ready += Ready;
-            await _Client.LoginAsync(TokenType.Bot, _Config.DiscordToken);
-            await _Client.StartAsync();
+            _DiscordClient = new DiscordSocketClient();
+            _DiscordClient.Log += Log;
+            _DiscordClient.Ready += Ready;
+            await _DiscordClient.LoginAsync(TokenType.Bot, _Config.DiscordToken);
+            await _DiscordClient.StartAsync();
             await Task.Delay(-1);
         }
         Task Ready()
         {
-            _Giphy = new Giphy(_Config.GiphyToken);
+            _GiphyClient = new Giphy(_Config.GiphyToken);
             _Job = new Job(_Config.JobConfig);
             _Job.WorkToDo += Run;
             return Task.CompletedTask;
@@ -57,8 +55,8 @@ namespace TrendingGiphyBot
         }
         public async void Dispose()
         {
-            await _Client?.LogoutAsync();
-            _Client?.Dispose();
+            await _DiscordClient?.LogoutAsync();
+            _DiscordClient?.Dispose();
             _Job?.Dispose();
         }
     }
