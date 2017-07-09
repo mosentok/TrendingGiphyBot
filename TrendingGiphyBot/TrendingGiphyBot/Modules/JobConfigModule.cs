@@ -11,6 +11,7 @@ using TrendingGiphyBot.Containers;
 using TrendingGiphyBot.Exceptions;
 using TrendingGiphyBot.Enums;
 using TrendingGiphyBot.CommandContexts;
+using TrendingGiphyBot.Dals;
 
 namespace TrendingGiphyBot.Modules
 {

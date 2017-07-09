@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using System.Collections.Generic;
 using TrendingGiphyBot.CommandContexts;
+using TrendingGiphyBot.Dals;
 
 namespace TrendingGiphyBot
 {

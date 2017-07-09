@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace TrendingGiphyBot
+namespace TrendingGiphyBot.Dals
 {
     class JobConfigDal
     {
