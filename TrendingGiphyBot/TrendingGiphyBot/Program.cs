@@ -3,9 +3,9 @@ using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Timers;
 using Discord;
 using Discord.WebSocket;
+using FluentScheduler;
 using GiphyDotNet.Manager;
 using GiphyDotNet.Model.Parameters;
 using Newtonsoft.Json;
@@ -16,7 +16,6 @@ namespace TrendingGiphyBot
     {
         DiscordSocketClient _Client;
         Giphy _Giphy;
-        Timer _Timer;
         Config _Config;
         static void Main(string[] args) => new Program().MainAsync().GetAwaiter().GetResult();
         async Task MainAsync()
@@ -34,15 +33,12 @@ namespace TrendingGiphyBot
         Task Ready()
         {
             _Giphy = new Giphy(_Config.GiphyToken);
+            JobManager.AddJob(() => Elapsed(), (s) => s.ToRunEvery(5).Minutes());
             var interval = TimeSpan.FromMinutes(5).TotalMilliseconds;
-            _Timer = new Timer(interval);
-            _Timer.Elapsed += Elapsed;
-            _Timer.Start();
             return Task.CompletedTask;
         }
-        async void Elapsed(object sender, ElapsedEventArgs e)
+        async void Elapsed()
         {
-            _Timer.Stop();
             var gifResult = await _Giphy.TrendingGifs(new TrendingParameter { Limit = 1 });
             foreach (var guild in _Client.Guilds)
                 foreach (var textChannel in guild.TextChannels)
@@ -53,7 +49,6 @@ namespace TrendingGiphyBot
                         var restUserMessage = await textChannel.SendMessageAsync(url);
                     }
                 }
-            _Timer.Start();
         }
         Task Log(LogMessage logMessage)
         {
@@ -64,7 +59,6 @@ namespace TrendingGiphyBot
         {
             await _Client?.LogoutAsync();
             _Client?.Dispose();
-            _Timer?.Dispose();
         }
     }
 }
