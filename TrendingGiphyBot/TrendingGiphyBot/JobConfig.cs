@@ -15,9 +15,8 @@ namespace TrendingGiphyBot
         {
             get
             {
-                var minSeconds = TimeSpan.FromMinutes(MinMinutes).TotalSeconds;
-                var configgedSeconds = DetermineJobIntervalSeconds();
-                return configgedSeconds >= minSeconds;
+                var configgedMinutes = DetermineJobIntervalSeconds();
+                return configgedMinutes >= MinMinutes;
             }
         }
         internal double DetermineJobIntervalSeconds()
@@ -25,11 +24,11 @@ namespace TrendingGiphyBot
             switch (Time)
             {
                 case Time.Hours:
-                    return (int)TimeSpan.FromHours(Interval).TotalSeconds;
+                    return (int)TimeSpan.FromHours(Interval).TotalMinutes;
                 case Time.Minutes:
-                    return (int)TimeSpan.FromMinutes(Interval).TotalSeconds;
+                    return (int)TimeSpan.FromMinutes(Interval).TotalMinutes;
                 case Time.Seconds:
-                    return (int)TimeSpan.FromSeconds(Interval).TotalSeconds;
+                    return (int)TimeSpan.FromSeconds(Interval).TotalMinutes;
                 default:
                     throw new InvalidOperationException($"{Time} is an invalid {nameof(Time)}.");
             }
