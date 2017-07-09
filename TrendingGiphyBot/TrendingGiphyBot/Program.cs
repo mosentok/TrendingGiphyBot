@@ -17,7 +17,7 @@ namespace TrendingGiphyBot
         DiscordSocketClient _Client;
         Giphy _Giphy;
         Config _Config;
-        Timer _Timer;
+        Job _Job;
         static void Main(string[] args) => new Program().MainAsync().GetAwaiter().GetResult();
         async Task MainAsync()
         {
@@ -34,42 +34,12 @@ namespace TrendingGiphyBot
         Task Ready()
         {
             _Giphy = new Giphy(_Config.GiphyToken);
-            _Timer = new Timer();
-            _Timer.Elapsed += (a, b) => Elapsed();
-            StartTimerWithCloseInterval();
+            _Job = new Job(_Config.JobConfig);
+            _Job.WorkToDo += Run;
             return Task.CompletedTask;
         }
-        void StartTimerWithCloseInterval()
+        async Task Run()
         {
-            var jobIntervalSeconds = DetermineJobIntervalSeconds();
-            var differenceSeconds = DetermineDifferenceSeconds(jobIntervalSeconds);
-            var now = DateTime.Now;
-            var nextElapse = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second).AddSeconds(differenceSeconds);
-            var interval = (nextElapse - DateTime.Now).TotalMilliseconds;
-            _Timer.Interval = interval;
-            _Timer.Start();
-        }
-        int DetermineJobIntervalSeconds()
-        {
-            switch (_Config.JobConfig.Time)
-            {
-                case Time.Hours:
-                    return (int)TimeSpan.FromHours(_Config.JobConfig.Interval).TotalSeconds;
-                case Time.Minutes:
-                    return (int)TimeSpan.FromMinutes(_Config.JobConfig.Interval).TotalSeconds;
-                case Time.Seconds:
-                    return (int)TimeSpan.FromSeconds(_Config.JobConfig.Interval).TotalSeconds;
-                default:
-                    throw new InvalidOperationException($"{_Config.JobConfig.Time} is an invalid {nameof(Time)}.");
-            }
-        }
-        static int DetermineDifferenceSeconds(int runEveryXSeconds)
-        {
-            return runEveryXSeconds - DateTime.Now.Second % runEveryXSeconds;
-        }
-        async void Elapsed()
-        {
-            _Timer.Stop();
             var fireTime = DateTime.Now;
             Console.WriteLine($"{nameof(fireTime)}:{fireTime.ToString("o")}");
             //var gifResult = await _Giphy.TrendingGifs(new TrendingParameter { Limit = 1 });
@@ -79,7 +49,6 @@ namespace TrendingGiphyBot
             //    {
             //        var restUserMessage = await textChannel.SendMessageAsync(url);
             //    }
-            StartTimerWithCloseInterval();
         }
         Task Log(LogMessage logMessage)
         {
@@ -90,7 +59,7 @@ namespace TrendingGiphyBot
         {
             await _Client?.LogoutAsync();
             _Client?.Dispose();
-            _Timer?.Dispose();
+            _Job?.Dispose();
         }
     }
 }
