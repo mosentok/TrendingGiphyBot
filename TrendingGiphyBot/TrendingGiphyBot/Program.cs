@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using Discord.Commands;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
+using System.Linq;
 
 namespace TrendingGiphyBot
 {
@@ -27,16 +28,21 @@ namespace TrendingGiphyBot
             var configPath = ConfigurationManager.AppSettings["ConfigPath"];
             var contents = File.ReadAllText(configPath);
             _Config = JsonConvert.DeserializeObject<Config>(contents);
-            _DiscordClient = new DiscordSocketClient();
-            _Commands = new CommandService();
-            _Services = new ServiceCollection().BuildServiceProvider();
-            _DiscordClient.MessageReceived += MessageReceived;
-            _DiscordClient.Log += Log;
-            _DiscordClient.Ready += Ready;
-            await _Commands.AddModulesAsync(Assembly.GetEntryAssembly());
-            await _DiscordClient.LoginAsync(TokenType.Bot, _Config.DiscordToken);
-            await _DiscordClient.StartAsync();
-            await Task.Delay(-1);
+            if (_Config.JobConfig.IsValid)
+            {
+                _DiscordClient = new DiscordSocketClient();
+                _Commands = new CommandService();
+                _Services = new ServiceCollection().BuildServiceProvider();
+                _DiscordClient.MessageReceived += MessageReceived;
+                _DiscordClient.Log += Log;
+                _DiscordClient.Ready += Ready;
+                await _Commands.AddModulesAsync(Assembly.GetEntryAssembly());
+                await _DiscordClient.LoginAsync(TokenType.Bot, _Config.DiscordToken);
+                await _DiscordClient.StartAsync();
+                await Task.Delay(-1);
+            }
+            else
+                throw new InvalidOperationException(_Config.JobConfig.MinMinutesMessage);
         }
         Task Ready()
         {
@@ -62,13 +68,13 @@ namespace TrendingGiphyBot
         {
             var fireTime = DateTime.Now;
             Console.WriteLine($"{nameof(fireTime)}:{fireTime.ToString("o")}");
-            //var gifResult = await _Giphy.TrendingGifs(new TrendingParameter { Limit = 1 });
-            //var url = gifResult.Data.FirstOrDefault()?.Url;
-            //if (!string.IsNullOrEmpty(url))
-            //    foreach (var textChannel in _Client.Guilds.SelectMany(s => s.TextChannels))
-            //    {
-            //        var restUserMessage = await textChannel.SendMessageAsync(url);
-            //    }
+            var gifResult = await _GiphyClient.TrendingGifs(new TrendingParameter { Limit = 1 });
+            var url = gifResult.Data.FirstOrDefault()?.Url;
+            if (!string.IsNullOrEmpty(url))
+                foreach (var textChannel in _DiscordClient.Guilds.SelectMany(s => s.TextChannels))
+                {
+                    var restUserMessage = await textChannel.SendMessageAsync(url);
+                }
         }
         Task Log(LogMessage logMessage)
         {
