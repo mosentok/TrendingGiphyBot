@@ -66,7 +66,11 @@ namespace TrendingGiphyBot
             var gifResult = await _GiphyClient.TrendingGifs(new TrendingParameter { Limit = 1 });
             var url = gifResult.Data.FirstOrDefault()?.Url;
             if (!string.IsNullOrEmpty(url))
-                await (_DiscordClient.GetChannel(Convert.ToUInt64(JobConfig.ChannelId)) as SocketTextChannel).SendMessageAsync(url);
+            {
+                var channelId = Convert.ToUInt64(JobConfig.ChannelId);
+                var socketTextChannel = _DiscordClient.GetChannel(channelId) as SocketTextChannel;
+                await socketTextChannel?.SendMessageAsync(url);
+            }
         }
         public async void Dispose()
         {
