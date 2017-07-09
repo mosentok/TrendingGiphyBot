@@ -7,6 +7,9 @@ using Discord.WebSocket;
 using GiphyDotNet.Manager;
 using GiphyDotNet.Model.Parameters;
 using Newtonsoft.Json;
+using Discord.Commands;
+using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace TrendingGiphyBot
 {
@@ -16,6 +19,8 @@ namespace TrendingGiphyBot
         Giphy _GiphyClient;
         Config _Config;
         Job _Job;
+        CommandService _Commands;
+        IServiceProvider _Services;
         static void Main(string[] args) => new Program().MainAsync().GetAwaiter().GetResult();
         async Task MainAsync()
         {
@@ -23,8 +28,12 @@ namespace TrendingGiphyBot
             var contents = File.ReadAllText(configPath);
             _Config = JsonConvert.DeserializeObject<Config>(contents);
             _DiscordClient = new DiscordSocketClient();
+            _Commands = new CommandService();
+            _Services = new ServiceCollection().BuildServiceProvider();
+            _DiscordClient.MessageReceived += MessageReceived;
             _DiscordClient.Log += Log;
             _DiscordClient.Ready += Ready;
+            await _Commands.AddModulesAsync(Assembly.GetEntryAssembly());
             await _DiscordClient.LoginAsync(TokenType.Bot, _Config.DiscordToken);
             await _DiscordClient.StartAsync();
             await Task.Delay(-1);
@@ -35,6 +44,19 @@ namespace TrendingGiphyBot
             _Job = new Job(_Config.JobConfig);
             _Job.WorkToDo += Run;
             return Task.CompletedTask;
+        }
+        public async Task MessageReceived(SocketMessage messageParam)
+        {
+            var message = messageParam as SocketUserMessage;
+            if (message != null)
+            {
+                int argPos = 0;
+                if (!(message.HasCharPrefix('!', ref argPos) || message.HasMentionPrefix(_DiscordClient.CurrentUser, ref argPos))) return;
+                var context = new CommandContext(_DiscordClient, message);
+                var result = await _Commands.ExecuteAsync(context, argPos, _Services);
+                if (!result.IsSuccess)
+                    await context.Channel.SendMessageAsync(result.ErrorReason);
+            }
         }
         async Task Run()
         {
