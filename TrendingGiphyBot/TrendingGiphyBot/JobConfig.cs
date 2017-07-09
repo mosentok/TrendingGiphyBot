@@ -24,11 +24,11 @@ namespace TrendingGiphyBot
             switch (Time)
             {
                 case Time.Hours:
-                    return (int)TimeSpan.FromHours(Interval).TotalMinutes;
+                    return TimeSpan.FromHours(Interval).TotalMinutes;
                 case Time.Minutes:
-                    return (int)TimeSpan.FromMinutes(Interval).TotalMinutes;
+                    return TimeSpan.FromMinutes(Interval).TotalMinutes;
                 case Time.Seconds:
-                    return (int)TimeSpan.FromSeconds(Interval).TotalMinutes;
+                    return TimeSpan.FromSeconds(Interval).TotalMinutes;
                 default:
                     throw new InvalidTimeException(Time);
             }
