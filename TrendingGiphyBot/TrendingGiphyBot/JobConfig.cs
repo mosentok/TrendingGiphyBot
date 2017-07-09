@@ -1,6 +1,6 @@
 ﻿namespace TrendingGiphyBot
 {
-    class IntervalContainer
+    class JobConfig
     {
         public int Interval { get; set; }
         public Time Time { get; set; }

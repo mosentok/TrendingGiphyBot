@@ -41,29 +41,29 @@ namespace TrendingGiphyBot
         }
         void StartTimerWithCloseInterval()
         {
-            var configInterval = DetermineConfigInterval();
-            var differenceSeconds = DetermineDifference(configInterval);
+            var jobIntervalSeconds = DetermineJobIntervalSeconds();
+            var differenceSeconds = DetermineDifferenceSeconds(jobIntervalSeconds);
             var now = DateTime.Now;
             var nextElapse = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second).AddSeconds(differenceSeconds);
             var interval = (nextElapse - DateTime.Now).TotalMilliseconds;
             _Timer.Interval = interval;
             _Timer.Start();
         }
-        int DetermineConfigInterval()
+        int DetermineJobIntervalSeconds()
         {
-            switch (_Config.IntervalContainer.Time)
+            switch (_Config.JobConfig.Time)
             {
                 case Time.Hours:
-                    return (int)TimeSpan.FromHours(_Config.IntervalContainer.Interval).TotalSeconds;
+                    return (int)TimeSpan.FromHours(_Config.JobConfig.Interval).TotalSeconds;
                 case Time.Minutes:
-                    return (int)TimeSpan.FromMinutes(_Config.IntervalContainer.Interval).TotalSeconds;
+                    return (int)TimeSpan.FromMinutes(_Config.JobConfig.Interval).TotalSeconds;
                 case Time.Seconds:
-                    return (int)TimeSpan.FromSeconds(_Config.IntervalContainer.Interval).TotalSeconds;
+                    return (int)TimeSpan.FromSeconds(_Config.JobConfig.Interval).TotalSeconds;
                 default:
-                    throw new InvalidOperationException($"{_Config.IntervalContainer.Time} is an invalid {nameof(Time)}.");
+                    throw new InvalidOperationException($"{_Config.JobConfig.Time} is an invalid {nameof(Time)}.");
             }
         }
-        static int DetermineDifference(int runEveryXSeconds)
+        static int DetermineDifferenceSeconds(int runEveryXSeconds)
         {
             return runEveryXSeconds - DateTime.Now.Second % runEveryXSeconds;
         }

@@ -4,6 +4,6 @@
     {
         public string DiscordToken { get; set; }
         public string GiphyToken { get; set; }
-        public IntervalContainer IntervalContainer { get; set; }
+        public JobConfig JobConfig { get; set; }
     }
 }
