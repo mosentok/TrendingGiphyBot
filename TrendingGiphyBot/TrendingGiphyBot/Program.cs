@@ -3,9 +3,9 @@ using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Timers;
 using Discord;
 using Discord.WebSocket;
-using FluentScheduler;
 using GiphyDotNet.Manager;
 using GiphyDotNet.Model.Parameters;
 using Newtonsoft.Json;
@@ -17,6 +17,7 @@ namespace TrendingGiphyBot
         DiscordSocketClient _Client;
         Giphy _Giphy;
         Config _Config;
+        Timer _Timer;
         static void Main(string[] args) => new Program().MainAsync().GetAwaiter().GetResult();
         async Task MainAsync()
         {
@@ -33,22 +34,48 @@ namespace TrendingGiphyBot
         Task Ready()
         {
             _Giphy = new Giphy(_Config.GiphyToken);
-            JobManager.AddJob(() => Elapsed(), (s) => s.ToRunEvery(5).Minutes());
-            var interval = TimeSpan.FromMinutes(5).TotalMilliseconds;
+            CreateTimer();
             return Task.CompletedTask;
+        }
+        void CreateTimer()
+        {
+            _Timer = new Timer();
+            _Timer.Elapsed += (a, b) => Elapsed();
+            var difference = DetermineDifference();
+            var now = DateTime.Now;
+            var nextElapse = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second).AddSeconds(difference);
+            var interval = (nextElapse - DateTime.Now).TotalMilliseconds;
+            _Timer.Interval = interval;
+            _Timer.Start();
+        }
+        int DetermineDifference()
+        {
+            var waitSeconds = 0;
+            var currentSeconds = DateTime.Now.Second;
+            while (waitSeconds < currentSeconds)
+                waitSeconds += _Config.RunEveryXSeconds;
+            var difference = waitSeconds - currentSeconds;
+            if (difference == 0)
+                return _Config.RunEveryXSeconds;
+            return difference;
         }
         async void Elapsed()
         {
-            var gifResult = await _Giphy.TrendingGifs(new TrendingParameter { Limit = 1 });
-            foreach (var guild in _Client.Guilds)
-                foreach (var textChannel in guild.TextChannels)
-                {
-                    var url = gifResult.Data.FirstOrDefault()?.Url;
-                    if (!string.IsNullOrEmpty(url))
-                    {
-                        var restUserMessage = await textChannel.SendMessageAsync(url);
-                    }
-                }
+            _Timer.Stop();
+            var fireTime = DateTime.Now;
+            Console.WriteLine($"{nameof(fireTime)}:{fireTime.ToString("o")}");
+            //var gifResult = await _Giphy.TrendingGifs(new TrendingParameter { Limit = 1 });
+            //var url = gifResult.Data.FirstOrDefault()?.Url;
+            //if (!string.IsNullOrEmpty(url))
+            //    foreach (var textChannel in _Client.Guilds.SelectMany(s => s.TextChannels))
+            //    {
+            //        var restUserMessage = await textChannel.SendMessageAsync(url);
+            //    }
+            var now = DateTime.Now;
+            var nextElapse = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second).AddSeconds(_Config.RunEveryXSeconds);
+            var difference = nextElapse - DateTime.Now;
+            _Timer.Interval = difference.TotalMilliseconds;
+            _Timer.Start();
         }
         Task Log(LogMessage logMessage)
         {
