@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace TrendingGiphyBot
+namespace TrendingGiphyBot.Containers
 {
     class MethodContainer
     {

@@ -7,8 +7,12 @@ using System.Collections.Generic;
 using GiphyDotNet.Manager;
 using Discord.WebSocket;
 using System;
+using TrendingGiphyBot.Containers;
+using TrendingGiphyBot.Exceptions;
+using TrendingGiphyBot.Enums;
+using TrendingGiphyBot.CommandContexts;
 
-namespace TrendingGiphyBot
+namespace TrendingGiphyBot.Modules
 {
     [Group(nameof(JobConfig))]
     public class JobConfigModule : ModuleBase

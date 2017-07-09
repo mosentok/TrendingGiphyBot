@@ -5,6 +5,8 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
+using TrendingGiphyBot.Enums;
+using TrendingGiphyBot.Exceptions;
 
 namespace TrendingGiphyBot
 {

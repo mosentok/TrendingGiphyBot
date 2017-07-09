@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using TrendingGiphyBot.Enums;
 
-namespace TrendingGiphyBot
+namespace TrendingGiphyBot.Exceptions
 {
     [Serializable]
     public class InvalidTimeException : Exception

@@ -1,4 +1,4 @@
-﻿namespace TrendingGiphyBot
+﻿namespace TrendingGiphyBot.Enums
 {
     public enum Time
     {

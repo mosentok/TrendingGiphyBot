@@ -153,13 +153,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="JobConfigDal.cs" />
-    <Compile Include="HelpContainer.cs" />
-    <Compile Include="InvalidTimeException.cs" />
-    <Compile Include="JobConfigCommandContext.cs" />
-    <Compile Include="JobConfigModule.cs" />
-    <Compile Include="MethodContainer.cs" />
-    <Compile Include="Job.cs" />
-    <Compile Include="ParameterContainer.cs" />
+    <Compile Include="Containers\HelpContainer.cs" />
+    <Compile Include="Exceptions\InvalidTimeException.cs" />
+    <Compile Include="CommandContexts\JobConfigCommandContext.cs" />
+    <Compile Include="Modules\JobConfigModule.cs" />
+    <Compile Include="Containers\MethodContainer.cs" />
+    <Compile Include="Jobs\Job.cs" />
+    <Compile Include="Containers\ParameterContainer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Config.cs" />
@@ -168,7 +168,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="Time.cs" />
+    <Compile Include="Enums\Time.cs" />
     <Compile Include="TrendingGiphyBot.designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
