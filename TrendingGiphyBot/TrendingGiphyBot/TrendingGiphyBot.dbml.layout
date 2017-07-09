@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ordesignerObjectsDiagram dslVersion="1.0.0.0" absoluteBounds="0, 0, 11, 8.5" name="TrendingGiphyBot">
+  <DataContextMoniker Name="/TrendingGiphyBotDataContext" />
+  <nestedChildShapes>
+    <classShape Id="5903925e-ee8e-429c-a358-38d50cc74da9" absoluteBounds="5.75, 2.75, 2, 1.3862939453125">
+      <DataClassMoniker Name="/TrendingGiphyBotDataContext/JobConfig" />
+      <nestedChildShapes>
+        <elementListCompartment Id="f22728fa-d0d1-4dc4-98ea-13da921dd931" absoluteBounds="5.765, 3.21, 1.9700000000000002, 0.8262939453125" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+  </nestedChildShapes>
+</ordesignerObjectsDiagram>

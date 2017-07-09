@@ -1,4 +1,8 @@
-﻿using System;
+﻿using Discord.WebSocket;
+using GiphyDotNet.Manager;
+using GiphyDotNet.Model.Parameters;
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
 
@@ -6,11 +10,14 @@ namespace TrendingGiphyBot
 {
     class Job : IDisposable
     {
+        readonly Giphy _GiphyClient;
+        readonly DiscordSocketClient _DiscordClient;
         internal JobConfig JobConfig { get; private set; }
-        public event Func<Task> WorkToDo;
         Timer _Timer;
-        public Job(JobConfig jobConfig)
+        public Job(Giphy giphyClient, DiscordSocketClient discordClient, JobConfig jobConfig)
         {
+            _GiphyClient = giphyClient;
+            _DiscordClient = discordClient;
             JobConfig = jobConfig;
             _Timer = new Timer();
             _Timer.Elapsed += Elapsed;
@@ -19,13 +26,7 @@ namespace TrendingGiphyBot
         async void Elapsed(object sender, ElapsedEventArgs e)
         {
             _Timer.Stop();
-            await WorkToDo();
-            StartTimerWithCloseInterval();
-        }
-        internal void Restart(JobConfig jobConfig)
-        {
-            _Timer.Stop();
-            JobConfig = jobConfig;
+            await Run();
             StartTimerWithCloseInterval();
         }
         void StartTimerWithCloseInterval()
@@ -39,7 +40,7 @@ namespace TrendingGiphyBot
         DateTime DetermineNextElapse(DateTime now)
         {
             int difference;
-            switch (JobConfig.Time)
+            switch ((Time)Enum.Parse(typeof(Time), JobConfig.Time))
             {
                 case Time.Hours:
                     difference = DetermineDifference(now.Hour);
@@ -58,8 +59,19 @@ namespace TrendingGiphyBot
         {
             return JobConfig.Interval - component % JobConfig.Interval;
         }
-        public void Dispose()
+        async Task Run()
         {
+            var fireTime = DateTime.Now;
+            Console.WriteLine($"{nameof(fireTime)}:{fireTime.ToString("o")}");
+            var gifResult = await _GiphyClient.TrendingGifs(new TrendingParameter { Limit = 1 });
+            var url = gifResult.Data.FirstOrDefault()?.Url;
+            if (!string.IsNullOrEmpty(url))
+                await (_DiscordClient.GetChannel(Convert.ToUInt64(JobConfig.ChannelId)) as SocketTextChannel).SendMessageAsync(url);
+        }
+        public async void Dispose()
+        {
+            await _DiscordClient?.LogoutAsync();
+            _DiscordClient?.Dispose();
             _Timer?.Dispose();
         }
     }

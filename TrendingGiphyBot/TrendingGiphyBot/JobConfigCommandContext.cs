@@ -1,15 +1,21 @@
 ﻿using Discord.Commands;
 using Discord;
+using System.Collections.Generic;
+using GiphyDotNet.Manager;
 
 namespace TrendingGiphyBot
 {
     class JobConfigCommandContext : CommandContext
     {
-        public Job Job { get; set; }
+        public List<Job> Jobs { get; set; }
+        public JobConfigDal ChannelJobConfigDal { get; set; }
+        public Giphy GiphyClient { get; set; }
         public JobConfigCommandContext(IDiscordClient client, IUserMessage msg) : base(client, msg){}
-        public JobConfigCommandContext(IDiscordClient client, IUserMessage msg, Job job) : this(client, msg)
+        public JobConfigCommandContext(IDiscordClient client, IUserMessage msg, Giphy giphyClient, List<Job> jobs, JobConfigDal channelJobConfigDal) : this(client, msg)
         {
-            Job = job;
+            GiphyClient = giphyClient;
+            Jobs = jobs;
+            ChannelJobConfigDal = channelJobConfigDal;
         }
     }
 }
