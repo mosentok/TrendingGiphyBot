@@ -1,6 +1,6 @@
 ﻿namespace TrendingGiphyBot
 {
-    enum Time
+    public enum Time
     {
         Hours,
         Minutes,
