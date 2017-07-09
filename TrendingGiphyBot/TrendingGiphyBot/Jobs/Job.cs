@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
+using TrendingGiphyBot.Dals;
 using TrendingGiphyBot.Enums;
 using TrendingGiphyBot.Exceptions;
 

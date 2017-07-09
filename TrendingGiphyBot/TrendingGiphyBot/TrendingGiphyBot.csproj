@@ -152,7 +152,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="JobConfigDal.cs" />
+    <Compile Include="Dals\TrendingGiphyBot.designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>TrendingGiphyBot.dbml</DependentUpon>
+    </Compile>
+    <Compile Include="Dals\JobConfigDal.cs" />
     <Compile Include="Containers\HelpContainer.cs" />
     <Compile Include="Exceptions\InvalidTimeException.cs" />
     <Compile Include="CommandContexts\JobConfigCommandContext.cs" />
@@ -169,15 +174,18 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="Enums\Time.cs" />
-    <Compile Include="TrendingGiphyBot.designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>TrendingGiphyBot.dbml</DependentUpon>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
       <SubType>Designer</SubType>
+    </None>
+    <None Include="Dals\TrendingGiphyBot.dbml">
+      <Generator>MSLinqToSQLGenerator</Generator>
+      <LastGenOutput>TrendingGiphyBot.designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Dals\TrendingGiphyBot.dbml.layout">
+      <DependentUpon>TrendingGiphyBot.dbml</DependentUpon>
     </None>
     <None Include="packages.config">
       <SubType>Designer</SubType>
@@ -185,14 +193,6 @@
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-    <None Include="TrendingGiphyBot.dbml">
-      <Generator>MSLinqToSQLGenerator</Generator>
-      <LastGenOutput>TrendingGiphyBot.designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="TrendingGiphyBot.dbml.layout">
-      <DependentUpon>TrendingGiphyBot.dbml</DependentUpon>
     </None>
   </ItemGroup>
   <ItemGroup>

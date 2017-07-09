@@ -9,7 +9,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TrendingGiphyBot
+namespace TrendingGiphyBot.Dals
 {
 	using System.Data.Linq;
 	using System.Data.Linq.Mapping;

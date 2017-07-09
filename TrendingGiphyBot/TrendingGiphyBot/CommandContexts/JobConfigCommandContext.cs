@@ -2,6 +2,7 @@
 using Discord;
 using System.Collections.Generic;
 using GiphyDotNet.Manager;
+using TrendingGiphyBot.Dals;
 
 namespace TrendingGiphyBot.CommandContexts
 {
