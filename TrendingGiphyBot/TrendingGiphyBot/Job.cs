@@ -6,12 +6,12 @@ namespace TrendingGiphyBot
 {
     class Job : IDisposable
     {
-        readonly JobConfig _JobConfig;
+        internal JobConfig JobConfig { get; private set; }
         public event Func<Task> WorkToDo;
         Timer _Timer;
         public Job(JobConfig jobConfig)
         {
-            _JobConfig = jobConfig;
+            JobConfig = jobConfig;
             _Timer = new Timer();
             _Timer.Elapsed += Elapsed;
             StartTimerWithCloseInterval();
@@ -20,6 +20,12 @@ namespace TrendingGiphyBot
         {
             _Timer.Stop();
             WorkToDo();
+            StartTimerWithCloseInterval();
+        }
+        internal void Restart(JobConfig jobConfig)
+        {
+            _Timer.Stop();
+            JobConfig = jobConfig;
             StartTimerWithCloseInterval();
         }
         void StartTimerWithCloseInterval()
@@ -34,16 +40,16 @@ namespace TrendingGiphyBot
         }
         int DetermineJobIntervalSeconds()
         {
-            switch (_JobConfig.Time)
+            switch (JobConfig.Time)
             {
                 case Time.Hours:
-                    return (int)TimeSpan.FromHours(_JobConfig.Interval).TotalSeconds;
+                    return (int)TimeSpan.FromHours(JobConfig.Interval).TotalSeconds;
                 case Time.Minutes:
-                    return (int)TimeSpan.FromMinutes(_JobConfig.Interval).TotalSeconds;
+                    return (int)TimeSpan.FromMinutes(JobConfig.Interval).TotalSeconds;
                 case Time.Seconds:
-                    return (int)TimeSpan.FromSeconds(_JobConfig.Interval).TotalSeconds;
+                    return (int)TimeSpan.FromSeconds(JobConfig.Interval).TotalSeconds;
                 default:
-                    throw new InvalidOperationException($"{_JobConfig.Time} is an invalid {nameof(Time)}.");
+                    throw new InvalidOperationException($"{JobConfig.Time} is an invalid {nameof(Time)}.");
             }
         }
         static int DetermineDifferenceSeconds(int runEveryXSeconds)

@@ -3,7 +3,7 @@ using Newtonsoft.Json.Converters;
 
 namespace TrendingGiphyBot
 {
-    class JobConfig
+    public class JobConfig
     {
         public int Interval { get; set; }
         [JsonConverter(typeof(StringEnumConverter))]
