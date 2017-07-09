@@ -41,23 +41,31 @@ namespace TrendingGiphyBot
         }
         void StartTimerWithCloseInterval()
         {
-            var differenceSeconds = DetermineDifference(_Config.RunEveryXSeconds);
+            var configInterval = DetermineConfigInterval();
+            var differenceSeconds = DetermineDifference(configInterval);
             var now = DateTime.Now;
             var nextElapse = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second).AddSeconds(differenceSeconds);
             var interval = (nextElapse - DateTime.Now).TotalMilliseconds;
             _Timer.Interval = interval;
             _Timer.Start();
         }
+        int DetermineConfigInterval()
+        {
+            switch (_Config.IntervalContainer.Time)
+            {
+                case Time.Hours:
+                    return (int)TimeSpan.FromHours(_Config.IntervalContainer.Interval).TotalSeconds;
+                case Time.Minutes:
+                    return (int)TimeSpan.FromMinutes(_Config.IntervalContainer.Interval).TotalSeconds;
+                case Time.Seconds:
+                    return (int)TimeSpan.FromSeconds(_Config.IntervalContainer.Interval).TotalSeconds;
+                default:
+                    throw new InvalidOperationException($"{_Config.IntervalContainer.Time} is an invalid {nameof(Time)}.");
+            }
+        }
         static int DetermineDifference(int runEveryXSeconds)
         {
-            var waitSeconds = 0;
-            var currentSeconds = DateTime.Now.Second;
-            while (waitSeconds < currentSeconds)
-                waitSeconds += runEveryXSeconds;
-            var difference = waitSeconds - currentSeconds;
-            if (difference == 0)
-                return runEveryXSeconds;
-            return difference;
+            return runEveryXSeconds - DateTime.Now.Second % runEveryXSeconds;
         }
         async void Elapsed()
         {
