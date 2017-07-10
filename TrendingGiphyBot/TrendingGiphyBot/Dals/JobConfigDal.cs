@@ -11,6 +11,14 @@ namespace TrendingGiphyBot.Dals
         {
             _ConnectionString = connectionString;
         }
+        internal Task<int> GetCount()
+        {
+            return Task.Run(() =>
+            {
+                using (var dataContext = new TrendingGiphyBotDataContext(_ConnectionString))
+                    return dataContext.JobConfigs.Count();
+            });
+        }
         internal Task<List<JobConfig>> GetAll()
         {
             return Task.Run(() =>

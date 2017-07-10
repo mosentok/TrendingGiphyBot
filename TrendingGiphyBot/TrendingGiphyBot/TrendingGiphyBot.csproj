@@ -170,6 +170,7 @@
     <Compile Include="Helpers\ModuleBaseHelper.cs" />
     <Compile Include="Jobs\PostImageJob.cs" />
     <Compile Include="Jobs\RefreshImagesJob.cs" />
+    <Compile Include="Jobs\SetGameJob.cs" />
     <Compile Include="Modules\JobConfigModule.cs" />
     <Compile Include="Containers\MethodContainer.cs" />
     <Compile Include="Jobs\Job.cs" />
