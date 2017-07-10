@@ -1,27 +1,28 @@
 ﻿using Discord.WebSocket;
 using GiphyDotNet.Manager;
-using GiphyDotNet.Model.Parameters;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
 using TrendingGiphyBot.Dals;
 using TrendingGiphyBot.Enums;
 using TrendingGiphyBot.Exceptions;
 
-namespace TrendingGiphyBot
+namespace TrendingGiphyBot.Jobs
 {
-    class Job : IDisposable
+    abstract class Job : IDisposable
     {
-        readonly Giphy _GiphyClient;
-        readonly DiscordSocketClient _DiscordClient;
-        internal JobConfig JobConfig { get; private set; }
+        protected Giphy GiphyClient { get; private set; }
+        protected DiscordSocketClient DiscordClient { get; private set; }
+        public int Interval { get; set; }
+        public Time Time { get; set; }
         Timer _Timer;
-        public Job(Giphy giphyClient, DiscordSocketClient discordClient, JobConfig jobConfig)
+        protected Job(Giphy giphyClient, DiscordSocketClient discordClient, JobConfig jobConfig) : this(giphyClient, discordClient, jobConfig.Interval, jobConfig.Time) { }
+        protected Job(Giphy giphyClient, DiscordSocketClient discordClient, int interval, string time)
         {
-            _GiphyClient = giphyClient;
-            _DiscordClient = discordClient;
-            JobConfig = jobConfig;
+            GiphyClient = giphyClient;
+            DiscordClient = discordClient;
+            Interval = interval;
+            Time = (Time)Enum.Parse(typeof(Time), time);
             _Timer = new Timer();
             _Timer.Elapsed += Elapsed;
             StartTimerWithCloseInterval();
@@ -43,7 +44,7 @@ namespace TrendingGiphyBot
         DateTime DetermineNextElapse(DateTime now)
         {
             int difference;
-            switch ((Time)Enum.Parse(typeof(Time), JobConfig.Time))
+            switch (Time)
             {
                 case Time.Hours:
                     difference = DetermineDifference(now.Hour);
@@ -55,30 +56,18 @@ namespace TrendingGiphyBot
                     difference = DetermineDifference(now.Second);
                     return new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second).AddSeconds(difference);
                 default:
-                    throw new InvalidTimeException(JobConfig.Time);
+                    throw new InvalidTimeException(Time);
             }
         }
         int DetermineDifference(int component)
         {
-            return JobConfig.Interval - component % JobConfig.Interval;
+            return Interval - component % Interval;
         }
-        async Task Run()
-        {
-            var fireTime = DateTime.Now;
-            Console.WriteLine($"{nameof(fireTime)}:{fireTime.ToString("o")}");
-            var gifResult = await _GiphyClient.TrendingGifs(new TrendingParameter { Limit = 1 });
-            var url = gifResult.Data.FirstOrDefault()?.Url;
-            if (!string.IsNullOrEmpty(url))
-            {
-                var channelId = Convert.ToUInt64(JobConfig.ChannelId);
-                var socketTextChannel = _DiscordClient.GetChannel(channelId) as SocketTextChannel;
-                await socketTextChannel?.SendMessageAsync(url);
-            }
-        }
+        protected abstract Task Run();
         public async void Dispose()
         {
-            await _DiscordClient?.LogoutAsync();
-            _DiscordClient?.Dispose();
+            await DiscordClient?.LogoutAsync();
+            DiscordClient?.Dispose();
             _Timer?.Dispose();
         }
     }
