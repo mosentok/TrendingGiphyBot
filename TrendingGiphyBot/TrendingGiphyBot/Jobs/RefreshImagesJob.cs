@@ -5,11 +5,13 @@ using Discord.WebSocket;
 using GiphyDotNet.Manager;
 using GiphyDotNet.Model.Parameters;
 using System.Linq;
+using NLog;
 
 namespace TrendingGiphyBot.Jobs
 {
     class RefreshImagesJob : Job
     {
+        static readonly ILogger _Logger = LogManager.GetCurrentClassLogger();
         static Dictionary<int, string> _Images = new Dictionary<int, string>();
         internal async static Task<string> GetImageUrl()
         {
@@ -18,7 +20,7 @@ namespace TrendingGiphyBot.Jobs
                 await Task.Delay(TimeSpan.FromSeconds(1));
             return _Images[minute];
         }
-        public RefreshImagesJob(Giphy giphyClient, DiscordSocketClient discordClient, int interval, string time) : base(giphyClient, discordClient, interval, time) { }
+        public RefreshImagesJob(Giphy giphyClient, DiscordSocketClient discordClient, int interval, string time) : base(giphyClient, discordClient, interval, time, _Logger) { }
         protected override async Task Run()
         {
             var gifResult = await GiphyClient.TrendingGifs(new TrendingParameter { Limit = 1 });
