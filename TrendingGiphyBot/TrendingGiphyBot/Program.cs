@@ -62,7 +62,7 @@ namespace TrendingGiphyBot
                 int argPos = 0;
                 if (message.HasCharPrefix('!', ref argPos) || message.HasMentionPrefix(_DiscordClient.CurrentUser, ref argPos))
                 {
-                    var context = new JobConfigCommandContext(_DiscordClient, message, _GiphyClient, _Jobs, _JobConfigDal, _Config.MinimumMinutes);
+                    var context = new JobConfigCommandContext(_DiscordClient, message, _GiphyClient, _Jobs, _JobConfigDal, _Config.MinimumMinutes, _Config.WordnikToken);
                     var result = await _Commands.ExecuteAsync(context, argPos, _Services);
                     if (!result.IsSuccess)
                         await context.Channel.SendMessageAsync(result.ErrorReason);
