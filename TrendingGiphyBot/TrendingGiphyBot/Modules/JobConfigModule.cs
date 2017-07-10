@@ -9,6 +9,7 @@ using TrendingGiphyBot.CommandContexts;
 using TrendingGiphyBot.Dals;
 using TrendingGiphyBot.Helpers;
 using TrendingGiphyBot.Jobs;
+using System.Linq;
 
 namespace TrendingGiphyBot.Modules
 {
@@ -19,7 +20,7 @@ namespace TrendingGiphyBot.Modules
         //TODO this is really ugly fam
         List<Job> _Jobs => (Context as JobConfigCommandContext).Jobs;
         JobConfigDal _JobConfigDal => (Context as JobConfigCommandContext).ChannelJobConfigDal;
-        UrlCacheDal _UrlCacheDal  => (Context as JobConfigCommandContext).UrlCacheDal;
+        UrlCacheDal _UrlCacheDal => (Context as JobConfigCommandContext).UrlCacheDal;
         Giphy _GiphyClient => (Context as JobConfigCommandContext).GiphyClient;
         int MinimumMinutes => (Context as JobConfigCommandContext).MinimumMinutes;
         [Command]
@@ -70,6 +71,9 @@ namespace TrendingGiphyBot.Modules
             {
                 await ReplyAsync("Configuration removed.");
                 await _JobConfigDal.Remove(Context.Channel.Id);
+                var toRemove = _Jobs.OfType<PostImageJob>().Single(s => s.ChannelId == Context.Channel.Id);
+                _Jobs.Remove(toRemove);
+                toRemove?.Dispose();
             }
             else
                 await ReplyAsync(NotConfiguredMessage);
@@ -84,7 +88,10 @@ namespace TrendingGiphyBot.Modules
             };
             var any = await _JobConfigDal.Any(Context.Channel.Id);
             if (any)
+            {
                 await _JobConfigDal.Update(config);
+                _Jobs.OfType<PostImageJob>().Single(s => s.ChannelId == Context.Channel.Id).Restart(config);
+            }
             else
             {
                 await _JobConfigDal.Insert(config);

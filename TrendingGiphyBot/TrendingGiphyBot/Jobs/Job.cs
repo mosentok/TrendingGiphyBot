@@ -15,8 +15,8 @@ namespace TrendingGiphyBot.Jobs
         readonly ILogger _Logger;
         protected Giphy GiphyClient { get; private set; }
         protected DiscordSocketClient DiscordClient { get; private set; }
-        public int Interval { get; set; }
-        public Time Time { get; set; }
+        public int Interval { get; private set; }
+        public Time Time { get; private set; }
         Timer _Timer;
         protected Job(Giphy giphyClient, DiscordSocketClient discordClient, JobConfig jobConfig, ILogger logger) : this(giphyClient, discordClient, jobConfig.Interval, jobConfig.Time, logger) { }
         protected Job(Giphy giphyClient, DiscordSocketClient discordClient, int interval, string time, ILogger logger)
@@ -24,18 +24,26 @@ namespace TrendingGiphyBot.Jobs
             GiphyClient = giphyClient;
             DiscordClient = discordClient;
             Interval = interval;
-            Time = (Time)Enum.Parse(typeof(Time), time);
+            Time = ConvertToTime(time);
             _Logger = logger;
             _Timer = new Timer();
             _Timer.Elapsed += Elapsed;
             StartTimerWithCloseInterval();
         }
+        static Time ConvertToTime(string s) => (Time)Enum.Parse(typeof(Time), s);
         async void Elapsed(object sender, ElapsedEventArgs e)
         {
             _Timer.Stop();
             var fireTime = DateTime.Now;
             _Logger.Info($"{nameof(fireTime)}:{fireTime.ToString("o")}");
             await Run();
+            StartTimerWithCloseInterval();
+        }
+        internal void Restart(JobConfig jobConfig)
+        {
+            _Timer.Stop();
+            Interval = jobConfig.Interval;
+            Time = ConvertToTime(jobConfig.Time);
             StartTimerWithCloseInterval();
         }
         void StartTimerWithCloseInterval()
@@ -72,10 +80,8 @@ namespace TrendingGiphyBot.Jobs
             return Interval - component % Interval;
         }
         protected abstract Task Run();
-        public async void Dispose()
+        public void Dispose()
         {
-            await DiscordClient?.LogoutAsync();
-            DiscordClient?.Dispose();
             _Timer?.Dispose();
         }
     }
