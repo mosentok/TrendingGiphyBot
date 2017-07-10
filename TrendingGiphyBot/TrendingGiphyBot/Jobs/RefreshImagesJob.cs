@@ -13,7 +13,6 @@ namespace TrendingGiphyBot.Jobs
     class RefreshImagesJob : Job
     {
         static readonly ILogger _Logger = LogManager.GetCurrentClassLogger();
-        static Dictionary<int, string> _Images = new Dictionary<int, string>();
         readonly UrlCacheDal _UrlCacheDal;
         public RefreshImagesJob(Giphy giphyClient, DiscordSocketClient discordClient, int interval, string time, UrlCacheDal urlCacheDal) : base(giphyClient, discordClient, interval, time, _Logger)
         {
