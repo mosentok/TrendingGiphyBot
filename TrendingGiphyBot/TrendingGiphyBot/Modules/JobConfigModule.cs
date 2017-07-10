@@ -4,8 +4,6 @@ using Discord.Commands;
 using System.Collections.Generic;
 using GiphyDotNet.Manager;
 using Discord.WebSocket;
-using System;
-using TrendingGiphyBot.Exceptions;
 using TrendingGiphyBot.Enums;
 using TrendingGiphyBot.CommandContexts;
 using TrendingGiphyBot.Dals;
@@ -18,6 +16,7 @@ namespace TrendingGiphyBot.Modules
     public class JobConfigModule : ModuleBase
     {
         string NotConfiguredMessage => $"{Context.Channel.Id} not configured. Configure me senpai! Use '!JobConfig' or '!JobConfig Help' to learn how to.";
+        //TODO this is really ugly fam
         List<Job> _Jobs => (Context as JobConfigCommandContext).Jobs;
         JobConfigDal _JobConfigDal => (Context as JobConfigCommandContext).ChannelJobConfigDal;
         Giphy _GiphyClient => (Context as JobConfigCommandContext).GiphyClient;
@@ -53,7 +52,7 @@ namespace TrendingGiphyBot.Modules
             [Summary(nameof(JobConfig.Time) + " to set.")]
             Time time)
         {
-            var isValid = IsValid(interval, time);
+            var isValid = ModuleBaseHelper.IsValid(interval, time, MinimumMinutes);
             if (isValid)
             {
                 await SaveConfig(interval, time);
@@ -89,28 +88,6 @@ namespace TrendingGiphyBot.Modules
             {
                 await _JobConfigDal.Insert(config);
                 _Jobs.Add(new PostImageJob(_GiphyClient, Context.Client as DiscordSocketClient, config, _JobConfigDal));
-            }
-        }
-        bool IsValid(int interval, Time time)
-        {
-            var configgedMinutes = DetermineJobIntervalSeconds(interval, time);
-            return configgedMinutes >= MinimumMinutes;
-        }
-        static double DetermineJobIntervalSeconds(int interval, Time time)
-        {
-            switch (time)
-            {
-                case Time.Hours:
-                case Time.Hour:
-                    return TimeSpan.FromHours(interval).TotalMinutes;
-                case Time.Minutes:
-                case Time.Minute:
-                    return TimeSpan.FromMinutes(interval).TotalMinutes;
-                case Time.Seconds:
-                case Time.Second:
-                    return TimeSpan.FromSeconds(interval).TotalMinutes;
-                default:
-                    throw new InvalidTimeException(time);
             }
         }
     }
