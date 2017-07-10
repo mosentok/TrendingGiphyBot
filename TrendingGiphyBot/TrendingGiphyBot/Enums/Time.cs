@@ -3,7 +3,10 @@
     public enum Time
     {
         Hours,
+        Hour,
         Minutes,
-        Seconds
+        Minute,
+        Seconds,
+        Second
     }
 }

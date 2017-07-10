@@ -101,10 +101,13 @@ namespace TrendingGiphyBot.Modules
             switch (time)
             {
                 case Time.Hours:
+                case Time.Hour:
                     return TimeSpan.FromHours(interval).TotalMinutes;
                 case Time.Minutes:
+                case Time.Minute:
                     return TimeSpan.FromMinutes(interval).TotalMinutes;
                 case Time.Seconds:
+                case Time.Second:
                     return TimeSpan.FromSeconds(interval).TotalMinutes;
                 default:
                     throw new InvalidTimeException(time);

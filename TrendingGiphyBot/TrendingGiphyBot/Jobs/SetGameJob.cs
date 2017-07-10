@@ -18,7 +18,7 @@ namespace TrendingGiphyBot.Jobs
         {
             var count = await _JobConfigDal.GetCount();
             await DiscordClient.SetGameAsync(string.Empty);
-            await DiscordClient.SetGameAsync($"A Tale of {count} Gifs.");
+            await DiscordClient.SetGameAsync($"A Tale of {count} Gifs");
         }
     }
 }

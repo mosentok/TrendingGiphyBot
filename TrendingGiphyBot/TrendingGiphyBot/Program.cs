@@ -56,7 +56,7 @@ namespace TrendingGiphyBot
             _Jobs.Add(new SetGameJob(_GiphyClient, _DiscordClient, 1, Time.Minutes.ToString(), _JobConfigDal));
             var count = await _JobConfigDal.GetCount();
             await _DiscordClient.SetGameAsync(string.Empty);
-            await _DiscordClient.SetGameAsync($"A Tale of {count} Gifs.");
+            await _DiscordClient.SetGameAsync($"A Tale of {count} Gifs");
         }
         public async Task MessageReceived(SocketMessage messageParam)
         {
