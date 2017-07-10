@@ -15,11 +15,13 @@ using TrendingGiphyBot.CommandContexts;
 using TrendingGiphyBot.Dals;
 using TrendingGiphyBot.Jobs;
 using TrendingGiphyBot.Enums;
+using NLog;
 
 namespace TrendingGiphyBot
 {
     class Program : IDisposable
     {
+        static readonly ILogger _Logger = LogManager.GetCurrentClassLogger();
         DiscordSocketClient _DiscordClient;
         Giphy _GiphyClient;
         Config _Config;
@@ -69,7 +71,28 @@ namespace TrendingGiphyBot
         }
         Task Log(LogMessage logMessage)
         {
-            Console.WriteLine(logMessage.ToString());
+            var message = logMessage.ToString();
+            switch (logMessage.Severity)
+            {
+                case LogSeverity.Debug:
+                    _Logger.Debug(message);
+                    break;
+                case LogSeverity.Error:
+                    _Logger.Error(message);
+                    break;
+                case LogSeverity.Critical:
+                    _Logger.Fatal(message);
+                    break;
+                case LogSeverity.Verbose:
+                    _Logger.Trace(message);
+                    break;
+                case LogSeverity.Warning:
+                    _Logger.Warn(message);
+                    break;
+                case LogSeverity.Info:
+                    _Logger.Info(message);
+                    break;
+            }
             return Task.CompletedTask;
         }
         public async void Dispose()

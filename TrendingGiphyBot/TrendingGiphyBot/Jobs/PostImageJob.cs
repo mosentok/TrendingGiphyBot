@@ -3,21 +3,21 @@ using System.Threading.Tasks;
 using Discord.WebSocket;
 using GiphyDotNet.Manager;
 using TrendingGiphyBot.Dals;
+using NLog;
 
 namespace TrendingGiphyBot.Jobs
 {
     class PostImageJob : Job
     {
+        static readonly ILogger _Logger = LogManager.GetCurrentClassLogger();
         readonly ulong _ChannelId;
         string _LastUrlIPosted;
-        public PostImageJob(Giphy giphyClient, DiscordSocketClient discordClient, JobConfig jobConfig) : base(giphyClient, discordClient, jobConfig)
+        public PostImageJob(Giphy giphyClient, DiscordSocketClient discordClient, JobConfig jobConfig) : base(giphyClient, discordClient, jobConfig, _Logger)
         {
             _ChannelId = Convert.ToUInt64(jobConfig.ChannelId);
         }
         protected override async Task Run()
         {
-            var fireTime = DateTime.Now;
-            Console.WriteLine($"{nameof(fireTime)}:{fireTime.ToString("o")}");
             var url = await RefreshImagesJob.GetImageUrl();
             if (!string.IsNullOrEmpty(url) && url != _LastUrlIPosted)
             {

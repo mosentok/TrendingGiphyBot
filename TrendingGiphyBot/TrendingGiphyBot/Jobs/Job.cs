@@ -1,5 +1,6 @@
 ﻿using Discord.WebSocket;
 using GiphyDotNet.Manager;
+using NLog;
 using System;
 using System.Threading.Tasks;
 using System.Timers;
@@ -11,18 +12,20 @@ namespace TrendingGiphyBot.Jobs
 {
     abstract class Job : IDisposable
     {
+        readonly ILogger _Logger;
         protected Giphy GiphyClient { get; private set; }
         protected DiscordSocketClient DiscordClient { get; private set; }
         public int Interval { get; set; }
         public Time Time { get; set; }
         Timer _Timer;
-        protected Job(Giphy giphyClient, DiscordSocketClient discordClient, JobConfig jobConfig) : this(giphyClient, discordClient, jobConfig.Interval, jobConfig.Time) { }
-        protected Job(Giphy giphyClient, DiscordSocketClient discordClient, int interval, string time)
+        protected Job(Giphy giphyClient, DiscordSocketClient discordClient, JobConfig jobConfig, ILogger logger) : this(giphyClient, discordClient, jobConfig.Interval, jobConfig.Time, logger) { }
+        protected Job(Giphy giphyClient, DiscordSocketClient discordClient, int interval, string time, ILogger logger)
         {
             GiphyClient = giphyClient;
             DiscordClient = discordClient;
             Interval = interval;
             Time = (Time)Enum.Parse(typeof(Time), time);
+            _Logger = logger;
             _Timer = new Timer();
             _Timer.Elapsed += Elapsed;
             StartTimerWithCloseInterval();
@@ -30,6 +33,8 @@ namespace TrendingGiphyBot.Jobs
         async void Elapsed(object sender, ElapsedEventArgs e)
         {
             _Timer.Stop();
+            var fireTime = DateTime.Now;
+            _Logger.Info($"{nameof(fireTime)}:{fireTime.ToString("o")}");
             await Run();
             StartTimerWithCloseInterval();
         }
