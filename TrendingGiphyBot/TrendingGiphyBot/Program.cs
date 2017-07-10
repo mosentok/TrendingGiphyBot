@@ -28,14 +28,14 @@ namespace TrendingGiphyBot
         List<Job> _Jobs;
         CommandService _Commands;
         IServiceProvider _Services;
-        JobConfigDal _ChannelJobConfigDal;
+        JobConfigDal _JobConfigDal;
         static void Main(string[] args) => new Program().MainAsync().GetAwaiter().GetResult();
         async Task MainAsync()
         {
             var configPath = ConfigurationManager.AppSettings["ConfigPath"];
             var contents = File.ReadAllText(configPath);
             _Config = JsonConvert.DeserializeObject<Config>(contents);
-            _ChannelJobConfigDal = new JobConfigDal(_Config.ConnectionString);
+            _JobConfigDal = new JobConfigDal(_Config.ConnectionString);
             _DiscordClient = new DiscordSocketClient();
             _Commands = new CommandService();
             _Services = new ServiceCollection().BuildServiceProvider();
@@ -50,7 +50,7 @@ namespace TrendingGiphyBot
         async Task Ready()
         {
             _GiphyClient = new Giphy(_Config.GiphyToken);
-            _Jobs = (await _ChannelJobConfigDal.GetAll()).Select(s => new PostImageJob(_GiphyClient, _DiscordClient, s)).ToList<Job>();
+            _Jobs = (await _JobConfigDal.GetAll()).Select(s => new PostImageJob(_GiphyClient, _DiscordClient, s, _JobConfigDal)).ToList<Job>();
             //TODO base ctor only accepts string... just to convert back into Time enum
             _Jobs.Add(new RefreshImagesJob(_GiphyClient, _DiscordClient, 1, Time.Minutes.ToString()));
         }
@@ -62,7 +62,7 @@ namespace TrendingGiphyBot
                 int argPos = 0;
                 if (message.HasCharPrefix('!', ref argPos) || message.HasMentionPrefix(_DiscordClient.CurrentUser, ref argPos))
                 {
-                    var context = new JobConfigCommandContext(_DiscordClient, message, _GiphyClient, _Jobs, _ChannelJobConfigDal, _Config.MinimumMinutes);
+                    var context = new JobConfigCommandContext(_DiscordClient, message, _GiphyClient, _Jobs, _JobConfigDal, _Config.MinimumMinutes);
                     var result = await _Commands.ExecuteAsync(context, argPos, _Services);
                     if (!result.IsSuccess)
                         await context.Channel.SendMessageAsync(result.ErrorReason);

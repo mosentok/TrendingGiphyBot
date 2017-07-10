@@ -59,5 +59,17 @@ namespace TrendingGiphyBot.Dals
                 }
             });
         }
+        internal Task Remove(ulong id)
+        {
+            return Task.Run(() =>
+            {
+                using (var dataContext = new TrendingGiphyBotDataContext(_ConnectionString))
+                {
+                    var match = dataContext.JobConfigs.Single(s => s.ChannelId == id);
+                    dataContext.JobConfigs.DeleteOnSubmit(match);
+                    dataContext.SubmitChanges();
+                }
+            });
+        }
     }
 }
