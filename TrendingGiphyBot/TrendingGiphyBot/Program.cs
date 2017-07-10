@@ -29,6 +29,7 @@ namespace TrendingGiphyBot
         CommandService _Commands;
         IServiceProvider _Services;
         JobConfigDal _JobConfigDal;
+        UrlCacheDal _UrlCacheDal;
         static void Main(string[] args) => new Program().MainAsync().GetAwaiter().GetResult();
         async Task MainAsync()
         {
@@ -36,6 +37,7 @@ namespace TrendingGiphyBot
             var contents = File.ReadAllText(configPath);
             _Config = JsonConvert.DeserializeObject<Config>(contents);
             _JobConfigDal = new JobConfigDal(_Config.ConnectionString);
+            _UrlCacheDal = new UrlCacheDal(_Config.ConnectionString);
             _DiscordClient = new DiscordSocketClient();
             _Commands = new CommandService();
             _Services = new ServiceCollection().BuildServiceProvider();
@@ -50,9 +52,9 @@ namespace TrendingGiphyBot
         async Task Ready()
         {
             _GiphyClient = new Giphy(_Config.GiphyToken);
-            _Jobs = (await _JobConfigDal.GetAll()).Select(s => new PostImageJob(_GiphyClient, _DiscordClient, s, _JobConfigDal)).ToList<Job>();
+            _Jobs = (await _JobConfigDal.GetAll()).Select(s => new PostImageJob(_GiphyClient, _DiscordClient, s, _JobConfigDal, _UrlCacheDal)).ToList<Job>();
             //TODO base ctor only accepts string... just to convert back into Time enum
-            _Jobs.Add(new RefreshImagesJob(_GiphyClient, _DiscordClient, 1, Time.Minutes.ToString()));
+            _Jobs.Add(new RefreshImagesJob(_GiphyClient, _DiscordClient, 1, Time.Minutes.ToString(), _UrlCacheDal));
             _Jobs.Add(new SetGameJob(_GiphyClient, _DiscordClient, 1, Time.Minutes.ToString(), _JobConfigDal));
             var count = await _JobConfigDal.GetCount();
             await _DiscordClient.SetGameAsync(string.Empty);
@@ -66,7 +68,7 @@ namespace TrendingGiphyBot
                 int argPos = 0;
                 if (message.HasCharPrefix('!', ref argPos) || message.HasMentionPrefix(_DiscordClient.CurrentUser, ref argPos))
                 {
-                    var context = new JobConfigCommandContext(_DiscordClient, message, _GiphyClient, _Jobs, _JobConfigDal, _Config.MinimumMinutes);
+                    var context = new JobConfigCommandContext(_DiscordClient, message, _GiphyClient, _Jobs, _JobConfigDal, _UrlCacheDal, _Config.MinimumMinutes);
                     var result = await _Commands.ExecuteAsync(context, argPos, _Services);
                     if (!result.IsSuccess)
                         await context.Channel.SendMessageAsync(result.ErrorReason);

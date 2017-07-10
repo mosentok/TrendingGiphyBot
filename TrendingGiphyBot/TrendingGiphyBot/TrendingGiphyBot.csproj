@@ -165,6 +165,7 @@
     </Compile>
     <Compile Include="Dals\JobConfigDal.cs" />
     <Compile Include="Containers\HelpContainer.cs" />
+    <Compile Include="Dals\UrlCacheDal.cs" />
     <Compile Include="Exceptions\InvalidTimeException.cs" />
     <Compile Include="CommandContexts\JobConfigCommandContext.cs" />
     <Compile Include="Helpers\ModuleBaseHelper.cs" />

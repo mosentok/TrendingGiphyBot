@@ -33,6 +33,9 @@ namespace TrendingGiphyBot.Dals
     partial void InsertJobConfig(JobConfig instance);
     partial void UpdateJobConfig(JobConfig instance);
     partial void DeleteJobConfig(JobConfig instance);
+    partial void InsertUrlCache(UrlCache instance);
+    partial void UpdateUrlCache(UrlCache instance);
+    partial void DeleteUrlCache(UrlCache instance);
     #endregion
 		
 		public TrendingGiphyBotDataContext() : 
@@ -70,6 +73,14 @@ namespace TrendingGiphyBot.Dals
 			get
 			{
 				return this.GetTable<JobConfig>();
+			}
+		}
+		
+		public System.Data.Linq.Table<UrlCache> UrlCaches
+		{
+			get
+			{
+				return this.GetTable<UrlCache>();
 			}
 		}
 	}
@@ -159,6 +170,92 @@ namespace TrendingGiphyBot.Dals
 					this._Time = value;
 					this.SendPropertyChanged("Time");
 					this.OnTimeChanged();
+				}
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+	}
+	
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.UrlCache")]
+	public partial class UrlCache : INotifyPropertyChanging, INotifyPropertyChanged
+	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
+		
+		private short _Minute;
+		
+		private string _Url;
+		
+    #region Extensibility Method Definitions
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void OnMinuteChanging(short value);
+    partial void OnMinuteChanged();
+    partial void OnUrlChanging(string value);
+    partial void OnUrlChanged();
+    #endregion
+		
+		public UrlCache()
+		{
+			OnCreated();
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Minute", DbType="SmallInt NOT NULL", IsPrimaryKey=true)]
+		public short Minute
+		{
+			get
+			{
+				return this._Minute;
+			}
+			set
+			{
+				if ((this._Minute != value))
+				{
+					this.OnMinuteChanging(value);
+					this.SendPropertyChanging();
+					this._Minute = value;
+					this.SendPropertyChanged("Minute");
+					this.OnMinuteChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Url", DbType="VarChar(2083) NOT NULL", CanBeNull=false)]
+		public string Url
+		{
+			get
+			{
+				return this._Url;
+			}
+			set
+			{
+				if ((this._Url != value))
+				{
+					this.OnUrlChanging(value);
+					this.SendPropertyChanging();
+					this._Url = value;
+					this.SendPropertyChanged("Url");
+					this.OnUrlChanged();
 				}
 			}
 		}
