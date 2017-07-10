@@ -11,21 +11,26 @@ namespace TrendingGiphyBot.Jobs
     {
         static readonly ILogger _Logger = LogManager.GetCurrentClassLogger();
         readonly ulong _ChannelId;
+        readonly JobConfigDal _JobConfigDal;
         string _LastUrlIPosted;
-        public PostImageJob(Giphy giphyClient, DiscordSocketClient discordClient, JobConfig jobConfig) : base(giphyClient, discordClient, jobConfig, _Logger)
+        public PostImageJob(Giphy giphyClient, DiscordSocketClient discordClient, JobConfig jobConfig, JobConfigDal jobConfigDal) : base(giphyClient, discordClient, jobConfig, _Logger)
         {
             _ChannelId = Convert.ToUInt64(jobConfig.ChannelId);
+            _JobConfigDal = jobConfigDal;
         }
         protected override async Task Run()
         {
-            var url = await RefreshImagesJob.GetImageUrl();
-            if (!string.IsNullOrEmpty(url) && url != _LastUrlIPosted)
+            if (await _JobConfigDal.Any(_ChannelId))
             {
-                var socketTextChannel = DiscordClient.GetChannel(_ChannelId) as SocketTextChannel;
-                if (socketTextChannel != null)
-                    await socketTextChannel.SendMessageAsync(url);
+                var url = await RefreshImagesJob.GetImageUrl();
+                if (!string.IsNullOrEmpty(url) && url != _LastUrlIPosted)
+                {
+                    var socketTextChannel = DiscordClient.GetChannel(_ChannelId) as SocketTextChannel;
+                    if (socketTextChannel != null)
+                        await socketTextChannel.SendMessageAsync(url);
+                }
+                _LastUrlIPosted = url;
             }
-            _LastUrlIPosted = url;
         }
     }
 }
