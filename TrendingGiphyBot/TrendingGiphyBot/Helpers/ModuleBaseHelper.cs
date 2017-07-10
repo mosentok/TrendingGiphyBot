@@ -1,8 +1,11 @@
 ﻿using Discord.Commands;
+using System;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using TrendingGiphyBot.Containers;
+using TrendingGiphyBot.Enums;
+using TrendingGiphyBot.Exceptions;
 
 namespace TrendingGiphyBot.Helpers
 {
@@ -37,6 +40,28 @@ namespace TrendingGiphyBot.Helpers
                 return null;
             }).Where(s => s != null)
             .OrderBy(s => s.Name);
+        }
+        internal static bool IsValid(int interval, Time time, int minimumMinutes)
+        {
+            var configgedMinutes = DetermineJobIntervalSeconds(interval, time);
+            return configgedMinutes >= minimumMinutes;
+        }
+        internal static double DetermineJobIntervalSeconds(int interval, Time time)
+        {
+            switch (time)
+            {
+                case Time.Hours:
+                case Time.Hour:
+                    return TimeSpan.FromHours(interval).TotalMinutes;
+                case Time.Minutes:
+                case Time.Minute:
+                    return TimeSpan.FromMinutes(interval).TotalMinutes;
+                case Time.Seconds:
+                case Time.Second:
+                    return TimeSpan.FromSeconds(interval).TotalMinutes;
+                default:
+                    throw new InvalidTimeException(time);
+            }
         }
     }
 }
