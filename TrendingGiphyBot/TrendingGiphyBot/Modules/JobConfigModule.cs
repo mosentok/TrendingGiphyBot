@@ -1,17 +1,15 @@
 ﻿using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Discord.Commands;
-using System.Reflection;
-using System.Linq;
 using System.Collections.Generic;
 using GiphyDotNet.Manager;
 using Discord.WebSocket;
 using System;
-using TrendingGiphyBot.Containers;
 using TrendingGiphyBot.Exceptions;
 using TrendingGiphyBot.Enums;
 using TrendingGiphyBot.CommandContexts;
 using TrendingGiphyBot.Dals;
+using TrendingGiphyBot.Helpers;
 
 namespace TrendingGiphyBot.Modules
 {
@@ -21,39 +19,15 @@ namespace TrendingGiphyBot.Modules
         List<Job> _Jobs => (Context as JobConfigCommandContext).Jobs;
         JobConfigDal _ChannelJobConfigDal => (Context as JobConfigCommandContext).ChannelJobConfigDal;
         Giphy _GiphyClient => (Context as JobConfigCommandContext).GiphyClient;
+        int MinimumMinutes => (Context as JobConfigCommandContext).MinimumMinutes;
         [Command]
         [Summary("Help menu for " + nameof(JobConfig) + ".")]
         [Alias(nameof(Help))]
         public async Task Help()
         {
-            var methodContainers = BuildMethodContainers<JobConfigModule>();
-            var helpMethod = typeof(JobConfigModule).GetMethod(nameof(Help));
-            var helpSummary = helpMethod.GetCustomAttribute<SummaryAttribute>();
-            var helpAlias = helpMethod.GetCustomAttribute<AliasAttribute>();
-            var helpContainer = new HelpContainer(nameof(Help), helpSummary.Text, helpAlias.Aliases, methodContainers);
+            var helpContainer = ModuleBaseHelper.BuildHelpContainer<JobConfigModule>();
             var serialized = JsonConvert.SerializeObject(helpContainer, Formatting.Indented);
             await ReplyAsync(serialized);
-        }
-        static IOrderedEnumerable<MethodContainer> BuildMethodContainers<T>() where T : ModuleBase
-        {
-            var type = typeof(T);
-            var methods = type.GetMethods().Where(s => s.Name != nameof(Help));
-            return methods.Select(method =>
-            {
-                var command = method.GetCustomAttribute<CommandAttribute>();
-                if (command != null)
-                {
-                    var methodSummary = method.GetCustomAttribute<SummaryAttribute>();
-                    var parameters = method.GetParameters().Select(parameter =>
-                    {
-                        var parameterSummary = parameter.GetCustomAttribute<SummaryAttribute>().Text;
-                        return new ParameterContainer(parameter.Name, parameterSummary);
-                    });
-                    return new MethodContainer(command.Text, methodSummary.Text, parameters);
-                }
-                return null;
-            }).Where(s => s != null)
-            .OrderBy(s => s.Name);
         }
         [Command(nameof(Get))]
         [Summary("Gets the " + nameof(JobConfig) + ".")]
@@ -80,29 +54,33 @@ namespace TrendingGiphyBot.Modules
             var isValid = IsValid(interval, time);
             if (isValid)
             {
-                var config = new JobConfig
-                {
-                    ChannelId = Context.Channel.Id,
-                    Interval = interval,
-                    Time = time.ToString()
-                };
-                var any = await _ChannelJobConfigDal.Any(Context.Channel.Id);
-                if (any)
-                    await _ChannelJobConfigDal.Update(config);
-                else
-                {
-                    await _ChannelJobConfigDal.Insert(config);
-                    _Jobs.Add(new Job(_GiphyClient, Context.Client as DiscordSocketClient, config));
-                }
+                await SaveConfig(interval, time);
                 await Get();
             }
             else
-                await ReplyAsync($"{nameof(JobConfig.Interval)} and {nameof(JobConfig.Time)} must combine to at least 10 minutes.");
+                await ReplyAsync($"{nameof(JobConfig.Interval)} and {nameof(JobConfig.Time)} must combine to at least {MinimumMinutes} minutes.");
         }
-        static bool IsValid(int interval, Time time)
+        async Task SaveConfig(int interval, Time time)
+        {
+            var config = new JobConfig
+            {
+                ChannelId = Context.Channel.Id,
+                Interval = interval,
+                Time = time.ToString()
+            };
+            var any = await _ChannelJobConfigDal.Any(Context.Channel.Id);
+            if (any)
+                await _ChannelJobConfigDal.Update(config);
+            else
+            {
+                await _ChannelJobConfigDal.Insert(config);
+                _Jobs.Add(new Job(_GiphyClient, Context.Client as DiscordSocketClient, config));
+            }
+        }
+        bool IsValid(int interval, Time time)
         {
             var configgedMinutes = DetermineJobIntervalSeconds(interval, time);
-            return configgedMinutes >= 10;
+            return configgedMinutes >= MinimumMinutes;
         }
         static double DetermineJobIntervalSeconds(int interval, Time time)
         {
