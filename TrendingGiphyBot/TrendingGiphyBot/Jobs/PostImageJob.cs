@@ -10,7 +10,7 @@ namespace TrendingGiphyBot.Jobs
     class PostImageJob : Job
     {
         static readonly ILogger _Logger = LogManager.GetCurrentClassLogger();
-        readonly ulong _ChannelId;
+        internal ulong ChannelId { get; private set; }
         readonly JobConfigDal _JobConfigDal;
         readonly UrlCacheDal _UrlCacheDal;
         string _LastUrlIPosted;
@@ -23,18 +23,18 @@ namespace TrendingGiphyBot.Jobs
         }
         public PostImageJob(Giphy giphyClient, DiscordSocketClient discordClient, JobConfig jobConfig, JobConfigDal jobConfigDal, UrlCacheDal urlCacheDal) : base(giphyClient, discordClient, jobConfig, _Logger)
         {
-            _ChannelId = Convert.ToUInt64(jobConfig.ChannelId);
+            ChannelId = Convert.ToUInt64(jobConfig.ChannelId);
             _UrlCacheDal = urlCacheDal;
             _JobConfigDal = jobConfigDal;
         }
         protected override async Task Run()
         {
-            if (await _JobConfigDal.Any(_ChannelId))
+            if (await _JobConfigDal.Any(ChannelId))
             {
                 var url = await GetImageUrl();
                 if (!string.IsNullOrEmpty(url) && url != _LastUrlIPosted)
                 {
-                    var socketTextChannel = DiscordClient.GetChannel(_ChannelId) as SocketTextChannel;
+                    var socketTextChannel = DiscordClient.GetChannel(ChannelId) as SocketTextChannel;
                     if (socketTextChannel != null)
                         await socketTextChannel.SendMessageAsync(url);
                 }
