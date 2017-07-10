@@ -12,8 +12,8 @@ namespace TrendingGiphyBot.Jobs
         static readonly ILogger _Logger = LogManager.GetCurrentClassLogger();
         readonly ulong _ChannelId;
         readonly JobConfigDal _JobConfigDal;
-        string _LastUrlIPosted;
         readonly UrlCacheDal _UrlCacheDal;
+        string _LastUrlIPosted;
         internal async Task<string> GetImageUrl()
         {
             var minute = Convert.ToInt16(DateTime.Now.Minute);
