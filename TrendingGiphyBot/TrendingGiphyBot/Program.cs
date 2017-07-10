@@ -13,6 +13,8 @@ using System.Linq;
 using System.Collections.Generic;
 using TrendingGiphyBot.CommandContexts;
 using TrendingGiphyBot.Dals;
+using TrendingGiphyBot.Jobs;
+using TrendingGiphyBot.Enums;
 
 namespace TrendingGiphyBot
 {
@@ -46,7 +48,9 @@ namespace TrendingGiphyBot
         async Task Ready()
         {
             _GiphyClient = new Giphy(_Config.GiphyToken);
-            _Jobs = (await _ChannelJobConfigDal.GetAll()).Select(s => new Job(_GiphyClient, _DiscordClient, s)).ToList();
+            _Jobs = (await _ChannelJobConfigDal.GetAll()).Select(s => new PostImageJob(_GiphyClient, _DiscordClient, s)).ToList<Job>();
+            //TODO base ctor only accepts string... just to convert back into Time enum
+            _Jobs.Add(new RefreshImagesJob(_GiphyClient, _DiscordClient, 1, Time.Minutes.ToString()));
         }
         public async Task MessageReceived(SocketMessage messageParam)
         {
@@ -54,11 +58,13 @@ namespace TrendingGiphyBot
             if (message != null)
             {
                 int argPos = 0;
-                if (!(message.HasCharPrefix('!', ref argPos) || message.HasMentionPrefix(_DiscordClient.CurrentUser, ref argPos))) return;
-                var context = new JobConfigCommandContext(_DiscordClient, message, _GiphyClient, _Jobs, _ChannelJobConfigDal, _Config.MinimumMinutes);
-                var result = await _Commands.ExecuteAsync(context, argPos, _Services);
-                if (!result.IsSuccess)
-                    await context.Channel.SendMessageAsync(result.ErrorReason);
+                if (message.HasCharPrefix('!', ref argPos) || message.HasMentionPrefix(_DiscordClient.CurrentUser, ref argPos))
+                {
+                    var context = new JobConfigCommandContext(_DiscordClient, message, _GiphyClient, _Jobs, _ChannelJobConfigDal, _Config.MinimumMinutes);
+                    var result = await _Commands.ExecuteAsync(context, argPos, _Services);
+                    if (!result.IsSuccess)
+                        await context.Channel.SendMessageAsync(result.ErrorReason);
+                }
             }
         }
         Task Log(LogMessage logMessage)

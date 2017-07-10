@@ -10,6 +10,7 @@ using TrendingGiphyBot.Enums;
 using TrendingGiphyBot.CommandContexts;
 using TrendingGiphyBot.Dals;
 using TrendingGiphyBot.Helpers;
+using TrendingGiphyBot.Jobs;
 
 namespace TrendingGiphyBot.Modules
 {
@@ -74,7 +75,7 @@ namespace TrendingGiphyBot.Modules
             else
             {
                 await _ChannelJobConfigDal.Insert(config);
-                _Jobs.Add(new Job(_GiphyClient, Context.Client as DiscordSocketClient, config));
+                _Jobs.Add(new PostImageJob(_GiphyClient, Context.Client as DiscordSocketClient, config));
             }
         }
         bool IsValid(int interval, Time time)

@@ -165,6 +165,8 @@
     <Compile Include="Exceptions\InvalidTimeException.cs" />
     <Compile Include="CommandContexts\JobConfigCommandContext.cs" />
     <Compile Include="Helpers\ModuleBaseHelper.cs" />
+    <Compile Include="Jobs\PostImageJob.cs" />
+    <Compile Include="Jobs\RefreshImagesJob.cs" />
     <Compile Include="Modules\JobConfigModule.cs" />
     <Compile Include="Containers\MethodContainer.cs" />
     <Compile Include="Jobs\Job.cs" />
