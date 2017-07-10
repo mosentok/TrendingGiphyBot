@@ -13,7 +13,7 @@ namespace TrendingGiphyBot.CommandContexts
         public JobConfigDal ChannelJobConfigDal { get; set; }
         public Giphy GiphyClient { get; set; }
         public int MinimumMinutes { get; set; }
-        public JobConfigCommandContext(IDiscordClient client, IUserMessage msg) : base(client, msg){}
+        public JobConfigCommandContext(IDiscordClient client, IUserMessage msg) : base(client, msg) { }
         public JobConfigCommandContext(IDiscordClient client, IUserMessage msg, Giphy giphyClient, List<Job> jobs, JobConfigDal channelJobConfigDal, int minimumMinutes) : this(client, msg)
         {
             GiphyClient = giphyClient;

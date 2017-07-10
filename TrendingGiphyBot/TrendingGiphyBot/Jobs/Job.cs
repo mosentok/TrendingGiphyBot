@@ -52,12 +52,15 @@ namespace TrendingGiphyBot.Jobs
             switch (Time)
             {
                 case Time.Hours:
+                case Time.Hour:
                     difference = DetermineDifference(now.Hour);
                     return new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0).AddHours(difference);
                 case Time.Minutes:
+                case Time.Minute:
                     difference = DetermineDifference(now.Minute);
                     return new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0).AddMinutes(difference);
                 case Time.Seconds:
+                case Time.Second:
                     difference = DetermineDifference(now.Second);
                     return new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second).AddSeconds(difference);
                 default:
