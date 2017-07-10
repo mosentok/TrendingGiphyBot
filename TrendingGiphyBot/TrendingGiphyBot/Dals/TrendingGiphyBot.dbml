@@ -7,4 +7,10 @@
       <Column Name="Time" Type="System.String" DbType="VarChar(16) NOT NULL" CanBeNull="false" />
     </Type>
   </Table>
+  <Table Name="dbo.UrlCache" Member="UrlCaches">
+    <Type Name="UrlCache">
+      <Column Name="Minute" Type="System.Int16" DbType="SmallInt NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="Url" Type="System.String" DbType="VarChar(2083) NOT NULL" CanBeNull="false" />
+    </Type>
+  </Table>
 </Database>

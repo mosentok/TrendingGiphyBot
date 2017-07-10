@@ -6,6 +6,7 @@ using GiphyDotNet.Manager;
 using GiphyDotNet.Model.Parameters;
 using System.Linq;
 using NLog;
+using TrendingGiphyBot.Dals;
 
 namespace TrendingGiphyBot.Jobs
 {
@@ -13,19 +14,21 @@ namespace TrendingGiphyBot.Jobs
     {
         static readonly ILogger _Logger = LogManager.GetCurrentClassLogger();
         static Dictionary<int, string> _Images = new Dictionary<int, string>();
-        internal async static Task<string> GetImageUrl()
+        readonly UrlCacheDal _UrlCacheDal;
+        public RefreshImagesJob(Giphy giphyClient, DiscordSocketClient discordClient, int interval, string time, UrlCacheDal urlCacheDal) : base(giphyClient, discordClient, interval, time, _Logger)
         {
-            var minute = DateTime.Now.Minute;
-            while (!_Images.ContainsKey(minute))
-                await Task.Delay(TimeSpan.FromSeconds(1));
-            return _Images[minute];
+            _UrlCacheDal = urlCacheDal;
         }
-        public RefreshImagesJob(Giphy giphyClient, DiscordSocketClient discordClient, int interval, string time) : base(giphyClient, discordClient, interval, time, _Logger) { }
         protected override async Task Run()
         {
             var gifResult = await GiphyClient.TrendingGifs(new TrendingParameter { Limit = 1 });
             var url = gifResult.Data.FirstOrDefault()?.Url;
-            _Images[DateTime.Now.Minute] = url;
+            var minute = Convert.ToInt16(DateTime.Now.Minute);
+            var urlCache = new UrlCache { Minute = minute, Url = url };
+            if (await _UrlCacheDal.Any(minute))
+                await _UrlCacheDal.Update(urlCache);
+            else
+                await _UrlCacheDal.Insert(urlCache);
         }
     }
 }

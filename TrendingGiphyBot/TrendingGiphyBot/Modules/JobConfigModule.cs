@@ -19,6 +19,7 @@ namespace TrendingGiphyBot.Modules
         //TODO this is really ugly fam
         List<Job> _Jobs => (Context as JobConfigCommandContext).Jobs;
         JobConfigDal _JobConfigDal => (Context as JobConfigCommandContext).ChannelJobConfigDal;
+        UrlCacheDal _UrlCacheDal  => (Context as JobConfigCommandContext).UrlCacheDal;
         Giphy _GiphyClient => (Context as JobConfigCommandContext).GiphyClient;
         int MinimumMinutes => (Context as JobConfigCommandContext).MinimumMinutes;
         [Command]
@@ -87,7 +88,7 @@ namespace TrendingGiphyBot.Modules
             else
             {
                 await _JobConfigDal.Insert(config);
-                _Jobs.Add(new PostImageJob(_GiphyClient, Context.Client as DiscordSocketClient, config, _JobConfigDal));
+                _Jobs.Add(new PostImageJob(_GiphyClient, Context.Client as DiscordSocketClient, config, _JobConfigDal, _UrlCacheDal));
             }
         }
     }

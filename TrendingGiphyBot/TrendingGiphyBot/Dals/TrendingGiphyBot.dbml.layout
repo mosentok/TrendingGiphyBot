@@ -8,5 +8,11 @@
         <elementListCompartment Id="43a6da6d-9741-4fb0-8289-6a246626cfee" absoluteBounds="7.64, 2.71, 1.9700000000000002, 0.8262939453125" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
       </nestedChildShapes>
     </classShape>
+    <classShape Id="9677a3c0-9bf2-479a-9031-f4f0483e36fb" absoluteBounds="5.25, 2.75, 2, 1.1939925130208333">
+      <DataClassMoniker Name="/TrendingGiphyBotDataContext/UrlCache" />
+      <nestedChildShapes>
+        <elementListCompartment Id="56f24814-cfc2-4db2-8405-6b6cd5994202" absoluteBounds="5.265, 3.21, 1.9700000000000002, 0.63399251302083326" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
   </nestedChildShapes>
 </ordesignerObjectsDiagram>
