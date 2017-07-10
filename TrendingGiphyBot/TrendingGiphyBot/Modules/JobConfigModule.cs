@@ -21,7 +21,7 @@ namespace TrendingGiphyBot.Modules
         Giphy _GiphyClient => (Context as JobConfigCommandContext).GiphyClient;
         int MinimumMinutes => (Context as JobConfigCommandContext).MinimumMinutes;
         [Command]
-        [Summary("Help menu for " + nameof(JobConfig) + ".")]
+        [Summary("Help menu for the " + nameof(JobConfig) + " commands.")]
         [Alias(nameof(Help))]
         public async Task Help()
         {
@@ -30,7 +30,7 @@ namespace TrendingGiphyBot.Modules
             await ReplyAsync(serialized);
         }
         [Command(nameof(Get))]
-        [Summary("Gets the " + nameof(JobConfig) + ".")]
+        [Summary("Gets the " + nameof(JobConfig) + " for this channel.")]
         public async Task Get()
         {
             var any = await _ChannelJobConfigDal.Any(Context.Channel.Id);
@@ -44,7 +44,7 @@ namespace TrendingGiphyBot.Modules
                 await ReplyAsync($"{Context.Channel.Id} not configured.");
         }
         [Command(nameof(Set))]
-        [Summary("Sets the " + nameof(JobConfig) + ".")]
+        [Summary("Sets the " + nameof(JobConfig) + " for this channel.")]
         public async Task Set(
             [Summary(nameof(JobConfig.Interval) + " to set.")]
             int interval,
