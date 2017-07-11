@@ -32,12 +32,10 @@ namespace TrendingGiphyBot.Jobs
             if (await _JobConfigDal.Any(ChannelId))
             {
                 var url = await GetImageUrl();
-                if (!string.IsNullOrEmpty(url) && url != _LastUrlIPosted)
-                {
-                    var socketTextChannel = DiscordClient.GetChannel(ChannelId) as SocketTextChannel;
-                    if (socketTextChannel != null)
-                        await socketTextChannel.SendMessageAsync(url);
-                }
+                if (!string.IsNullOrEmpty(url)
+                    && url != _LastUrlIPosted
+                    && DiscordClient.GetChannel(ChannelId) is SocketTextChannel socketTextChannel)
+                    await socketTextChannel.SendMessageAsync(url);
                 _LastUrlIPosted = url;
             }
         }
