@@ -95,7 +95,9 @@ namespace TrendingGiphyBot.Modules
             else
             {
                 await _JobConfigDal.Insert(config);
-                _Jobs.Add(new PostImageJob(_GiphyClient, Context.Client as DiscordSocketClient, config, _JobConfigDal, _UrlCacheDal));
+                var postImageJob = new PostImageJob(_GiphyClient, Context.Client as DiscordSocketClient, config, _JobConfigDal, _UrlCacheDal);
+                _Jobs.Add(postImageJob);
+                postImageJob.StartTimerWithCloseInterval();
             }
         }
     }
