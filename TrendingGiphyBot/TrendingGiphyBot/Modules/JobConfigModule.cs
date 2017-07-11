@@ -10,7 +10,6 @@ using TrendingGiphyBot.Dals;
 using TrendingGiphyBot.Helpers;
 using TrendingGiphyBot.Jobs;
 using System.Linq;
-using TrendingGiphyBot.Wordnik.Models;
 using TrendingGiphyBot.Wordnik.Clients;
 
 namespace TrendingGiphyBot.Modules
@@ -18,14 +17,29 @@ namespace TrendingGiphyBot.Modules
     [Group(nameof(JobConfig))]
     public class JobConfigModule : ModuleBase
     {
-        string NotConfiguredMessage => $"{Context.Channel.Id} not configured. Configure me senpai! Use '!JobConfig' or '!JobConfig Help' to learn how to.";
+        List<Job> _Jobs;
+        JobConfigDal _JobConfigDal;
+        UrlCacheDal _UrlCacheDal;
+        Giphy _GiphyClient;
+        int _MinimumMinutes;
+        WordnikClient _WordnikClient;
+        bool initialized;
+        protected override void BeforeExecute(CommandInfo command)
+        {
+            if (!initialized)
+            {
+                var context = Context as JobConfigCommandContext;
+                _Jobs = context.Jobs;
+                _JobConfigDal = context.ChannelJobConfigDal;
+                _UrlCacheDal = context.UrlCacheDal;
+                _GiphyClient = context.GiphyClient;
+                _MinimumMinutes = context.MinimumMinutes;
+                _WordnikClient = context.WordnikClient;
+                initialized = true;
+            }
+        }
+        string NotConfiguredMessage => $"{Context.Channel.Id} not configured. Configure me senpai! Use '!{nameof(JobConfig)}' or '!{nameof(JobConfig)} {nameof(Help)}' to learn how to.";
         //TODO this is really ugly fam
-        List<Job> _Jobs => (Context as JobConfigCommandContext).Jobs;
-        JobConfigDal _JobConfigDal => (Context as JobConfigCommandContext).ChannelJobConfigDal;
-        UrlCacheDal _UrlCacheDal => (Context as JobConfigCommandContext).UrlCacheDal;
-        Giphy _GiphyClient => (Context as JobConfigCommandContext).GiphyClient;
-        int MinimumMinutes => (Context as JobConfigCommandContext).MinimumMinutes;
-        WordnikClient WordnikClient => (Context as JobConfigCommandContext).WordnikClient;
         [Command(nameof(Help))]
         [Summary("Help menu for the " + nameof(JobConfig) + " commands.")]
         [Alias(nameof(Help))]
@@ -57,14 +71,14 @@ namespace TrendingGiphyBot.Modules
             [Summary(nameof(JobConfig.Time) + " to set.")]
             Time time)
         {
-            var isValid = ModuleBaseHelper.IsValid(interval, time, MinimumMinutes);
+            var isValid = ModuleBaseHelper.IsValid(interval, time, _MinimumMinutes);
             if (isValid)
             {
                 await SaveConfig(interval, time);
                 await Get();
             }
             else
-                await ReplyAsync($"{nameof(JobConfig.Interval)} and {nameof(JobConfig.Time)} must combine to at least {MinimumMinutes} minutes.");
+                await ReplyAsync($"{nameof(JobConfig.Interval)} and {nameof(JobConfig.Time)} must combine to at least {_MinimumMinutes} minutes.");
         }
         [Command(nameof(Remove))]
         [Summary("Removes the " + nameof(JobConfig) + " for this channel.")]
@@ -83,7 +97,7 @@ namespace TrendingGiphyBot.Modules
         }
         async Task SendRemoveMessage()
         {
-            var wordOfTheDay = await WordnikClient?.GetWordOfTheDay();
+            var wordOfTheDay = await _WordnikClient?.GetWordOfTheDay();
             if (wordOfTheDay == null)
                 await ReplyAsync("Configuration removed.");
             else
