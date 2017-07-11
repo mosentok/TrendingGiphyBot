@@ -9,6 +9,8 @@ using TrendingGiphyBot.CommandContexts;
 using TrendingGiphyBot.Dals;
 using TrendingGiphyBot.Helpers;
 using TrendingGiphyBot.Jobs;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Linq;
 
 namespace TrendingGiphyBot.Modules
@@ -23,6 +25,7 @@ namespace TrendingGiphyBot.Modules
         UrlCacheDal _UrlCacheDal => (Context as JobConfigCommandContext).UrlCacheDal;
         Giphy _GiphyClient => (Context as JobConfigCommandContext).GiphyClient;
         int MinimumMinutes => (Context as JobConfigCommandContext).MinimumMinutes;
+        string WordnikToken => (Context as JobConfigCommandContext).WordnikToken;
         [Command]
         [Summary("Help menu for the " + nameof(JobConfig) + " commands.")]
         [Alias(nameof(Help))]
@@ -69,6 +72,18 @@ namespace TrendingGiphyBot.Modules
         {
             if (await _JobConfigDal.Any(Context.Channel.Id))
             {
+                if (!string.IsNullOrEmpty(WordnikToken))
+                    using (var client = new HttpClient())
+                    {
+                        client.DefaultRequestHeaders.Accept.Clear();
+                        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                        var url = "http://api.wordnik.com/v4/words.json/wordOfTheDay/definitions?api_key=" + WordnikToken;
+                        var response = await client.GetAsync(url);
+                        if (response.IsSuccessStatusCode)
+                        {
+                            var stringResponse = await response.Content.ReadAsStringAsync();
+                        }
+                    }
                 await ReplyAsync("Configuration removed.");
                 await _JobConfigDal.Remove(Context.Channel.Id);
                 var toRemove = _Jobs.OfType<PostImageJob>().Single(s => s.ChannelId == Context.Channel.Id);

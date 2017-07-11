@@ -12,5 +12,6 @@ namespace TrendingGiphyBot
         public string ConnectionString { get; set; }
         [JsonRequired]
         public int MinimumMinutes { get; set; }
+        public string WordnikToken { get; set; }
     }
 }
