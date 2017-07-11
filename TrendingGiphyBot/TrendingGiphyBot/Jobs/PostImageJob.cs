@@ -35,8 +35,10 @@ namespace TrendingGiphyBot.Jobs
                 if (!string.IsNullOrEmpty(url)
                     && url != _LastUrlIPosted
                     && DiscordClient.GetChannel(ChannelId) is SocketTextChannel socketTextChannel)
+                {
                     await socketTextChannel.SendMessageAsync(url);
-                _LastUrlIPosted = url;
+                    _LastUrlIPosted = url;
+                }
             }
         }
         protected override void TimerStartedLog() => _Logger.Info($"Config: {Interval} {Time}. Next elapse: {NextElapse}. Channel ID: {ChannelId}.");
