@@ -52,10 +52,13 @@ namespace TrendingGiphyBot
         async Task Ready()
         {
             _GiphyClient = new Giphy(_Config.GiphyToken);
-            _Jobs = (await _JobConfigDal.GetAll()).Select(s => new PostImageJob(_GiphyClient, _DiscordClient, s, _JobConfigDal, _UrlCacheDal)).ToList<Job>();
+            _Jobs = new List<Job>();
+            var postImageJobs = (await _JobConfigDal.GetAll()).Select(s => new PostImageJob(_GiphyClient, _DiscordClient, s, _JobConfigDal, _UrlCacheDal));
+            _Jobs.AddRange(postImageJobs);
             //TODO base ctor only accepts string... just to convert back into Time enum
             _Jobs.Add(new RefreshImagesJob(_GiphyClient, _DiscordClient, 1, Time.Minutes.ToString(), _UrlCacheDal));
             _Jobs.Add(new SetGameJob(_GiphyClient, _DiscordClient, 1, Time.Minutes.ToString(), _JobConfigDal));
+            _Jobs.ForEach(s => s.StartTimerWithCloseInterval());
             var count = await _JobConfigDal.GetCount();
             await _DiscordClient.SetGameAsync(string.Empty);
             await _DiscordClient.SetGameAsync($"A Tale of {count} Gifs");

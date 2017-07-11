@@ -28,7 +28,6 @@ namespace TrendingGiphyBot.Jobs
             _Logger = logger;
             _Timer = new Timer();
             _Timer.Elapsed += Elapsed;
-            StartTimerWithCloseInterval();
         }
         static Time ConvertToTime(string s) => (Time)Enum.Parse(typeof(Time), s);
         async void Elapsed(object sender, ElapsedEventArgs e)
@@ -39,6 +38,7 @@ namespace TrendingGiphyBot.Jobs
             await Run();
             StartTimerWithCloseInterval();
         }
+        protected virtual void TimerStartedLog() => _Logger.Info($"Next configured run in {Interval} {Time}.");
         internal void Restart(JobConfig jobConfig)
         {
             _Timer.Stop();
@@ -46,13 +46,14 @@ namespace TrendingGiphyBot.Jobs
             Time = ConvertToTime(jobConfig.Time);
             StartTimerWithCloseInterval();
         }
-        void StartTimerWithCloseInterval()
+        internal void StartTimerWithCloseInterval()
         {
             var now = DateTime.Now;
             var nextElapse = DetermineNextElapse(now);
             var interval = (nextElapse - now).TotalMilliseconds;
             _Timer.Interval = interval;
             _Timer.Start();
+            TimerStartedLog();
         }
         DateTime DetermineNextElapse(DateTime now)
         {

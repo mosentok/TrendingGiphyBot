@@ -39,5 +39,6 @@ namespace TrendingGiphyBot.Jobs
                 _LastUrlIPosted = url;
             }
         }
+        protected override void TimerStartedLog() =>_Logger.Info($"Next configured run in {Interval} {Time} for Channel ID {ChannelId}.");
     }
 }
