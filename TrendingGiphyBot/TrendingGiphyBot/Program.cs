@@ -53,15 +53,22 @@ namespace TrendingGiphyBot
         {
             _GiphyClient = new Giphy(_Config.GiphyToken);
             _Jobs = new List<Job>();
-            var postImageJobs = (await _JobConfigDal.GetAll()).Select(s => new PostImageJob(_GiphyClient, _DiscordClient, s, _JobConfigDal, _UrlCacheDal));
+            var channelsThatExist = await GetConfigsWithAliveChannels();
+            var postImageJobs = channelsThatExist.Select(s => new PostImageJob(_GiphyClient, _DiscordClient, s, _JobConfigDal, _UrlCacheDal));
             _Jobs.AddRange(postImageJobs);
             //TODO base ctor only accepts string... just to convert back into Time enum
-            _Jobs.Add(new RefreshImagesJob(_GiphyClient, _DiscordClient, 1, Time.Minutes.ToString(), _UrlCacheDal));
-            _Jobs.Add(new SetGameJob(_GiphyClient, _DiscordClient, 1, Time.Minutes.ToString(), _JobConfigDal));
+            _Jobs.Add(new RefreshImagesJob(_GiphyClient, _DiscordClient, 1, Time.Minute.ToString(), _UrlCacheDal));
+            _Jobs.Add(new SetGameJob(_GiphyClient, _DiscordClient, 1, Time.Minute.ToString(), _JobConfigDal));
             _Jobs.ForEach(s => s.StartTimerWithCloseInterval());
             var count = await _JobConfigDal.GetCount();
             await _DiscordClient.SetGameAsync(string.Empty);
             await _DiscordClient.SetGameAsync($"A Tale of {count} Gifs");
+        }
+        async Task<IEnumerable<JobConfig>> GetConfigsWithAliveChannels()
+        {
+            var configuredJobs = await _JobConfigDal.GetAll();
+            var channelsNotFound = configuredJobs.Where(s => _DiscordClient.GetChannel(Convert.ToUInt64(s.ChannelId)) == null);
+            return configuredJobs.Except(channelsNotFound);
         }
         public async Task MessageReceived(SocketMessage messageParam)
         {
