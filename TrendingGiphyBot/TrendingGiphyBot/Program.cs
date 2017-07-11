@@ -16,6 +16,7 @@ using TrendingGiphyBot.Dals;
 using TrendingGiphyBot.Jobs;
 using TrendingGiphyBot.Enums;
 using NLog;
+using TrendingGiphyBot.Wordnik.Clients;
 
 namespace TrendingGiphyBot
 {
@@ -24,6 +25,7 @@ namespace TrendingGiphyBot
         static readonly ILogger _Logger = LogManager.GetCurrentClassLogger();
         DiscordSocketClient _DiscordClient;
         Giphy _GiphyClient;
+        WordnikClient _WordnikClient;
         Config _Config;
         List<Job> _Jobs;
         CommandService _Commands;
@@ -39,6 +41,7 @@ namespace TrendingGiphyBot
             _JobConfigDal = new JobConfigDal(_Config.ConnectionString);
             _UrlCacheDal = new UrlCacheDal(_Config.ConnectionString);
             _DiscordClient = new DiscordSocketClient();
+            _WordnikClient = new WordnikClient("http://developer.wordnik.com/v4", _Config.WordnikToken);
             _Commands = new CommandService();
             _Services = new ServiceCollection().BuildServiceProvider();
             _DiscordClient.MessageReceived += MessageReceived;
@@ -78,8 +81,7 @@ namespace TrendingGiphyBot
                 int argPos = 0;
                 if (message.HasCharPrefix('!', ref argPos) || message.HasMentionPrefix(_DiscordClient.CurrentUser, ref argPos))
                 {
-                    var context = new JobConfigCommandContext(_DiscordClient, message, _GiphyClient, _Jobs, _JobConfigDal, _Config.MinimumMinutes, _Config.WordnikToken);
-                    var context = new JobConfigCommandContext(_DiscordClient, message, _GiphyClient, _Jobs, _JobConfigDal, _UrlCacheDal, _Config.MinimumMinutes);
+                    var context = new JobConfigCommandContext(_DiscordClient, message, _GiphyClient, _Jobs, _JobConfigDal, _UrlCacheDal, _Config.MinimumMinutes, _WordnikClient);
                     var result = await _Commands.ExecuteAsync(context, argPos, _Services);
                     if (!result.IsSuccess)
                         await context.Channel.SendMessageAsync(result.ErrorReason);
@@ -116,6 +118,7 @@ namespace TrendingGiphyBot
         {
             await _DiscordClient?.LogoutAsync();
             _DiscordClient?.Dispose();
+            _WordnikClient?.Dispose();
             _Jobs?.ForEach(s => s?.Dispose());
         }
     }
