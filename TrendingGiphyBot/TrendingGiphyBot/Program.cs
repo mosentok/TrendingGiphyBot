@@ -41,7 +41,8 @@ namespace TrendingGiphyBot
             _JobConfigDal = new JobConfigDal(_Config.ConnectionString);
             _UrlCacheDal = new UrlCacheDal(_Config.ConnectionString);
             _DiscordClient = new DiscordSocketClient();
-            _WordnikClient = new WordnikClient("http://developer.wordnik.com/v4", _Config.WordnikToken);
+            if (!string.IsNullOrEmpty(_Config.WordnikToken))
+                _WordnikClient = new WordnikClient("http://developer.wordnik.com/v4", _Config.WordnikToken);
             _Commands = new CommandService();
             _Services = new ServiceCollection().BuildServiceProvider();
             _DiscordClient.MessageReceived += MessageReceived;

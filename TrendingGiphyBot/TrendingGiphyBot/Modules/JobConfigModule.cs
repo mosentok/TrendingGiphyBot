@@ -83,7 +83,7 @@ namespace TrendingGiphyBot.Modules
         }
         async Task SendRemoveMessage()
         {
-            var wordOfTheDay = await WordnikClient.GetWordOfTheDay();
+            var wordOfTheDay = await WordnikClient?.GetWordOfTheDay();
             if (wordOfTheDay == null)
                 await ReplyAsync("Configuration removed.");
             else
