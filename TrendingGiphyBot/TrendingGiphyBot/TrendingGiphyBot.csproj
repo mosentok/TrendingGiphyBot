@@ -158,6 +158,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Containers\ErrorResult.cs" />
     <Compile Include="Dals\TrendingGiphyBot.designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
