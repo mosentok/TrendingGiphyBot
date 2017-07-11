@@ -17,6 +17,7 @@ using TrendingGiphyBot.Jobs;
 using TrendingGiphyBot.Enums;
 using NLog;
 using TrendingGiphyBot.Wordnik.Clients;
+using TrendingGiphyBot.Containers;
 
 namespace TrendingGiphyBot
 {
@@ -85,7 +86,10 @@ namespace TrendingGiphyBot
                     var context = new JobConfigCommandContext(_DiscordClient, message, _GiphyClient, _Jobs, _JobConfigDal, _UrlCacheDal, _Config.MinimumMinutes, _WordnikClient);
                     var result = await _Commands.ExecuteAsync(context, argPos, _Services);
                     if (!result.IsSuccess)
-                        await context.Channel.SendMessageAsync(result.ErrorReason);
+                    {
+                        var serialized = JsonConvert.SerializeObject(new ErrorResult(result), Formatting.Indented);
+                        await context.Channel.SendMessageAsync(serialized);
+                    }
                 }
             }
         }
