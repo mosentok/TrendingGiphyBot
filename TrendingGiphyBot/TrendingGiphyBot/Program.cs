@@ -77,8 +77,7 @@ namespace TrendingGiphyBot
         }
         public async Task MessageReceived(SocketMessage messageParam)
         {
-            var message = messageParam as SocketUserMessage;
-            if (message != null)
+            if (messageParam is SocketUserMessage message)
             {
                 int argPos = 0;
                 if (message.HasCharPrefix('!', ref argPos) || message.HasMentionPrefix(_DiscordClient.CurrentUser, ref argPos))
@@ -86,12 +85,19 @@ namespace TrendingGiphyBot
                     var context = new JobConfigCommandContext(_DiscordClient, message, _GiphyClient, _Jobs, _JobConfigDal, _UrlCacheDal, _Config.MinimumMinutes, _WordnikClient);
                     var result = await _Commands.ExecuteAsync(context, argPos, _Services);
                     if (!result.IsSuccess)
-                    {
-                        var serialized = JsonConvert.SerializeObject(new ErrorResult(result), Formatting.Indented);
-                        await context.Channel.SendMessageAsync(serialized);
-                    }
+                        await HandleError(context, result);
                 }
             }
+        }
+        static async Task HandleError(JobConfigCommandContext context, IResult result)
+        {
+            ErrorResult errorResult;
+            if (result.Error.HasValue && result.Error.Value == CommandError.Exception)
+                errorResult = new ErrorResult(CommandError.Exception, "An unexpected error occurred.", false);
+            else
+                errorResult = new ErrorResult(result);
+            var serialized = JsonConvert.SerializeObject(errorResult, Formatting.Indented);
+            await context.Channel.SendMessageAsync(serialized);
         }
         Task Log(LogMessage logMessage)
         {
