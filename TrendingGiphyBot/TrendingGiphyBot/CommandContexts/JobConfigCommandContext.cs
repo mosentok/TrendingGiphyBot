@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using GiphyDotNet.Manager;
 using TrendingGiphyBot.Dals;
 using TrendingGiphyBot.Jobs;
+using TrendingGiphyBot.Wordnik.Clients;
 
 namespace TrendingGiphyBot.CommandContexts
 {
@@ -12,20 +13,18 @@ namespace TrendingGiphyBot.CommandContexts
         public List<Job> Jobs { get; set; }
         public JobConfigDal ChannelJobConfigDal { get; set; }
         public Giphy GiphyClient { get; set; }
+        public WordnikClient WordnikClient { get; set; }
         public int MinimumMinutes { get; set; }
-        public string WordnikToken { get; set; }
-        public JobConfigCommandContext(IDiscordClient client, IUserMessage msg) : base(client, msg){}
-        public JobConfigCommandContext(IDiscordClient client, IUserMessage msg, Giphy giphyClient, List<Job> jobs, JobConfigDal channelJobConfigDal, int minimumMinutes, string wordnikToken) : this(client, msg)
         public UrlCacheDal UrlCacheDal { get; set; }
         public JobConfigCommandContext(IDiscordClient client, IUserMessage msg) : base(client, msg) { }
-        public JobConfigCommandContext(IDiscordClient client, IUserMessage msg, Giphy giphyClient, List<Job> jobs, JobConfigDal channelJobConfigDal, UrlCacheDal urlCachedal, int minimumMinutes) : this(client, msg)
+        public JobConfigCommandContext(IDiscordClient client, IUserMessage msg, Giphy giphyClient, List<Job> jobs, JobConfigDal channelJobConfigDal, UrlCacheDal urlCachedal, int minimumMinutes, WordnikClient wordnikClient) : this(client, msg)
         {
             GiphyClient = giphyClient;
             Jobs = jobs;
             ChannelJobConfigDal = channelJobConfigDal;
             UrlCacheDal = urlCachedal;
             MinimumMinutes = minimumMinutes;
-            WordnikToken = wordnikToken;
+            WordnikClient = wordnikClient;
         }
     }
 }

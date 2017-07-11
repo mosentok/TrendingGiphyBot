@@ -185,6 +185,11 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="Enums\Time.cs" />
+    <Compile Include="Wordnik\Clients\WordnikClient.cs" />
+    <Compile Include="Wordnik\Models\ContentProvider.cs" />
+    <Compile Include="Wordnik\Models\Defintion.cs" />
+    <Compile Include="Wordnik\Models\Example.cs" />
+    <Compile Include="Wordnik\Models\WordOfTheDay.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
@@ -218,5 +223,6 @@
   <ItemGroup>
     <Content Include="api_giphy_header.ico" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
