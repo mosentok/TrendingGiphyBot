@@ -15,6 +15,7 @@ namespace TrendingGiphyBot.Jobs
         readonly ILogger _Logger;
         protected Giphy GiphyClient { get; private set; }
         protected DiscordSocketClient DiscordClient { get; private set; }
+        protected DateTime NextElapse { get; private set; }
         public int Interval { get; private set; }
         public Time Time { get; private set; }
         Timer _Timer;
@@ -38,7 +39,7 @@ namespace TrendingGiphyBot.Jobs
             await Run();
             StartTimerWithCloseInterval();
         }
-        protected virtual void TimerStartedLog() => _Logger.Info($"Next configured run in {Interval} {Time}.");
+        protected virtual void TimerStartedLog() => _Logger.Info($"Config: {Interval} {Time}. Next elapse: {NextElapse}.");
         internal void Restart(JobConfig jobConfig)
         {
             _Timer.Stop();
@@ -49,8 +50,8 @@ namespace TrendingGiphyBot.Jobs
         internal void StartTimerWithCloseInterval()
         {
             var now = DateTime.Now;
-            var nextElapse = DetermineNextElapse(now);
-            var interval = (nextElapse - now).TotalMilliseconds;
+            NextElapse = DetermineNextElapse(now);
+            var interval = (NextElapse - now).TotalMilliseconds;
             _Timer.Interval = interval;
             _Timer.Start();
             TimerStartedLog();
