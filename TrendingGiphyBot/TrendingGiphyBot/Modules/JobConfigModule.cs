@@ -26,7 +26,7 @@ namespace TrendingGiphyBot.Modules
         Giphy _GiphyClient => (Context as JobConfigCommandContext).GiphyClient;
         int MinimumMinutes => (Context as JobConfigCommandContext).MinimumMinutes;
         WordnikClient WordnikClient => (Context as JobConfigCommandContext).WordnikClient;
-        [Command]
+        [Command(nameof(Help))]
         [Summary("Help menu for the " + nameof(JobConfig) + " commands.")]
         [Alias(nameof(Help))]
         public async Task Help()
