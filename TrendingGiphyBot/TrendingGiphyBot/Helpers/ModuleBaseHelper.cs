@@ -23,14 +23,11 @@ namespace TrendingGiphyBot.Helpers
                     var fields = new List<FieldContainer>();
                     var parameterInfos = method.GetParameters();
                     //TODO is any really required?
-                    if (parameterInfos.Any())
+                    fields.AddRange(parameterInfos.Select(s =>
                     {
-                        fields.AddRange(parameterInfos.Select(s =>
-                        {
-                            var parameterSummary = s.GetCustomAttribute<SummaryAttribute>().Text;
-                            return new FieldContainer(s.Name, parameterSummary);
-                        }));
-                    }
+                        var parameterSummary = s.GetCustomAttribute<SummaryAttribute>().Text;
+                        return new FieldContainer(s.Name, parameterSummary);
+                    }));
                     var example = method.GetCustomAttribute<ExampleAttribute>();
                     if (example != null)
                         fields.Add(new FieldContainer(example.Name, example.Text));
