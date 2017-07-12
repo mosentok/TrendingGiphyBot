@@ -12,7 +12,6 @@ using TrendingGiphyBot.Jobs;
 using System.Linq;
 using TrendingGiphyBot.Wordnik.Clients;
 using Discord;
-using TrendingGiphyBot.Containers;
 using TrendingGiphyBot.Attributes;
 
 namespace TrendingGiphyBot.Modules
@@ -51,35 +50,11 @@ namespace TrendingGiphyBot.Modules
             var author = new EmbedAuthorBuilder()
                 .WithName(nameof(JobConfig))
                 .WithIconUrl(avatarUrl);
-            var helpContainer = ModuleBaseHelper.BuildHelpContainer<JobConfigModule>();
-            var fields = BuildFields(helpContainer);
+            var fields = ModuleBaseHelper.BuildFields<JobConfigModule>();
             var embed = new EmbedBuilder { Fields = fields }
                 .WithAuthor(author)
                 .WithDescription($"Commands for interacting with {nameof(JobConfig)}.");
             await ReplyAsync(string.Empty, embed: embed);
-        }
-        static List<EmbedFieldBuilder> BuildFields(HelpContainer helpContainer)
-        {
-            var fields = new List<EmbedFieldBuilder>();
-            foreach (var method in helpContainer.Methods)
-            {
-                var embedFieldBuilder = new EmbedFieldBuilder()
-                    .WithName($"{method.Name}");
-                if (method.Fields.Any())
-                {
-                    fields.Add(embedFieldBuilder
-                        .WithValue($"{method.Summary} *Parameters*:"));
-                    foreach (var field in method.Fields)
-                        fields.Add(new EmbedFieldBuilder()
-                            .WithName($"*{field.Name}*")
-                            .WithValue(field.Summary)
-                            .WithIsInline(true));
-                }
-                else
-                    fields.Add(embedFieldBuilder
-                        .WithValue(method.Summary));
-            }
-            return fields;
         }
         [Command(nameof(Get))]
         [Summary("Gets the " + nameof(JobConfig) + " for this channel.")]
