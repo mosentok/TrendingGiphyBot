@@ -177,7 +177,7 @@
     <Compile Include="Modules\JobConfigModule.cs" />
     <Compile Include="Containers\MethodContainer.cs" />
     <Compile Include="Jobs\Job.cs" />
-    <Compile Include="Containers\ParameterContainer.cs" />
+    <Compile Include="Containers\FieldContainer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Config.cs" />

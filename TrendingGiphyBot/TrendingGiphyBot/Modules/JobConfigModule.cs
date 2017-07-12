@@ -65,14 +65,14 @@ namespace TrendingGiphyBot.Modules
             {
                 var embedFieldBuilder = new EmbedFieldBuilder()
                     .WithName($"{method.Name}");
-                if (method.Parameters.Any())
+                if (method.Fields.Any())
                 {
                     fields.Add(embedFieldBuilder
                         .WithValue($"{method.Summary} *Parameters*:"));
-                    foreach (var parameter in method.Parameters)
+                    foreach (var field in method.Fields)
                         fields.Add(new EmbedFieldBuilder()
-                            .WithName($"*{parameter.Name}*")
-                            .WithValue(parameter.Summary)
+                            .WithName($"*{field.Name}*")
+                            .WithValue(field.Summary)
                             .WithIsInline(true));
                 }
                 else

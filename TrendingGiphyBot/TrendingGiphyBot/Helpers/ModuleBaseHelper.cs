@@ -20,22 +20,22 @@ namespace TrendingGiphyBot.Helpers
                 if (isCommand)
                 {
                     var commandText = GetMethodSignature(method);
-                    var parameters = new List<ParameterContainer>();
+                    var fields = new List<FieldContainer>();
                     var parameterInfos = method.GetParameters();
+                    //TODO is any really required?
                     if (parameterInfos.Any())
                     {
-                        parameters.AddRange(parameterInfos.Select(parameter =>
+                        fields.AddRange(parameterInfos.Select(s =>
                         {
-                            var parameterSummary = parameter.GetCustomAttribute<SummaryAttribute>().Text;
-                            return new ParameterContainer(parameter.Name, parameterSummary);
+                            var parameterSummary = s.GetCustomAttribute<SummaryAttribute>().Text;
+                            return new FieldContainer(s.Name, parameterSummary);
                         }));
                     }
                     var example = method.GetCustomAttribute<ExampleAttribute>();
                     if (example != null)
-                        //TODO parameters / its container needs a name change now
-                        parameters.Add(new ParameterContainer(example.Name, example.Text));
+                        fields.Add(new FieldContainer(example.Name, example.Text));
                     var methodSummary = method.GetCustomAttribute<SummaryAttribute>();
-                    return new MethodContainer(commandText, methodSummary.Text, parameters);
+                    return new MethodContainer(commandText, methodSummary.Text, fields);
                 }
                 return null;
             }).Where(s => s != null)
