@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using TrendingGiphyBot.Attributes;
 using TrendingGiphyBot.Containers;
 using TrendingGiphyBot.Enums;
 using TrendingGiphyBot.Exceptions;
@@ -18,20 +19,21 @@ namespace TrendingGiphyBot.Helpers
                 var isCommand = method.GetCustomAttribute<CommandAttribute>() != null;
                 if (isCommand)
                 {
-                    string commandText;
+                    var commandText = GetMethodSignature(method);
                     var parameters = new List<ParameterContainer>();
                     var parameterInfos = method.GetParameters();
                     if (parameterInfos.Any())
                     {
-                        commandText = GetMethodSignature(method);
                         parameters.AddRange(parameterInfos.Select(parameter =>
                         {
                             var parameterSummary = parameter.GetCustomAttribute<SummaryAttribute>().Text;
                             return new ParameterContainer(parameter.Name, parameterSummary);
                         }));
                     }
-                    else
-                        commandText = method.GetCustomAttribute<CommandAttribute>().Text;
+                    var example = method.GetCustomAttribute<ExampleAttribute>();
+                    if (example != null)
+                        //TODO parameters / its container needs a name change now
+                        parameters.Add(new ParameterContainer(example.Name, example.Text));
                     var methodSummary = method.GetCustomAttribute<SummaryAttribute>();
                     return new MethodContainer(commandText, methodSummary.Text, parameters);
                 }
@@ -42,7 +44,7 @@ namespace TrendingGiphyBot.Helpers
         static string GetMethodSignature(MethodInfo method)
         {
             var parameter = method.GetParameters().Select(s => $"{s.ParameterType.Name} {s.Name}");
-            var parameters = string.Join(",", parameter);
+            var parameters = string.Join(", ", parameter);
             return $"{method.Name}({parameters})";
         }
         static string RemoveNamespace(string parameterType) => parameterType.Split(new[] { '.' }).Last();
