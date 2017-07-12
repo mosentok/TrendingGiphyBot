@@ -1,4 +1,5 @@
-﻿using Discord.Commands;
+﻿using Discord;
+using Discord.Commands;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,31 @@ namespace TrendingGiphyBot.Helpers
 {
     static class ModuleBaseHelper
     {
-        internal static HelpContainer BuildHelpContainer<T>() where T : ModuleBase
+        internal static List<EmbedFieldBuilder> BuildFields<T>() where T : ModuleBase
+        {
+            var helpContainer = BuildHelpContainer<T>();
+            var fields = new List<EmbedFieldBuilder>();
+            foreach (var method in helpContainer.Methods)
+            {
+                var embedFieldBuilder = new EmbedFieldBuilder()
+                    .WithName($"{method.Name}");
+                if (method.Fields.Any())
+                {
+                    fields.Add(embedFieldBuilder
+                        .WithValue($"{method.Summary} *Parameters*:"));
+                    foreach (var field in method.Fields)
+                        fields.Add(new EmbedFieldBuilder()
+                            .WithName($"*{field.Name}*")
+                            .WithValue(field.Summary)
+                            .WithIsInline(true));
+                }
+                else
+                    fields.Add(embedFieldBuilder
+                        .WithValue(method.Summary));
+            }
+            return fields;
+        }
+        static HelpContainer BuildHelpContainer<T>() where T : ModuleBase
         {
             return new HelpContainer(typeof(T).GetMethods().Select(method =>
             {
