@@ -85,19 +85,21 @@ namespace TrendingGiphyBot
                     var context = new JobConfigCommandContext(_DiscordClient, message, _GiphyClient, _Jobs, _JobConfigDal, _UrlCacheDal, _Config.MinimumMinutes, _WordnikClient);
                     var result = await _Commands.ExecuteAsync(context, argPos, _Services);
                     if (!result.IsSuccess)
-                        await HandleError(context, result);
+                        await HandleError(context.Channel, result);
                 }
             }
         }
-        static async Task HandleError(JobConfigCommandContext context, IResult result)
+        static async Task HandleError(IMessageChannel channel, IResult result)
         {
+            if (result is ExecuteResult executeResult)
+                _Logger.Error(executeResult.Exception);
             ErrorResult errorResult;
             if (result.Error.HasValue && result.Error.Value == CommandError.Exception)
                 errorResult = new ErrorResult(CommandError.Exception, "An unexpected error occurred.", false);
             else
                 errorResult = new ErrorResult(result);
             var serialized = JsonConvert.SerializeObject(errorResult, Formatting.Indented);
-            await context.Channel.SendMessageAsync(serialized);
+            await channel.SendMessageAsync(serialized);
         }
         Task Log(LogMessage logMessage)
         {

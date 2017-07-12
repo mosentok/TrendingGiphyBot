@@ -34,8 +34,7 @@ namespace TrendingGiphyBot.Jobs
         async void Elapsed(object sender, ElapsedEventArgs e)
         {
             _Timer.Stop();
-            var fireTime = DateTime.Now;
-            _Logger.Info($"{nameof(fireTime)}:{fireTime.ToString("o")}");
+            _Logger.Info("Timer fired.");
             await Run();
             StartTimerWithCloseInterval();
         }
