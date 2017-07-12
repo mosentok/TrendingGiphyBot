@@ -13,6 +13,7 @@ using System.Linq;
 using TrendingGiphyBot.Wordnik.Clients;
 using Discord;
 using TrendingGiphyBot.Containers;
+using TrendingGiphyBot.Attributes;
 
 namespace TrendingGiphyBot.Modules
 {
@@ -96,6 +97,7 @@ namespace TrendingGiphyBot.Modules
         }
         [Command(nameof(Set))]
         [Summary("Sets the " + nameof(JobConfig) + " for this channel.")]
+        [Example("!jobconfig set 10 minutes")]
         public async Task Set(
             [Summary(nameof(JobConfig.Interval) + " to set.")]
             int interval,
