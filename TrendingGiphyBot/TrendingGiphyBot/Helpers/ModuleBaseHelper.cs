@@ -1,5 +1,6 @@
 ﻿using Discord.Commands;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using TrendingGiphyBot.Containers;
@@ -14,21 +15,37 @@ namespace TrendingGiphyBot.Helpers
         {
             return new HelpContainer(typeof(T).GetMethods().Select(method =>
             {
-                var command = method.GetCustomAttribute<CommandAttribute>();
-                if (command != null)
+                var isCommand = method.GetCustomAttribute<CommandAttribute>() != null;
+                if (isCommand)
                 {
-                    var methodSummary = method.GetCustomAttribute<SummaryAttribute>();
-                    var parameters = method.GetParameters().Select(parameter =>
+                    string commandText;
+                    var parameters = new List<ParameterContainer>();
+                    var parameterInfos = method.GetParameters();
+                    if (parameterInfos.Any())
                     {
-                        var parameterSummary = parameter.GetCustomAttribute<SummaryAttribute>().Text;
-                        return new ParameterContainer(parameter.Name, parameterSummary);
-                    });
-                    return new MethodContainer(command.Text, methodSummary.Text, parameters);
+                        commandText = GetMethodSignature(method);
+                        parameters.AddRange(parameterInfos.Select(parameter =>
+                        {
+                            var parameterSummary = parameter.GetCustomAttribute<SummaryAttribute>().Text;
+                            return new ParameterContainer(parameter.Name, parameterSummary);
+                        }));
+                    }
+                    else
+                        commandText = method.GetCustomAttribute<CommandAttribute>().Text;
+                    var methodSummary = method.GetCustomAttribute<SummaryAttribute>();
+                    return new MethodContainer(commandText, methodSummary.Text, parameters);
                 }
                 return null;
             }).Where(s => s != null)
             .OrderBy(s => s.Name));
         }
+        static string GetMethodSignature(MethodInfo method)
+        {
+            var parameter = method.GetParameters().Select(s => $"{s.ParameterType.Name} {s.Name}");
+            var parameters = string.Join(",", parameter);
+            return $"{method.Name}({parameters})";
+        }
+        static string RemoveNamespace(string parameterType) => parameterType.Split(new[] { '.' }).Last();
         internal static bool IsValid(int interval, Time time, int minimumMinutes)
         {
             var configgedMinutes = DetermineJobIntervalSeconds(interval, time);
