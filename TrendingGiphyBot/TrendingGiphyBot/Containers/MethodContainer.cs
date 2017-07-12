@@ -6,12 +6,12 @@ namespace TrendingGiphyBot.Containers
     {
         public string Name { get; set; }
         public string Summary { get; set; }
-        public IEnumerable<ParameterContainer> Parameters { get; set; }
-        public MethodContainer(string name, string summary, IEnumerable<ParameterContainer> parameters)
+        public IEnumerable<FieldContainer> Fields { get; set; }
+        public MethodContainer(string name, string summary, IEnumerable<FieldContainer> fields)
         {
             Name = name;
             Summary = summary;
-            Parameters = parameters;
+            Fields = fields;
         }
     }
 }
