@@ -37,6 +37,7 @@ namespace TrendingGiphyBot.Helpers
             }
             return fields;
         }
+        //TODO could probably just build the embed here and nix the containers altogether
         static HelpContainer BuildHelpContainer<T>() where T : ModuleBase
         {
             return new HelpContainer(typeof(T).GetMethods().Select(method =>
@@ -47,7 +48,6 @@ namespace TrendingGiphyBot.Helpers
                     var commandText = GetMethodSignature(method);
                     var fields = new List<FieldContainer>();
                     var parameterInfos = method.GetParameters();
-                    //TODO is any really required?
                     fields.AddRange(parameterInfos.Select(s =>
                     {
                         var parameterSummary = s.GetCustomAttribute<SummaryAttribute>().Text;

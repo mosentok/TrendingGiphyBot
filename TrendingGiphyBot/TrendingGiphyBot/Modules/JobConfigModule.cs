@@ -63,9 +63,9 @@ namespace TrendingGiphyBot.Modules
             if (any)
             {
                 var config = await _JobConfigDal.Get(Context.Channel.Id);
-                var avatarUrl = Context.Client.CurrentUser.GetAvatarUrl();
+                var avatarUrl = (await Context.Client.GetGuildAsync(Context.Guild.Id)).IconUrl;
                 var author = new EmbedAuthorBuilder()
-                    .WithName(nameof(JobConfig))
+                    .WithName($"{Context.Channel.Name}'s {nameof(JobConfig)}")
                     .WithIconUrl(avatarUrl);
                 var embed = new EmbedBuilder()
                     .WithAuthor(author)
