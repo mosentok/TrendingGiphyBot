@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Newtonsoft.Json;
 using Discord.Commands;
 using System.Collections.Generic;
 using GiphyDotNet.Manager;
@@ -64,8 +63,15 @@ namespace TrendingGiphyBot.Modules
             if (any)
             {
                 var config = await _JobConfigDal.Get(Context.Channel.Id);
-                var serialized = JsonConvert.SerializeObject(config, Formatting.Indented);
-                await ReplyAsync(serialized);
+                var avatarUrl = Context.Client.CurrentUser.GetAvatarUrl();
+                var author = new EmbedAuthorBuilder()
+                    .WithName(nameof(JobConfig))
+                    .WithIconUrl(avatarUrl);
+                var embed = new EmbedBuilder()
+                    .WithAuthor(author)
+                    .AddInlineField(nameof(config.Interval), config.Interval)
+                    .AddInlineField(nameof(config.Time), config.Time);
+                await ReplyAsync(string.Empty, embed: embed);
             }
             else
                 await ReplyAsync(NotConfiguredMessage);
