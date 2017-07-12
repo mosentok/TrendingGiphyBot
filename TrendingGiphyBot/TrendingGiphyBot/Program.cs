@@ -41,7 +41,8 @@ namespace TrendingGiphyBot
             _Config = JsonConvert.DeserializeObject<Config>(contents);
             _JobConfigDal = new JobConfigDal(_Config.ConnectionString);
             _UrlCacheDal = new UrlCacheDal(_Config.ConnectionString);
-            _DiscordClient = new DiscordSocketClient();
+            var allLogSeverities = Enum.GetValues(typeof(LogSeverity)).OfType<LogSeverity>().Aggregate((a, b) => a | b);
+            _DiscordClient = new DiscordSocketClient(new DiscordSocketConfig { LogLevel = allLogSeverities });
             if (!string.IsNullOrEmpty(_Config.WordnikToken))
                 _WordnikClient = new WordnikClient("http://developer.wordnik.com/v4", _Config.WordnikToken);
             _Commands = new CommandService();
@@ -85,21 +86,27 @@ namespace TrendingGiphyBot
                     var context = new JobConfigCommandContext(_DiscordClient, message, _GiphyClient, _Jobs, _JobConfigDal, _UrlCacheDal, _Config.MinimumMinutes, _WordnikClient);
                     var result = await _Commands.ExecuteAsync(context, argPos, _Services);
                     if (!result.IsSuccess)
-                        await HandleError(context.Channel, result);
+                        await HandleError(context, result);
                 }
             }
         }
-        static async Task HandleError(IMessageChannel channel, IResult result)
+        static async Task HandleError(JobConfigCommandContext context, IResult result)
         {
-            if (result is ExecuteResult executeResult)
-                _Logger.Error(executeResult.Exception);
             ErrorResult errorResult;
             if (result.Error.HasValue && result.Error.Value == CommandError.Exception)
                 errorResult = new ErrorResult(CommandError.Exception, "An unexpected error occurred.", false);
             else
                 errorResult = new ErrorResult(result);
-            var serialized = JsonConvert.SerializeObject(errorResult, Formatting.Indented);
-            await channel.SendMessageAsync(serialized);
+            var avatarUrl = (await context.Client.GetGuildAsync(context.Guild.Id)).IconUrl;
+            var author = new EmbedAuthorBuilder()
+                .WithName(nameof(JobConfig))
+                .WithIconUrl(avatarUrl);
+            var embed = new EmbedBuilder()
+                .WithAuthor(author)
+                .AddInlineField(nameof(errorResult.Error), errorResult.Error)
+                .AddInlineField(nameof(errorResult.ErrorReason), errorResult.ErrorReason)
+                .AddInlineField(nameof(errorResult.IsSuccess), errorResult.IsSuccess);
+            await context.Channel.SendMessageAsync(string.Empty, embed: embed);
         }
         Task Log(LogMessage logMessage)
         {
