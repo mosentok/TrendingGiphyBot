@@ -1,8 +1,8 @@
 ﻿using Newtonsoft.Json;
 
-namespace TrendingGiphyBot
+namespace TrendingGiphyBot.Configuration
 {
-    class Config : IConfig
+    class Config
     {
         [JsonRequired]
         public string DiscordToken { get; set; }
