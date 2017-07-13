@@ -25,6 +25,7 @@ namespace TrendingGiphyBot.Configuration
             JobConfigDal = new JobConfigDal(Config.ConnectionString);
             UrlCacheDal = new UrlCacheDal(Config.ConnectionString);
             GiphyClient = new Giphy(Config.GiphyToken);
+            //TODO base address should be in the config
             WordnikClient = new WordnikClient("http://developer.wordnik.com/v4", Config.WordnikToken);
             Jobs = new List<Job>();
         }

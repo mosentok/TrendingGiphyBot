@@ -218,7 +218,6 @@
     <Compile Include="Exceptions\InvalidTimeException.cs" />
     <Compile Include="CommandContexts\JobConfigCommandContext.cs" />
     <Compile Include="Helpers\ModuleBaseHelper.cs" />
-    <Compile Include="Configuration\IConfig.cs" />
     <Compile Include="Jobs\PostImageJob.cs" />
     <Compile Include="Jobs\RefreshImagesJob.cs" />
     <Compile Include="Jobs\SetGameJob.cs" />
