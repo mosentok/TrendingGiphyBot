@@ -20,18 +20,18 @@ namespace TrendingGiphyBot.Jobs
         protected DiscordSocketClient DiscordClient { get; private set; }
         public int Interval { get; private set; }
         public Time Time { get; private set; }
-        public Job(IServiceProvider services, DiscordSocketClient discordClient, JobConfig jobConfig, ILogger logger)
+        public Job(IServiceProvider services, JobConfig jobConfig, ILogger logger)
         {
-            Initialize(services, discordClient, jobConfig.Interval, jobConfig.Time.ToString(), logger);
+            Initialize(services, jobConfig.Interval, jobConfig.Time.ToString(), logger);
         }
-        public Job(IServiceProvider services, DiscordSocketClient discordClient, int interval, string time, ILogger logger)
+        public Job(IServiceProvider services, int interval, string time, ILogger logger)
         {
-            Initialize(services, discordClient, interval, time, logger);
+            Initialize(services, interval, time, logger);
         }
-        void Initialize(IServiceProvider services, DiscordSocketClient discordClient, int interval, string time, ILogger logger)
+        void Initialize(IServiceProvider services, int interval, string time, ILogger logger)
         {
             GlobalConfig = services.GetRequiredService<IGlobalConfig>();
-            DiscordClient = discordClient;
+            DiscordClient = GlobalConfig.DiscordClient;
             Interval = interval;
             Time = ConvertToTime(time);
             _Logger = logger;

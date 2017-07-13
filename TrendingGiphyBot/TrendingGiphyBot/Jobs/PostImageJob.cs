@@ -18,7 +18,7 @@ namespace TrendingGiphyBot.Jobs
                 await Task.Delay(TimeSpan.FromSeconds(1));
             return (await GlobalConfig.UrlCacheDal.Get(minute)).Url;
         }
-        public PostImageJob(IServiceProvider services, DiscordSocketClient discordClient, JobConfig jobConfig) : base(services, discordClient, jobConfig, _Logger)
+        public PostImageJob(IServiceProvider services, JobConfig jobConfig) : base(services, jobConfig, _Logger)
         {
             ChannelId = Convert.ToUInt64(jobConfig.ChannelId);
         }

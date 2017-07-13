@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using Discord.Commands;
-using Discord.WebSocket;
 using TrendingGiphyBot.Enums;
 using TrendingGiphyBot.Dals;
 using TrendingGiphyBot.Helpers;
@@ -120,7 +119,7 @@ namespace TrendingGiphyBot.Modules
             else
             {
                 await _GlobalConfig.JobConfigDal.Insert(config);
-                var postImageJob = new PostImageJob(_Services, Context.Client as DiscordSocketClient, config);
+                var postImageJob = new PostImageJob(_Services, config);
                 _GlobalConfig.Jobs.Add(postImageJob);
                 postImageJob.StartTimerWithCloseInterval();
             }

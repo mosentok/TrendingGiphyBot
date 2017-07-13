@@ -19,10 +19,10 @@ namespace TrendingGiphyBot
     class Program : IDisposable
     {
         static readonly ILogger _Logger = LogManager.GetCurrentClassLogger();
-        DiscordSocketClient _DiscordClient;
         CommandService _Commands;
         IServiceProvider _Services;
         IGlobalConfig _GlobalConfig;
+        DiscordSocketClient _DiscordClient => _GlobalConfig.DiscordClient;
         static void Main(string[] args) => new Program().MainAsync().GetAwaiter().GetResult();
         async Task MainAsync()
         {
@@ -30,8 +30,6 @@ namespace TrendingGiphyBot
                 .AddSingleton<IGlobalConfig, GlobalConfig>()
                 .BuildServiceProvider();
             _GlobalConfig = _Services.GetRequiredService<IGlobalConfig>();
-            var allLogSeverities = Enum.GetValues(typeof(LogSeverity)).OfType<LogSeverity>().Aggregate((a, b) => a | b);
-            _DiscordClient = new DiscordSocketClient(new DiscordSocketConfig { LogLevel = allLogSeverities });
             _Commands = new CommandService();
             _DiscordClient.MessageReceived += MessageReceived;
             _DiscordClient.Log += Log;
@@ -45,11 +43,11 @@ namespace TrendingGiphyBot
         {
             var jobs = new List<Job>();
             var channelsThatExist = await GetConfigsWithAliveChannels();
-            var postImageJobs = channelsThatExist.Select(s => new PostImageJob(_Services, _DiscordClient, s));
+            var postImageJobs = channelsThatExist.Select(s => new PostImageJob(_Services, s));
             _GlobalConfig.Jobs.AddRange(postImageJobs);
             //TODO base ctor only accepts string... just to convert back into Time enum
-            _GlobalConfig.Jobs.Add(new RefreshImagesJob(_Services, _DiscordClient, 1, Time.Minute.ToString()));
-            _GlobalConfig.Jobs.Add(new SetGameJob(_Services, _DiscordClient, 1, Time.Minute.ToString()));
+            _GlobalConfig.Jobs.Add(new RefreshImagesJob(_Services, 1, Time.Minute.ToString()));
+            _GlobalConfig.Jobs.Add(new SetGameJob(_Services, 1, Time.Minute.ToString()));
             _GlobalConfig.Jobs.ForEach(s => s.StartTimerWithCloseInterval());
             var count = await _GlobalConfig.JobConfigDal.GetCount();
             await _DiscordClient.SetGameAsync(string.Empty);
@@ -68,7 +66,6 @@ namespace TrendingGiphyBot
                 int argPos = 0;
                 if (message.HasCharPrefix('!', ref argPos) || message.HasMentionPrefix(_DiscordClient.CurrentUser, ref argPos))
                 {
-                    //TODO config minutes
                     var context = new CommandContext(_DiscordClient, message);
                     var result = await _Commands.ExecuteAsync(context, argPos, _Services);
                     if (!result.IsSuccess)
