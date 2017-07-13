@@ -2,7 +2,7 @@
 
 namespace TrendingGiphyBot
 {
-    class Config
+    class Config : IConfig
     {
         [JsonRequired]
         public string DiscordToken { get; set; }

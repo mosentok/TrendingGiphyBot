@@ -1,22 +1,17 @@
-﻿using System.Threading.Tasks;
-using Discord.WebSocket;
-using GiphyDotNet.Manager;
+﻿using System;
+using System.Threading.Tasks;
 using NLog;
-using TrendingGiphyBot.Dals;
+using Discord.WebSocket;
 
 namespace TrendingGiphyBot.Jobs
 {
     class SetGameJob : Job
     {
         static readonly ILogger _Logger = LogManager.GetCurrentClassLogger();
-        readonly JobConfigDal _JobConfigDal;
-        internal SetGameJob(Giphy giphyClient, DiscordSocketClient discordClient, int interval, string time, JobConfigDal jobConfigdal) : base(giphyClient, discordClient, interval, time, _Logger)
-        {
-            _JobConfigDal = jobConfigdal;
-        }
+        public SetGameJob(IServiceProvider services, DiscordSocketClient discordClient, int interval, string time) : base(services, discordClient, interval, time, _Logger) { }
         protected override async Task Run()
         {
-            var count = await _JobConfigDal.GetCount();
+            var count = await GlobalConfig.JobConfigDal.GetCount();
             await DiscordClient.SetGameAsync(string.Empty);
             await DiscordClient.SetGameAsync($"A Tale of {count} Gifs");
         }

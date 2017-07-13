@@ -1,43 +1,28 @@
 ﻿using System.Threading.Tasks;
 using Discord.Commands;
-using System.Collections.Generic;
-using GiphyDotNet.Manager;
 using Discord.WebSocket;
 using TrendingGiphyBot.Enums;
-using TrendingGiphyBot.CommandContexts;
 using TrendingGiphyBot.Dals;
 using TrendingGiphyBot.Helpers;
 using TrendingGiphyBot.Jobs;
 using System.Linq;
-using TrendingGiphyBot.Wordnik.Clients;
 using Discord;
 using TrendingGiphyBot.Attributes;
+using System;
+using TrendingGiphyBot.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace TrendingGiphyBot.Modules
 {
     [Group(nameof(JobConfig))]
     public class JobConfigModule : ModuleBase
     {
-        List<Job> _Jobs;
-        JobConfigDal _JobConfigDal;
-        UrlCacheDal _UrlCacheDal;
-        Giphy _GiphyClient;
-        int _MinimumMinutes;
-        WordnikClient _WordnikClient;
-        bool initialized;
-        protected override void BeforeExecute(CommandInfo command)
+        IServiceProvider _Services;
+        IGlobalConfig _GlobalConfig;
+        public JobConfigModule(IServiceProvider services)
         {
-            if (!initialized)
-            {
-                var context = Context as JobConfigCommandContext;
-                _Jobs = context.Jobs;
-                _JobConfigDal = context.ChannelJobConfigDal;
-                _UrlCacheDal = context.UrlCacheDal;
-                _GiphyClient = context.GiphyClient;
-                _MinimumMinutes = context.MinimumMinutes;
-                _WordnikClient = context.WordnikClient;
-                initialized = true;
-            }
+            _Services = services;
+            _GlobalConfig = services.GetRequiredService<IGlobalConfig>();
         }
         string NotConfiguredMessage => $"{Context.Channel.Id} not configured. Configure me senpai! Use '!{nameof(JobConfig)}' or '!{nameof(JobConfig)} {nameof(Help)}' to learn how to.";
         [Command(nameof(Help))]
@@ -59,10 +44,10 @@ namespace TrendingGiphyBot.Modules
         [Summary("Gets the " + nameof(JobConfig) + " for this channel.")]
         public async Task Get()
         {
-            var any = await _JobConfigDal.Any(Context.Channel.Id);
+            var any = await _GlobalConfig.JobConfigDal.Any(Context.Channel.Id);
             if (any)
             {
-                var config = await _JobConfigDal.Get(Context.Channel.Id);
+                var config = await _GlobalConfig.JobConfigDal.Get(Context.Channel.Id);
                 var avatarUrl = (await Context.Client.GetGuildAsync(Context.Guild.Id)).IconUrl;
                 var author = new EmbedAuthorBuilder()
                     .WithName($"{Context.Channel.Name}'s {nameof(JobConfig)}")
@@ -85,25 +70,25 @@ namespace TrendingGiphyBot.Modules
             [Summary(nameof(JobConfig.Time) + " to set.")]
             Time time)
         {
-            var isValid = ModuleBaseHelper.IsValid(interval, time, _MinimumMinutes);
+            var isValid = ModuleBaseHelper.IsValid(interval, time, _GlobalConfig.Config.MinimumMinutes);
             if (isValid)
             {
                 await SaveConfig(interval, time);
                 await Get();
             }
             else
-                await ReplyAsync($"{nameof(JobConfig.Interval)} and {nameof(JobConfig.Time)} must combine to at least {_MinimumMinutes} minutes.");
+                await ReplyAsync($"{nameof(JobConfig.Interval)} and {nameof(JobConfig.Time)} must combine to at least {_GlobalConfig.Config.MinimumMinutes} minutes.");
         }
         [Command(nameof(Remove))]
         [Summary("Removes the " + nameof(JobConfig) + " for this channel.")]
         public async Task Remove()
         {
-            if (await _JobConfigDal.Any(Context.Channel.Id))
+            if (await _GlobalConfig.JobConfigDal.Any(Context.Channel.Id))
             {
                 await SendRemoveMessage();
-                await _JobConfigDal.Remove(Context.Channel.Id);
-                var toRemove = _Jobs.OfType<PostImageJob>().Single(s => s.ChannelId == Context.Channel.Id);
-                _Jobs.Remove(toRemove);
+                await _GlobalConfig.JobConfigDal.Remove(Context.Channel.Id);
+                var toRemove = _GlobalConfig.Jobs.OfType<PostImageJob>().Single(s => s.ChannelId == Context.Channel.Id);
+                _GlobalConfig.Jobs.Remove(toRemove);
                 toRemove?.Dispose();
             }
             else
@@ -111,7 +96,7 @@ namespace TrendingGiphyBot.Modules
         }
         async Task SendRemoveMessage()
         {
-            var wordOfTheDay = await _WordnikClient?.GetWordOfTheDay();
+            var wordOfTheDay = await _GlobalConfig.WordnikClient?.GetWordOfTheDay();
             if (wordOfTheDay == null)
                 await ReplyAsync("Configuration removed.");
             else
@@ -126,17 +111,17 @@ namespace TrendingGiphyBot.Modules
                 Interval = interval,
                 Time = time.ToString()
             };
-            var any = await _JobConfigDal.Any(Context.Channel.Id);
+            var any = await _GlobalConfig.JobConfigDal.Any(Context.Channel.Id);
             if (any)
             {
-                await _JobConfigDal.Update(config);
-                _Jobs.OfType<PostImageJob>().Single(s => s.ChannelId == Context.Channel.Id).Restart(config);
+                await _GlobalConfig.JobConfigDal.Update(config);
+                _GlobalConfig.Jobs.OfType<PostImageJob>().Single(s => s.ChannelId == Context.Channel.Id).Restart(config);
             }
             else
             {
-                await _JobConfigDal.Insert(config);
-                var postImageJob = new PostImageJob(_GiphyClient, Context.Client as DiscordSocketClient, config, _JobConfigDal, _UrlCacheDal);
-                _Jobs.Add(postImageJob);
+                await _GlobalConfig.JobConfigDal.Insert(config);
+                var postImageJob = new PostImageJob(_Services, Context.Client as DiscordSocketClient, config);
+                _GlobalConfig.Jobs.Add(postImageJob);
                 postImageJob.StartTimerWithCloseInterval();
             }
         }
