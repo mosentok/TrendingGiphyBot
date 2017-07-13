@@ -8,7 +8,6 @@ namespace TrendingGiphyBot.Jobs
 {
     class PostImageJob : Job
     {
-        static readonly ILogger _Logger = LogManager.GetCurrentClassLogger();
         internal ulong ChannelId { get; private set; }
         string _LastUrlIPosted;
         internal async Task<string> GetImageUrl()
@@ -18,7 +17,7 @@ namespace TrendingGiphyBot.Jobs
                 await Task.Delay(TimeSpan.FromSeconds(1));
             return (await GlobalConfig.UrlCacheDal.Get(minute)).Url;
         }
-        public PostImageJob(IServiceProvider services, JobConfig jobConfig) : base(services, jobConfig, _Logger)
+        public PostImageJob(IServiceProvider services, JobConfig jobConfig) : base(services, LogManager.GetCurrentClassLogger(), jobConfig)
         {
             ChannelId = Convert.ToUInt64(jobConfig.ChannelId);
         }
@@ -36,6 +35,6 @@ namespace TrendingGiphyBot.Jobs
                 }
             }
         }
-        protected override void TimerStartedLog() => _Logger.Info($"Config: {Interval} {Time}. Next elapse: {NextElapse}. Channel ID: {ChannelId}.");
+        protected override void TimerStartedLog() => Logger.Info($"Config: {Interval} {Time}. Next elapse: {NextElapse}. Channel ID: {ChannelId}.");
     }
 }

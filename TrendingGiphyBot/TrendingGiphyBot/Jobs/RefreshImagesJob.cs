@@ -10,8 +10,7 @@ namespace TrendingGiphyBot.Jobs
 {
     class RefreshImagesJob : Job
     {
-        static readonly ILogger _Logger = LogManager.GetCurrentClassLogger();
-        public RefreshImagesJob(IServiceProvider services, int interval, Time time) : base(services, interval, time, _Logger) { }
+        public RefreshImagesJob(IServiceProvider services, int interval, Time time) : base(services, LogManager.GetCurrentClassLogger(), interval, time) { }
         protected override async Task Run()
         {
             var gifResult = await  GlobalConfig.GiphyClient.TrendingGifs(new TrendingParameter { Limit = 1 });
