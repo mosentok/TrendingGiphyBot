@@ -1,4 +1,5 @@
-﻿using GiphyDotNet.Manager;
+﻿using Discord.WebSocket;
+using GiphyDotNet.Manager;
 using System.Collections.Generic;
 using TrendingGiphyBot.Dals;
 using TrendingGiphyBot.Jobs;
@@ -14,5 +15,6 @@ namespace TrendingGiphyBot.Configuration
         Giphy GiphyClient { get; set; }
         WordnikClient WordnikClient { get; set; }
         List<Job> Jobs { get; set; }
+        DiscordSocketClient DiscordClient { get; set; }
     }
 }

@@ -6,6 +6,10 @@ using System.IO;
 using TrendingGiphyBot.Dals;
 using TrendingGiphyBot.Jobs;
 using TrendingGiphyBot.Wordnik.Clients;
+using Discord.WebSocket;
+using System;
+using Discord;
+using System.Linq;
 
 namespace TrendingGiphyBot.Configuration
 {
@@ -17,6 +21,7 @@ namespace TrendingGiphyBot.Configuration
         public Giphy GiphyClient { get; set; }
         public WordnikClient WordnikClient { get; set; }
         public List<Job> Jobs { get; set; }
+        public DiscordSocketClient DiscordClient { get; set; }
         public GlobalConfig()
         {
             var configPath = ConfigurationManager.AppSettings["ConfigPath"];
@@ -28,6 +33,8 @@ namespace TrendingGiphyBot.Configuration
             //TODO base address should be in the config
             WordnikClient = new WordnikClient("http://developer.wordnik.com/v4", Config.WordnikToken);
             Jobs = new List<Job>();
+            var allLogSeverities = Enum.GetValues(typeof(LogSeverity)).OfType<LogSeverity>().Aggregate((a, b) => a | b);
+            DiscordClient = new DiscordSocketClient(new DiscordSocketConfig { LogLevel = allLogSeverities });
         }
     }
 }
