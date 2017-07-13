@@ -1,9 +1,10 @@
 ﻿using Discord.WebSocket;
-using GiphyDotNet.Manager;
+using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using System;
 using System.Threading.Tasks;
 using System.Timers;
+using TrendingGiphyBot.Configuration;
 using TrendingGiphyBot.Dals;
 using TrendingGiphyBot.Enums;
 using TrendingGiphyBot.Exceptions;
@@ -12,17 +13,24 @@ namespace TrendingGiphyBot.Jobs
 {
     abstract class Job : IDisposable
     {
-        readonly ILogger _Logger;
-        protected Giphy GiphyClient { get; private set; }
-        protected DiscordSocketClient DiscordClient { get; private set; }
+        ILogger _Logger;
         protected DateTime NextElapse { get; private set; }
+        Timer _Timer;
+        protected IGlobalConfig GlobalConfig { get; private set; }
+        protected DiscordSocketClient DiscordClient { get; private set; }
         public int Interval { get; private set; }
         public Time Time { get; private set; }
-        Timer _Timer;
-        protected Job(Giphy giphyClient, DiscordSocketClient discordClient, JobConfig jobConfig, ILogger logger) : this(giphyClient, discordClient, jobConfig.Interval, jobConfig.Time, logger) { }
-        protected Job(Giphy giphyClient, DiscordSocketClient discordClient, int interval, string time, ILogger logger)
+        public Job(IServiceProvider services, DiscordSocketClient discordClient, JobConfig jobConfig, ILogger logger)
         {
-            GiphyClient = giphyClient;
+            Initialize(services, discordClient, jobConfig.Interval, jobConfig.Time.ToString(), logger);
+        }
+        public Job(IServiceProvider services, DiscordSocketClient discordClient, int interval, string time, ILogger logger)
+        {
+            Initialize(services, discordClient, interval, time, logger);
+        }
+        void Initialize(IServiceProvider services, DiscordSocketClient discordClient, int interval, string time, ILogger logger)
+        {
+            GlobalConfig = services.GetRequiredService<IGlobalConfig>();
             DiscordClient = discordClient;
             Interval = interval;
             Time = ConvertToTime(time);

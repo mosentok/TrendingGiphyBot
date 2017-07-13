@@ -1,23 +1,18 @@
 ﻿using System;
-using System.Configuration;
-using System.IO;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
-using GiphyDotNet.Manager;
-using Newtonsoft.Json;
 using Discord.Commands;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using System.Collections.Generic;
-using TrendingGiphyBot.CommandContexts;
 using TrendingGiphyBot.Dals;
 using TrendingGiphyBot.Jobs;
 using TrendingGiphyBot.Enums;
 using NLog;
-using TrendingGiphyBot.Wordnik.Clients;
 using TrendingGiphyBot.Containers;
+using TrendingGiphyBot.Configuration;
 
 namespace TrendingGiphyBot
 {
@@ -25,54 +20,44 @@ namespace TrendingGiphyBot
     {
         static readonly ILogger _Logger = LogManager.GetCurrentClassLogger();
         DiscordSocketClient _DiscordClient;
-        Giphy _GiphyClient;
-        WordnikClient _WordnikClient;
-        Config _Config;
-        List<Job> _Jobs;
         CommandService _Commands;
         IServiceProvider _Services;
-        JobConfigDal _JobConfigDal;
-        UrlCacheDal _UrlCacheDal;
+        IGlobalConfig _GlobalConfig;
         static void Main(string[] args) => new Program().MainAsync().GetAwaiter().GetResult();
         async Task MainAsync()
         {
-            var configPath = ConfigurationManager.AppSettings["ConfigPath"];
-            var contents = File.ReadAllText(configPath);
-            _Config = JsonConvert.DeserializeObject<Config>(contents);
-            _JobConfigDal = new JobConfigDal(_Config.ConnectionString);
-            _UrlCacheDal = new UrlCacheDal(_Config.ConnectionString);
+            _Services = new ServiceCollection()
+                .AddSingleton<IGlobalConfig, GlobalConfig>()
+                .BuildServiceProvider();
+            _GlobalConfig = _Services.GetRequiredService<IGlobalConfig>();
             var allLogSeverities = Enum.GetValues(typeof(LogSeverity)).OfType<LogSeverity>().Aggregate((a, b) => a | b);
             _DiscordClient = new DiscordSocketClient(new DiscordSocketConfig { LogLevel = allLogSeverities });
-            if (!string.IsNullOrEmpty(_Config.WordnikToken))
-                _WordnikClient = new WordnikClient("http://developer.wordnik.com/v4", _Config.WordnikToken);
             _Commands = new CommandService();
-            _Services = new ServiceCollection().BuildServiceProvider();
             _DiscordClient.MessageReceived += MessageReceived;
             _DiscordClient.Log += Log;
             _DiscordClient.Ready += Ready;
             await _Commands.AddModulesAsync(Assembly.GetEntryAssembly());
-            await _DiscordClient.LoginAsync(TokenType.Bot, _Config.DiscordToken);
+            await _DiscordClient.LoginAsync(TokenType.Bot, _GlobalConfig.Config.DiscordToken);
             await _DiscordClient.StartAsync();
             await Task.Delay(-1);
         }
         async Task Ready()
         {
-            _GiphyClient = new Giphy(_Config.GiphyToken);
-            _Jobs = new List<Job>();
+            var jobs = new List<Job>();
             var channelsThatExist = await GetConfigsWithAliveChannels();
-            var postImageJobs = channelsThatExist.Select(s => new PostImageJob(_GiphyClient, _DiscordClient, s, _JobConfigDal, _UrlCacheDal));
-            _Jobs.AddRange(postImageJobs);
+            var postImageJobs = channelsThatExist.Select(s => new PostImageJob(_Services, _DiscordClient, s));
+            _GlobalConfig.Jobs.AddRange(postImageJobs);
             //TODO base ctor only accepts string... just to convert back into Time enum
-            _Jobs.Add(new RefreshImagesJob(_GiphyClient, _DiscordClient, 1, Time.Minute.ToString(), _UrlCacheDal));
-            _Jobs.Add(new SetGameJob(_GiphyClient, _DiscordClient, 1, Time.Minute.ToString(), _JobConfigDal));
-            _Jobs.ForEach(s => s.StartTimerWithCloseInterval());
-            var count = await _JobConfigDal.GetCount();
+            _GlobalConfig.Jobs.Add(new RefreshImagesJob(_Services, _DiscordClient, 1, Time.Minute.ToString()));
+            _GlobalConfig.Jobs.Add(new SetGameJob(_Services, _DiscordClient, 1, Time.Minute.ToString()));
+            _GlobalConfig.Jobs.ForEach(s => s.StartTimerWithCloseInterval());
+            var count = await _GlobalConfig.JobConfigDal.GetCount();
             await _DiscordClient.SetGameAsync(string.Empty);
             await _DiscordClient.SetGameAsync($"A Tale of {count} Gifs");
         }
         async Task<IEnumerable<JobConfig>> GetConfigsWithAliveChannels()
         {
-            var configuredJobs = await _JobConfigDal.GetAll();
+            var configuredJobs = await _GlobalConfig.JobConfigDal.GetAll();
             var channelsNotFound = configuredJobs.Where(s => _DiscordClient.GetChannel(Convert.ToUInt64(s.ChannelId)) == null);
             return configuredJobs.Except(channelsNotFound);
         }
@@ -83,14 +68,15 @@ namespace TrendingGiphyBot
                 int argPos = 0;
                 if (message.HasCharPrefix('!', ref argPos) || message.HasMentionPrefix(_DiscordClient.CurrentUser, ref argPos))
                 {
-                    var context = new JobConfigCommandContext(_DiscordClient, message, _GiphyClient, _Jobs, _JobConfigDal, _UrlCacheDal, _Config.MinimumMinutes, _WordnikClient);
+                    //TODO config minutes
+                    var context = new CommandContext(_DiscordClient, message);
                     var result = await _Commands.ExecuteAsync(context, argPos, _Services);
                     if (!result.IsSuccess)
                         await HandleError(context, result);
                 }
             }
         }
-        static async Task HandleError(JobConfigCommandContext context, IResult result)
+        static async Task HandleError(ICommandContext context, IResult result)
         {
             ErrorResult errorResult;
             if (result.Error.HasValue && result.Error.Value == CommandError.Exception)
@@ -138,8 +124,8 @@ namespace TrendingGiphyBot
         {
             await _DiscordClient?.LogoutAsync();
             _DiscordClient?.Dispose();
-            _WordnikClient?.Dispose();
-            _Jobs?.ForEach(s => s?.Dispose());
+            _GlobalConfig?.WordnikClient?.Dispose();
+            _GlobalConfig?.Jobs?.ForEach(s => s?.Dispose());
         }
     }
 }
