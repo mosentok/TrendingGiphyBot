@@ -41,15 +41,19 @@ namespace TrendingGiphyBot
         }
         async Task Ready()
         {
+            await StartJobs();
+            var count = await _GlobalConfig.JobConfigDal.GetCount();
+            await _DiscordClient.SetGameAsync(string.Empty);
+            await _DiscordClient.SetGameAsync($"A Tale of {count} Gifs");
+        }
+        async Task StartJobs()
+        {
             var channelsThatExist = await GetConfigsWithAliveChannels();
             var postImageJobs = channelsThatExist.Select(s => new PostImageJob(_Services, s));
             _GlobalConfig.Jobs.AddRange(postImageJobs);
             _GlobalConfig.Jobs.Add(new RefreshImagesJob(_Services, 1, Time.Minute));
             _GlobalConfig.Jobs.Add(new SetGameJob(_Services, 1, Time.Minute));
             _GlobalConfig.Jobs.ForEach(s => s.StartTimerWithCloseInterval());
-            var count = await _GlobalConfig.JobConfigDal.GetCount();
-            await _DiscordClient.SetGameAsync(string.Empty);
-            await _DiscordClient.SetGameAsync($"A Tale of {count} Gifs");
         }
         async Task<IEnumerable<JobConfig>> GetConfigsWithAliveChannels()
         {
@@ -57,7 +61,7 @@ namespace TrendingGiphyBot
             var channelsNotFound = configuredJobs.Where(s => _DiscordClient.GetChannel(Convert.ToUInt64(s.ChannelId)) == null);
             return configuredJobs.Except(channelsNotFound);
         }
-        public async Task MessageReceived(SocketMessage messageParam)
+        async Task MessageReceived(SocketMessage messageParam)
         {
             if (messageParam is SocketUserMessage message)
             {

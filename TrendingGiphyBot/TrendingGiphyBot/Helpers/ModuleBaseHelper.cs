@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using TrendingGiphyBot.Attributes;
-using TrendingGiphyBot.Containers;
 using TrendingGiphyBot.Enums;
 using TrendingGiphyBot.Exceptions;
 
@@ -15,53 +14,43 @@ namespace TrendingGiphyBot.Helpers
     {
         internal static List<EmbedFieldBuilder> BuildFields<T>() where T : ModuleBase
         {
-            var helpContainer = BuildHelpContainer<T>();
-            var fields = new List<EmbedFieldBuilder>();
-            foreach (var method in helpContainer.Methods)
-            {
-                var embedFieldBuilder = new EmbedFieldBuilder()
-                    .WithName($"{method.Name}");
-                if (method.Fields.Any())
-                {
-                    fields.Add(embedFieldBuilder
-                        .WithValue($"{method.Summary} *Parameters*:"));
-                    foreach (var field in method.Fields)
-                        fields.Add(new EmbedFieldBuilder()
-                            .WithName($"*{field.Name}*")
-                            .WithValue(field.Summary)
-                            .WithIsInline(true));
-                }
-                else
-                    fields.Add(embedFieldBuilder
-                        .WithValue(method.Summary));
-            }
-            return fields;
-        }
-        //TODO could probably just build the embed here and nix the containers altogether
-        static HelpContainer BuildHelpContainer<T>() where T : ModuleBase
-        {
-            return new HelpContainer(typeof(T).GetMethods().Select(method =>
+            return typeof(T).GetMethods().OrderBy(s => s.Name).Select(method =>
             {
                 var isCommand = method.GetCustomAttribute<CommandAttribute>() != null;
                 if (isCommand)
                 {
                     var commandText = GetMethodSignature(method);
-                    var fields = new List<FieldContainer>();
+                    var embedFieldBuilder = new EmbedFieldBuilder()
+                        .WithName($"{commandText}");
+                    var fields = new List<EmbedFieldBuilder>();
+                    var methodSummary = method.GetCustomAttribute<SummaryAttribute>();
                     var parameterInfos = method.GetParameters();
-                    fields.AddRange(parameterInfos.Select(s =>
+                    if (parameterInfos.Any())
                     {
-                        var parameterSummary = s.GetCustomAttribute<SummaryAttribute>().Text;
-                        return new FieldContainer(s.Name, parameterSummary);
-                    }));
+                        fields.Add(embedFieldBuilder
+                            .WithValue($"{methodSummary.Text} *Parameters*:"));
+                        fields.AddRange(parameterInfos.Select(s =>
+                        {
+                            var parameterSummary = s.GetCustomAttribute<SummaryAttribute>().Text;
+                            return new EmbedFieldBuilder()
+                                .WithIsInline(true)
+                                .WithName(s.Name)
+                                .WithValue(parameterSummary);
+                        }));
+                    }
+                    else
+                        fields.Add(embedFieldBuilder
+                            .WithValue(methodSummary.Text));
                     var example = method.GetCustomAttribute<ExampleAttribute>();
                     if (example != null)
-                        fields.Add(new FieldContainer(example.Name, example.Text));
-                    var methodSummary = method.GetCustomAttribute<SummaryAttribute>();
-                    return new MethodContainer(commandText, methodSummary.Text, fields);
+                        fields.Add(new EmbedFieldBuilder()
+                            .WithIsInline(true)
+                            .WithName(example.Name)
+                            .WithValue(example.Text));
+                    return fields;
                 }
                 return null;
-            }).Where(s => s != null)
-            .OrderBy(s => s.Name));
+            }).Where(s => s != null).SelectMany(s => s).ToList();
         }
         static string GetMethodSignature(MethodInfo method)
         {
