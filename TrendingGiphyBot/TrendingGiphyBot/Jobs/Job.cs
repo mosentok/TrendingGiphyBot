@@ -13,34 +13,32 @@ namespace TrendingGiphyBot.Jobs
 {
     abstract class Job : IDisposable
     {
-        ILogger _Logger;
-        protected DateTime NextElapse { get; private set; }
         Timer _Timer;
+        protected ILogger Logger { get; private set; }
+        protected DateTime NextElapse { get; private set; }
         protected IGlobalConfig GlobalConfig { get; private set; }
         protected DiscordSocketClient DiscordClient { get; private set; }
         public int Interval { get; private set; }
         public Time Time { get; private set; }
-        protected Job(IServiceProvider services, JobConfig jobConfig, ILogger logger) : this(services, jobConfig.Interval, jobConfig.Time, logger) { }
-        protected Job(IServiceProvider services, int interval, string time, ILogger logger) : this(services, interval, ConvertToTime(time), logger) { }
-        protected Job(IServiceProvider services, int interval, Time time, ILogger logger)
+        protected Job(IServiceProvider services, ILogger logger, JobConfig jobConfig) : this(services, logger, jobConfig.Interval, jobConfig.Time) { }
+        protected Job(IServiceProvider services, ILogger logger, int interval, string time) : this(services, logger, interval, ConvertToTime(time)) { }
+        protected Job(IServiceProvider services, ILogger logger, int interval, Time time)
         {
             GlobalConfig = services.GetRequiredService<IGlobalConfig>();
             DiscordClient = GlobalConfig.DiscordClient;
             Interval = interval;
             Time = time;
-            _Logger = logger;
+            Logger = logger;
             _Timer = new Timer();
             _Timer.Elapsed += Elapsed;
         }
-        static Time ConvertToTime(string s) => (Time)Enum.Parse(typeof(Time), s);
         async void Elapsed(object sender, ElapsedEventArgs e)
         {
             _Timer.Stop();
-            _Logger.Info("Timer fired.");
+            Logger.Info("Timer fired.");
             await Run();
             StartTimerWithCloseInterval();
         }
-        protected virtual void TimerStartedLog() => _Logger.Info($"Config: {Interval} {Time}. Next elapse: {NextElapse}.");
         internal void Restart(JobConfig jobConfig)
         {
             _Timer.Stop();
@@ -78,10 +76,9 @@ namespace TrendingGiphyBot.Jobs
                     throw new InvalidTimeException(Time);
             }
         }
-        int DetermineDifference(int component)
-        {
-            return Interval - component % Interval;
-        }
+        static Time ConvertToTime(string s) => (Time)Enum.Parse(typeof(Time), s);
+        int DetermineDifference(int component) => Interval - component % Interval;
+        protected virtual void TimerStartedLog() => Logger.Info($"Config: {Interval} {Time}. Next elapse: {NextElapse}.");
         protected abstract Task Run();
         public void Dispose()
         {
