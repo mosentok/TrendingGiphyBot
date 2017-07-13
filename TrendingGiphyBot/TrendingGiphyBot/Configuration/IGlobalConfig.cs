@@ -1,5 +1,6 @@
 ﻿using Discord.WebSocket;
 using GiphyDotNet.Manager;
+using SpotifyAPI.Web;
 using System.Collections.Generic;
 using TrendingGiphyBot.Dals;
 using TrendingGiphyBot.Jobs;
@@ -16,5 +17,6 @@ namespace TrendingGiphyBot.Configuration
         WordnikClient WordnikClient { get; set; }
         List<Job> Jobs { get; set; }
         DiscordSocketClient DiscordClient { get; set; }
+        SpotifyWebAPI SpotifyClient { get; set; }
     }
 }

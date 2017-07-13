@@ -119,12 +119,14 @@ namespace TrendingGiphyBot
             }
             return Task.CompletedTask;
         }
+        //TODO make global config disposable
         public async void Dispose()
         {
             await _DiscordClient?.LogoutAsync();
             _DiscordClient?.Dispose();
             _GlobalConfig?.WordnikClient?.Dispose();
             _GlobalConfig?.Jobs?.ForEach(s => s?.Dispose());
+            _GlobalConfig.SpotifyClient?.Dispose();
         }
     }
 }
