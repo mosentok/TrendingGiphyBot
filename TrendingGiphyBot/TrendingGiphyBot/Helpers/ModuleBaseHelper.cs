@@ -18,39 +18,41 @@ namespace TrendingGiphyBot.Helpers
             {
                 var isCommand = method.GetCustomAttribute<CommandAttribute>() != null;
                 if (isCommand)
-                {
-                    var commandText = GetMethodSignature(method);
-                    var embedFieldBuilder = new EmbedFieldBuilder()
-                        .WithName($"{commandText}");
-                    var fields = new List<EmbedFieldBuilder>();
-                    var methodSummary = method.GetCustomAttribute<SummaryAttribute>();
-                    var parameterInfos = method.GetParameters();
-                    if (parameterInfos.Any())
-                    {
-                        fields.Add(embedFieldBuilder
-                            .WithValue($"{methodSummary.Text} *Parameters*:"));
-                        fields.AddRange(parameterInfos.Select(s =>
-                        {
-                            var parameterSummary = s.GetCustomAttribute<SummaryAttribute>().Text;
-                            return new EmbedFieldBuilder()
-                                .WithIsInline(true)
-                                .WithName(s.Name)
-                                .WithValue(parameterSummary);
-                        }));
-                    }
-                    else
-                        fields.Add(embedFieldBuilder
-                            .WithValue(methodSummary.Text));
-                    var example = method.GetCustomAttribute<ExampleAttribute>();
-                    if (example != null)
-                        fields.Add(new EmbedFieldBuilder()
-                            .WithIsInline(true)
-                            .WithName(example.Name)
-                            .WithValue(example.Text));
-                    return fields;
-                }
+                    return BuildFields(method);
                 return null;
             }).Where(s => s != null).SelectMany(s => s).ToList();
+        }
+        static List<EmbedFieldBuilder> BuildFields(MethodInfo method)
+        {
+            var commandText = GetMethodSignature(method);
+            var embedFieldBuilder = new EmbedFieldBuilder()
+                .WithName($"{commandText}");
+            var fields = new List<EmbedFieldBuilder>();
+            var methodSummary = method.GetCustomAttribute<SummaryAttribute>();
+            var parameterInfos = method.GetParameters();
+            if (parameterInfos.Any())
+            {
+                fields.Add(embedFieldBuilder
+                    .WithValue($"{methodSummary.Text} *Parameters*:"));
+                fields.AddRange(parameterInfos.Select(s =>
+                {
+                    var parameterSummary = s.GetCustomAttribute<SummaryAttribute>().Text;
+                    return new EmbedFieldBuilder()
+                        .WithIsInline(true)
+                        .WithName(s.Name)
+                        .WithValue(parameterSummary);
+                }));
+            }
+            else
+                fields.Add(embedFieldBuilder
+                    .WithValue(methodSummary.Text));
+            var example = method.GetCustomAttribute<ExampleAttribute>();
+            if (example != null)
+                fields.Add(new EmbedFieldBuilder()
+                    .WithIsInline(true)
+                    .WithName(example.Name)
+                    .WithValue(example.Text));
+            return fields;
         }
         static string GetMethodSignature(MethodInfo method)
         {
