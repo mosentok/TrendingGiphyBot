@@ -30,8 +30,7 @@ namespace TrendingGiphyBot.Configuration
             JobConfigDal = new JobConfigDal(Config.ConnectionString);
             UrlCacheDal = new UrlCacheDal(Config.ConnectionString);
             GiphyClient = new Giphy(Config.GiphyToken);
-            //TODO base address should be in the config
-            WordnikClient = new WordnikClient("http://developer.wordnik.com/v4", Config.WordnikToken);
+            WordnikClient = new WordnikClient(Config.WordnikBaseAddress, Config.WordnikToken);
             Jobs = new List<Job>();
             var allLogSeverities = Enum.GetValues(typeof(LogSeverity)).OfType<LogSeverity>().Aggregate((a, b) => a | b);
             DiscordClient = new DiscordSocketClient(new DiscordSocketConfig { LogLevel = allLogSeverities });
