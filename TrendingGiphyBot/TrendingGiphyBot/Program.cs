@@ -44,9 +44,8 @@ namespace TrendingGiphyBot
             var channelsThatExist = await GetConfigsWithAliveChannels();
             var postImageJobs = channelsThatExist.Select(s => new PostImageJob(_Services, s));
             _GlobalConfig.Jobs.AddRange(postImageJobs);
-            //TODO base ctor only accepts string... just to convert back into Time enum
-            _GlobalConfig.Jobs.Add(new RefreshImagesJob(_Services, 1, Time.Minute.ToString()));
-            _GlobalConfig.Jobs.Add(new SetGameJob(_Services, 1, Time.Minute.ToString()));
+            _GlobalConfig.Jobs.Add(new RefreshImagesJob(_Services, 1, Time.Minute));
+            _GlobalConfig.Jobs.Add(new SetGameJob(_Services, 1, Time.Minute));
             _GlobalConfig.Jobs.ForEach(s => s.StartTimerWithCloseInterval());
             var count = await _GlobalConfig.JobConfigDal.GetCount();
             await _DiscordClient.SetGameAsync(string.Empty);
