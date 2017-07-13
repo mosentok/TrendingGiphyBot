@@ -41,7 +41,6 @@ namespace TrendingGiphyBot
         }
         async Task Ready()
         {
-            var jobs = new List<Job>();
             var channelsThatExist = await GetConfigsWithAliveChannels();
             var postImageJobs = channelsThatExist.Select(s => new PostImageJob(_Services, s));
             _GlobalConfig.Jobs.AddRange(postImageJobs);
