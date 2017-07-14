@@ -48,5 +48,12 @@ namespace TrendingGiphyBot.Configuration
                 SpotifyClient = webApiFactory.GetWebApi().Result;
             }
         }
+        public void Dispose()
+        {
+            WordnikClient?.Dispose();
+            DiscordClient?.Dispose();
+            SpotifyClient?.Dispose();
+            Jobs?.ForEach(s => s?.Dispose());
+        }
     }
 }

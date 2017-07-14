@@ -1,6 +1,7 @@
 ﻿using Discord.WebSocket;
 using GiphyDotNet.Manager;
 using SpotifyAPI.Web;
+using System;
 using System.Collections.Generic;
 using TrendingGiphyBot.Dals;
 using TrendingGiphyBot.Jobs;
@@ -8,7 +9,7 @@ using TrendingGiphyBot.Wordnik.Clients;
 
 namespace TrendingGiphyBot.Configuration
 {
-    interface IGlobalConfig
+    interface IGlobalConfig : IDisposable
     {
         Config Config { get; set; }
         JobConfigDal JobConfigDal { get; set; }
