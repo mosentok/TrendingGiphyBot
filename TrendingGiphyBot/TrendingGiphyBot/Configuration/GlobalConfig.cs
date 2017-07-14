@@ -13,6 +13,7 @@ using System.Linq;
 using SpotifyAPI.Web;
 using SpotifyAPI.Web.Enums;
 using SpotifyAPI.Web.Auth;
+using System.Threading.Tasks;
 
 namespace TrendingGiphyBot.Configuration
 {
@@ -50,8 +51,9 @@ namespace TrendingGiphyBot.Configuration
         }
         public void Dispose()
         {
-            WordnikClient?.Dispose();
+            DiscordClient?.LogoutAsync().Wait();
             DiscordClient?.Dispose();
+            WordnikClient?.Dispose();
             SpotifyClient?.Dispose();
             Jobs?.ForEach(s => s?.Dispose());
         }

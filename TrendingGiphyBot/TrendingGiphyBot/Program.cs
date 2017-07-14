@@ -16,7 +16,7 @@ using TrendingGiphyBot.Configuration;
 
 namespace TrendingGiphyBot
 {
-    class Program
+    class Program : IDisposable
     {
         static readonly ILogger _Logger = LogManager.GetCurrentClassLogger();
         CommandService _Commands;
@@ -118,6 +118,10 @@ namespace TrendingGiphyBot
                     break;
             }
             return Task.CompletedTask;
+        }
+        public void Dispose()
+        {
+            _GlobalConfig.Dispose();
         }
     }
 }
