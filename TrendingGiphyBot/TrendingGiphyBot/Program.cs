@@ -16,7 +16,7 @@ using TrendingGiphyBot.Configuration;
 
 namespace TrendingGiphyBot
 {
-    class Program : IDisposable
+    class Program
     {
         static readonly ILogger _Logger = LogManager.GetCurrentClassLogger();
         CommandService _Commands;
@@ -118,15 +118,6 @@ namespace TrendingGiphyBot
                     break;
             }
             return Task.CompletedTask;
-        }
-        //TODO make global config disposable
-        public async void Dispose()
-        {
-            await _DiscordClient?.LogoutAsync();
-            _DiscordClient?.Dispose();
-            _GlobalConfig?.WordnikClient?.Dispose();
-            _GlobalConfig?.Jobs?.ForEach(s => s?.Dispose());
-            _GlobalConfig.SpotifyClient?.Dispose();
         }
     }
 }
