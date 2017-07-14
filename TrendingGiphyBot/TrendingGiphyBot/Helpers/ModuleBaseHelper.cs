@@ -63,10 +63,10 @@ namespace TrendingGiphyBot.Helpers
         static string RemoveNamespace(string parameterType) => parameterType.Split(new[] { '.' }).Last();
         internal static bool IsValid(int interval, Time time, int minimumMinutes)
         {
-            var configgedMinutes = DetermineJobIntervalSeconds(interval, time);
+            var configgedMinutes = DetermineConfiggedMinutes(interval, time);
             return configgedMinutes >= minimumMinutes;
         }
-        internal static double DetermineJobIntervalSeconds(int interval, Time time)
+        internal static double DetermineConfiggedMinutes(int interval, Time time)
         {
             switch (time)
             {
