@@ -15,12 +15,11 @@ namespace TrendingGiphyBot.Jobs
         {
             var gifResult = await  GlobalConfig.GiphyClient.TrendingGifs(new TrendingParameter { Limit = 1 });
             var url = gifResult.Data.FirstOrDefault()?.Url;
-            var minute = Convert.ToInt16(DateTime.Now.Minute);
-            var urlCache = new UrlCache { Minute = minute, Url = url };
-            if (await GlobalConfig.UrlCacheDal.Any(minute))
-                await GlobalConfig.UrlCacheDal.Update(urlCache);
-            else
+            if (!await GlobalConfig.UrlCacheDal.Any(url))
+            {
+                var urlCache = new UrlCache { Url = url, Stamp = DateTime.Now };
                 await GlobalConfig.UrlCacheDal.Insert(urlCache);
+            }
         }
     }
 }

@@ -21,6 +21,7 @@ namespace TrendingGiphyBot.Configuration
         public Config Config { get; set; }
         public JobConfigDal JobConfigDal { get; set; }
         public UrlCacheDal UrlCacheDal { get; set; }
+        public UrlHistoryDal UrlHistoryDal { get; set; }
         public Giphy GiphyClient { get; set; }
         public WordnikClient WordnikClient { get; set; }
         public List<Job> Jobs { get; set; }
@@ -33,6 +34,7 @@ namespace TrendingGiphyBot.Configuration
             Config = JsonConvert.DeserializeObject<Config>(contents);
             JobConfigDal = new JobConfigDal(Config.ConnectionString);
             UrlCacheDal = new UrlCacheDal(Config.ConnectionString);
+            UrlHistoryDal = new UrlHistoryDal(Config.ConnectionString);
             GiphyClient = new Giphy(Config.GiphyToken);
             if (Config.UseWordnik)
                 WordnikClient = new WordnikClient(Config.WordnikBaseAddress, Config.WordnikToken);
