@@ -15,69 +15,60 @@ namespace TrendingGiphyBot.Dals
         {
             return Task.Run(() =>
             {
-                using (var dataContext = new TrendingGiphyBotDataContext(_ConnectionString))
-                    return dataContext.JobConfigs.Count();
+                using (var entities = new TrendingGiphyBotEntities(_ConnectionString))
+                    return entities.JobConfigs.Count();
             });
         }
         internal Task<List<JobConfig>> GetAll()
         {
             return Task.Run(() =>
             {
-                using (var dataContext = new TrendingGiphyBotDataContext(_ConnectionString))
-                    return dataContext.JobConfigs.ToList();
+                using (var entities = new TrendingGiphyBotEntities(_ConnectionString))
+                    return entities.JobConfigs.ToList();
             });
         }
         internal Task<JobConfig> Get(ulong id)
         {
             return Task.Run(() =>
             {
-                using (var dataContext = new TrendingGiphyBotDataContext(_ConnectionString))
-                    return dataContext.JobConfigs.SingleOrDefault(s => s.ChannelId == id);
+                using (var entities = new TrendingGiphyBotEntities(_ConnectionString))
+                    return entities.JobConfigs.SingleOrDefault(s => s.ChannelId == id);
             });
         }
         internal Task<bool> Any(ulong id)
         {
             return Task.Run(() =>
             {
-                using (var dataContext = new TrendingGiphyBotDataContext(_ConnectionString))
-                    return dataContext.JobConfigs.Any(s => s.ChannelId == id);
+                using (var entities = new TrendingGiphyBotEntities(_ConnectionString))
+                    return entities.JobConfigs.Any(s => s.ChannelId == id);
             });
         }
-        internal Task Insert(JobConfig config)
+        internal async Task Insert(JobConfig config)
         {
-            return Task.Run(() =>
+            using (var entities = new TrendingGiphyBotEntities(_ConnectionString))
             {
-                using (var dataContext = new TrendingGiphyBotDataContext(_ConnectionString))
-                {
-                    dataContext.JobConfigs.InsertOnSubmit(config);
-                    dataContext.SubmitChanges();
-                }
-            });
+                entities.JobConfigs.Add(config);
+                await entities.SaveChangesAsync();
+            }
         }
-        internal Task Update(JobConfig config)
+        internal async Task Update(JobConfig config)
         {
-            return Task.Run(() =>
+            using (var entities = new TrendingGiphyBotEntities(_ConnectionString))
             {
-                using (var dataContext = new TrendingGiphyBotDataContext(_ConnectionString))
-                {
-                    var match = dataContext.JobConfigs.Single(s => s.ChannelId == config.ChannelId);
-                    match.Interval = config.Interval;
-                    match.Time = config.Time.ToString();
-                    dataContext.SubmitChanges();
-                }
-            });
+                var match = entities.JobConfigs.Single(s => s.ChannelId == config.ChannelId);
+                match.Interval = config.Interval;
+                match.Time = config.Time.ToString();
+                await entities.SaveChangesAsync();
+            }
         }
-        internal Task Remove(ulong id)
+        internal async Task Remove(ulong id)
         {
-            return Task.Run(() =>
+            using (var entities = new TrendingGiphyBotEntities(_ConnectionString))
             {
-                using (var dataContext = new TrendingGiphyBotDataContext(_ConnectionString))
-                {
-                    var match = dataContext.JobConfigs.Single(s => s.ChannelId == id);
-                    dataContext.JobConfigs.DeleteOnSubmit(match);
-                    dataContext.SubmitChanges();
-                }
-            });
+                var match = entities.JobConfigs.Single(s => s.ChannelId == id);
+                entities.JobConfigs.Remove(match);
+                await entities.SaveChangesAsync();
+            }
         }
     }
 }

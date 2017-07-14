@@ -54,6 +54,12 @@
     <Reference Include="Discord.Net.WebSocket, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Discord.Net.WebSocket.1.0.1\lib\net45\Discord.Net.WebSocket.dll</HintPath>
     </Reference>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
     <Reference Include="GiphyDotNet, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\GiphyDotNet.1.0.0.0\lib\GiphyDotNet.dll</HintPath>
     </Reference>
@@ -122,6 +128,7 @@
       <HintPath>..\packages\System.Collections.Specialized.4.3.0\lib\net46\System.Collections.Specialized.dll</HintPath>
     </Reference>
     <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.ComponentModel.Primitives, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.ComponentModel.Primitives.4.3.0\lib\net45\System.ComponentModel.Primitives.dll</HintPath>
     </Reference>
@@ -184,6 +191,8 @@
     <Reference Include="System.Runtime.InteropServices.RuntimeInformation, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.InteropServices.RuntimeInformation.4.3.0\lib\net45\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
     </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
     <Reference Include="System.Security.Cryptography.Algorithms, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Security.Cryptography.Algorithms.4.3.0\lib\net461\System.Security.Cryptography.Algorithms.dll</HintPath>
     </Reference>
@@ -210,13 +219,36 @@
     <Compile Include="Configuration\GlobalConfig.cs" />
     <Compile Include="Configuration\IGlobalConfig.cs" />
     <Compile Include="Containers\ErrorResult.cs" />
-    <Compile Include="Dals\TrendingGiphyBot.designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>TrendingGiphyBot.dbml</DependentUpon>
+    <Compile Include="Dals\JobConfig.cs">
+      <DependentUpon>TrendingGiphyBotDatabase.tt</DependentUpon>
     </Compile>
     <Compile Include="Dals\JobConfigDal.cs" />
+    <Compile Include="Dals\TimeRecord.cs">
+      <DependentUpon>TrendingGiphyBotDatabase.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Dals\TrendingGiphyBotDatabase.Context.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>TrendingGiphyBotDatabase.Context.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Dals\TrendingGiphyBotDatabase.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>TrendingGiphyBotDatabase.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Dals\TrendingGiphyBotDatabase.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>TrendingGiphyBotDatabase.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="Dals\UrlCache.cs">
+      <DependentUpon>TrendingGiphyBotDatabase.tt</DependentUpon>
+    </Compile>
     <Compile Include="Dals\UrlCacheDal.cs" />
+    <Compile Include="Dals\UrlHistory.cs">
+      <DependentUpon>TrendingGiphyBotDatabase.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Dals\UrlHistoryDal.cs" />
     <Compile Include="Exceptions\InvalidTimeException.cs" />
     <Compile Include="Helpers\ModuleBaseHelper.cs" />
     <Compile Include="Jobs\PostImageJob.cs" />
@@ -244,17 +276,26 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Dals\TrendingGiphyBot.dbml">
-      <Generator>MSLinqToSQLGenerator</Generator>
-      <LastGenOutput>TrendingGiphyBot.designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Dals\TrendingGiphyBot.dbml.layout">
-      <DependentUpon>TrendingGiphyBot.dbml</DependentUpon>
-    </None>
+    <Content Include="Dals\TrendingGiphyBotDatabase.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TrendingGiphyBotDatabase.Context.cs</LastGenOutput>
+      <DependentUpon>TrendingGiphyBotDatabase.edmx</DependentUpon>
+    </Content>
+    <Content Include="Dals\TrendingGiphyBotDatabase.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>TrendingGiphyBotDatabase.edmx</DependentUpon>
+      <LastGenOutput>TrendingGiphyBotDatabase.cs</LastGenOutput>
+    </Content>
     <Content Include="NLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <EntityDeploy Include="Dals\TrendingGiphyBotDatabase.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>TrendingGiphyBotDatabase.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <None Include="Dals\TrendingGiphyBotDatabase.edmx.diagram">
+      <DependentUpon>TrendingGiphyBotDatabase.edmx</DependentUpon>
+    </None>
     <None Include="NLog.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -268,6 +309,7 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="api_giphy_header.ico" />

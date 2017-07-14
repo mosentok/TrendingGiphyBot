@@ -1,0 +1,177 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="TrendingGiphyBotModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="JobConfig">
+          <Key>
+            <PropertyRef Name="ChannelId" />
+          </Key>
+          <Property Name="ChannelId" Type="numeric" Precision="20" Scale="0" Nullable="false" />
+          <Property Name="Interval" Type="int" Nullable="false" />
+          <Property Name="Time" Type="varchar" MaxLength="16" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Time">
+          <Key>
+            <PropertyRef Name="Value" />
+          </Key>
+          <Property Name="Value" Type="varchar" MaxLength="16" Nullable="false" />
+        </EntityType>
+        <EntityType Name="UrlCache">
+          <Key>
+            <PropertyRef Name="Url" />
+          </Key>
+          <Property Name="Url" Type="varchar" MaxLength="255" Nullable="false" />
+          <Property Name="Stamp" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="UrlHistory">
+          <Key>
+            <PropertyRef Name="ChannelId" />
+            <PropertyRef Name="Url" />
+          </Key>
+          <Property Name="ChannelId" Type="numeric" Precision="20" Scale="0" Nullable="false" />
+          <Property Name="Url" Type="varchar" MaxLength="255" Nullable="false" />
+        </EntityType>
+        <Association Name="FK_JobConfig_Time">
+          <End Role="Time" Type="Self.Time" Multiplicity="1" />
+          <End Role="JobConfig" Type="Self.JobConfig" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Time">
+              <PropertyRef Name="Value" />
+            </Principal>
+            <Dependent Role="JobConfig">
+              <PropertyRef Name="Time" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="TrendingGiphyBotModelStoreContainer">
+          <EntitySet Name="JobConfig" EntityType="Self.JobConfig" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Time" EntityType="Self.Time" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="UrlCache" EntityType="Self.UrlCache" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="UrlHistory" EntityType="Self.UrlHistory" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_JobConfig_Time" Association="Self.FK_JobConfig_Time">
+            <End Role="Time" EntitySet="Time" />
+            <End Role="JobConfig" EntitySet="JobConfig" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="TrendingGiphyBotModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="JobConfig">
+          <Key>
+            <PropertyRef Name="ChannelId" />
+          </Key>
+          <Property Name="ChannelId" Type="Decimal" Precision="20" Scale="0" Nullable="false" />
+          <Property Name="Interval" Type="Int32" Nullable="false" />
+          <Property Name="Time" Type="String" MaxLength="16" FixedLength="false" Unicode="false" Nullable="false" />
+          <NavigationProperty Name="Time1" Relationship="Self.FK_JobConfig_Time" FromRole="JobConfig" ToRole="Time" />
+        </EntityType>
+        <EntityType Name="TimeRecord">
+          <Key>
+            <PropertyRef Name="Value" />
+          </Key>
+          <Property Name="Value" Type="String" MaxLength="16" FixedLength="false" Unicode="false" Nullable="false" />
+          <NavigationProperty Name="JobConfigs" Relationship="Self.FK_JobConfig_Time" FromRole="Time" ToRole="JobConfig" />
+        </EntityType>
+        <Association Name="FK_JobConfig_Time">
+          <End Role="Time" Type="TrendingGiphyBotModel.TimeRecord" Multiplicity="1" />
+          <End Role="JobConfig" Type="Self.JobConfig" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Time">
+              <PropertyRef Name="Value" />
+            </Principal>
+            <Dependent Role="JobConfig">
+              <PropertyRef Name="Time" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="TrendingGiphyBotEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="JobConfigs" EntityType="Self.JobConfig" />
+          <EntitySet Name="TimeRecords" EntityType="TrendingGiphyBotModel.TimeRecord" />
+          <AssociationSet Name="FK_JobConfig_Time" Association="Self.FK_JobConfig_Time">
+            <End Role="Time" EntitySet="TimeRecords" />
+            <End Role="JobConfig" EntitySet="JobConfigs" />
+          </AssociationSet>
+          <EntitySet Name="UrlHistories" EntityType="TrendingGiphyBotModel.UrlHistory" />
+          <EntitySet Name="UrlCaches" EntityType="TrendingGiphyBotModel.UrlCache" />
+        </EntityContainer>
+        <EntityType Name="UrlHistory">
+          <Key>
+            <PropertyRef Name="ChannelId" />
+            <PropertyRef Name="Url" />
+          </Key>
+          <Property Name="ChannelId" Type="Decimal" Nullable="false" Precision="20" Scale="0" />
+          <Property Name="Url" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="UrlCache">
+          <Key>
+            <PropertyRef Name="Url" />
+          </Key>
+          <Property Name="Url" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="Stamp" Type="DateTime" Nullable="false" Precision="3" />
+        </EntityType>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="TrendingGiphyBotModelStoreContainer" CdmEntityContainer="TrendingGiphyBotEntities">
+          <EntitySetMapping Name="JobConfigs">
+            <EntityTypeMapping TypeName="TrendingGiphyBotModel.JobConfig">
+              <MappingFragment StoreEntitySet="JobConfig">
+                <ScalarProperty Name="ChannelId" ColumnName="ChannelId" />
+                <ScalarProperty Name="Interval" ColumnName="Interval" />
+                <ScalarProperty Name="Time" ColumnName="Time" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TimeRecords">
+            <EntityTypeMapping TypeName="TrendingGiphyBotModel.TimeRecord">
+              <MappingFragment StoreEntitySet="Time">
+                <ScalarProperty Name="Value" ColumnName="Value" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="UrlHistories">
+            <EntityTypeMapping TypeName="TrendingGiphyBotModel.UrlHistory">
+              <MappingFragment StoreEntitySet="UrlHistory">
+                <ScalarProperty Name="Url" ColumnName="Url" />
+                <ScalarProperty Name="ChannelId" ColumnName="ChannelId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="UrlCaches">
+            <EntityTypeMapping TypeName="TrendingGiphyBotModel.UrlCache">
+              <MappingFragment StoreEntitySet="UrlCache">
+                <ScalarProperty Name="Stamp" ColumnName="Stamp" />
+                <ScalarProperty Name="Url" ColumnName="Url" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>
