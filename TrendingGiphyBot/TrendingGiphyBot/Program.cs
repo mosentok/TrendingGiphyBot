@@ -48,12 +48,35 @@ namespace TrendingGiphyBot
         }
         async Task StartJobs()
         {
+            var postImageJobs = new List<PostImageJob>();
             var channelsThatExist = await GetConfigsWithAliveChannels();
-            var postImageJobs = channelsThatExist.Select(s => new PostImageJob(_Services, s));
+            AddJobs(postImageJobs, channelsThatExist, Time.Hour, Time.Hours);
+            AddJobs(postImageJobs, channelsThatExist, Time.Minute, Time.Minutes);
+            AddJobs(postImageJobs, channelsThatExist, Time.Second, Time.Seconds);
             _GlobalConfig.Jobs.AddRange(postImageJobs);
             _GlobalConfig.Jobs.Add(new RefreshImagesJob(_Services, 1, Time.Minute));
             _GlobalConfig.Jobs.Add(new SetGameJob(_Services, 1, Time.Hour));
             _GlobalConfig.Jobs.ForEach(s => s.StartTimerWithCloseInterval());
+        }
+        void AddJobs(List<PostImageJob> postImageJobs, IEnumerable<JobConfig> channelsThatExist, params Time[] times)
+        {
+            var configs = channelsThatExist.Where(s =>
+            {
+                var convertedTime = Job.ConvertToTime(s.Time);
+                return times.Contains(convertedTime);
+            });
+            foreach (var config in configs)
+            {
+                var match = postImageJobs.SingleOrDefault(s => s.Interval == config.Interval && s.Time == Job.ConvertToTime(config.Time));
+                if (match == null)
+                {
+                    var postImageJob = new PostImageJob(_Services, config);
+                    postImageJob.ChannelIds.Add(Convert.ToUInt64(config.ChannelId));
+                    postImageJobs.Add(postImageJob);
+                }
+                else
+                    match.ChannelIds.Add(Convert.ToUInt64(config.ChannelId));
+            }
         }
         async Task<IEnumerable<JobConfig>> GetConfigsWithAliveChannels()
         {
@@ -77,6 +100,8 @@ namespace TrendingGiphyBot
         }
         static async Task HandleError(ICommandContext context, IResult result)
         {
+            if (result is ExecuteResult executeResult)
+                _Logger.Error(executeResult.Exception);
             ErrorResult errorResult;
             if (result.Error.HasValue && result.Error.Value == CommandError.Exception)
                 errorResult = new ErrorResult(CommandError.Exception, "An unexpected error occurred.", false);

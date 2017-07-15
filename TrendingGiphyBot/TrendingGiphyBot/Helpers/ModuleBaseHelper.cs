@@ -107,7 +107,8 @@ namespace TrendingGiphyBot.Helpers
             {
                 case Time.Hour:
                 case Time.Hours:
-                    return TimeSpan.FromHours(interval).TotalSeconds;                case Time.Minute:
+                    return TimeSpan.FromHours(interval).TotalSeconds;
+                case Time.Minute:
                 case Time.Minutes:
                     return TimeSpan.FromMinutes(interval).TotalSeconds;
                 case Time.Second:

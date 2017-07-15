@@ -74,7 +74,7 @@ namespace TrendingGiphyBot.Jobs
                     throw new InvalidTimeException(Time);
             }
         }
-        static Time ConvertToTime(string s) => (Time)Enum.Parse(typeof(Time), s);
+        internal static Time ConvertToTime(string s) => (Time)Enum.Parse(typeof(Time), s);
         int DetermineDifference(int component) => Interval - component % Interval;
         protected virtual void TimerStartedLog() => Logger.Info($"Config: {Interval} {Time}. Next elapse: {NextElapse}.");
         protected abstract Task Run();
