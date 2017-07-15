@@ -35,6 +35,7 @@ namespace TrendingGiphyBot.Jobs
             _Timer.Stop();
             Logger.Info("Timer fired.");
             await Run();
+            Logger.Info("Job success.");
             StartTimerWithCloseInterval();
         }
         internal void Restart(int interval, string time)
@@ -76,7 +77,7 @@ namespace TrendingGiphyBot.Jobs
         }
         internal static Time ConvertToTime(string s) => (Time)Enum.Parse(typeof(Time), s);
         int DetermineDifference(int component) => Interval - component % Interval;
-        protected virtual void TimerStartedLog() => Logger.Info($"Config: {Interval} {Time}. Next elapse: {NextElapse}.");
+        protected virtual void TimerStartedLog() => Logger.Debug($"Config: {Interval} {Time}. Next elapse: {NextElapse}.");
         protected abstract Task Run();
         public void Dispose()
         {

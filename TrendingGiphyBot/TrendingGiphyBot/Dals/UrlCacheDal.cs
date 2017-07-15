@@ -18,11 +18,11 @@ namespace TrendingGiphyBot.Dals
                     return entities.UrlCaches.Any(s => s.Url == url);
             });
         }
-        internal async Task Insert(UrlCache urlCache)
+        internal async Task Insert(string url)
         {
             using (var entities = new TrendingGiphyBotEntities(_ConnectionString))
             {
-                entities.UrlCaches.Add(urlCache);
+                entities.UrlCaches.Add(new UrlCache { Url = url });
                 await entities.SaveChangesAsync();
             }
         }
