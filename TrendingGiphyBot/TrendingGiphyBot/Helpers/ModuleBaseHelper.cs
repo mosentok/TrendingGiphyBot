@@ -19,18 +19,15 @@ namespace TrendingGiphyBot.Helpers
         internal static string InvalidConfigRange(int minimumMinutes, int maximumMinutes) =>
             $"Interval must be between {minimumMinutes} and {maximumMinutes} seconds.";
         internal static List<EmbedFieldBuilder> BuildFields<T>() where T : ModuleBase =>
-            typeof(T).GetMethods().OrderBy(s => s.Name).Select(method =>
-            {
-                var isCommand = method.GetCustomAttribute<CommandAttribute>() != null;
-                if (isCommand)
-                    return BuildFields(method);
-                return null;
-            }).Where(s => s != null).SelectMany(s => s).ToList();
+            typeof(T).GetMethods()
+            .OrderBy(s => s.Name)
+            .Where(s => s.GetCustomAttribute<CommandAttribute>() != null)
+            .SelectMany(s => BuildFields(s)).ToList();
         static List<EmbedFieldBuilder> BuildFields(MethodInfo method)
         {
-            var commandText = GetMethodSignature(method);
+            var methodSignature = GetMethodSignature(method);
             var commandField = new EmbedFieldBuilder()
-                .WithName(commandText);
+                .WithName(methodSignature);
             var fields = new List<EmbedFieldBuilder>();
             var methodSummary = method.GetCustomAttribute<SummaryAttribute>();
             var parameterInfos = method.GetParameters();
