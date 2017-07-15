@@ -52,7 +52,7 @@ namespace TrendingGiphyBot
             var postImageJobs = channelsThatExist.Select(s => new PostImageJob(_Services, s));
             _GlobalConfig.Jobs.AddRange(postImageJobs);
             _GlobalConfig.Jobs.Add(new RefreshImagesJob(_Services, 1, Time.Minute));
-            _GlobalConfig.Jobs.Add(new SetGameJob(_Services, 1, Time.Minute));
+            _GlobalConfig.Jobs.Add(new SetGameJob(_Services, 1, Time.Hour));
             _GlobalConfig.Jobs.ForEach(s => s.StartTimerWithCloseInterval());
         }
         async Task<IEnumerable<JobConfig>> GetConfigsWithAliveChannels()
