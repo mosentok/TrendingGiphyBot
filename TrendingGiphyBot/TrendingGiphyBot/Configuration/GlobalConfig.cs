@@ -8,12 +8,10 @@ using TrendingGiphyBot.Jobs;
 using TrendingGiphyBot.Wordnik.Clients;
 using Discord.WebSocket;
 using System;
-using Discord;
 using System.Linq;
 using SpotifyAPI.Web;
 using SpotifyAPI.Web.Enums;
 using SpotifyAPI.Web.Auth;
-using System.Threading.Tasks;
 
 namespace TrendingGiphyBot.Configuration
 {
@@ -40,9 +38,8 @@ namespace TrendingGiphyBot.Configuration
             if (Config.UseWordnik)
                 WordnikClient = new WordnikClient(Config.WordnikBaseAddress, Config.WordnikToken);
             Jobs = new List<Job>();
-            var allLogSeverities = Enum.GetValues(typeof(LogSeverity)).OfType<LogSeverity>().Aggregate((a, b) => a | b);
-            DiscordClient = new DiscordSocketClient(new DiscordSocketConfig { LogLevel = allLogSeverities });
-            var scopes = Enum.GetValues(typeof(Scope)).OfType<Scope>().Aggregate((a, b) => a | b);
+            var configgedLogSeverities = Config.LogSeverities.Aggregate((a, b) => a | b);
+            DiscordClient = new DiscordSocketClient(new DiscordSocketConfig { LogLevel = configgedLogSeverities });
             if (Config.UseSpotify)
             {
                 var webApiFactory = new WebAPIFactory("http://localhost", 8000, Config.SpotifyClientId, Scope.UserReadPlaybackState, TimeSpan.FromSeconds(20));
