@@ -218,6 +218,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\ExampleAttribute.cs" />
+    <Compile Include="Attributes\JobConfigSetSummaryAttribute.cs" />
     <Compile Include="Configuration\GlobalConfig.cs" />
     <Compile Include="Configuration\IGlobalConfig.cs" />
     <Compile Include="Containers\ErrorResult.cs" />
