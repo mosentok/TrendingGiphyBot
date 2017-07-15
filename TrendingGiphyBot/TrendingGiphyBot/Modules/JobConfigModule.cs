@@ -130,7 +130,7 @@ namespace TrendingGiphyBot.Modules
             if (any)
             {
                 await _GlobalConfig.JobConfigDal.Update(config);
-                _GlobalConfig.Jobs.OfType<PostImageJob>().Single(s => s.ChannelId == Context.Channel.Id).Restart(config);
+                _GlobalConfig.Jobs.OfType<PostImageJob>().Single(s => s.ChannelId == Context.Channel.Id).Restart(config.Interval, config.Time);
             }
             else
             {

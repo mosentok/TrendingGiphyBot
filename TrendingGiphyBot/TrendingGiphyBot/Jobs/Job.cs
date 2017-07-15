@@ -5,7 +5,6 @@ using System;
 using System.Threading.Tasks;
 using System.Timers;
 using TrendingGiphyBot.Configuration;
-using TrendingGiphyBot.Dals;
 using TrendingGiphyBot.Enums;
 using TrendingGiphyBot.Exceptions;
 
@@ -20,7 +19,6 @@ namespace TrendingGiphyBot.Jobs
         protected DiscordSocketClient DiscordClient { get; private set; }
         public int Interval { get; private set; }
         public Time Time { get; private set; }
-        protected Job(IServiceProvider services, ILogger logger, JobConfig jobConfig) : this(services, logger, jobConfig.Interval, jobConfig.Time) { }
         protected Job(IServiceProvider services, ILogger logger, int interval, string time) : this(services, logger, interval, ConvertToTime(time)) { }
         protected Job(IServiceProvider services, ILogger logger, int interval, Time time)
         {
@@ -39,11 +37,11 @@ namespace TrendingGiphyBot.Jobs
             await Run();
             StartTimerWithCloseInterval();
         }
-        internal void Restart(JobConfig jobConfig)
+        internal void Restart(int interval, string time)
         {
             _Timer.Stop();
-            Interval = jobConfig.Interval;
-            Time = ConvertToTime(jobConfig.Time);
+            Interval = interval;
+            Time = ConvertToTime(time);
             StartTimerWithCloseInterval();
         }
         internal void StartTimerWithCloseInterval()
