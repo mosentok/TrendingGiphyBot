@@ -13,9 +13,13 @@ namespace TrendingGiphyBot.Helpers
     static class ModuleBaseHelper
     {
         static readonly List<int> _ValidMinutesSeconds = new List<int> { 1, 5, 10, 15, 20, 30 };
+        static readonly List<int> _ValidHours = new List<int> { 1, 2, 3, 4, 6, 8, 12, 24 };
         internal static string ValidMinutesSecondsString => string.Join(", ", _ValidMinutesSeconds.Select(s => s.ToString()));
-        private static readonly List<int> _ValidHours = new List<int> { 1, 2, 3, 4, 6, 8, 12 };
         internal static string ValidHoursString => string.Join(", ", _ValidHours.Select(s => s.ToString()));
+        internal static string InvalidConfig(Time time, string validValues) =>
+            $"When {nameof(Time)} is {time}, interval must be {validValues}.";
+        internal static string InvalidConfigRange(int minimumMinutes, int maximumMinutes) =>
+            $"Interval must be between {minimumMinutes} and {maximumMinutes} seconds.";
         internal static List<EmbedFieldBuilder> BuildFields<T>() where T : ModuleBase =>
             typeof(T).GetMethods().OrderBy(s => s.Name).Select(method =>
             {
@@ -48,7 +52,7 @@ namespace TrendingGiphyBot.Helpers
             else
                 fields.Add(embedFieldBuilder
                     .WithValue(methodSummary.Text));
-            var example = method.GetCustomAttribute<ExampleAttribute>();
+                var example = method.GetCustomAttribute<ExampleAttribute>();
             if (example != null)
                 fields.Add(new EmbedFieldBuilder()
                     .WithIsInline(true)
@@ -63,24 +67,31 @@ namespace TrendingGiphyBot.Helpers
             return $"{method.Name}({parameters})";
         }
         static string RemoveNamespace(string parameterType) => parameterType.Split(new[] { '.' }).Last();
-        internal static JobConfigState DetermineJobConfigState(int interval, Time time)
+        internal static JobConfigState DetermineJobConfigState(int interval, Time time, int minimumSeconds, int maximumSeconds)
         {
-            switch (time)
+            var configgedSeconds = DetermineConfiggedSeconds(interval, time);
+            if (configgedSeconds >= minimumSeconds)
             {
-                case Time.Hour:
-                case Time.Hours:
-                    if (_ValidHours.Contains(interval))
-                        return JobConfigState.Valid;
-                    return JobConfigState.InvalidHours;
-                case Time.Minute:
-                case Time.Minutes:
-                    return IsValid(interval, JobConfigState.InvalidMinutes);
-                case Time.Second:
-                case Time.Seconds:
-                    return IsValid(interval, JobConfigState.InvalidSeconds);
-                default:
-                    return JobConfigState.InvalidTime;
+                if (configgedSeconds <= maximumSeconds)
+                    switch (time)
+                    {
+                        case Time.Hour:
+                        case Time.Hours:
+                            if (_ValidHours.Contains(interval))
+                                return JobConfigState.Valid;
+                            return JobConfigState.InvalidHours;
+                        case Time.Minute:
+                        case Time.Minutes:
+                            return IsValid(interval, JobConfigState.InvalidMinutes);
+                        case Time.Second:
+                        case Time.Seconds:
+                            return IsValid(interval, JobConfigState.InvalidSeconds);
+                        default:
+                            return JobConfigState.InvalidTime;
+                    }
+                return JobConfigState.IntervallTooBig;
             }
+            return JobConfigState.IntervalTooSmall;
         }
         static JobConfigState IsValid(int interval, JobConfigState invalidState)
         {
@@ -89,24 +100,18 @@ namespace TrendingGiphyBot.Helpers
                 return JobConfigState.Valid;
             return invalidState;
         }
-        internal static bool IsAtLeastMinInterval(int interval, Time time, int minimumMinutes)
-        {
-            var configgedMinutes = DetermineConfiggedMinutes(interval, time);
-            return configgedMinutes >= minimumMinutes;
-        }
-        internal static double DetermineConfiggedMinutes(int interval, Time time)
+        internal static double DetermineConfiggedSeconds(int interval, Time time)
         {
             switch (time)
             {
-                case Time.Hours:
                 case Time.Hour:
-                    return TimeSpan.FromHours(interval).TotalMinutes;
+                case Time.Hours:
+                    return TimeSpan.FromHours(interval).TotalSeconds;                case Time.Minute:
                 case Time.Minutes:
-                case Time.Minute:
-                    return TimeSpan.FromMinutes(interval).TotalMinutes;
-                case Time.Seconds:
+                    return TimeSpan.FromMinutes(interval).TotalSeconds;
                 case Time.Second:
-                    return TimeSpan.FromSeconds(interval).TotalMinutes;
+                case Time.Seconds:
+                    return TimeSpan.FromSeconds(interval).TotalSeconds;
                 default:
                     throw new InvalidTimeException(time);
             }

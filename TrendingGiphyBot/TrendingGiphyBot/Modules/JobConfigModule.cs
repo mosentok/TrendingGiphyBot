@@ -69,30 +69,28 @@ namespace TrendingGiphyBot.Modules
             [Summary(nameof(JobConfig.Time) + " to set.")]
             Time time)
         {
-            var isAtLeastMinInterval = ModuleBaseHelper.IsAtLeastMinInterval(interval, time, _GlobalConfig.Config.MinimumMinutes);
-            if (isAtLeastMinInterval)
+            var state = ModuleBaseHelper.DetermineJobConfigState(interval, time, _GlobalConfig.Config.MinimumSeconds, _GlobalConfig.Config.MaximumSeconds);
+            switch (state)
             {
-                var state = ModuleBaseHelper.DetermineJobConfigState(interval, time);
-                switch (state)
-                {
-                    case JobConfigState.InvalidHours:
-                        await ReplyAsync($"When {nameof(Time)} is {time}, interval must be {ModuleBaseHelper.ValidHoursString}.");
-                        return;
-                    case JobConfigState.InvalidMinutes:
-                    case JobConfigState.InvalidSeconds:
-                        await ReplyAsync($"When {nameof(Time)} is {time}, interval must be {ModuleBaseHelper.ValidMinutesSecondsString}.");
-                        return;
-                    case JobConfigState.InvalidTime:
-                        await ReplyAsync($"{time} is an invalid {nameof(Time)}.");
-                        return;
-                    case JobConfigState.Valid:
-                        await SaveConfig(interval, time);
-                        await Get();
-                        return;
-                }
+                case JobConfigState.InvalidHours:
+                    await ReplyAsync(ModuleBaseHelper.InvalidConfig(time, ModuleBaseHelper.ValidHoursString));
+                    return;
+                case JobConfigState.InvalidMinutes:
+                case JobConfigState.InvalidSeconds:
+                    await ReplyAsync(ModuleBaseHelper.InvalidConfig(time, ModuleBaseHelper.ValidMinutesSecondsString));
+                    return;
+                case JobConfigState.InvalidTime:
+                    await ReplyAsync($"{time} is an invalid {nameof(Time)}.");
+                    return;
+                case JobConfigState.IntervalTooSmall:
+                case JobConfigState.IntervallTooBig:
+                    await ReplyAsync(ModuleBaseHelper.InvalidConfigRange(_GlobalConfig.Config.MinimumSeconds, _GlobalConfig.Config.MaximumSeconds));
+                    return;
+                case JobConfigState.Valid:
+                    await SaveConfig(interval, time);
+                    await Get();
+                    return;
             }
-            else
-                await ReplyAsync($"{nameof(JobConfig.Interval)} and {nameof(JobConfig.Time)} must combine to at least {_GlobalConfig.Config.MinimumMinutes} minutes.");
         }
         [Command(nameof(Remove))]
         [Summary("Removes the " + nameof(JobConfig) + " for this channel.")]

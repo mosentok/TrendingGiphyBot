@@ -6,6 +6,8 @@
         InvalidSeconds,
         InvalidMinutes,
         InvalidHours,
-        InvalidTime
+        InvalidTime,
+        IntervalTooSmall,
+        IntervallTooBig
     }
 }
