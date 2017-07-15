@@ -16,5 +16,6 @@ namespace TrendingGiphyBot.Dals
     {
         public decimal ChannelId { get; set; }
         public string Url { get; set; }
+        public System.DateTime Stamp { get; set; }
     }
 }
