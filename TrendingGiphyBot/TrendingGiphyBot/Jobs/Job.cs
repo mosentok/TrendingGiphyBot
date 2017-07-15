@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Timers;
 using TrendingGiphyBot.Configuration;
@@ -12,6 +13,8 @@ namespace TrendingGiphyBot.Jobs
 {
     abstract class Job : IDisposable
     {
+        internal static readonly List<int> ValidMinutesSeconds = new List<int> { 1, 5, 10, 15, 20, 30 };
+        internal static readonly List<int> ValidHours = new List<int> { 1, 2, 3, 4, 6, 8, 12, 24 };
         Timer _Timer;
         protected ILogger Logger { get; private set; }
         protected DateTime NextElapse { get; private set; }
@@ -79,6 +82,56 @@ namespace TrendingGiphyBot.Jobs
         int DetermineDifference(int component) => Interval - component % Interval;
         protected virtual void TimerStartedLog() => Logger.Debug($"Config: {Interval} {Time}. Next elapse: {NextElapse}.");
         protected abstract Task Run();
+        internal static JobConfigState DetermineJobConfigState(int interval, Time time, int minimumSeconds, int maximumSeconds)
+        {
+            var configgedSeconds = DetermineConfiggedSeconds(interval, time);
+            if (configgedSeconds >= minimumSeconds)
+            {
+                if (configgedSeconds <= maximumSeconds)
+                    switch (time)
+                    {
+                        case Time.Hour:
+                        case Time.Hours:
+                            if (ValidHours.Contains(interval))
+                                return JobConfigState.Valid;
+                            return JobConfigState.InvalidHours;
+                        case Time.Minute:
+                        case Time.Minutes:
+                            return IsValid(interval, JobConfigState.InvalidMinutes);
+                        case Time.Second:
+                        case Time.Seconds:
+                            return IsValid(interval, JobConfigState.InvalidSeconds);
+                        default:
+                            return JobConfigState.InvalidTime;
+                    }
+                return JobConfigState.IntervallTooBig;
+            }
+            return JobConfigState.IntervalTooSmall;
+        }
+        static JobConfigState IsValid(int interval, JobConfigState invalidState)
+        {
+            var isValidMinuteSecond = ValidMinutesSeconds.Contains(interval);
+            if (isValidMinuteSecond)
+                return JobConfigState.Valid;
+            return invalidState;
+        }
+        internal static double DetermineConfiggedSeconds(int interval, Time time)
+        {
+            switch (time)
+            {
+                case Time.Hour:
+                case Time.Hours:
+                    return TimeSpan.FromHours(interval).TotalSeconds;
+                case Time.Minute:
+                case Time.Minutes:
+                    return TimeSpan.FromMinutes(interval).TotalSeconds;
+                case Time.Second:
+                case Time.Seconds:
+                    return TimeSpan.FromSeconds(interval).TotalSeconds;
+                default:
+                    throw new InvalidTimeException(time);
+            }
+        }
         public void Dispose()
         {
             _Timer?.Dispose();

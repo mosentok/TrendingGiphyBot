@@ -69,7 +69,7 @@ namespace TrendingGiphyBot.Modules
             [Summary(nameof(JobConfig.Time) + " to set.")]
             Time time)
         {
-            var state = ModuleBaseHelper.DetermineJobConfigState(interval, time, _GlobalConfig.Config.MinimumSeconds, _GlobalConfig.Config.MaximumSeconds);
+            var state = Job.DetermineJobConfigState(interval, time, _GlobalConfig.Config.MinimumSeconds, _GlobalConfig.Config.MaximumSeconds);
             switch (state)
             {
                 case JobConfigState.InvalidHours:
