@@ -69,11 +69,27 @@ namespace TrendingGiphyBot.Modules
             [Summary(nameof(JobConfig.Time) + " to set.")]
             Time time)
         {
-            var isValid = ModuleBaseHelper.IsValid(interval, time, _GlobalConfig.Config.MinimumMinutes);
-            if (isValid)
+            var isAtLeastMinInterval = ModuleBaseHelper.IsAtLeastMinInterval(interval, time, _GlobalConfig.Config.MinimumMinutes);
+            if (isAtLeastMinInterval)
             {
-                await SaveConfig(interval, time);
-                await Get();
+                var state = ModuleBaseHelper.DetermineJobConfigState(interval, time);
+                switch (state)
+                {
+                    case JobConfigState.InvalidHours:
+                        await ReplyAsync($"When {nameof(Time)} is {time}, interval must be {ModuleBaseHelper.ValidHoursString}.");
+                        return;
+                    case JobConfigState.InvalidMinutes:
+                    case JobConfigState.InvalidSeconds:
+                        await ReplyAsync($"When {nameof(Time)} is {time}, interval must be {ModuleBaseHelper.ValidMinutesSecondsString}.");
+                        return;
+                    case JobConfigState.InvalidTime:
+                        await ReplyAsync($"{time} is an invalid {nameof(Time)}.");
+                        return;
+                    case JobConfigState.Valid:
+                        await SaveConfig(interval, time);
+                        await Get();
+                        return;
+                }
             }
             else
                 await ReplyAsync($"{nameof(JobConfig.Interval)} and {nameof(JobConfig.Time)} must combine to at least {_GlobalConfig.Config.MinimumMinutes} minutes.");
