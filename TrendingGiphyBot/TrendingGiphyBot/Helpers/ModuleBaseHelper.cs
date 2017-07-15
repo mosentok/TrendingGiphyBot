@@ -10,6 +10,7 @@ using TrendingGiphyBot.Exceptions;
 
 namespace TrendingGiphyBot.Helpers
 {
+    //TODO all the job state logic could probably be cleaner
     static class ModuleBaseHelper
     {
         static readonly List<int> _ValidMinutesSeconds = new List<int> { 1, 5, 10, 15, 20, 30 };

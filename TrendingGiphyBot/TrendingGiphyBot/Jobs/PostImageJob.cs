@@ -9,7 +9,7 @@ namespace TrendingGiphyBot.Jobs
     class PostImageJob : Job
     {
         internal ulong ChannelId { get; private set; }
-        public PostImageJob(IServiceProvider services, JobConfig jobConfig) : base(services, LogManager.GetCurrentClassLogger(), jobConfig)
+        public PostImageJob(IServiceProvider services, JobConfig jobConfig) : base(services, LogManager.GetCurrentClassLogger(), jobConfig.Interval, jobConfig.Time)
         {
             ChannelId = Convert.ToUInt64(jobConfig.ChannelId);
         }
