@@ -27,6 +27,7 @@ namespace TrendingGiphyBot.Modules
         [Command(nameof(Help))]
         [Summary("Help menu for the " + nameof(JobConfig) + " commands.")]
         [Alias(nameof(Help))]
+        [Example("!" + nameof(JobConfig) + " " + nameof(Help))]
         public async Task Help()
         {
             var avatarUrl = Context.Client.CurrentUser.GetAvatarUrl();
@@ -41,6 +42,7 @@ namespace TrendingGiphyBot.Modules
         }
         [Command(nameof(Get))]
         [Summary("Gets the " + nameof(JobConfig) + " for this channel.")]
+        [Example("!" + nameof(JobConfig) + " " + nameof(Get))]
         public async Task Get()
         {
             var any = await _GlobalConfig.JobConfigDal.Any(Context.Channel.Id);
@@ -62,7 +64,7 @@ namespace TrendingGiphyBot.Modules
         }
         [Command(nameof(Set))]
         [Summary("Sets the " + nameof(JobConfig) + " for this channel.")]
-        [Example("!jobconfig set 10 minutes")]
+        [Example("!JobConfig Set 5 Seconds", "!jobconfig set 10 minutes", "!JoBcOnFiG sEt 1 HoUr")]
         public async Task Set(
             [Summary(nameof(JobConfig.Interval) + " to set.")]
             int interval,
@@ -94,6 +96,7 @@ namespace TrendingGiphyBot.Modules
         }
         [Command(nameof(Remove))]
         [Summary("Removes the " + nameof(JobConfig) + " for this channel.")]
+        [Example("!" + nameof(JobConfig) + " " + nameof(Remove))]
         public async Task Remove()
         {
             if (await _GlobalConfig.JobConfigDal.Any(Context.Channel.Id))
@@ -107,6 +110,7 @@ namespace TrendingGiphyBot.Modules
             else
                 await ReplyAsync(NotConfiguredMessage);
         }
+        static string Alternate(string s) => string.Concat(s.ToLower().AsEnumerable().Select((c, i) => i % 2 == 0 ? c : char.ToUpper(c)));
         Task RemoveTimerIfNoChannels(PostImageJob postImageJob)
         {
             if (!postImageJob.ChannelIds.Any())
