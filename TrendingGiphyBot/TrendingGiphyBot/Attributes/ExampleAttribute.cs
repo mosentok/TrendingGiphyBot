@@ -1,15 +1,22 @@
 ﻿using System;
+using System.Linq;
 
 namespace TrendingGiphyBot.Attributes
 {
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     public class ExampleAttribute : Attribute
     {
-        public string Name => "Example";
-        public string Text { get; set; }
-        public ExampleAttribute() { }
-        public ExampleAttribute(string text)
+        public static string Name => "Example";
+        public string[] Texts { get; }
+        public ExampleAttribute(params string[] texts)
         {
-            Text = text;
+            if (texts.Any())
+                if (texts.All(s => !string.IsNullOrEmpty(s)))
+                    Texts = texts;
+                else
+                    throw new InvalidOperationException($"{nameof(texts)} cannot contain null or the empty string.");
+            else
+                throw new InvalidOperationException($"Need at least one {texts}.");
         }
     }
 }

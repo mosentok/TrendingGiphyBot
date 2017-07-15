@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.Commands;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -28,14 +29,14 @@ namespace TrendingGiphyBot.Helpers
         static List<EmbedFieldBuilder> BuildFields(MethodInfo method)
         {
             var commandText = GetMethodSignature(method);
-            var embedFieldBuilder = new EmbedFieldBuilder()
-                .WithName($"{commandText}");
+            var commandField = new EmbedFieldBuilder()
+                .WithName(commandText);
             var fields = new List<EmbedFieldBuilder>();
             var methodSummary = method.GetCustomAttribute<SummaryAttribute>();
             var parameterInfos = method.GetParameters();
             if (parameterInfos.Any())
             {
-                fields.Add(embedFieldBuilder
+                fields.Add(commandField
                     .WithValue($"{methodSummary.Text} *Parameters*:"));
                 fields.AddRange(parameterInfos.Select(s =>
                 {
@@ -47,14 +48,17 @@ namespace TrendingGiphyBot.Helpers
                 }));
             }
             else
-                fields.Add(embedFieldBuilder
+                fields.Add(commandField
                     .WithValue(methodSummary.Text));
-                var example = method.GetCustomAttribute<ExampleAttribute>();
-            if (example != null)
+            var exampleAttributes = method.GetCustomAttributes<ExampleAttribute>().ToList();
+            if (exampleAttributes.Any())
+            {
+                var texts = string.Join(Environment.NewLine, exampleAttributes.SelectMany(s => s.Texts));
                 fields.Add(new EmbedFieldBuilder()
-                    .WithIsInline(true)
-                    .WithName(example.Name)
-                    .WithValue(example.Text));
+                    .WithIsInline(false)
+                    .WithName(ExampleAttribute.Name)
+                    .WithValue(texts));
+            }
             return fields;
         }
         static string GetMethodSignature(MethodInfo method)
