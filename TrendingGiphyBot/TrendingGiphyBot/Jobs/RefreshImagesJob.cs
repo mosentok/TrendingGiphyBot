@@ -5,6 +5,7 @@ using System.Linq;
 using NLog;
 using TrendingGiphyBot.Dals;
 using TrendingGiphyBot.Enums;
+using System.Net;
 
 namespace TrendingGiphyBot.Jobs
 {
@@ -13,12 +14,19 @@ namespace TrendingGiphyBot.Jobs
         public RefreshImagesJob(IServiceProvider services, int interval, Time time) : base(services, LogManager.GetCurrentClassLogger(), interval, time) { }
         protected override async Task Run()
         {
-            var gifResult = await  GlobalConfig.GiphyClient.TrendingGifs(new TrendingParameter { Limit = 1 });
-            var url = gifResult.Data.FirstOrDefault()?.Url;
-            if (!await GlobalConfig.UrlCacheDal.Any(url))
+            try
             {
-                var urlCache = new UrlCache { Url = url, Stamp = DateTime.Now };
-                await GlobalConfig.UrlCacheDal.Insert(urlCache);
+                var gifResult = await GlobalConfig.GiphyClient.TrendingGifs(new TrendingParameter { Limit = 1 });
+                var url = gifResult.Data.FirstOrDefault()?.Url;
+                if (!await GlobalConfig.UrlCacheDal.Any(url))
+                {
+                    var urlCache = new UrlCache { Url = url, Stamp = DateTime.Now };
+                    await GlobalConfig.UrlCacheDal.Insert(urlCache);
+                }
+            }
+            catch (WebException ex)
+            {
+                Logger.Error(ex);
             }
         }
     }
