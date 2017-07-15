@@ -12,16 +12,18 @@ namespace TrendingGiphyBot.Helpers
 {
     static class ModuleBaseHelper
     {
-        internal static List<EmbedFieldBuilder> BuildFields<T>() where T : ModuleBase
-        {
-            return typeof(T).GetMethods().OrderBy(s => s.Name).Select(method =>
+        static readonly List<int> _ValidMinutesSeconds = new List<int> { 1, 5, 10, 15, 20, 30 };
+        internal static string ValidMinutesSecondsString => string.Join(", ", _ValidMinutesSeconds.Select(s => s.ToString()));
+        private static readonly List<int> _ValidHours = new List<int> { 1, 2, 3, 4, 6, 8, 12 };
+        internal static string ValidHoursString => string.Join(", ", _ValidHours.Select(s => s.ToString()));
+        internal static List<EmbedFieldBuilder> BuildFields<T>() where T : ModuleBase =>
+            typeof(T).GetMethods().OrderBy(s => s.Name).Select(method =>
             {
                 var isCommand = method.GetCustomAttribute<CommandAttribute>() != null;
                 if (isCommand)
                     return BuildFields(method);
                 return null;
             }).Where(s => s != null).SelectMany(s => s).ToList();
-        }
         static List<EmbedFieldBuilder> BuildFields(MethodInfo method)
         {
             var commandText = GetMethodSignature(method);
@@ -61,7 +63,33 @@ namespace TrendingGiphyBot.Helpers
             return $"{method.Name}({parameters})";
         }
         static string RemoveNamespace(string parameterType) => parameterType.Split(new[] { '.' }).Last();
-        internal static bool IsValid(int interval, Time time, int minimumMinutes)
+        internal static JobConfigState DetermineJobConfigState(int interval, Time time)
+        {
+            switch (time)
+            {
+                case Time.Hour:
+                case Time.Hours:
+                    if (_ValidHours.Contains(interval))
+                        return JobConfigState.Valid;
+                    return JobConfigState.InvalidHours;
+                case Time.Minute:
+                case Time.Minutes:
+                    return IsValid(interval, JobConfigState.InvalidMinutes);
+                case Time.Second:
+                case Time.Seconds:
+                    return IsValid(interval, JobConfigState.InvalidSeconds);
+                default:
+                    return JobConfigState.InvalidTime;
+            }
+        }
+        static JobConfigState IsValid(int interval, JobConfigState invalidState)
+        {
+            var isValidMinuteSecond = _ValidMinutesSeconds.Contains(interval);
+            if (isValidMinuteSecond)
+                return JobConfigState.Valid;
+            return invalidState;
+        }
+        internal static bool IsAtLeastMinInterval(int interval, Time time, int minimumMinutes)
         {
             var configgedMinutes = DetermineConfiggedMinutes(interval, time);
             return configgedMinutes >= minimumMinutes;
