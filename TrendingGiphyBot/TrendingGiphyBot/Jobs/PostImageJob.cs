@@ -3,31 +3,35 @@ using System.Threading.Tasks;
 using Discord.WebSocket;
 using TrendingGiphyBot.Dals;
 using NLog;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace TrendingGiphyBot.Jobs
 {
     class PostImageJob : Job
     {
-        internal ulong ChannelId { get; private set; }
-        public PostImageJob(IServiceProvider services, JobConfig jobConfig) : base(services, LogManager.GetCurrentClassLogger(), jobConfig.Interval, jobConfig.Time)
-        {
-            ChannelId = Convert.ToUInt64(jobConfig.ChannelId);
-        }
+        internal List<ulong> ChannelIds { get; } = new List<ulong>();
+        public PostImageJob(IServiceProvider services, JobConfig jobConfig) : base(services, LogManager.GetCurrentClassLogger(), jobConfig.Interval, jobConfig.Time) { }
         protected override async Task Run()
         {
-            if (await GlobalConfig.JobConfigDal.Any(ChannelId))
+            var latestUrl = await GlobalConfig.UrlCacheDal.GetLatestUrl();
+            if (!string.IsNullOrEmpty(latestUrl))
             {
-                var latestUrl = await GlobalConfig.UrlCacheDal.GetLatestUrl();
-                if (!string.IsNullOrEmpty(latestUrl)
-                    && !await GlobalConfig.UrlHistoryDal.Any(ChannelId, latestUrl)
-                    && DiscordClient.GetChannel(ChannelId) is SocketTextChannel socketTextChannel)
+                var tasks = ChannelIds.Where(s => UrlHasntBeenPostedToChannel(s, latestUrl)).Select(s =>
                 {
-                    await socketTextChannel.SendMessageAsync(latestUrl);
-                    var history = new UrlHistory { ChannelId = ChannelId, Url = latestUrl };
-                    await GlobalConfig.UrlHistoryDal.Insert(history);
-                }
+                    if (DiscordClient.GetChannel(s) is SocketTextChannel socketTextChannel)
+                    {
+                        socketTextChannel.SendMessageAsync(latestUrl);
+                        var history = new UrlHistory { ChannelId = s, Url = latestUrl };
+                        return GlobalConfig.UrlHistoryDal.Insert(history);
+                    }
+                    return Task.CompletedTask;
+                });
+                await Task.WhenAll(tasks);
             }
         }
-        protected override void TimerStartedLog() => Logger.Info($"Config: {Interval} {Time}. Next elapse: {NextElapse}. Channel ID: {ChannelId}.");
+        bool UrlHasntBeenPostedToChannel(ulong s, string latestUrl) =>
+            GlobalConfig.JobConfigDal.Any(s).Result && !GlobalConfig.UrlHistoryDal.Any(s, latestUrl).Result;
+        protected override void TimerStartedLog() => Logger.Info($"Config: {Interval} {Time}. Next elapse: {NextElapse}. Channel IDs: {string.Join(", ", ChannelIds)}.");
     }
 }
