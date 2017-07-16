@@ -36,7 +36,7 @@ namespace TrendingGiphyBot.Modules
             AddModuleField(fields, "SetRandom");
             var embed = new EmbedBuilder { Fields = fields }
                 .WithAuthor(author)
-                .WithDescription($"Commands for interacting with {nameof(TrendingGiphyBot)}. Check out the [docs]({_GlobalConfig.Config.GitHubUrl})!")
+                .WithDescription($"Commands for interacting with {nameof(TrendingGiphyBot)}.\n- Check out the [docs]({_GlobalConfig.Config.GitHubUrl})!")
                 .WithUrl(_GlobalConfig.Config.GitHubUrl);
             await ReplyAsync(string.Empty, embed: embed);
         }
@@ -46,7 +46,7 @@ namespace TrendingGiphyBot.Modules
                 .WithName(moduleName)
                 .WithValue($"Check !{moduleName}"));
         }
-        [Exclude]
+        [ExcludeThis]
         [Command(nameof(Dev))]
         [Summary("Help menu for the " + nameof(Dev) + " commands.")]
         [Alias(nameof(Dev))]

@@ -3,7 +3,7 @@
 namespace TrendingGiphyBot.Attributes
 {
     [AttributeUsage(AttributeTargets.Method)]
-    class ExcludeAttribute : Attribute
+    class ExcludeThisAttribute : Attribute
     {
     }
 }

@@ -37,7 +37,7 @@ namespace TrendingGiphyBot.Modules
             var fields = ModuleBaseHelper.BuildFields<JobConfigModule>();
             var embed = new EmbedBuilder { Fields = fields }
                 .WithAuthor(author)
-                .WithDescription($"Commands for interacting with {nameof(JobConfig)}.");
+                .WithDescription($"Commands for interacting with {nameof(JobConfig)}.\n- You can configure this bot in different channels on your server. Configuration is saved per channel.\n- You have complete control over how often it posts. Have fun with it! If it gets annoying or something, just dial it back a bit.");
             await ReplyAsync(string.Empty, embed: embed);
         }
         [Command(nameof(Get))]

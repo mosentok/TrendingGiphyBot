@@ -22,7 +22,7 @@ namespace TrendingGiphyBot.Helpers
             typeof(T).GetMethods()
             .OrderBy(s => s.Name)
             .Where(s => s.GetCustomAttribute<CommandAttribute>() != null
-                && s.GetCustomAttribute<ExcludeAttribute>() == null)
+                && s.GetCustomAttribute<ExcludeThisAttribute>() == null)
             .SelectMany(s => BuildFields(s)).ToList();
         static List<EmbedFieldBuilder> BuildFields(MethodInfo method)
         {
@@ -38,7 +38,10 @@ namespace TrendingGiphyBot.Helpers
                     .WithValue($"{methodSummary.Text} *Parameters*:"));
                 fields.AddRange(parameterInfos.Select(s =>
                 {
+                    var isOptional = s.GetCustomAttribute<IsOptionalAttribute>() != null;
                     var parameterSummary = s.GetCustomAttribute<SummaryAttribute>().Text;
+                    if (isOptional)
+                        parameterSummary = $"(*optional*) {parameterSummary}";
                     return new EmbedFieldBuilder()
                         .WithIsInline(true)
                         .WithName(s.Name)
