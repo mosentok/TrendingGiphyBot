@@ -39,6 +39,7 @@ Want the bot to post a random GIF if there's no new trending one?
 !SetRandom On
 !setrandom on cats
 !SeTrAnDoM oFf
+!setrandom get
 !setrandom help (or just !setrandom)
 ```
 
