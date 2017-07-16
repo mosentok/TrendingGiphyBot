@@ -1,6 +1,10 @@
 # TrendingGiphyBot
 When a member of a Discord channel, this bot posts the trending GIPHY GIF on a configurable job timer.
 
+Then|who|was|phone?
+-|-|-|-
+<img src="https://discordapp.com/assets/fc0b01fe10a0b8c602fb0106d8189d9b.png" width="900px" />|<img src="https://media.giphy.com/media/3o6gbbuLW76jkt8vIc/giphy.gif" width="900px" />|<img src="https://developer.spotify.com/wp-content/uploads/2016/07/logo@2x.png" width="900px" />|<img src="https://www.wordnik.com/img/wordnik-logo-300px.png" width="900px" />
+
 ## Table of Contents
 
 - [Shoutout to](https://github.com/mosentok/TrendingGiphyBot#shoutout-to)
