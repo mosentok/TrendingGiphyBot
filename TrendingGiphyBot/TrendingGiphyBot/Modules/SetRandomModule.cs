@@ -114,7 +114,6 @@ namespace TrendingGiphyBot.Modules
         Task UpdateJobs(JobConfig config)
         {
             var postImageJobs = _GlobalConfig.Jobs.OfType<PostImageJob>().ToList();
-            var existingJob = postImageJobs.SingleOrDefault(s => s.ChannelIds != null && s.ChannelIds.Contains(Context.Channel.Id));
             var jobConfig = postImageJobs.SelectMany(s => s.JobConfigs).Single(s => s.ChannelId == Context.Channel.Id);
             jobConfig.RandomIsOn = config.RandomIsOn;
             jobConfig.RandomSearchString = config.RandomSearchString;

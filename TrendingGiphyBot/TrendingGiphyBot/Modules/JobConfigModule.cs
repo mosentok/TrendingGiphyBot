@@ -103,15 +103,17 @@ namespace TrendingGiphyBot.Modules
             {
                 await _GlobalConfig.JobConfigDal.Remove(Context.Channel.Id);
                 var postImageJob = _GlobalConfig.Jobs.OfType<PostImageJob>().Single(s => s.ChannelIds != null && s.ChannelIds.Contains(Context.Channel.Id));
-                postImageJob.ChannelIds.Remove(Context.Channel.Id);
-                await RemoveTimerIfNoChannels(postImageJob);
+                //TODO centralize remove logic?
+                var match = postImageJob.JobConfigs.Single(s => s.ChannelId == Context.Channel.Id);
+                postImageJob.JobConfigs.Remove(match);
+                await RemoveJobIfNoChannels(postImageJob);
                 await SendRemoveMessage();
             }
             else
                 await ReplyAsync(NotConfiguredMessage);
         }
         static string Alternate(string s) => string.Concat(s.ToLower().AsEnumerable().Select((c, i) => i % 2 == 0 ? c : char.ToUpper(c)));
-        Task RemoveTimerIfNoChannels(PostImageJob postImageJob)
+        Task RemoveJobIfNoChannels(PostImageJob postImageJob)
         {
             if (!postImageJob.JobConfigs.Any())
             {
@@ -152,12 +154,14 @@ namespace TrendingGiphyBot.Modules
         }
         async Task UpdateJob(int interval, Time time, JobConfig config)
         {
+            //TODO centralize remove logic?
             var postImageJobs = _GlobalConfig.Jobs.OfType<PostImageJob>().ToList();
             var existingJob = postImageJobs.SingleOrDefault(s => s.ChannelIds != null && s.ChannelIds.Contains(Context.Channel.Id));
             if (existingJob != null)
             {
-                existingJob.ChannelIds.Remove(Context.Channel.Id);
-                await RemoveTimerIfNoChannels(existingJob);
+                var match = existingJob.JobConfigs.Single(s => s.ChannelId == Context.Channel.Id);
+                existingJob.JobConfigs.Remove(match);
+                await RemoveJobIfNoChannels(existingJob);
             }
             var postImageJob = postImageJobs.SingleOrDefault(s => s.Interval == interval && s.Time == time);
             if (postImageJob == null)
