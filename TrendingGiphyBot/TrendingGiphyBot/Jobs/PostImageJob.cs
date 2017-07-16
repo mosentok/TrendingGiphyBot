@@ -14,7 +14,7 @@ namespace TrendingGiphyBot.Jobs
         internal List<JobConfig> JobConfigs { get; } = new List<JobConfig>();
         internal List<ulong> ChannelIds => JobConfigs?.Select(s => Convert.ToUInt64(s.ChannelId)).ToList();
         public PostImageJob(IServiceProvider services, JobConfig jobConfig) : base(services, LogManager.GetCurrentClassLogger(), jobConfig.Interval, jobConfig.Time) { }
-        protected override async Task Run()
+        protected internal override async Task Run()
         {
             var latestUrl = await GlobalConfig.UrlCacheDal.GetLatestUrl();
             if (!string.IsNullOrEmpty(latestUrl))

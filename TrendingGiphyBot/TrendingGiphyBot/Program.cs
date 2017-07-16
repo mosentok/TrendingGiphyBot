@@ -41,13 +41,6 @@ namespace TrendingGiphyBot
         }
         async Task Ready()
         {
-            await StartJobs();
-            var count = await _GlobalConfig.JobConfigDal.GetCount();
-            await _DiscordClient.SetGameAsync(string.Empty);
-            await _DiscordClient.SetGameAsync($"A Tale of {count} Gifs");
-        }
-        async Task StartJobs()
-        {
             var postImageJobs = new List<PostImageJob>();
             var channelsThatExist = await GetConfigsWithAliveChannels();
             AddJobs(postImageJobs, channelsThatExist, Time.Hour, Time.Hours);
@@ -55,8 +48,9 @@ namespace TrendingGiphyBot
             AddJobs(postImageJobs, channelsThatExist, Time.Second, Time.Seconds);
             _GlobalConfig.Jobs.AddRange(postImageJobs);
             _GlobalConfig.Jobs.Add(new RefreshImagesJob(_Services, 1, Time.Minute));
-            _GlobalConfig.Jobs.Add(new SetGameJob(_Services, 1, Time.Hour));
             _GlobalConfig.Jobs.ForEach(s => s.StartTimerWithCloseInterval());
+            await _DiscordClient.SetGameAsync(string.Empty);
+            await _DiscordClient.SetGameAsync(_GlobalConfig.Config.PlayingGame);
         }
         void AddJobs(List<PostImageJob> postImageJobs, IEnumerable<JobConfig> channelsThatExist, params Time[] times)
         {

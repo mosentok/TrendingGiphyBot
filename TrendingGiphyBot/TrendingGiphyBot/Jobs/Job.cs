@@ -16,12 +16,12 @@ namespace TrendingGiphyBot.Jobs
         internal static readonly List<int> ValidMinutesSeconds = new List<int> { 1, 5, 10, 15, 20, 30 };
         internal static readonly List<int> ValidHours = new List<int> { 1, 2, 3, 4, 6, 8, 12, 24 };
         Timer _Timer;
-        protected ILogger Logger { get; private set; }
-        protected DateTime NextElapse { get; private set; }
-        protected IGlobalConfig GlobalConfig { get; private set; }
-        protected DiscordSocketClient DiscordClient { get; private set; }
+        protected ILogger Logger { get; }
+        protected IGlobalConfig GlobalConfig { get; }
+        protected DiscordSocketClient DiscordClient { get; }
         public int Interval { get; private set; }
         public Time Time { get; private set; }
+        protected DateTime NextElapse { get; private set; }
         protected Job(IServiceProvider services, ILogger logger, int interval, string time) : this(services, logger, interval, ConvertToTime(time)) { }
         protected Job(IServiceProvider services, ILogger logger, int interval, Time time)
         {
@@ -81,7 +81,7 @@ namespace TrendingGiphyBot.Jobs
         internal static Time ConvertToTime(string s) => (Time)Enum.Parse(typeof(Time), s);
         int DetermineDifference(int component) => Interval - component % Interval;
         protected virtual void TimerStartedLog() => Logger.Debug($"Config: {Interval} {Time}. Next elapse: {NextElapse}.");
-        protected abstract Task Run();
+        protected internal abstract Task Run();
         internal static JobConfigState DetermineJobConfigState(int interval, Time time, int minimumSeconds, int maximumSeconds)
         {
             var configgedSeconds = DetermineConfiggedSeconds(interval, time);
