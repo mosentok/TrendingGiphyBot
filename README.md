@@ -33,7 +33,7 @@ Configures the job timer.
 
 ### SetRandom
 
-Want the bot to post a random gif if there's no new trending one?
+Want the bot to post a random GIF if there's no new trending one?
 
 ```
 !SetRandom On
