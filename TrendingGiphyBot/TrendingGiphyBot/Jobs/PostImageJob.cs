@@ -19,8 +19,8 @@ namespace TrendingGiphyBot.Jobs
             var latestUrl = await GlobalConfig.UrlCacheDal.GetLatestUrl();
             if (!string.IsNullOrEmpty(latestUrl))
             {
-                var channelsAlreadyPosted = JobConfigs.Where(s => UrlHasNotBeenPostedToChannel(Convert.ToUInt64(s.ChannelId), latestUrl)).ToList();
-                var tasks = channelsAlreadyPosted.Select(s =>
+                var channelsNotPostedToYet = JobConfigs.Where(s => UrlHasNotBeenPostedToChannel(Convert.ToUInt64(s.ChannelId), latestUrl)).ToList();
+                var tasks = channelsNotPostedToYet.Select(s =>
                 {
                     if (DiscordClient.GetChannel(Convert.ToUInt64(s.ChannelId)) is SocketTextChannel socketTextChannel)
                     {
@@ -31,7 +31,9 @@ namespace TrendingGiphyBot.Jobs
                     return Task.CompletedTask;
                 }).ToList();
                 await Task.WhenAll(tasks);
-                var channelsWithRandomOn = JobConfigs.Except(channelsAlreadyPosted).Where(s => s.RandomIsOn).Select(s =>
+                var channelsStillNotPostedToYet = JobConfigs.Except(channelsNotPostedToYet);
+                var channelsWithRandomOn = channelsStillNotPostedToYet.Where(s => s.RandomIsOn);
+                var randomTasks = channelsWithRandomOn.Select(s =>
                 {
                     if (DiscordClient.GetChannel(Convert.ToUInt64(s.ChannelId)) is SocketTextChannel socketTextChannel)
                     {
@@ -40,11 +42,12 @@ namespace TrendingGiphyBot.Jobs
                     }
                     return Task.CompletedTask;
                 });
-                await Task.WhenAll(channelsWithRandomOn);
+                await Task.WhenAll(randomTasks);
             }
         }
-        bool UrlHasNotBeenPostedToChannel(ulong s, string latestUrl) =>
-            GlobalConfig.JobConfigDal.Any(s).Result && !GlobalConfig.UrlHistoryDal.Any(s, latestUrl).Result;
+        bool UrlHasNotBeenPostedToChannel(ulong channelId, string latestUrl) =>
+            GlobalConfig.JobConfigDal.Any(channelId).Result &&
+            !GlobalConfig.UrlHistoryDal.Any(channelId, latestUrl).Result;
         protected override void TimerStartedLog() => Logger.Debug($"Config: {Interval} {Time}. Next elapse: {NextElapse}. Channel IDs: {string.Join(", ", ChannelIds)}.");
     }
 }
