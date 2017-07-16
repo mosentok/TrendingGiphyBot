@@ -4,6 +4,8 @@ When a member of a Discord channel, this bot posts the trending GIPHY GIF on a c
 ## Table of Contents
 
 - [Commands](https://github.com/mosentok/TrendingGiphyBot#commands)
+  - [JobConfig](https://github.com/mosentok/TrendingGiphyBot#jobconfig)
+  - [SetRandom](https://github.com/mosentok/TrendingGiphyBot#setrandom)
 - [Shoutout to](https://github.com/mosentok/TrendingGiphyBot#shoutout-to)
 
 ## Commands:
