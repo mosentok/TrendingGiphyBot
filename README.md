@@ -20,11 +20,11 @@ Configures the job timer.
 
 ```
 !JobConfig Get
-!jobconfig help (or just !jobconfig)
 !!JobConfig Set 5 Seconds
 !jobconfig set 10 minutes
 !JoBcOnFiG sEt 1 HoUr
 !jobconfig remove
+!jobconfig help (or just !jobconfig)
 ```
 
 ### SetRandom
@@ -35,6 +35,7 @@ Want the bot to post a random gif if there's no new trending one?
 !SetRandom On
 !setrandom on cats
 !SeTrAnDoM oFf
+!setrandom help (or just !setrandom)
 ```
 
 ## Shoutout to:
