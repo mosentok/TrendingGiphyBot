@@ -37,7 +37,7 @@ namespace TrendingGiphyBot.Modules
             var fields = ModuleBaseHelper.BuildFields<SetRandomModule>();
             var embed = new EmbedBuilder { Fields = fields }
                 .WithAuthor(author)
-                .WithDescription($"Commands for interacting with {_Name}.");
+                .WithDescription($"Commands for interacting with {_Name}.\n- Want the bot to post a random GIF if there's no new trending one?");
             await ReplyAsync(string.Empty, embed: embed);
         }
         [Command(nameof(Get))]
@@ -77,8 +77,9 @@ namespace TrendingGiphyBot.Modules
         [Summary("Sets the random option for this channel.")]
         [Example("!SetRandom " + nameof(On), "!setrandom on cats")]
         public async Task On(
+            [IsOptional]
             [Summary("Text to search for when getting a random GIF.")]
-            string searchString = null)
+            params string[] searchString)
         {
             if (await _GlobalConfig.JobConfigDal.Any(Context.Channel.Id))
             {
@@ -86,7 +87,7 @@ namespace TrendingGiphyBot.Modules
                 {
                     ChannelId = Context.Channel.Id,
                     RandomIsOn = true,
-                    RandomSearchString = searchString
+                    RandomSearchString = string.Join(" ", searchString)
                 };
                 await UpdateJobs(config);
                 await _GlobalConfig.JobConfigDal.UpdateRandom(config);

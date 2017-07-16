@@ -19,7 +19,7 @@ namespace TrendingGiphyBot.Jobs
             var latestUrl = await GlobalConfig.UrlCacheDal.GetLatestUrl();
             if (!string.IsNullOrEmpty(latestUrl))
             {
-                var channelsAlreadyPosted = JobConfigs.Where(s => UrlHasNotBeenPostedToChannel(Convert.ToUInt64(s.ChannelId), latestUrl));
+                var channelsAlreadyPosted = JobConfigs.Where(s => UrlHasNotBeenPostedToChannel(Convert.ToUInt64(s.ChannelId), latestUrl)).ToList();
                 var tasks = channelsAlreadyPosted.Select(s =>
                 {
                     if (DiscordClient.GetChannel(Convert.ToUInt64(s.ChannelId)) is SocketTextChannel socketTextChannel)
