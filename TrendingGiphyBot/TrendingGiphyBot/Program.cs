@@ -71,11 +71,11 @@ namespace TrendingGiphyBot
                 if (match == null)
                 {
                     var postImageJob = new PostImageJob(_Services, config);
-                    postImageJob.ChannelIds.Add(Convert.ToUInt64(config.ChannelId));
+                    postImageJob.JobConfigs.Add(config);
                     postImageJobs.Add(postImageJob);
                 }
                 else
-                    match.ChannelIds.Add(Convert.ToUInt64(config.ChannelId));
+                    match.JobConfigs.Add(config);
             }
         }
         async Task<IEnumerable<JobConfig>> GetConfigsWithAliveChannels()

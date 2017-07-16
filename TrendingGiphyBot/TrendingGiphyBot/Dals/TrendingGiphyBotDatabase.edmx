@@ -12,6 +12,8 @@
           <Property Name="ChannelId" Type="numeric" Precision="20" Scale="0" Nullable="false" />
           <Property Name="Interval" Type="int" Nullable="false" />
           <Property Name="Time" Type="varchar" MaxLength="16" Nullable="false" />
+          <Property Name="RandomIsOn" Type="bit" Nullable="false" />
+          <Property Name="RandomSearchString" Type="varchar" MaxLength="16" />
         </EntityType>
         <EntityType Name="Time">
           <Key>
@@ -69,6 +71,8 @@
           <Property Name="Interval" Type="Int32" Nullable="false" />
           <Property Name="Time" Type="String" MaxLength="16" FixedLength="false" Unicode="false" Nullable="false" />
           <NavigationProperty Name="Time1" Relationship="Self.FK_JobConfig_Time" FromRole="JobConfig" ToRole="Time" />
+          <Property Name="RandomIsOn" Type="Boolean" Nullable="false" />
+          <Property Name="RandomSearchString" Type="String" MaxLength="16" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="TimeRecord">
           <Key>
@@ -124,6 +128,8 @@
           <EntitySetMapping Name="JobConfigs">
             <EntityTypeMapping TypeName="TrendingGiphyBotModel.JobConfig">
               <MappingFragment StoreEntitySet="JobConfig">
+                <ScalarProperty Name="RandomSearchString" ColumnName="RandomSearchString" />
+                <ScalarProperty Name="RandomIsOn" ColumnName="RandomIsOn" />
                 <ScalarProperty Name="ChannelId" ColumnName="ChannelId" />
                 <ScalarProperty Name="Interval" ColumnName="Interval" />
                 <ScalarProperty Name="Time" ColumnName="Time" />

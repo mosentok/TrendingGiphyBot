@@ -61,6 +61,16 @@ namespace TrendingGiphyBot.Dals
                 await entities.SaveChangesAsync();
             }
         }
+        internal async Task UpdateRandom(JobConfig config)
+        {
+            using (var entities = new TrendingGiphyBotEntities(_ConnectionString))
+            {
+                var match = entities.JobConfigs.Single(s => s.ChannelId == config.ChannelId);
+                match.RandomIsOn = config.RandomIsOn;
+                match.RandomSearchString = config.RandomSearchString;
+                await entities.SaveChangesAsync();
+            }
+        }
         internal async Task Remove(ulong id)
         {
             using (var entities = new TrendingGiphyBotEntities(_ConnectionString))

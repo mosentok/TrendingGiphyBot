@@ -17,6 +17,8 @@ namespace TrendingGiphyBot.Dals
         public decimal ChannelId { get; set; }
         public int Interval { get; set; }
         public string Time { get; set; }
+        public bool RandomIsOn { get; set; }
+        public string RandomSearchString { get; set; }
     
         public virtual TimeRecord Time1 { get; set; }
     }
