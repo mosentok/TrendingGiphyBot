@@ -21,6 +21,8 @@ namespace TrendingGiphyBot.Configuration
         public string WordnikBaseAddress { get; set; }
         public string WordnikToken { get; set; }
         public string SpotifyClientId { get; set; }
+        [JsonRequired]
+        public string GitHubUrl { get; set; }
         public bool UseWordnik => !string.IsNullOrEmpty(WordnikToken);
         public bool UseSpotify => !string.IsNullOrEmpty(SpotifyClientId);
     }
