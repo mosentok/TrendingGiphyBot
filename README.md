@@ -7,24 +7,10 @@ Then|who|was|phone?
 
 ## Table of Contents
 
-- [Shoutout to](https://github.com/mosentok/TrendingGiphyBot#shoutout-to)
 - [Commands](https://github.com/mosentok/TrendingGiphyBot#commands)
   - [JobConfig](https://github.com/mosentok/TrendingGiphyBot#jobconfig)
   - [SetRandom](https://github.com/mosentok/TrendingGiphyBot#setrandom)
-
-## Shoutout to:
-
-- [C#](https://docs.microsoft.com/en-us/dotnet/csharp/csharp)
-- [.NET](https://www.microsoft.com/net)
-- [Visual Studio](https://www.visualstudio.com/)
-- [Discord](https://discordapp.com/)
-- [Discord.Net](https://github.com/RogueException/Discord.Net)
-- [Giphy](https://giphy.com)
-- [GiphyDotNet](https://github.com/drasticactions/GiphyDotNet)
-- [NLog](https://github.com/NLog/NLog)
-- [Spotify](https://www.spotify.com/)
-- [SpotifyAPI-NET](https://github.com/JohnnyCrazy/SpotifyAPI-NET)
-- [Wordnik](https://wordnik.com/)
+- [Shoutout to](https://github.com/mosentok/TrendingGiphyBot#shoutout-to)
 
 ## Commands:
 
@@ -50,3 +36,17 @@ Want the bot to post a random gif if there's no new trending one?
 !setrandom on cats
 !SeTrAnDoM oFf
 ```
+
+## Shoutout to:
+
+- [C#](https://docs.microsoft.com/en-us/dotnet/csharp/csharp)
+- [.NET](https://www.microsoft.com/net)
+- [Visual Studio](https://www.visualstudio.com/)
+- [Discord](https://discordapp.com/)
+- [Discord.Net](https://github.com/RogueException/Discord.Net)
+- [Giphy](https://giphy.com)
+- [GiphyDotNet](https://github.com/drasticactions/GiphyDotNet)
+- [NLog](https://github.com/NLog/NLog)
+- [Spotify](https://www.spotify.com/)
+- [SpotifyAPI-NET](https://github.com/JohnnyCrazy/SpotifyAPI-NET)
+- [Wordnik](https://wordnik.com/)
