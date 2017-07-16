@@ -1,6 +1,10 @@
 # TrendingGiphyBot
 When a member of a Discord channel, this bot posts the trending GIPHY GIF on a configurable timer.
 
+## Table of Contents
+
+- [Shoutout to](https://github.com/mosentok/TrendingGiphyBot#shoutout-to)
+
 ## Shoutout to:
 
 - [C#](https://docs.microsoft.com/en-us/dotnet/csharp/csharp)
