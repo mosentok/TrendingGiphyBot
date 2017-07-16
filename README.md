@@ -12,7 +12,7 @@ Then|who|was|phone?
   - [SetRandom](https://github.com/mosentok/TrendingGiphyBot#setrandom)
 - [Shoutout to](https://github.com/mosentok/TrendingGiphyBot#shoutout-to)
 
-## Commands:
+## Commands
 
 ### JobConfig
 
@@ -38,7 +38,7 @@ Want the bot to post a random gif if there's no new trending one?
 !setrandom help (or just !setrandom)
 ```
 
-## Shoutout to:
+## Shoutout to
 
 - [C#](https://docs.microsoft.com/en-us/dotnet/csharp/csharp)
 - [.NET](https://www.microsoft.com/net)
