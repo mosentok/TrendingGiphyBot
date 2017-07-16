@@ -101,11 +101,11 @@ namespace TrendingGiphyBot.Modules
         {
             if (await _GlobalConfig.JobConfigDal.Any(Context.Channel.Id))
             {
-                await SendRemoveMessage();
                 await _GlobalConfig.JobConfigDal.Remove(Context.Channel.Id);
-                var postImageJob = _GlobalConfig.Jobs.OfType<PostImageJob>().Single(s => s.ChannelIds.Contains(Context.Channel.Id));
+                var postImageJob = _GlobalConfig.Jobs.OfType<PostImageJob>().Single(s => s.ChannelIds != null && s.ChannelIds.Contains(Context.Channel.Id));
                 postImageJob.ChannelIds.Remove(Context.Channel.Id);
                 await RemoveTimerIfNoChannels(postImageJob);
+                await SendRemoveMessage();
             }
             else
                 await ReplyAsync(NotConfiguredMessage);
@@ -113,7 +113,7 @@ namespace TrendingGiphyBot.Modules
         static string Alternate(string s) => string.Concat(s.ToLower().AsEnumerable().Select((c, i) => i % 2 == 0 ? c : char.ToUpper(c)));
         Task RemoveTimerIfNoChannels(PostImageJob postImageJob)
         {
-            if (!postImageJob.ChannelIds.Any())
+            if (!postImageJob.JobConfigs.Any())
             {
                 _GlobalConfig.Jobs.Remove(postImageJob);
                 postImageJob?.Dispose();
@@ -153,7 +153,7 @@ namespace TrendingGiphyBot.Modules
         async Task UpdateJob(int interval, Time time, JobConfig config)
         {
             var postImageJobs = _GlobalConfig.Jobs.OfType<PostImageJob>().ToList();
-            var existingJob = postImageJobs.SingleOrDefault(s => s.ChannelIds.Contains(Context.Channel.Id));
+            var existingJob = postImageJobs.SingleOrDefault(s => s.ChannelIds != null && s.ChannelIds.Contains(Context.Channel.Id));
             if (existingJob != null)
             {
                 existingJob.ChannelIds.Remove(Context.Channel.Id);
@@ -163,12 +163,12 @@ namespace TrendingGiphyBot.Modules
             if (postImageJob == null)
                 await AddJobConfig(config);
             else
-                postImageJob.ChannelIds.Add(Context.Channel.Id);
+                postImageJob.JobConfigs.Add(config);
         }
         Task AddJobConfig(JobConfig config)
         {
             var postImageJob = new PostImageJob(_Services, config);
-            postImageJob.ChannelIds.Add(Context.Channel.Id);
+            postImageJob.JobConfigs.Add(config);
             _GlobalConfig.Jobs.Add(postImageJob);
             postImageJob.StartTimerWithCloseInterval();
             return Task.CompletedTask;

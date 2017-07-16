@@ -7,6 +7,8 @@ using TrendingGiphyBot.Helpers;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using TrendingGiphyBot.Attributes;
+using TrendingGiphyBot.Dals;
+using System.Collections.Generic;
 
 namespace TrendingGiphyBot.Modules
 {
@@ -30,12 +32,20 @@ namespace TrendingGiphyBot.Modules
                 .WithIconUrl(avatarUrl);
             var type = GetType();
             var fields = ModuleBaseHelper.BuildFields<MainModule>();
+            AddModuleField(fields, nameof(JobConfig));
+            AddModuleField(fields, "SetRandom");
             var embed = new EmbedBuilder { Fields = fields }
                 .WithAuthor(author)
                 .WithDescription($"Commands for interacting with {nameof(TrendingGiphyBot)}.");
             await ReplyAsync(string.Empty, embed: embed);
         }
-        [ExcludeAttribute]
+        static void AddModuleField(List<EmbedFieldBuilder> fields, string moduleName)
+        {
+            fields.Add(new EmbedFieldBuilder()
+                .WithName(moduleName)
+                .WithValue($"Check !{moduleName}"));
+        }
+        [Exclude]
         [Command(nameof(Dev))]
         [Summary("Help menu for the " + nameof(Dev) + " commands.")]
         [Alias(nameof(Dev))]

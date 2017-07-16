@@ -262,6 +262,7 @@
     <Compile Include="Modules\JobConfigModule.cs" />
     <Compile Include="Jobs\Job.cs" />
     <Compile Include="Modules\MainModule.cs" />
+    <Compile Include="Modules\SetRandomModule.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Configuration\Config.cs" />
