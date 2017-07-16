@@ -8,7 +8,7 @@ When a member of a Discord channel, this bot posts the trending GIPHY GIF on a c
 
 ## Commands:
 
-#JobConfig
+###JobConfig
 
 Configures the job timer.
 
@@ -19,7 +19,7 @@ Configures the job timer.
 !JoBcOnFiG sEt 1 HoUr
 !jobconfig remove
 
-#SetRandom
+###SetRandom
 
 Want the bot to post a random gif if there's no new trending one?
 
