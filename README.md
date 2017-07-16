@@ -14,6 +14,10 @@ Then|who|was|phone?
 
 ## Commands
 
+You can configure this bot in different channels on your server. Configuration is saved per channel.
+
+You have complete control over how often it posts. Have fun with it! If it gets annoying or something, just dial it back a bit.
+
 ### JobConfig
 
 Configures the job timer.
@@ -29,12 +33,13 @@ Configures the job timer.
 
 ### SetRandom
 
-Want the bot to post a random gif if there's no new trending one?
+Want the bot to post a random GIF if there's no new trending one?
 
 ```
 !SetRandom On
 !setrandom on cats
 !SeTrAnDoM oFf
+!setrandom get
 !setrandom help (or just !setrandom)
 ```
 
