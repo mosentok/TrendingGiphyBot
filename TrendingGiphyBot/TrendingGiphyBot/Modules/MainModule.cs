@@ -6,6 +6,7 @@ using TrendingGiphyBot.Configuration;
 using TrendingGiphyBot.Helpers;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
+using TrendingGiphyBot.Attributes;
 
 namespace TrendingGiphyBot.Modules
 {
@@ -20,7 +21,7 @@ namespace TrendingGiphyBot.Modules
         }
         [Command(nameof(Help))]
         [Summary("Help menu for the " + nameof(TrendingGiphyBot) + " commands.")]
-        [Alias(nameof(Help))]
+        [Alias(nameof(Help), "")]
         public async Task Help()
         {
             var avatarUrl = Context.Client.CurrentUser.GetAvatarUrl();
@@ -34,8 +35,9 @@ namespace TrendingGiphyBot.Modules
                 .WithDescription($"Commands for interacting with {nameof(TrendingGiphyBot)}.");
             await ReplyAsync(string.Empty, embed: embed);
         }
+        [ExcludeAttribute]
         [Command(nameof(Dev))]
-        [Summary("Help menu for the " + nameof(TrendingGiphyBot) + " commands.")]
+        [Summary("Help menu for the " + nameof(Dev) + " commands.")]
         [Alias(nameof(Dev))]
         public async Task Dev()
         {

@@ -21,7 +21,8 @@ namespace TrendingGiphyBot.Helpers
         internal static List<EmbedFieldBuilder> BuildFields<T>() where T : ModuleBase =>
             typeof(T).GetMethods()
             .OrderBy(s => s.Name)
-            .Where(s => s.GetCustomAttribute<CommandAttribute>() != null)
+            .Where(s => s.GetCustomAttribute<CommandAttribute>() != null
+                && s.GetCustomAttribute<ExcludeAttribute>() == null)
             .SelectMany(s => BuildFields(s)).ToList();
         static List<EmbedFieldBuilder> BuildFields(MethodInfo method)
         {
