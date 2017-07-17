@@ -53,6 +53,3 @@ Want the bot to post a random GIF if there's no new trending one?
 - [Giphy](https://giphy.com)
 - [GiphyDotNet](https://github.com/drasticactions/GiphyDotNet)
 - [NLog](https://github.com/NLog/NLog)
-- [Spotify](https://www.spotify.com/)
-- [SpotifyAPI-NET](https://github.com/JohnnyCrazy/SpotifyAPI-NET)
-- [Wordnik](https://wordnik.com/)
