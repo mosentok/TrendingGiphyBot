@@ -5,6 +5,13 @@
     <!-- SSDL content -->
     <edmx:StorageModels>
     <Schema Namespace="TrendingGiphyBotModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="BotConfig">
+          <Key>
+            <PropertyRef Name="Key" />
+          </Key>
+          <Property Name="Key" Type="varchar" MaxLength="127" Nullable="false" />
+          <Property Name="Value" Type="varchar(max)" Nullable="false" />
+        </EntityType>
         <EntityType Name="JobConfig">
           <Key>
             <PropertyRef Name="ChannelId" />
@@ -50,6 +57,7 @@
           </ReferentialConstraint>
         </Association>
         <EntityContainer Name="TrendingGiphyBotModelStoreContainer">
+          <EntitySet Name="BotConfig" EntityType="Self.BotConfig" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JobConfig" EntityType="Self.JobConfig" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Time" EntityType="Self.Time" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="UrlCache" EntityType="Self.UrlCache" Schema="dbo" store:Type="Tables" />
@@ -102,6 +110,7 @@
           </AssociationSet>
           <EntitySet Name="UrlHistories" EntityType="TrendingGiphyBotModel.UrlHistory" />
           <EntitySet Name="UrlCaches" EntityType="TrendingGiphyBotModel.UrlCache" />
+          <EntitySet Name="BotConfigs" EntityType="TrendingGiphyBotModel.BotConfig" />
         </EntityContainer>
         <EntityType Name="UrlHistory">
           <Key>
@@ -118,6 +127,13 @@
           </Key>
           <Property Name="Url" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="false" />
           <Property Name="Stamp" Type="DateTime" Nullable="false" Precision="3" annotation:StoreGeneratedPattern="Computed" />
+        </EntityType>
+        <EntityType Name="BotConfig">
+          <Key>
+            <PropertyRef Name="Key" />
+          </Key>
+          <Property Name="Key" Type="String" Nullable="false" MaxLength="127" FixedLength="false" Unicode="false" />
+          <Property Name="Value" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="false" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -157,6 +173,14 @@
               <MappingFragment StoreEntitySet="UrlCache">
                 <ScalarProperty Name="Stamp" ColumnName="Stamp" />
                 <ScalarProperty Name="Url" ColumnName="Url" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="BotConfigs">
+            <EntityTypeMapping TypeName="TrendingGiphyBotModel.BotConfig">
+              <MappingFragment StoreEntitySet="BotConfig">
+                <ScalarProperty Name="Value" ColumnName="Value" />
+                <ScalarProperty Name="Key" ColumnName="Key" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
