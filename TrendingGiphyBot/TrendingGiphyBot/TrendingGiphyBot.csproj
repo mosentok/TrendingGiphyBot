@@ -316,9 +316,6 @@
     <None Include="Properties\PublishProfiles\TrendingGiphyBotService - Web Deploy %282%29.pubxml">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Properties\PublishProfiles\TrendingGiphyBotService - Web Deploy.pubxml">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
