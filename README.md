@@ -16,7 +16,9 @@ Oh,|hi!
 
 You can configure this bot in different channels on your server. Configuration is saved per channel.
 
-You have complete control over how often it posts. Have fun with it! If it gets annoying or something, just dial it back a bit.
+You have complete control over how often it posts. Have fun with it!
+
+If it gets annoying or something, just dial it back a bit. Or just mute it \\(⩹‿⩺)/
 
 ### JobConfig
 
