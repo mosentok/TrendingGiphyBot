@@ -2,7 +2,6 @@
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Configuration;
-using System.IO;
 using TrendingGiphyBot.Dals;
 using TrendingGiphyBot.Jobs;
 using TrendingGiphyBot.Wordnik.Clients;
@@ -28,9 +27,13 @@ namespace TrendingGiphyBot.Configuration
         public SpotifyWebAPI SpotifyClient { get; set; }
         public GlobalConfig()
         {
-            var configPath = ConfigurationManager.AppSettings["ConfigPath"];
-            var contents = File.ReadAllText(configPath);
-            Config = JsonConvert.DeserializeObject<Config>(contents);
+            var connectionString = ConfigurationManager.AppSettings["ConnectionString"];
+            using (var entities = new TrendingGiphyBotEntities(connectionString))
+            {
+                var config = entities.BotConfigs.Single(s => s.Key == "TrendingGiphyBot").Value;
+                Console.WriteLine(config);
+                Config = JsonConvert.DeserializeObject<Config>(config);
+            }
             JobConfigDal = new JobConfigDal(Config.ConnectionString);
             UrlCacheDal = new UrlCacheDal(Config.ConnectionString);
             UrlHistoryDal = new UrlHistoryDal(Config.ConnectionString);
