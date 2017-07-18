@@ -3,7 +3,7 @@ using TrendingGiphyBot.Enums;
 
 namespace TrendingGiphyBot.Configuration
 {
-    class MinMaxJobConfig
+    class SubJobConfig
     {
         [JsonRequired]
         public int Interval { get; set; }

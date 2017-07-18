@@ -15,7 +15,7 @@ namespace TrendingGiphyBot.Helpers
     {
         internal static string InvalidConfig(Time time, string validValues) =>
             $"When {nameof(Time)} is {time}, interval must be {validValues}.";
-        internal static string InvalidConfigRange(MinMaxJobConfig minConfig, MinMaxJobConfig maxConfig) =>
+        internal static string InvalidConfigRange(SubJobConfig minConfig, SubJobConfig maxConfig) =>
             $"Interval must be between {minConfig.Interval} {minConfig.Time} and {maxConfig.Interval} {maxConfig.Time}.";
         internal static List<EmbedFieldBuilder> BuildFields<T>() where T : ModuleBase =>
             typeof(T).GetMethods()
