@@ -20,14 +20,22 @@ You have complete control over how often it posts. Have fun with it!
 
 If it gets annoying or something, just dial it back a bit. ᴼʳ ᵐᵘᵗᵉ ᶦᵗ \\(⩹‿⩺)/
 
+### Main Menu
+
+If you're ever lost, type
+
+```
+!tgb
+!TrendingGiphyBot
+```
+
 ### JobConfig
 
 Configures the job timer.
 
 ```
 !JobConfig Get
-!!JobConfig Set 5 Seconds
-!jobconfig set 10 minutes
+!jobconfig set 30 minutes
 !JoBcOnFiG sEt 1 HoUr
 !jobconfig remove
 !jobconfig help (or just !jobconfig)
