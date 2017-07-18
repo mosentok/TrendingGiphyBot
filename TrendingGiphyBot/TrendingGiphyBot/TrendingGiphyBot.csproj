@@ -227,6 +227,9 @@
     <Compile Include="Dals\BotConfig.cs">
       <DependentUpon>TrendingGiphyBotDatabase.tt</DependentUpon>
     </Compile>
+    <Compile Include="Dals\ChannelConfig.cs">
+      <DependentUpon>TrendingGiphyBotDatabase.tt</DependentUpon>
+    </Compile>
     <Compile Include="Dals\JobConfig.cs">
       <DependentUpon>TrendingGiphyBotDatabase.tt</DependentUpon>
     </Compile>
