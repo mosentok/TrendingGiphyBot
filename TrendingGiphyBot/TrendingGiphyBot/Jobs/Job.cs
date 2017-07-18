@@ -82,12 +82,14 @@ namespace TrendingGiphyBot.Jobs
         int DetermineDifference(int component) => Interval - component % Interval;
         protected virtual void TimerStartedLog() => Logger.Debug($"Config: {Interval} {Time}. Next elapse: {NextElapse}.");
         protected internal abstract Task Run();
-        internal static JobConfigState DetermineJobConfigState(int interval, Time time, int minimumSeconds, int maximumSeconds)
+        internal static JobConfigState DetermineJobConfigState(int interval, Time time, MinMaxJobConfig minConfig, MinMaxJobConfig maxConfig)
         {
+            var minSeconds = DetermineConfiggedSeconds(minConfig.Interval, minConfig.Time);
+            var maxSeconds = DetermineConfiggedSeconds(maxConfig.Interval, maxConfig.Time);
             var configgedSeconds = DetermineConfiggedSeconds(interval, time);
-            if (configgedSeconds >= minimumSeconds)
+            if (configgedSeconds >= minSeconds)
             {
-                if (configgedSeconds <= maximumSeconds)
+                if (configgedSeconds <= maxSeconds)
                     switch (time)
                     {
                         case Time.Hour:

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using TrendingGiphyBot.Attributes;
+using TrendingGiphyBot.Configuration;
 using TrendingGiphyBot.Enums;
 using TrendingGiphyBot.Jobs;
 
@@ -16,8 +17,8 @@ namespace TrendingGiphyBot.Helpers
         internal static string ValidHoursString => string.Join(", ", Job.ValidHours.Select(s => s.ToString()));
         internal static string InvalidConfig(Time time, string validValues) =>
             $"When {nameof(Time)} is {time}, interval must be {validValues}.";
-        internal static string InvalidConfigRange(int minimumMinutes, int maximumMinutes) =>
-            $"Interval must be between {minimumMinutes} and {maximumMinutes} seconds.";
+        internal static string InvalidConfigRange(MinMaxJobConfig minConfig, MinMaxJobConfig maxConfig) =>
+            $"Interval must be between {minConfig.Interval} {minConfig.Time} and {maxConfig.Interval} {maxConfig.Time}.";
         internal static List<EmbedFieldBuilder> BuildFields<T>() where T : ModuleBase =>
             typeof(T).GetMethods()
             .OrderBy(s => s.Name)
