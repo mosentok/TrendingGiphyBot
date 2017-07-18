@@ -1,9 +1,9 @@
 # TrendingGiphyBot
 When a member of a Discord channel, this bot posts the trending GIPHY GIF on a configurable job timer.
 
-Then|who|was|phone?
--|-|-|-
-<img src="https://discordapp.com/assets/fc0b01fe10a0b8c602fb0106d8189d9b.png" width="900px" />|<img src="https://media.giphy.com/media/3o6gbbuLW76jkt8vIc/giphy.gif" width="900px" />|<img src="https://developer.spotify.com/wp-content/uploads/2016/07/logo@2x.png" width="900px" />|<img src="https://www.wordnik.com/img/wordnik-logo-300px.png" width="900px" />
+Oh,|hi!
+-|-
+<img src="https://discordapp.com/assets/fc0b01fe10a0b8c602fb0106d8189d9b.png" width="900px" />|<img src="https://media.giphy.com/media/3o6gbbuLW76jkt8vIc/giphy.gif" width="900px" />
 
 ## Table of Contents
 
@@ -16,7 +16,18 @@ Then|who|was|phone?
 
 You can configure this bot in different channels on your server. Configuration is saved per channel.
 
-You have complete control over how often it posts. Have fun with it! If it gets annoying or something, just dial it back a bit.
+You have complete control over how often it posts. Have fun with it!
+
+If it gets annoying or something, just dial it back a bit. ᴼʳ ᵐᵘᵗᵉ ᶦᵗ \\(⩹‿⩺)/
+
+### Main Menu
+
+If you're ever lost, type
+
+```
+!tgb
+!TrendingGiphyBot
+```
 
 ### JobConfig
 
@@ -24,8 +35,7 @@ Configures the job timer.
 
 ```
 !JobConfig Get
-!!JobConfig Set 5 Seconds
-!jobconfig set 10 minutes
+!jobconfig set 30 minutes
 !JoBcOnFiG sEt 1 HoUr
 !jobconfig remove
 !jobconfig help (or just !jobconfig)
@@ -53,6 +63,3 @@ Want the bot to post a random GIF if there's no new trending one?
 - [Giphy](https://giphy.com)
 - [GiphyDotNet](https://github.com/drasticactions/GiphyDotNet)
 - [NLog](https://github.com/NLog/NLog)
-- [Spotify](https://www.spotify.com/)
-- [SpotifyAPI-NET](https://github.com/JohnnyCrazy/SpotifyAPI-NET)
-- [Wordnik](https://wordnik.com/)
