@@ -13,6 +13,7 @@ using TrendingGiphyBot.Enums;
 using NLog;
 using TrendingGiphyBot.Containers;
 using TrendingGiphyBot.Configuration;
+using TrendingGiphyBot.Helpers;
 
 namespace TrendingGiphyBot
 {
@@ -56,12 +57,12 @@ namespace TrendingGiphyBot
         {
             var configs = channelsThatExist.Where(s =>
             {
-                var convertedTime = Job.ConvertToTime(s.Time);
+                var convertedTime = s.Time.ToTime();
                 return times.Contains(convertedTime);
             });
             foreach (var config in configs)
             {
-                var match = postImageJobs.SingleOrDefault(s => s.Interval == config.Interval && s.Time == Job.ConvertToTime(config.Time));
+                var match = postImageJobs.SingleOrDefault(s => s.Interval == config.Interval && s.Time == config.Time.ToTime());
                 if (match == null)
                 {
                     var postImageJob = new PostImageJob(_Services, config);
