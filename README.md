@@ -7,10 +7,15 @@ Oh,|hi!
 
 ## Table of Contents
 
+- [Invite](https://github.com/mosentok/TrendingGiphyBot#invite)
 - [Commands](https://github.com/mosentok/TrendingGiphyBot#commands)
   - [JobConfig](https://github.com/mosentok/TrendingGiphyBot#jobconfig)
   - [SetRandom](https://github.com/mosentok/TrendingGiphyBot#setrandom)
 - [Shoutout to](https://github.com/mosentok/TrendingGiphyBot#shoutout-to)
+
+## Invite
+
+Invite the bot [here](https://discordapp.com/oauth2/authorize?client_id=333392663061463040&scope=bot&permissions=0)!
 
 ## Commands
 
