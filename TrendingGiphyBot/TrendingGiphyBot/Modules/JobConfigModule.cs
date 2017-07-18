@@ -71,7 +71,7 @@ namespace TrendingGiphyBot.Modules
             [Summary(nameof(JobConfig.Time) + " to set.")]
             Time time)
         {
-            var state = Job.DetermineJobConfigState(interval, time, _GlobalConfig.Config.MinimumSeconds, _GlobalConfig.Config.MaximumSeconds);
+            var state = Job.DetermineJobConfigState(interval, time, _GlobalConfig.Config.MinJobConfig, _GlobalConfig.Config.MaxJobConfig);
             switch (state)
             {
                 case JobConfigState.InvalidHours:
@@ -86,7 +86,7 @@ namespace TrendingGiphyBot.Modules
                     return;
                 case JobConfigState.IntervalTooSmall:
                 case JobConfigState.IntervallTooBig:
-                    await ReplyAsync(ModuleBaseHelper.InvalidConfigRange(_GlobalConfig.Config.MinimumSeconds, _GlobalConfig.Config.MaximumSeconds));
+                    await ReplyAsync(ModuleBaseHelper.InvalidConfigRange(_GlobalConfig.Config.MinJobConfig, _GlobalConfig.Config.MaxJobConfig));
                     return;
                 case JobConfigState.Valid:
                     await SaveConfig(interval, time);
