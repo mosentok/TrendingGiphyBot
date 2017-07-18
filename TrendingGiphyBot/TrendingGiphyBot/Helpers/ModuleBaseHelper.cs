@@ -13,8 +13,6 @@ namespace TrendingGiphyBot.Helpers
 {
     static class ModuleBaseHelper
     {
-        internal static string ValidMinutesSecondsString => string.Join(", ", Job.ValidMinutesSeconds.Select(s => s.ToString()));
-        internal static string ValidHoursString => string.Join(", ", Job.ValidHours.Select(s => s.ToString()));
         internal static string InvalidConfig(Time time, string validValues) =>
             $"When {nameof(Time)} is {time}, interval must be {validValues}.";
         internal static string InvalidConfigRange(MinMaxJobConfig minConfig, MinMaxJobConfig maxConfig) =>

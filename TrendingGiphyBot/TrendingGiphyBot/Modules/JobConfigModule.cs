@@ -71,15 +71,17 @@ namespace TrendingGiphyBot.Modules
             [Summary(nameof(JobConfig.Time) + " to set.")]
             Time time)
         {
-            var state = Job.DetermineJobConfigState(interval, time, _GlobalConfig.Config.MinJobConfig, _GlobalConfig.Config.MaxJobConfig);
+            var state = Job.DetermineJobConfigState(interval, time, _GlobalConfig.Config);
             switch (state)
             {
                 case JobConfigState.InvalidHours:
-                    await ReplyAsync(ModuleBaseHelper.InvalidConfig(time, ModuleBaseHelper.ValidHoursString));
+                    var validHours = string.Join(", ", _GlobalConfig.Config.ValidHours);
+                    await base.ReplyAsync(ModuleBaseHelper.InvalidConfig(time, validHours));
                     return;
                 case JobConfigState.InvalidMinutes:
                 case JobConfigState.InvalidSeconds:
-                    await ReplyAsync(ModuleBaseHelper.InvalidConfig(time, ModuleBaseHelper.ValidMinutesSecondsString));
+                    var validMinutes = string.Join(", ", _GlobalConfig.Config.ValidMinutes);
+                    await base.ReplyAsync(ModuleBaseHelper.InvalidConfig(time, validMinutes));
                     return;
                 case JobConfigState.InvalidTime:
                     await ReplyAsync($"{time} is an invalid {nameof(Time)}.");

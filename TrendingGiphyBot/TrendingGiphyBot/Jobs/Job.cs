@@ -13,8 +13,6 @@ namespace TrendingGiphyBot.Jobs
 {
     abstract class Job : IDisposable
     {
-        internal static readonly List<int> ValidMinutesSeconds = new List<int> { 1, 5, 10, 15, 20, 30 };
-        internal static readonly List<int> ValidHours = new List<int> { 1, 2, 3, 4, 6, 8, 12, 24 };
         Timer _Timer;
         protected ILogger Logger { get; }
         protected IGlobalConfig GlobalConfig { get; }
@@ -82,10 +80,10 @@ namespace TrendingGiphyBot.Jobs
         int DetermineDifference(int component) => Interval - component % Interval;
         protected virtual void TimerStartedLog() => Logger.Debug($"Config: {Interval} {Time}. Next elapse: {NextElapse}.");
         protected internal abstract Task Run();
-        internal static JobConfigState DetermineJobConfigState(int interval, Time time, MinMaxJobConfig minConfig, MinMaxJobConfig maxConfig)
+        internal static JobConfigState DetermineJobConfigState(int interval, Time time, Config config)
         {
-            var minSeconds = DetermineConfiggedSeconds(minConfig.Interval, minConfig.Time);
-            var maxSeconds = DetermineConfiggedSeconds(maxConfig.Interval, maxConfig.Time);
+            var minSeconds = DetermineConfiggedSeconds(config.MinJobConfig.Interval, config.MinJobConfig.Time);
+            var maxSeconds = DetermineConfiggedSeconds(config.MaxJobConfig.Interval, config.MaxJobConfig.Time);
             var configgedSeconds = DetermineConfiggedSeconds(interval, time);
             if (configgedSeconds >= minSeconds)
             {
@@ -94,15 +92,15 @@ namespace TrendingGiphyBot.Jobs
                     {
                         case Time.Hour:
                         case Time.Hours:
-                            if (ValidHours.Contains(interval))
+                            if (config.ValidHours.Contains(interval))
                                 return JobConfigState.Valid;
                             return JobConfigState.InvalidHours;
                         case Time.Minute:
                         case Time.Minutes:
-                            return IsValid(interval, JobConfigState.InvalidMinutes);
+                            return IsValid(interval, JobConfigState.InvalidMinutes, config.ValidMinutes);
                         case Time.Second:
                         case Time.Seconds:
-                            return IsValid(interval, JobConfigState.InvalidSeconds);
+                            return IsValid(interval, JobConfigState.InvalidSeconds, config.ValidSeconds);
                         default:
                             return JobConfigState.InvalidTime;
                     }
@@ -110,9 +108,9 @@ namespace TrendingGiphyBot.Jobs
             }
             return JobConfigState.IntervalTooSmall;
         }
-        static JobConfigState IsValid(int interval, JobConfigState invalidState)
+        static JobConfigState IsValid(int interval, JobConfigState invalidState, List<int> validMinutes)
         {
-            var isValidMinuteSecond = ValidMinutesSeconds.Contains(interval);
+            var isValidMinuteSecond = validMinutes.Contains(interval);
             if (isValidMinuteSecond)
                 return JobConfigState.Valid;
             return invalidState;

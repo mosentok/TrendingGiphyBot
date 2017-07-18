@@ -17,6 +17,12 @@ namespace TrendingGiphyBot.Configuration
         [JsonRequired]
         public MinMaxJobConfig MaxJobConfig { get; set; }
         [JsonRequired]
+        public List<int> ValidSeconds { get; set; }
+        [JsonRequired]
+        public List<int> ValidMinutes { get; set; }
+        [JsonRequired]
+        public List<int> ValidHours { get; set; }
+        [JsonRequired]
         public List<LogSeverity> LogSeverities { get; set; }
         public string WordnikBaseAddress { get; set; }
         public string WordnikToken { get; set; }
