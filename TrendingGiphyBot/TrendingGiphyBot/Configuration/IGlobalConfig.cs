@@ -15,6 +15,7 @@ namespace TrendingGiphyBot.Configuration
         JobConfigDal JobConfigDal { get; set; }
         UrlCacheDal UrlCacheDal { get; set; }
         UrlHistoryDal UrlHistoryDal { get; set; }
+        ChannelConfigDal ChannelConfigDal { get; set; }
         Giphy GiphyClient { get; set; }
         WordnikClient WordnikClient { get; set; }
         List<Job> Jobs { get; set; }

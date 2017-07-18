@@ -3,24 +3,20 @@ using System.Threading.Tasks;
 
 namespace TrendingGiphyBot.Dals
 {
-    class UrlCacheDal
+    class UrlCacheDal : Dal
     {
-        readonly string _ConnectionString;
-        public UrlCacheDal(string connectionString)
-        {
-            _ConnectionString = connectionString;
-        }
+        public UrlCacheDal(string connectionString) : base(connectionString) { }
         internal Task<bool> Any(string url)
         {
             return Task.Run(() =>
             {
-                using (var entities = new TrendingGiphyBotEntities(_ConnectionString))
+                using (var entities = new TrendingGiphyBotEntities(ConnectionString))
                     return entities.UrlCaches.Any(s => s.Url == url);
             });
         }
         internal async Task Insert(string url)
         {
-            using (var entities = new TrendingGiphyBotEntities(_ConnectionString))
+            using (var entities = new TrendingGiphyBotEntities(ConnectionString))
             {
                 entities.UrlCaches.Add(new UrlCache { Url = url });
                 await entities.SaveChangesAsync();
@@ -30,7 +26,7 @@ namespace TrendingGiphyBot.Dals
         {
             return Task.Run(() =>
             {
-                using (var entities = new TrendingGiphyBotEntities(_ConnectionString))
+                using (var entities = new TrendingGiphyBotEntities(ConnectionString))
                     return entities.UrlCaches.SingleOrDefault(s => s.Url == url);
             });
         }
@@ -38,7 +34,7 @@ namespace TrendingGiphyBot.Dals
         {
             return Task.Run(() =>
             {
-                using (var entities = new TrendingGiphyBotEntities(_ConnectionString))
+                using (var entities = new TrendingGiphyBotEntities(ConnectionString))
                     return entities.UrlCaches.OrderByDescending(s => s.Stamp).FirstOrDefault().Url;
             });
         }
