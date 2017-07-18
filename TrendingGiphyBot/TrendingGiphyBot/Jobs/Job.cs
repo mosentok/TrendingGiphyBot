@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
 using TrendingGiphyBot.Configuration;
@@ -92,15 +93,23 @@ namespace TrendingGiphyBot.Jobs
                     {
                         case Time.Hour:
                         case Time.Hours:
-                            if (config.ValidHours.Contains(interval))
-                                return JobConfigState.Valid;
-                            return JobConfigState.InvalidHours;
+                            if (config.ValidHours.Any())
+                            {
+                                if (config.ValidHours.Contains(interval))
+                                    return JobConfigState.Valid;
+                                return JobConfigState.InvalidHours;
+                            }
+                            return JobConfigState.InvalidTime;
                         case Time.Minute:
                         case Time.Minutes:
-                            return IsValid(interval, JobConfigState.InvalidMinutes, config.ValidMinutes);
+                            if (config.ValidMinutes.Any())
+                                return IsValid(interval, JobConfigState.InvalidMinutes, config.ValidMinutes);
+                            return JobConfigState.InvalidMinutes;
                         case Time.Second:
                         case Time.Seconds:
-                            return IsValid(interval, JobConfigState.InvalidSeconds, config.ValidSeconds);
+                            if (config.ValidSeconds.Any())
+                                return IsValid(interval, JobConfigState.InvalidSeconds, config.ValidSeconds);
+                            return JobConfigState.InvalidTime;
                         default:
                             return JobConfigState.InvalidTime;
                     }
