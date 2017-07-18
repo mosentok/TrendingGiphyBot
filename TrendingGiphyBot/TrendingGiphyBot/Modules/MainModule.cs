@@ -26,6 +26,11 @@ namespace TrendingGiphyBot.Modules
         [Alias(nameof(Help), "")]
         public async Task Help()
         {
+            await ReplyAsync($"Visit {_GlobalConfig.Config.GitHubUrl} for help!");
+            //await SendHelpMenu();
+        }
+        async Task SendHelpMenu()
+        {
             var avatarUrl = Context.Client.CurrentUser.GetAvatarUrl();
             var author = new EmbedAuthorBuilder()
                 .WithName(nameof(TrendingGiphyBot))
