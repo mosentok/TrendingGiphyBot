@@ -4,18 +4,14 @@ using System.Threading.Tasks;
 
 namespace TrendingGiphyBot.Dals
 {
-    class JobConfigDal
+    class JobConfigDal : Dal
     {
-        readonly string _ConnectionString;
-        public JobConfigDal(string connectionString)
-        {
-            _ConnectionString = connectionString;
-        }
+        public JobConfigDal(string connectionString) : base(connectionString) { }
         internal Task<int> GetCount()
         {
             return Task.Run(() =>
             {
-                using (var entities = new TrendingGiphyBotEntities(_ConnectionString))
+                using (var entities = new TrendingGiphyBotEntities(ConnectionString))
                     return entities.JobConfigs.Count();
             });
         }
@@ -23,7 +19,7 @@ namespace TrendingGiphyBot.Dals
         {
             return Task.Run(() =>
             {
-                using (var entities = new TrendingGiphyBotEntities(_ConnectionString))
+                using (var entities = new TrendingGiphyBotEntities(ConnectionString))
                     return entities.JobConfigs.ToList();
             });
         }
@@ -31,7 +27,7 @@ namespace TrendingGiphyBot.Dals
         {
             return Task.Run(() =>
             {
-                using (var entities = new TrendingGiphyBotEntities(_ConnectionString))
+                using (var entities = new TrendingGiphyBotEntities(ConnectionString))
                     return entities.JobConfigs.SingleOrDefault(s => s.ChannelId == id);
             });
         }
@@ -39,13 +35,13 @@ namespace TrendingGiphyBot.Dals
         {
             return Task.Run(() =>
             {
-                using (var entities = new TrendingGiphyBotEntities(_ConnectionString))
+                using (var entities = new TrendingGiphyBotEntities(ConnectionString))
                     return entities.JobConfigs.Any(s => s.ChannelId == id);
             });
         }
         internal async Task Insert(JobConfig config)
         {
-            using (var entities = new TrendingGiphyBotEntities(_ConnectionString))
+            using (var entities = new TrendingGiphyBotEntities(ConnectionString))
             {
                 entities.JobConfigs.Add(config);
                 await entities.SaveChangesAsync();
@@ -53,7 +49,7 @@ namespace TrendingGiphyBot.Dals
         }
         internal async Task Update(JobConfig config)
         {
-            using (var entities = new TrendingGiphyBotEntities(_ConnectionString))
+            using (var entities = new TrendingGiphyBotEntities(ConnectionString))
             {
                 var match = entities.JobConfigs.Single(s => s.ChannelId == config.ChannelId);
                 match.Interval = config.Interval;
@@ -63,7 +59,7 @@ namespace TrendingGiphyBot.Dals
         }
         internal async Task UpdateRandom(JobConfig config)
         {
-            using (var entities = new TrendingGiphyBotEntities(_ConnectionString))
+            using (var entities = new TrendingGiphyBotEntities(ConnectionString))
             {
                 var match = entities.JobConfigs.Single(s => s.ChannelId == config.ChannelId);
                 match.RandomIsOn = config.RandomIsOn;
@@ -73,7 +69,7 @@ namespace TrendingGiphyBot.Dals
         }
         internal async Task Remove(ulong id)
         {
-            using (var entities = new TrendingGiphyBotEntities(_ConnectionString))
+            using (var entities = new TrendingGiphyBotEntities(ConnectionString))
             {
                 var match = entities.JobConfigs.Single(s => s.ChannelId == id);
                 entities.JobConfigs.Remove(match);
