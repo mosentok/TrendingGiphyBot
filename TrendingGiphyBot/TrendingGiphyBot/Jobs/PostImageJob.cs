@@ -20,47 +20,48 @@ namespace TrendingGiphyBot.Jobs
             if (!string.IsNullOrEmpty(latestUrl))
             {
                 var channelsNotPostedToYet = JobConfigs.Where(s => UrlHasNotBeenPostedToChannel(Convert.ToUInt64(s.ChannelId), latestUrl)).ToList();
-                var tasks = channelsNotPostedToYet.Select(s =>
-                {
-                    if (DiscordClient.GetChannel(Convert.ToUInt64(s.ChannelId)) is SocketTextChannel socketTextChannel)
-                    {
-                        socketTextChannel.SendMessageAsync($"*Trending!* {latestUrl}");
-                        var history = new UrlHistory { ChannelId = s.ChannelId, Url = latestUrl };
-                        return GlobalConfig.UrlHistoryDal.Insert(history);
-                    }
-                    return Task.CompletedTask;
-                }).ToList();
-                await Task.WhenAll(tasks);
+                await PostNewUrls(latestUrl, channelsNotPostedToYet);
                 var channelsStillNotPostedToYet = JobConfigs.Except(channelsNotPostedToYet).ToList();
                 var channelsWithRandomStringOn = channelsStillNotPostedToYet.Where(s => s.RandomIsOn && !string.IsNullOrWhiteSpace(s.RandomSearchString));
-                var randomWithStringTasks = channelsWithRandomStringOn.Select(s =>
-                {
-                    if (DiscordClient.GetChannel(Convert.ToUInt64(s.ChannelId)) is SocketTextChannel socketTextChannel)
-                    {
-                        var randomUrlWithString = GlobalConfig.GiphyClient.RandomGif(new RandomParameter { Tag = s.RandomSearchString }).Result.Data.Url;
-                        socketTextChannel.SendMessageAsync(randomUrlWithString).Wait();
-                        var history = new UrlHistory { ChannelId = s.ChannelId, Url = randomUrlWithString };
-                        return GlobalConfig.UrlHistoryDal.Insert(history);
-                    }
-                    return Task.CompletedTask;
-                });
-                await Task.WhenAll(randomWithStringTasks);
+                await PostRandomsWithSearchString(channelsWithRandomStringOn);
                 var channelsLeftover = JobConfigs
                     .Except(channelsNotPostedToYet)
-                    .Except(channelsStillNotPostedToYet);
+                    .Except(channelsStillNotPostedToYet)
+                    .Where(s => s.RandomIsOn);
                 var randomUrl = (await GlobalConfig.GiphyClient.RandomGif(new RandomParameter())).Data.Url;
-                var leftoverTasks = channelsLeftover.Select(s =>
-                {
-                    if (DiscordClient.GetChannel(Convert.ToUInt64(s.ChannelId)) is SocketTextChannel socketTextChannel)
-                    {
-                        socketTextChannel.SendMessageAsync(randomUrl).Wait();
-                        var history = new UrlHistory { ChannelId = s.ChannelId, Url = randomUrl };
-                        return GlobalConfig.UrlHistoryDal.Insert(history);
-                    }
-                    return Task.CompletedTask;
-                });
-                await Task.WhenAll(leftoverTasks);
+                await PostChannelsLeftover(channelsLeftover, randomUrl);
             }
+        }
+        async Task PostNewUrls(string latestUrl, List<JobConfig> channelsNotPostedToYet)
+        {
+            foreach (var s in channelsNotPostedToYet)
+                if (DiscordClient.GetChannel(Convert.ToUInt64(s.ChannelId)) is SocketTextChannel socketTextChannel)
+                {
+                    await socketTextChannel.SendMessageAsync($"*Trending!* {latestUrl}");
+                    var history = new UrlHistory { ChannelId = s.ChannelId, Url = latestUrl };
+                    await GlobalConfig.UrlHistoryDal.Insert(history);
+                }
+        }
+        async Task PostChannelsLeftover(IEnumerable<JobConfig> channelsLeftover, string randomUrl)
+        {
+            foreach (var s in channelsLeftover)
+                if (DiscordClient.GetChannel(Convert.ToUInt64(s.ChannelId)) is SocketTextChannel socketTextChannel)
+                {
+                    await socketTextChannel.SendMessageAsync(randomUrl);
+                    var history = new UrlHistory { ChannelId = s.ChannelId, Url = randomUrl };
+                    await GlobalConfig.UrlHistoryDal.Insert(history);
+                }
+        }
+        async Task PostRandomsWithSearchString(IEnumerable<JobConfig> channelsWithRandomStringOn)
+        {
+            foreach (var s in channelsWithRandomStringOn)
+                if (DiscordClient.GetChannel(Convert.ToUInt64(s.ChannelId)) is SocketTextChannel socketTextChannel)
+                {
+                    var randomUrlWithString = (await GlobalConfig.GiphyClient.RandomGif(new RandomParameter { Tag = s.RandomSearchString })).Data.Url;
+                    await socketTextChannel.SendMessageAsync(randomUrlWithString);
+                    var history = new UrlHistory { ChannelId = s.ChannelId, Url = randomUrlWithString };
+                    await GlobalConfig.UrlHistoryDal.Insert(history);
+                }
         }
         bool UrlHasNotBeenPostedToChannel(ulong channelId, string latestUrl) =>
             GlobalConfig.JobConfigDal.Any(channelId).Result &&
