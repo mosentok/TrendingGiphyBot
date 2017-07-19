@@ -27,18 +27,25 @@ namespace TrendingGiphyBot
         static void Main(string[] args) => new Program().MainAsync().GetAwaiter().GetResult();
         async Task MainAsync()
         {
-            _Services = new ServiceCollection()
-                .AddSingleton<IGlobalConfig, GlobalConfig>()
-                .BuildServiceProvider();
-            _GlobalConfig = _Services.GetRequiredService<IGlobalConfig>();
-            _Commands = new CommandService();
-            _DiscordClient.MessageReceived += MessageReceived;
-            _DiscordClient.Log += Log;
-            _DiscordClient.Ready += Ready;
-            await _Commands.AddModulesAsync(Assembly.GetEntryAssembly());
-            await _DiscordClient.LoginAsync(TokenType.Bot, _GlobalConfig.Config.DiscordToken);
-            await _DiscordClient.StartAsync();
-            await Task.Delay(-1);
+            try
+            {
+                _Services = new ServiceCollection()
+                    .AddSingleton<IGlobalConfig, GlobalConfig>()
+                    .BuildServiceProvider();
+                _GlobalConfig = _Services.GetRequiredService<IGlobalConfig>();
+                _Commands = new CommandService();
+                _DiscordClient.MessageReceived += MessageReceived;
+                _DiscordClient.Log += Log;
+                _DiscordClient.Ready += Ready;
+                await _Commands.AddModulesAsync(Assembly.GetEntryAssembly());
+                await _DiscordClient.LoginAsync(TokenType.Bot, _GlobalConfig.Config.DiscordToken);
+                await _DiscordClient.StartAsync();
+                await Task.Delay(-1);
+            }
+            catch (Exception ex)
+            {
+                LogManager.GetCurrentClassLogger()?.Error(ex);
+            }
         }
         async Task Ready()
         {
