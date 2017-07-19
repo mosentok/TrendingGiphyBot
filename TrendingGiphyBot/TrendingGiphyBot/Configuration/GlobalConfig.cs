@@ -4,13 +4,9 @@ using System.Collections.Generic;
 using System.Configuration;
 using TrendingGiphyBot.Dals;
 using TrendingGiphyBot.Jobs;
-using TrendingGiphyBot.Wordnik.Clients;
 using Discord.WebSocket;
 using System;
 using System.Linq;
-using SpotifyAPI.Web;
-using SpotifyAPI.Web.Enums;
-using SpotifyAPI.Web.Auth;
 
 namespace TrendingGiphyBot.Configuration
 {
@@ -21,10 +17,8 @@ namespace TrendingGiphyBot.Configuration
         public UrlCacheDal UrlCacheDal { get; set; }
         public UrlHistoryDal UrlHistoryDal { get; set; }
         public Giphy GiphyClient { get; set; }
-        public WordnikClient WordnikClient { get; set; }
         public List<Job> Jobs { get; set; }
         public DiscordSocketClient DiscordClient { get; set; }
-        public SpotifyWebAPI SpotifyClient { get; set; }
         public GlobalConfig()
         {
             var connectionString = ConfigurationManager.AppSettings["ConnectionString"];
@@ -38,23 +32,14 @@ namespace TrendingGiphyBot.Configuration
             UrlCacheDal = new UrlCacheDal(Config.ConnectionString);
             UrlHistoryDal = new UrlHistoryDal(Config.ConnectionString);
             GiphyClient = new Giphy(Config.GiphyToken);
-            if (Config.UseWordnik)
-                WordnikClient = new WordnikClient(Config.WordnikBaseAddress, Config.WordnikToken);
             Jobs = new List<Job>();
             var configgedLogSeverities = Config.LogSeverities.Aggregate((a, b) => a | b);
             DiscordClient = new DiscordSocketClient(new DiscordSocketConfig { LogLevel = configgedLogSeverities });
-            if (Config.UseSpotify)
-            {
-                var webApiFactory = new WebAPIFactory("http://localhost", 8000, Config.SpotifyClientId, Scope.UserReadPlaybackState, TimeSpan.FromSeconds(20));
-                SpotifyClient = webApiFactory.GetWebApi().Result;
-            }
         }
         public void Dispose()
         {
             DiscordClient?.LogoutAsync().Wait();
             DiscordClient?.Dispose();
-            WordnikClient?.Dispose();
-            SpotifyClient?.Dispose();
             Jobs?.ForEach(s => s?.Dispose());
         }
     }

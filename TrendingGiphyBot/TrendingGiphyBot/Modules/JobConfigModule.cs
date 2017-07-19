@@ -131,13 +131,7 @@ namespace TrendingGiphyBot.Modules
         }
         async Task SendRemoveMessage()
         {
-            if (_GlobalConfig.Config.UseWordnik)
-            {
-                var wordOfTheDay = await _GlobalConfig.WordnikClient.GetWordOfTheDay();
-                await ReplyAsync($"Configuration removed. {CapitalizeFirstLetter(wordOfTheDay.Word)}.");
-            }
-            else
-                await ReplyAsync("Configuration removed.");
+             await ReplyAsync("Configuration removed.");
         }
         static string CapitalizeFirstLetter(string s) => char.ToUpper(s[0]) + s.Substring(1);
         async Task SaveConfig(int interval, Time time)
