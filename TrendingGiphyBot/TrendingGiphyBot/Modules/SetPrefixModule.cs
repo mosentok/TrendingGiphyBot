@@ -32,17 +32,20 @@ namespace TrendingGiphyBot.Modules
                 await ReplyAsync($"Your prefix is {prefix}");
             }
             else
-                await ReplyAsync($"Visit {_GlobalConfig.Config.GitHubUrl} for help!");
+                await Reset();
         }
         [Command(nameof(Set))]
         public async Task Set(string prefix)
         {
             var isValid = !string.IsNullOrEmpty(prefix) && prefix.Any() && prefix.Length <= 4;
             if (isValid)
+            {
                 if (await _GlobalConfig.ChannelConfigDal.Any(Context.Channel.Id))
                     await _GlobalConfig.ChannelConfigDal.SetPrefix(Context.Channel.Id, prefix);
                 else
                     await _GlobalConfig.ChannelConfigDal.Insert(Context.Channel.Id, prefix);
+                await Get();
+            }
             else
                 await ReplyAsync("Prefix must be 1-4 characters long.");
         }
