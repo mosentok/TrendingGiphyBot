@@ -84,7 +84,8 @@ namespace TrendingGiphyBot
             if (messageParam is SocketUserMessage message)
             {
                 int argPos = 0;
-                if (message.HasCharPrefix('!', ref argPos) || message.HasMentionPrefix(_DiscordClient.CurrentUser, ref argPos))
+                var prefix = await DeterminePrefix(message);
+                if (message.HasStringPrefix(prefix, ref argPos) || message.HasMentionPrefix(_DiscordClient.CurrentUser, ref argPos))
                 {
                     var context = new CommandContext(_DiscordClient, message);
                     var result = await _Commands.ExecuteAsync(context, argPos, _Services);
@@ -92,6 +93,12 @@ namespace TrendingGiphyBot
                         await HandleError(context, result);
                 }
             }
+        }
+        async Task<string> DeterminePrefix(SocketUserMessage message)
+        {
+            if (await _GlobalConfig.ChannelConfigDal.Any(message.Channel.Id))
+                return await _GlobalConfig.ChannelConfigDal.GetPrefix(message.Channel.Id);
+            return "!";
         }
         static async Task HandleError(ICommandContext context, IResult result)
         {

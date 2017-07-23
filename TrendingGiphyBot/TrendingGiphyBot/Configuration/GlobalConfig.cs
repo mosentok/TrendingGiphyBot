@@ -11,6 +11,7 @@ using System.Linq;
 using SpotifyAPI.Web;
 using SpotifyAPI.Web.Enums;
 using SpotifyAPI.Web.Auth;
+using NLog;
 
 namespace TrendingGiphyBot.Configuration
 {
@@ -32,7 +33,7 @@ namespace TrendingGiphyBot.Configuration
             using (var entities = new TrendingGiphyBotEntities(connectionString))
             {
                 var config = entities.BotConfigs.Single(s => s.Key == "TrendingGiphyBot").Value;
-                Console.WriteLine(config);
+                LogManager.GetCurrentClassLogger().Trace(config);
                 Config = JsonConvert.DeserializeObject<Config>(config);
             }
             JobConfigDal = new JobConfigDal(Config.ConnectionString);
