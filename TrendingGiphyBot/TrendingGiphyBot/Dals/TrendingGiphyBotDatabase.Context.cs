@@ -34,5 +34,6 @@ namespace TrendingGiphyBot.Dals
         public virtual DbSet<UrlHistory> UrlHistories { get; set; }
         public virtual DbSet<UrlCache> UrlCaches { get; set; }
         public virtual DbSet<BotConfig> BotConfigs { get; set; }
+        public virtual DbSet<ChannelConfig> ChannelConfigs { get; set; }
     }
 }

@@ -3,24 +3,20 @@ using System.Threading.Tasks;
 
 namespace TrendingGiphyBot.Dals
 {
-    class UrlHistoryDal
+    class UrlHistoryDal : Dal
     {
-        readonly string _ConnectionString;
-        public UrlHistoryDal(string connectionString)
-        {
-            _ConnectionString = connectionString;
-        }
+        public UrlHistoryDal(string connectionString) : base(connectionString) { }
         internal Task<bool> Any(ulong channelId, string url)
         {
             return Task.Run(() =>
             {
-                using (var entities = new TrendingGiphyBotEntities(_ConnectionString))
+                using (var entities = new TrendingGiphyBotEntities(ConnectionString))
                     return entities.UrlHistories.Any(s => s.ChannelId == channelId && s.Url == url);
             });
         }
         internal async Task Insert(UrlHistory urlHistory)
         {
-            using (var entities = new TrendingGiphyBotEntities(_ConnectionString))
+            using (var entities = new TrendingGiphyBotEntities(ConnectionString))
             {
                 entities.UrlHistories.Add(urlHistory);
                 await entities.SaveChangesAsync();
@@ -30,7 +26,7 @@ namespace TrendingGiphyBot.Dals
         {
             return Task.Run(() =>
             {
-                using (var entities = new TrendingGiphyBotEntities(_ConnectionString))
+                using (var entities = new TrendingGiphyBotEntities(ConnectionString))
                     return entities.UrlHistories.SingleOrDefault(s => s.ChannelId == channelId && s.Url == url);
             });
         }

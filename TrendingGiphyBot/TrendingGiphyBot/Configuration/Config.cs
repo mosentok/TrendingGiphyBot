@@ -26,6 +26,8 @@ namespace TrendingGiphyBot.Configuration
         public List<int> ValidHours { get; set; }
         [JsonRequired]
         public List<LogSeverity> LogSeverities { get; set; }
+        [JsonRequired]
+        public string DefaultPrefix { get; set; }
         public string WordnikBaseAddress { get; set; }
         public string WordnikToken { get; set; }
         public string SpotifyClientId { get; set; }

@@ -7,6 +7,9 @@ using TrendingGiphyBot.Jobs;
 using Discord.WebSocket;
 using System;
 using System.Linq;
+using SpotifyAPI.Web;
+using SpotifyAPI.Web.Enums;
+using SpotifyAPI.Web.Auth;
 
 namespace TrendingGiphyBot.Configuration
 {
@@ -16,6 +19,7 @@ namespace TrendingGiphyBot.Configuration
         public JobConfigDal JobConfigDal { get; set; }
         public UrlCacheDal UrlCacheDal { get; set; }
         public UrlHistoryDal UrlHistoryDal { get; set; }
+        public ChannelConfigDal ChannelConfigDal { get; set; }
         public Giphy GiphyClient { get; set; }
         public List<Job> Jobs { get; set; }
         public DiscordSocketClient DiscordClient { get; set; }
@@ -25,12 +29,13 @@ namespace TrendingGiphyBot.Configuration
             using (var entities = new TrendingGiphyBotEntities(connectionString))
             {
                 var config = entities.BotConfigs.Single(s => s.Key == "TrendingGiphyBot").Value;
-                Console.WriteLine(config);
+                LogManager.GetCurrentClassLogger().Trace(config);
                 Config = JsonConvert.DeserializeObject<Config>(config);
             }
             JobConfigDal = new JobConfigDal(Config.ConnectionString);
             UrlCacheDal = new UrlCacheDal(Config.ConnectionString);
             UrlHistoryDal = new UrlHistoryDal(Config.ConnectionString);
+            ChannelConfigDal = new ChannelConfigDal(Config.ConnectionString);
             GiphyClient = new Giphy(Config.GiphyToken);
             Jobs = new List<Job>();
             var configgedLogSeverities = Config.LogSeverities.Aggregate((a, b) => a | b);

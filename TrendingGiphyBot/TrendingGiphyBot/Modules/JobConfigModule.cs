@@ -23,7 +23,8 @@ namespace TrendingGiphyBot.Modules
             _Services = services;
             _GlobalConfig = services.GetRequiredService<IGlobalConfig>();
         }
-        string NotConfiguredMessage => $"{Context.Channel.Id} not configured. Configure me senpai! Use '!{nameof(JobConfig)}' or '!{nameof(JobConfig)} {nameof(Help)}' to learn how to.";
+        //TODO this should just point to github
+        string NotConfiguredMessage => $"{Context.Channel.Id} not configured. Configure me senpai! Use '{_GlobalConfig.Config.DefaultPrefix}{nameof(JobConfig)}' or '{_GlobalConfig.Config.DefaultPrefix}{nameof(JobConfig)} {nameof(Help)}' to learn how to.";
         [Command(nameof(Help))]
         [Summary("Help menu for the " + nameof(JobConfig) + " commands.")]
         [Alias(nameof(Help), "")]

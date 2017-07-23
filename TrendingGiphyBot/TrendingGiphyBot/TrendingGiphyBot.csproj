@@ -224,6 +224,11 @@
     <Compile Include="Dals\BotConfig.cs">
       <DependentUpon>TrendingGiphyBotDatabase.tt</DependentUpon>
     </Compile>
+    <Compile Include="Dals\ChannelConfig.cs">
+      <DependentUpon>TrendingGiphyBotDatabase.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Dals\ChannelConfigDal.cs" />
+    <Compile Include="Dals\Dal.cs" />
     <Compile Include="Dals\JobConfig.cs">
       <DependentUpon>TrendingGiphyBotDatabase.tt</DependentUpon>
     </Compile>
@@ -264,6 +269,7 @@
     <Compile Include="Modules\JobConfigModule.cs" />
     <Compile Include="Jobs\Job.cs" />
     <Compile Include="Modules\MainModule.cs" />
+    <Compile Include="Modules\SetPrefixModule.cs" />
     <Compile Include="Modules\SetRandomModule.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
