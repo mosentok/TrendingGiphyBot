@@ -5,11 +5,8 @@ using System.Configuration;
 using TrendingGiphyBot.Dals;
 using TrendingGiphyBot.Jobs;
 using Discord.WebSocket;
-using System;
 using System.Linq;
-using SpotifyAPI.Web;
-using SpotifyAPI.Web.Enums;
-using SpotifyAPI.Web.Auth;
+using NLog;
 
 namespace TrendingGiphyBot.Configuration
 {
