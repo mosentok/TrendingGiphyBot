@@ -9,6 +9,7 @@ Oh,|hi!
 
 - [Invite](https://github.com/mosentok/TrendingGiphyBot#invite)
 - [Commands](https://github.com/mosentok/TrendingGiphyBot#commands)
+  - [Main Menu](https://github.com/mosentok/TrendingGiphyBot#main-menu)
   - [JobConfig](https://github.com/mosentok/TrendingGiphyBot#jobconfig)
   - [SetRandom](https://github.com/mosentok/TrendingGiphyBot#setrandom)
 - [Shoutout to](https://github.com/mosentok/TrendingGiphyBot#shoutout-to)
