@@ -52,7 +52,7 @@ namespace TrendingGiphyBot.Modules
         [Command(nameof(Reset))]
         public async Task Reset()
         {
-            await Set("!");
+            await Set(_GlobalConfig.Config.DefaultPrefix);
         }
     }
 }
