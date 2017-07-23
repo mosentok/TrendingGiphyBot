@@ -12,6 +12,13 @@
           <Property Name="Key" Type="varchar" MaxLength="127" Nullable="false" />
           <Property Name="Value" Type="varchar(max)" Nullable="false" />
         </EntityType>
+        <EntityType Name="ChannelConfig">
+          <Key>
+            <PropertyRef Name="ChannelId" />
+          </Key>
+          <Property Name="ChannelId" Type="numeric" Precision="20" Scale="0" Nullable="false" />
+          <Property Name="Prefix" Type="varchar" MaxLength="4" Nullable="false" />
+        </EntityType>
         <EntityType Name="JobConfig">
           <Key>
             <PropertyRef Name="ChannelId" />
@@ -58,6 +65,7 @@
         </Association>
         <EntityContainer Name="TrendingGiphyBotModelStoreContainer">
           <EntitySet Name="BotConfig" EntityType="Self.BotConfig" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ChannelConfig" EntityType="Self.ChannelConfig" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="JobConfig" EntityType="Self.JobConfig" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Time" EntityType="Self.Time" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="UrlCache" EntityType="Self.UrlCache" Schema="dbo" store:Type="Tables" />
@@ -111,6 +119,7 @@
           <EntitySet Name="UrlHistories" EntityType="TrendingGiphyBotModel.UrlHistory" />
           <EntitySet Name="UrlCaches" EntityType="TrendingGiphyBotModel.UrlCache" />
           <EntitySet Name="BotConfigs" EntityType="TrendingGiphyBotModel.BotConfig" />
+          <EntitySet Name="ChannelConfigs" EntityType="TrendingGiphyBotModel.ChannelConfig" />
         </EntityContainer>
         <EntityType Name="UrlHistory">
           <Key>
@@ -134,6 +143,13 @@
           </Key>
           <Property Name="Key" Type="String" Nullable="false" MaxLength="127" FixedLength="false" Unicode="false" />
           <Property Name="Value" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="ChannelConfig">
+          <Key>
+            <PropertyRef Name="ChannelId" />
+          </Key>
+          <Property Name="ChannelId" Type="Decimal" Nullable="false" Precision="20" Scale="0" />
+          <Property Name="Prefix" Type="String" Nullable="false" MaxLength="4" FixedLength="false" Unicode="false" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -181,6 +197,14 @@
               <MappingFragment StoreEntitySet="BotConfig">
                 <ScalarProperty Name="Value" ColumnName="Value" />
                 <ScalarProperty Name="Key" ColumnName="Key" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ChannelConfigs">
+            <EntityTypeMapping TypeName="TrendingGiphyBotModel.ChannelConfig">
+              <MappingFragment StoreEntitySet="ChannelConfig">
+                <ScalarProperty Name="Prefix" ColumnName="Prefix" />
+                <ScalarProperty Name="ChannelId" ColumnName="ChannelId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
