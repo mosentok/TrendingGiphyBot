@@ -98,7 +98,7 @@ namespace TrendingGiphyBot
         {
             if (await _GlobalConfig.ChannelConfigDal.Any(message.Channel.Id))
                 return await _GlobalConfig.ChannelConfigDal.GetPrefix(message.Channel.Id);
-            return "!";
+            return _GlobalConfig.Config.DefaultPrefix;
         }
         static async Task HandleError(ICommandContext context, IResult result)
         {
