@@ -16,14 +16,12 @@ namespace TrendingGiphyBot.Modules
     public class SetRandomModule : ModuleBase
     {
         const string _Name = "SetRandom";
-        IServiceProvider _Services;
         IGlobalConfig _GlobalConfig;
         public SetRandomModule(IServiceProvider services)
         {
-            _Services = services;
             _GlobalConfig = services.GetRequiredService<IGlobalConfig>();
         }
-        string NotConfiguredMessage => $"{Context.Channel.Id} not configured. Configure me senpai! Please set {nameof(JobConfig)} first. Use '!{nameof(JobConfig)}' or '!{nameof(JobConfig)} {nameof(Help)}' to learn how to.";
+        string NotConfiguredMessage => $"{Context.Channel.Id} not configured. Configure me senpai! Use '{_GlobalConfig.Config.DefaultPrefix}{nameof(JobConfig)}' or '{_GlobalConfig.Config.DefaultPrefix}{nameof(JobConfig)} {nameof(Help)}' to learn how to.";
         [Command(nameof(Help))]
         [Summary("Help menu for the " + _Name + " commands.")]
         [Alias(nameof(Help), "")]
@@ -52,28 +50,22 @@ namespace TrendingGiphyBot.Modules
         {
             if (await _GlobalConfig.JobConfigDal.Any(Context.Channel.Id))
             {
-                var any = await _GlobalConfig.JobConfigDal.Any(Context.Channel.Id);
-                if (any)
-                {
-                    var config = await _GlobalConfig.JobConfigDal.Get(Context.Channel.Id);
-                    var avatarUrl = (await Context.Client.GetGuildAsync(Context.Guild.Id)).IconUrl;
-                    var author = new EmbedAuthorBuilder()
-                        .WithName($"{Context.Channel.Name}'s {_Name}")
-                        .WithIconUrl(avatarUrl);
-                    EmbedBuilder embedBuilder = new EmbedBuilder()
-                        .WithAuthor(author)
-                        .AddInlineField(nameof(config.RandomIsOn), config.RandomIsOn);
-                    EmbedBuilder embed;
-                    if (!string.IsNullOrEmpty(config.RandomSearchString))
-                        embed = embedBuilder
-                            .AddInlineField(nameof(config.RandomSearchString), config.RandomSearchString);
-                    else
-                        embed = embedBuilder
-                            .AddInlineField(nameof(config.RandomSearchString), "null");
-                    await ReplyAsync(string.Empty, embed: embed);
-                }
+                var config = await _GlobalConfig.JobConfigDal.Get(Context.Channel.Id);
+                var avatarUrl = (await Context.Client.GetGuildAsync(Context.Guild.Id)).IconUrl;
+                var author = new EmbedAuthorBuilder()
+                    .WithName($"{Context.Channel.Name}'s {_Name}")
+                    .WithIconUrl(avatarUrl);
+                var embedBuilder = new EmbedBuilder()
+                    .WithAuthor(author)
+                    .AddInlineField(nameof(config.RandomIsOn), config.RandomIsOn);
+                EmbedBuilder embed;
+                if (!string.IsNullOrEmpty(config.RandomSearchString))
+                    embed = embedBuilder
+                        .AddInlineField(nameof(config.RandomSearchString), config.RandomSearchString);
                 else
-                    await ReplyAsync(NotConfiguredMessage);
+                    embed = embedBuilder
+                        .AddInlineField(nameof(config.RandomSearchString), "null");
+                await ReplyAsync(string.Empty, embed: embed);
             }
             else
                 await ReplyAsync(NotConfiguredMessage);
@@ -118,6 +110,7 @@ namespace TrendingGiphyBot.Modules
         }
         Task UpdateJobs(JobConfig config)
         {
+            //TODO centralize random set
             var postImageJobs = _GlobalConfig.Jobs.OfType<PostImageJob>().ToList();
             var jobConfig = postImageJobs.SelectMany(s => s.JobConfigs).Single(s => s.ChannelId == Context.Channel.Id);
             jobConfig.RandomIsOn = config.RandomIsOn;
