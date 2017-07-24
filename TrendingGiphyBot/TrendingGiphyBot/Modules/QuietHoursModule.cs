@@ -21,6 +21,7 @@ namespace TrendingGiphyBot.Modules
         }
         string NotConfiguredMessage => $"{Context.Channel.Id} not configured. Configure me senpai! Use '{_GlobalConfig.Config.DefaultPrefix}{nameof(JobConfig)}' or '{_GlobalConfig.Config.DefaultPrefix}{nameof(JobConfig)} {nameof(Help)}' to learn how to.";
         [Command(nameof(Help))]
+        [Alias(nameof(Help), "")]
         public async Task Help()
         {
             await ReplyAsync($"Visit {_GlobalConfig.Config.GitHubUrl} for help!");
@@ -46,22 +47,42 @@ namespace TrendingGiphyBot.Modules
                 await ReplyAsync(NotConfiguredMessage);
         }
         [Command(nameof(Set))]
-        public async Task Set(params string[] searchString)
+        public async Task Set(short minHour, short maxHour)
         {
             if (await _GlobalConfig.JobConfigDal.Any(Context.Channel.Id))
             {
                 var config = new JobConfig
                 {
                     ChannelId = Context.Channel.Id,
-                    RandomIsOn = true,
-                    RandomSearchString = string.Join(" ", searchString)
+                    MinQuietHour = minHour,
+                    MaxQuietHour = maxHour
                 };
-                await UpdateJobs(config);
-                await _GlobalConfig.JobConfigDal.UpdateQuietHours(config);
-                await Get();
+                await UpdateJobConfig(config);
             }
             else
                 await ReplyAsync(NotConfiguredMessage);
+        }
+        [Command(nameof(Reset))]
+        public async Task Reset()
+        {
+            if (await _GlobalConfig.JobConfigDal.Any(Context.Channel.Id))
+            {
+                var config = new JobConfig
+                {
+                    ChannelId = Context.Channel.Id,
+                    MinQuietHour = null,
+                    MaxQuietHour = null
+                };
+                await UpdateJobConfig(config);
+            }
+            else
+                await ReplyAsync(NotConfiguredMessage);
+        }
+        async Task UpdateJobConfig(JobConfig config)
+        {
+            await UpdateJobs(config);
+            await _GlobalConfig.JobConfigDal.UpdateQuietHours(config);
+            await Get();
         }
         static EmbedBuilder AddQuietHour(EmbedBuilder embedBuilder, string name, short? quietHour)
         {
@@ -75,9 +96,9 @@ namespace TrendingGiphyBot.Modules
         {
             //TODO centralize min/max quiet hours set
             var postImageJobs = _GlobalConfig.Jobs.OfType<PostImageJob>().ToList();
-            var jobConfig = postImageJobs.SelectMany(s => s.JobConfigs).Single(s => s.ChannelId == Context.Channel.Id);
-            jobConfig.MinQuietHour = config.MinQuietHour;
-            jobConfig.MaxQuietHour = config.MaxQuietHour;
+            var configToUpdate = postImageJobs.SelectMany(s => s.JobConfigs).Single(s => s.ChannelId == Context.Channel.Id);
+            configToUpdate.MinQuietHour = config.MinQuietHour;
+            configToUpdate.MaxQuietHour = config.MaxQuietHour;
             return Task.CompletedTask;
         }
     }
