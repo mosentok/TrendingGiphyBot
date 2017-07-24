@@ -59,11 +59,23 @@ namespace TrendingGiphyBot.Dals
         }
         internal async Task UpdateRandom(JobConfig config)
         {
+            //TODO centralize random set
             using (var entities = new TrendingGiphyBotEntities(ConnectionString))
             {
                 var match = entities.JobConfigs.Single(s => s.ChannelId == config.ChannelId);
                 match.RandomIsOn = config.RandomIsOn;
                 match.RandomSearchString = config.RandomSearchString;
+                await entities.SaveChangesAsync();
+            }
+        }
+        internal async Task UpdateQuietHours(JobConfig config)
+        {
+            //TODO centralize min/max quiet hours set
+            using (var entities = new TrendingGiphyBotEntities(ConnectionString))
+            {
+                var match = entities.JobConfigs.Single(s => s.ChannelId == config.ChannelId);
+                match.MinQuietHour = config.MinQuietHour;
+                match.MaxQuietHour = config.MaxQuietHour;
                 await entities.SaveChangesAsync();
             }
         }

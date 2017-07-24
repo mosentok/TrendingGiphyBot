@@ -269,6 +269,7 @@
     <Compile Include="Modules\JobConfigModule.cs" />
     <Compile Include="Jobs\Job.cs" />
     <Compile Include="Modules\MainModule.cs" />
+    <Compile Include="Modules\QuietHoursModule.cs" />
     <Compile Include="Modules\SetPrefixModule.cs" />
     <Compile Include="Modules\SetRandomModule.cs" />
     <Compile Include="Program.cs" />
