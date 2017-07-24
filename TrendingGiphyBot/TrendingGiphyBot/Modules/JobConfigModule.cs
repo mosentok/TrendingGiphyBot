@@ -111,9 +111,7 @@ namespace TrendingGiphyBot.Modules
             {
                 await _GlobalConfig.JobConfigDal.Remove(Context.Channel.Id);
                 var postImageJob = _GlobalConfig.Jobs.OfType<PostImageJob>().Single(s => s.ChannelIds != null && s.ChannelIds.Contains(Context.Channel.Id));
-                //TODO centralize remove logic?
-                var match = postImageJob.JobConfigs.Single(s => s.ChannelId == Context.Channel.Id);
-                postImageJob.JobConfigs.Remove(match);
+                RemoveJob(postImageJob);
                 await RemoveJobIfNoChannels(postImageJob);
                 await SendRemoveMessage();
             }
@@ -156,13 +154,11 @@ namespace TrendingGiphyBot.Modules
         }
         async Task UpdateJob(int interval, Time time, JobConfig config)
         {
-            //TODO centralize remove logic?
             var postImageJobs = _GlobalConfig.Jobs.OfType<PostImageJob>().ToList();
             var existingJob = postImageJobs.SingleOrDefault(s => s.ChannelIds != null && s.ChannelIds.Contains(Context.Channel.Id));
             if (existingJob != null)
             {
-                var match = existingJob.JobConfigs.Single(s => s.ChannelId == Context.Channel.Id);
-                existingJob.JobConfigs.Remove(match);
+                RemoveJob(existingJob);
                 await RemoveJobIfNoChannels(existingJob);
             }
             var postImageJob = postImageJobs.SingleOrDefault(s => s.Interval == interval && s.Time == time);
@@ -170,6 +166,11 @@ namespace TrendingGiphyBot.Modules
                 await AddJobConfig(config);
             else
                 postImageJob.JobConfigs.Add(config);
+        }
+        void RemoveJob(PostImageJob postImageJob)
+        {
+            var match = postImageJob.JobConfigs.Single(s => s.ChannelId == Context.Channel.Id);
+            postImageJob.JobConfigs.Remove(match);
         }
         Task AddJobConfig(JobConfig config)
         {
