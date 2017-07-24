@@ -14,6 +14,14 @@ namespace TrendingGiphyBot.Dals
                     return entities.UrlCaches.Any(s => s.Url == url);
             });
         }
+        internal Task<bool> Any()
+        {
+            return Task.Run(() =>
+            {
+                using (var entities = new TrendingGiphyBotEntities(ConnectionString))
+                    return entities.UrlCaches.Any();
+            });
+        }
         internal async Task Insert(string url)
         {
             using (var entities = new TrendingGiphyBotEntities(ConnectionString))

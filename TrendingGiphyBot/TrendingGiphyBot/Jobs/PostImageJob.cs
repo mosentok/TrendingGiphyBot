@@ -16,20 +16,24 @@ namespace TrendingGiphyBot.Jobs
         public PostImageJob(IServiceProvider services, JobConfig jobConfig) : base(services, LogManager.GetCurrentClassLogger(), jobConfig.Interval, jobConfig.Time) { }
         protected internal override async Task Run()
         {
-            var latestUrl = await GlobalConfig.UrlCacheDal.GetLatestUrl();
-            if (!string.IsNullOrEmpty(latestUrl))
+            if (await GlobalConfig.UrlCacheDal.Any())
             {
-                var channelsNotPostedToYet = JobConfigs.Where(s => UrlHasNotBeenPostedToChannel(Convert.ToUInt64(s.ChannelId), latestUrl)).ToList();
-                await PostNewUrls(latestUrl, channelsNotPostedToYet);
-                var channelsStillNotPostedToYet = JobConfigs.Except(channelsNotPostedToYet).ToList();
-                var channelsWithRandomStringOn = channelsStillNotPostedToYet.Where(s => s.RandomIsOn && !string.IsNullOrWhiteSpace(s.RandomSearchString));
-                await PostRandomsWithSearchString(channelsWithRandomStringOn);
-                var channelsLeftover = JobConfigs
-                    .Except(channelsNotPostedToYet)
-                    .Except(channelsStillNotPostedToYet)
-                    .Where(s => s.RandomIsOn);
-                var randomUrl = (await GlobalConfig.GiphyClient.RandomGif(new RandomParameter())).Data.Url;
-                await PostChannelsLeftover(channelsLeftover, randomUrl);
+                var latestUrl = await GlobalConfig.UrlCacheDal.GetLatestUrl();
+                if (!string.IsNullOrEmpty(latestUrl))
+                {
+                    var channelsNotPostedToYet = JobConfigs.Where(s => UrlHasNotBeenPostedToChannel(Convert.ToUInt64(s.ChannelId), latestUrl)).ToList();
+                    await PostNewUrls(latestUrl, channelsNotPostedToYet);
+                    var channelsStillNotPostedToYet = JobConfigs.Except(channelsNotPostedToYet).ToList();
+                    var channelsWithRandomStringOn = channelsStillNotPostedToYet.Where(s => s.RandomIsOn && !string.IsNullOrWhiteSpace(s.RandomSearchString));
+                    await PostRandomsWithSearchString(channelsWithRandomStringOn);
+                    var channelsLeftover = JobConfigs
+                        .Except(channelsNotPostedToYet)
+                        .Except(channelsStillNotPostedToYet)
+                        .Where(s => s.RandomIsOn);
+                    var giphyRandomResult = await GlobalConfig.GiphyClient.RandomGif(new RandomParameter());
+                    var randomUrl = giphyRandomResult.Data.Url;
+                    await PostChannelsLeftover(channelsLeftover, randomUrl);
+                }
             }
         }
         async Task PostNewUrls(string latestUrl, List<JobConfig> channelsNotPostedToYet)
@@ -57,7 +61,8 @@ namespace TrendingGiphyBot.Jobs
             foreach (var s in channelsWithRandomStringOn)
                 if (DiscordClient.GetChannel(Convert.ToUInt64(s.ChannelId)) is SocketTextChannel socketTextChannel)
                 {
-                    var randomUrlWithString = (await GlobalConfig.GiphyClient.RandomGif(new RandomParameter { Tag = s.RandomSearchString })).Data.Url;
+                    var giphyRandomResult = await GlobalConfig.GiphyClient.RandomGif(new RandomParameter { Tag = s.RandomSearchString });
+                    var randomUrlWithString = giphyRandomResult.Data.Url;
                     await socketTextChannel.SendMessageAsync(randomUrlWithString);
                     var history = new UrlHistory { ChannelId = s.ChannelId, Url = randomUrlWithString };
                     await GlobalConfig.UrlHistoryDal.Insert(history);
