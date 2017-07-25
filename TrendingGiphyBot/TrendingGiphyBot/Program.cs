@@ -84,7 +84,7 @@ namespace TrendingGiphyBot
         async Task<IEnumerable<JobConfig>> GetConfigsWithAliveChannels()
         {
             var configuredJobs = await _GlobalConfig.JobConfigDal.GetAll();
-            var channelsNotFound = configuredJobs.Where(s => _DiscordClient.GetChannel(Convert.ToUInt64(s.ChannelId)) == null);
+            var channelsNotFound = configuredJobs.Where(s => _DiscordClient.GetChannel(s.ChannelId.ToULong()) == null);
             return configuredJobs.Except(channelsNotFound);
         }
         async Task MessageReceived(SocketMessage messageParam)

@@ -23,7 +23,7 @@ namespace TrendingGiphyBot.Dals
                     return entities.JobConfigs.ToList();
             });
         }
-        internal Task<JobConfig> Get(ulong id)
+        internal Task<JobConfig> Get(decimal id)
         {
             return Task.Run(() =>
             {
@@ -31,7 +31,7 @@ namespace TrendingGiphyBot.Dals
                     return entities.JobConfigs.SingleOrDefault(s => s.ChannelId == id);
             });
         }
-        internal Task<bool> Any(ulong id)
+        internal Task<bool> Any(decimal id)
         {
             return Task.Run(() =>
             {
@@ -79,11 +79,11 @@ namespace TrendingGiphyBot.Dals
                 await entities.SaveChangesAsync();
             }
         }
-        internal async Task Remove(ulong id)
+        internal async Task Remove(decimal channelId)
         {
             using (var entities = new TrendingGiphyBotEntities(ConnectionString))
             {
-                var match = entities.JobConfigs.Single(s => s.ChannelId == id);
+                var match = entities.JobConfigs.Single(s => s.ChannelId == channelId);
                 entities.JobConfigs.Remove(match);
                 await entities.SaveChangesAsync();
             }

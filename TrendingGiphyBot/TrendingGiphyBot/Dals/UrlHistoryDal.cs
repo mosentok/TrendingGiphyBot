@@ -6,7 +6,7 @@ namespace TrendingGiphyBot.Dals
     class UrlHistoryDal : Dal
     {
         public UrlHistoryDal(string connectionString) : base(connectionString) { }
-        internal Task<bool> Any(ulong channelId, string url)
+        internal Task<bool> Any(decimal channelId, string url)
         {
             return Task.Run(() =>
             {
@@ -22,7 +22,7 @@ namespace TrendingGiphyBot.Dals
                 await entities.SaveChangesAsync();
             }
         }
-        internal Task<UrlHistory> Get(ulong channelId, string url)
+        internal Task<UrlHistory> Get(decimal channelId, string url)
         {
             return Task.Run(() =>
             {
