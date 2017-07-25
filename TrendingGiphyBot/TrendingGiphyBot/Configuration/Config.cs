@@ -1,6 +1,10 @@
 ﻿using Discord;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using TrendingGiphyBot.Enums;
+using TrendingGiphyBot.Exceptions;
 
 namespace TrendingGiphyBot.Configuration
 {
@@ -35,5 +39,66 @@ namespace TrendingGiphyBot.Configuration
         public string GitHubUrl { get; set; }
         [JsonRequired]
         public string PlayingGame { get; set; }
+        internal JobConfigState DetermineJobConfigState(int interval, Time time)
+        {
+            var minSeconds = DetermineConfiggedSeconds(MinJobConfig);
+            var maxSeconds = DetermineConfiggedSeconds(MaxJobConfig);
+            var configgedSeconds = DetermineConfiggedSeconds(interval, time);
+            if (configgedSeconds >= minSeconds)
+            {
+                if (configgedSeconds <= maxSeconds)
+                    switch (time)
+                    {
+                        case Time.Hour:
+                        case Time.Hours:
+                            if (ValidHours.Any())
+                            {
+                                if (ValidHours.Contains(interval))
+                                    return JobConfigState.Valid;
+                                return JobConfigState.InvalidHours;
+                            }
+                            return JobConfigState.InvalidTime;
+                        case Time.Minute:
+                        case Time.Minutes:
+                            if (ValidMinutes.Any())
+                                return IsValid(interval, JobConfigState.InvalidMinutes, ValidMinutes);
+                            return JobConfigState.InvalidMinutes;
+                        case Time.Second:
+                        case Time.Seconds:
+                            if (ValidSeconds.Any())
+                                return IsValid(interval, JobConfigState.InvalidSeconds, ValidSeconds);
+                            return JobConfigState.InvalidTime;
+                        default:
+                            return JobConfigState.InvalidTime;
+                    }
+                return JobConfigState.IntervallTooBig;
+            }
+            return JobConfigState.IntervalTooSmall;
+        }
+        static JobConfigState IsValid(int interval, JobConfigState invalidState, List<int> validMinutes)
+        {
+            var isValidMinuteSecond = validMinutes.Contains(interval);
+            if (isValidMinuteSecond)
+                return JobConfigState.Valid;
+            return invalidState;
+        }
+        static double DetermineConfiggedSeconds(SubJobConfig config) => DetermineConfiggedSeconds(config.Interval, config.Time);
+        static double DetermineConfiggedSeconds(int interval, Time time)
+        {
+            switch (time)
+            {
+                case Time.Hour:
+                case Time.Hours:
+                    return TimeSpan.FromHours(interval).TotalSeconds;
+                case Time.Minute:
+                case Time.Minutes:
+                    return TimeSpan.FromMinutes(interval).TotalSeconds;
+                case Time.Second:
+                case Time.Seconds:
+                    return TimeSpan.FromSeconds(interval).TotalSeconds;
+                default:
+                    throw new InvalidTimeException(time);
+            }
+        }
     }
 }
