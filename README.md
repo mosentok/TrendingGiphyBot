@@ -13,6 +13,7 @@ Oh,|hi!
   - [JobConfig](https://github.com/mosentok/TrendingGiphyBot#jobconfig)
   - [SetRandom](https://github.com/mosentok/TrendingGiphyBot#setrandom)
   - [SetPrefix](https://github.com/mosentok/TrendingGiphyBot#setprefix)
+  - [QuietHours](https://github.com/mosentok/TrendingGiphyBot#quiethours)
 - [Shoutout to](https://github.com/mosentok/TrendingGiphyBot#shoutout-to)
 
 ## Invite
@@ -34,6 +35,7 @@ If you're ever lost, type
 ```
 !tgb
 !TrendingGiphyBot
+@TrendingGiphyBot tgb
 ```
 
 ### JobConfig
@@ -64,11 +66,26 @@ Want the bot to post a random GIF if there's no new trending one?
 
 Use this to set a custom prefix (default is !).
 
+*If you forget your prefix, remember all commands can be invoked using @TrendingGiphyBot TheCommand.*
+
+*For example, @TrendingGiphyBot setprefix reset*
+
 ```
 !SetPrefix Get
 !setprefix set $^
 !SeTpReFiX rEsEt
 !setprefix help (or just !setprefix)
+```
+
+### QuietHours
+
+Sets a range of hours where the bot won't post, like late at night. Hours are 24-hours, 0 - 23.
+
+```
+!QuietHours Get
+!quiethours set 1 9
+!QuIeThOuRs ReSeT
+!quiethours help (or just !quiethours)
 ```
 
 ## Shoutout to
