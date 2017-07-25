@@ -20,15 +20,14 @@ namespace TrendingGiphyBot.Jobs
             {
                 var latestUrl = await GlobalConfig.UrlCacheDal.GetLatestUrl();
                 var nowHour = DateTime.Now.Hour;
-                var channelsNotPostedToYet = JobConfigs
-                    .Where(s => UrlHasNotBeenPostedToChannel(Convert.ToUInt64(s.ChannelId), latestUrl)
-                        && (!s.MinQuietHour.HasValue || nowHour < s.MinQuietHour)
-                        && (!s.MaxQuietHour.HasValue || nowHour > s.MaxQuietHour)).ToList();
+                var jobConfigsNotInQuietHours = JobConfigs.Where(s => (!s.MinQuietHour.HasValue || nowHour < s.MinQuietHour.Value)
+                        && (!s.MaxQuietHour.HasValue || nowHour > s.MaxQuietHour.Value)).ToList();
+                var channelsNotPostedToYet = jobConfigsNotInQuietHours.Where(s => UrlHasNotBeenPostedToChannel(Convert.ToUInt64(s.ChannelId), latestUrl)).ToList();
                 await PostNewUrls(latestUrl, channelsNotPostedToYet);
-                var channelsStillNotPostedToYet = JobConfigs.Except(channelsNotPostedToYet).ToList();
+                var channelsStillNotPostedToYet = jobConfigsNotInQuietHours.Except(channelsNotPostedToYet).ToList();
                 var channelsWithRandomStringOn = channelsStillNotPostedToYet.Where(s => s.RandomIsOn && !string.IsNullOrWhiteSpace(s.RandomSearchString));
                 await PostRandomsWithSearchString(channelsWithRandomStringOn);
-                var channelsLeftover = JobConfigs
+                var channelsLeftover = jobConfigsNotInQuietHours
                     .Except(channelsNotPostedToYet)
                     .Except(channelsStillNotPostedToYet)
                     .Where(s => s.RandomIsOn);
@@ -50,12 +49,16 @@ namespace TrendingGiphyBot.Jobs
         async Task PostChannelsLeftover(IEnumerable<JobConfig> channelsLeftover, string randomUrl)
         {
             foreach (var s in channelsLeftover)
-                if (DiscordClient.GetChannel(Convert.ToUInt64(s.ChannelId)) is SocketTextChannel socketTextChannel)
+            {
+                ulong channelId = Convert.ToUInt64(s.ChannelId);
+                if (!await GlobalConfig.UrlHistoryDal.Any(channelId, randomUrl)
+                    && DiscordClient.GetChannel(channelId) is SocketTextChannel socketTextChannel)
                 {
                     await socketTextChannel.SendMessageAsync(randomUrl);
                     var history = new UrlHistory { ChannelId = s.ChannelId, Url = randomUrl };
                     await GlobalConfig.UrlHistoryDal.Insert(history);
                 }
+            }
         }
         async Task PostRandomsWithSearchString(IEnumerable<JobConfig> channelsWithRandomStringOn)
         {
@@ -63,10 +66,13 @@ namespace TrendingGiphyBot.Jobs
                 if (DiscordClient.GetChannel(Convert.ToUInt64(s.ChannelId)) is SocketTextChannel socketTextChannel)
                 {
                     var giphyRandomResult = await GlobalConfig.GiphyClient.RandomGif(new RandomParameter { Tag = s.RandomSearchString });
-                    var randomUrlWithString = giphyRandomResult.Data.Url;
-                    await socketTextChannel.SendMessageAsync(randomUrlWithString);
-                    var history = new UrlHistory { ChannelId = s.ChannelId, Url = randomUrlWithString };
-                    await GlobalConfig.UrlHistoryDal.Insert(history);
+                    if (!await GlobalConfig.UrlHistoryDal.Any(Convert.ToUInt64(s.ChannelId), giphyRandomResult.Data.Url))
+                    {
+                        var randomUrlWithString = giphyRandomResult.Data.Url;
+                        await socketTextChannel.SendMessageAsync(randomUrlWithString);
+                        var history = new UrlHistory { ChannelId = s.ChannelId, Url = randomUrlWithString };
+                        await GlobalConfig.UrlHistoryDal.Insert(history);
+                    }
                 }
         }
         bool UrlHasNotBeenPostedToChannel(ulong channelId, string latestUrl) =>
