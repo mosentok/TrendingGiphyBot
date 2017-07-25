@@ -110,7 +110,7 @@ namespace TrendingGiphyBot.Modules
             {
                 await _GlobalConfig.JobConfigDal.Remove(Context.Channel.Id);
                 var postImageJob = _GlobalConfig.Jobs.OfType<PostImageJob>().Single(s => s.ChannelIds != null && s.ChannelIds.Contains(Context.Channel.Id));
-                RemoveJob(postImageJob);
+                RemoveJobConfig(postImageJob);
                 await RemoveJobIfNoChannels(postImageJob);
                 await SendRemoveMessage();
             }
@@ -140,41 +140,42 @@ namespace TrendingGiphyBot.Modules
                 Interval = interval,
                 Time = time.ToString()
             };
-            await UpdateJobConfigTable(config);
-            await UpdateJob(interval, time, config);
+            var fullConfig = await UpdateJobConfigTable(config);
+            await UpdateJobWithNewConfig(interval, time, fullConfig);
         }
-        async Task UpdateJobConfigTable(JobConfig config)
+        async Task<JobConfig> UpdateJobConfigTable(JobConfig config)
         {
             var any = await _GlobalConfig.JobConfigDal.Any(Context.Channel.Id);
             if (any)
                 await _GlobalConfig.JobConfigDal.Update(config);
             else
                 await _GlobalConfig.JobConfigDal.Insert(config);
+            return await _GlobalConfig.JobConfigDal.Get(Context.Channel.Id);
         }
-        async Task UpdateJob(int interval, Time time, JobConfig config)
+        async Task UpdateJobWithNewConfig(int interval, Time time, JobConfig fullJobConfig)
         {
             var postImageJobs = _GlobalConfig.Jobs.OfType<PostImageJob>().ToList();
             var existingJob = postImageJobs.SingleOrDefault(s => s.ChannelIds != null && s.ChannelIds.Contains(Context.Channel.Id));
             if (existingJob != null)
             {
-                RemoveJob(existingJob);
+                RemoveJobConfig(existingJob);
                 await RemoveJobIfNoChannels(existingJob);
             }
             var postImageJob = postImageJobs.SingleOrDefault(s => s.Interval == interval && s.Time == time);
             if (postImageJob == null)
-                await AddJobConfig(config);
+                await AddNewJobConfig(fullJobConfig);
             else
-                postImageJob.JobConfigs.Add(config);
+                postImageJob.JobConfigs.Add(fullJobConfig);
         }
-        void RemoveJob(PostImageJob postImageJob)
+        void RemoveJobConfig(PostImageJob postImageJob)
         {
             var match = postImageJob.JobConfigs.Single(s => s.ChannelId == Context.Channel.Id);
             postImageJob.JobConfigs.Remove(match);
         }
-        Task AddJobConfig(JobConfig config)
+        Task AddNewJobConfig(JobConfig fullJobConfig)
         {
-            var postImageJob = new PostImageJob(_Services, config);
-            postImageJob.JobConfigs.Add(config);
+            var postImageJob = new PostImageJob(_Services, fullJobConfig);
+            postImageJob.JobConfigs.Add(fullJobConfig);
             _GlobalConfig.Jobs.Add(postImageJob);
             postImageJob.StartTimerWithCloseInterval();
             return Task.CompletedTask;
