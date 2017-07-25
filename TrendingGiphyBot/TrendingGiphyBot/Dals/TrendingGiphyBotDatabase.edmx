@@ -41,7 +41,7 @@
           <Key>
             <PropertyRef Name="Url" />
           </Key>
-          <Property Name="Url" Type="varchar" MaxLength="32" Nullable="false" />
+          <Property Name="Url" Type="varchar" MaxLength="255" Nullable="false" />
           <Property Name="Stamp" Type="datetime" Nullable="false" StoreGeneratedPattern="Computed" />
         </EntityType>
         <EntityType Name="UrlHistory">
@@ -50,7 +50,7 @@
             <PropertyRef Name="Url" />
           </Key>
           <Property Name="ChannelId" Type="numeric" Precision="20" Scale="0" Nullable="false" />
-          <Property Name="Url" Type="varchar" MaxLength="32" Nullable="false" />
+          <Property Name="Url" Type="varchar" MaxLength="255" Nullable="false" />
           <Property Name="Stamp" Type="datetime" Nullable="false" StoreGeneratedPattern="Computed" />
         </EntityType>
         <Association Name="FK_JobConfig_Time">
@@ -131,14 +131,14 @@
             <PropertyRef Name="Url" />
           </Key>
           <Property Name="ChannelId" Type="Decimal" Nullable="false" Precision="20" Scale="0" />
-          <Property Name="Url" Type="String" Nullable="false" MaxLength="32" FixedLength="false" Unicode="false" />
+          <Property Name="Url" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="false" />
           <Property Name="Stamp" Type="DateTime" Nullable="false" Precision="3" annotation:StoreGeneratedPattern="Computed" />
         </EntityType>
         <EntityType Name="UrlCache">
           <Key>
             <PropertyRef Name="Url" />
           </Key>
-          <Property Name="Url" Type="String" Nullable="false" MaxLength="32" FixedLength="false" Unicode="false" />
+          <Property Name="Url" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="false" />
           <Property Name="Stamp" Type="DateTime" Nullable="false" Precision="3" annotation:StoreGeneratedPattern="Computed" />
         </EntityType>
         <EntityType Name="BotConfig">

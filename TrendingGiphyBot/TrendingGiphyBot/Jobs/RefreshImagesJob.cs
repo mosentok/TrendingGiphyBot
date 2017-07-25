@@ -16,9 +16,9 @@ namespace TrendingGiphyBot.Jobs
             try
             {
                 var gifResult = await GlobalConfig.GiphyClient.TrendingGifs(new TrendingParameter { Limit = 1 });
-                var bitlyUrl = gifResult.Data.FirstOrDefault()?.BitlyUrl;
-                if (!await GlobalConfig.UrlCacheDal.Any(bitlyUrl))
-                    await GlobalConfig.UrlCacheDal.Insert(bitlyUrl);
+                var url = gifResult.Data.FirstOrDefault()?.Url;
+                if (!await GlobalConfig.UrlCacheDal.Any(url))
+                    await GlobalConfig.UrlCacheDal.Insert(url);
             }
             catch (WebException ex)
             {
