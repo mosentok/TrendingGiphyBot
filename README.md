@@ -12,6 +12,7 @@ Oh,|hi!
   - [Main Menu](https://github.com/mosentok/TrendingGiphyBot#main-menu)
   - [JobConfig](https://github.com/mosentok/TrendingGiphyBot#jobconfig)
   - [SetRandom](https://github.com/mosentok/TrendingGiphyBot#setrandom)
+  - [SetPrefix](https://github.com/mosentok/TrendingGiphyBot#setprefix)
 - [Shoutout to](https://github.com/mosentok/TrendingGiphyBot#shoutout-to)
 
 ## Invite
@@ -57,6 +58,17 @@ Want the bot to post a random GIF if there's no new trending one?
 !SeTrAnDoM oFf
 !setrandom get
 !setrandom help (or just !setrandom)
+```
+
+### SetPrefix
+
+Use this to set a custom prefix (default is !).
+
+```
+!SetPrefix Get
+!setprefix set $^
+!SeTpReFiX rEsEt
+!setprefix help (or just !setprefix)
 ```
 
 ## Shoutout to
