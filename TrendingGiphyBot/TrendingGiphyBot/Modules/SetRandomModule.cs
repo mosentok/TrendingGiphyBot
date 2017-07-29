@@ -4,10 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using TrendingGiphyBot.Attributes;
 using TrendingGiphyBot.Configuration;
 using TrendingGiphyBot.Dals;
-using TrendingGiphyBot.Helpers;
 using TrendingGiphyBot.Jobs;
 
 namespace TrendingGiphyBot.Modules
@@ -16,36 +14,18 @@ namespace TrendingGiphyBot.Modules
     public class SetRandomModule : ModuleBase
     {
         const string _Name = "SetRandom";
-        IGlobalConfig _GlobalConfig;
+        readonly IGlobalConfig _GlobalConfig;
         public SetRandomModule(IServiceProvider services)
         {
             _GlobalConfig = services.GetRequiredService<IGlobalConfig>();
         }
         string NotConfiguredMessage => $"{Context.Channel.Id} not configured. Configure me senpai! Use '{_GlobalConfig.Config.DefaultPrefix}{nameof(JobConfig)}' or '{_GlobalConfig.Config.DefaultPrefix}{nameof(JobConfig)} {nameof(Help)}' to learn how to.";
         [Command(nameof(Help))]
-        [Summary("Help menu for the " + _Name + " commands.")]
-        [Alias(nameof(Help), "")]
-        [Example("!" + _Name + " " + nameof(Help))]
         public async Task Help()
         {
             await ReplyAsync($"Visit {_GlobalConfig.Config.GitHubUrl} for help!");
-            //await SendHelpMenu();
-        }
-        async Task SendHelpMenu()
-        {
-            var avatarUrl = Context.Client.CurrentUser.GetAvatarUrl();
-            var author = new EmbedAuthorBuilder()
-                .WithName(_Name)
-                .WithIconUrl(avatarUrl);
-            var fields = ModuleBaseHelper.BuildFields<SetRandomModule>();
-            var embed = new EmbedBuilder { Fields = fields }
-                .WithAuthor(author)
-                .WithDescription($"Commands for interacting with {_Name}.\n- Want the bot to post a random GIF if there's no new trending one?");
-            await ReplyAsync(string.Empty, embed: embed);
         }
         [Command(nameof(Get))]
-        [Summary("Gets the random option for this channel.")]
-        [Example("!" + _Name + " " + nameof(Get))]
         public async Task Get()
         {
             if (await _GlobalConfig.JobConfigDal.Any(Context.Channel.Id))
@@ -71,12 +51,7 @@ namespace TrendingGiphyBot.Modules
                 await ReplyAsync(NotConfiguredMessage);
         }
         [Command(nameof(On))]
-        [Summary("Sets the random option for this channel.")]
-        [Example("!SetRandom " + nameof(On), "!setrandom on cats")]
-        public async Task On(
-            [IsOptional]
-            [Summary("Text to search for when getting a random GIF.")]
-            params string[] searchString)
+        public async Task On(params string[] searchString)
         {
             if (await _GlobalConfig.JobConfigDal.Any(Context.Channel.Id))
             {
@@ -94,8 +69,6 @@ namespace TrendingGiphyBot.Modules
                 await ReplyAsync(NotConfiguredMessage);
         }
         [Command(nameof(Off))]
-        [Summary("Removes the random option for this channel.")]
-        [Example("!" + _Name + " " + nameof(Off))]
         public async Task Off()
         {
             if (await _GlobalConfig.JobConfigDal.Any(Context.Channel.Id))
@@ -117,6 +90,5 @@ namespace TrendingGiphyBot.Modules
             jobConfig.RandomSearchString = config.RandomSearchString;
             return Task.CompletedTask;
         }
-        static string CapitalizeFirstLetter(string s) => char.ToUpper(s[0]) + s.Substring(1);
     }
 }

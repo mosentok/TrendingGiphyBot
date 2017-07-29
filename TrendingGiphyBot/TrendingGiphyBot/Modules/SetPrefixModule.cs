@@ -10,7 +10,7 @@ namespace TrendingGiphyBot.Modules
     [Group("SetPrefix")]
     public class SetPrefixModule : ModuleBase
     {
-        IGlobalConfig _GlobalConfig;
+        readonly IGlobalConfig _GlobalConfig;
         public SetPrefixModule(IServiceProvider services)
         {
             _GlobalConfig = services.GetRequiredService<IGlobalConfig>();

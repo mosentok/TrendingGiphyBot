@@ -50,7 +50,7 @@ namespace TrendingGiphyBot
         async Task Ready()
         {
             var postImageJobs = new List<PostImageJob>();
-            var channelsThatExist = await GetConfigsWithAliveChannels();
+            var channelsThatExist = (await GetConfigsWithAliveChannels()).ToList();
             AddJobs(postImageJobs, channelsThatExist, Time.Hour, Time.Hours);
             AddJobs(postImageJobs, channelsThatExist, Time.Minute, Time.Minutes);
             AddJobs(postImageJobs, channelsThatExist, Time.Second, Time.Seconds);
@@ -60,7 +60,7 @@ namespace TrendingGiphyBot
             await _DiscordClient.SetGameAsync(string.Empty);
             await _DiscordClient.SetGameAsync(_GlobalConfig.Config.PlayingGame);
         }
-        void AddJobs(List<PostImageJob> postImageJobs, IEnumerable<JobConfig> channelsThatExist, params Time[] times)
+        void AddJobs(ICollection<PostImageJob> postImageJobs, IEnumerable<JobConfig> channelsThatExist, params Time[] times)
         {
             var configs = channelsThatExist.Where(s =>
             {
@@ -109,12 +109,12 @@ namespace TrendingGiphyBot
         }
         static async Task HandleError(ICommandContext context, IResult result)
         {
-            if (result.Error.Value != CommandError.UnknownCommand)
+            if (result.Error.HasValue && result.Error.Value != CommandError.UnknownCommand)
             {
                 if (result is ExecuteResult executeResult)
                     _Logger.Error(executeResult.Exception);
                 ErrorResult errorResult;
-                if (result.Error.HasValue && result.Error.Value == CommandError.Exception)
+                if (result.Error.Value == CommandError.Exception)
                     errorResult = new ErrorResult(CommandError.Exception, "An unexpected error occurred.", false);
                 else
                     errorResult = new ErrorResult(result);

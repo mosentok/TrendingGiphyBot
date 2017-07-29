@@ -53,7 +53,7 @@ namespace TrendingGiphyBot.Dals
             {
                 var match = entities.JobConfigs.Single(s => s.ChannelId == config.ChannelId);
                 match.Interval = config.Interval;
-                match.Time = config.Time.ToString();
+                match.Time = config.Time;
                 await entities.SaveChangesAsync();
             }
         }
