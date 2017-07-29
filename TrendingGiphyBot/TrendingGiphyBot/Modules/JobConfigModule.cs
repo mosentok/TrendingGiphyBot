@@ -81,19 +81,22 @@ namespace TrendingGiphyBot.Modules
             {
                 case JobConfigState.InvalidHours:
                     var validHours = string.Join(", ", _GlobalConfig.Config.ValidHours);
-                    await base.ReplyAsync(ModuleBaseHelper.InvalidConfig(time, validHours));
+                    await ReplyAsync(ModuleBaseHelper.InvalidConfigMessage(time, validHours));
                     return;
                 case JobConfigState.InvalidMinutes:
-                case JobConfigState.InvalidSeconds:
                     var validMinutes = string.Join(", ", _GlobalConfig.Config.ValidMinutes);
-                    await base.ReplyAsync(ModuleBaseHelper.InvalidConfig(time, validMinutes));
+                    await ReplyAsync(ModuleBaseHelper.InvalidConfigMessage(time, validMinutes));
+                    return;
+                case JobConfigState.InvalidSeconds:
+                    var validSeconds = string.Join(", ", _GlobalConfig.Config.ValidSeconds);
+                    await ReplyAsync(ModuleBaseHelper.InvalidConfigMessage(time, validSeconds));
                     return;
                 case JobConfigState.InvalidTime:
                     await ReplyAsync($"{time} is an invalid {nameof(Time)}.");
                     return;
                 case JobConfigState.IntervalTooSmall:
                 case JobConfigState.IntervallTooBig:
-                    await ReplyAsync(ModuleBaseHelper.InvalidConfigRange(_GlobalConfig.Config.MinJobConfig, _GlobalConfig.Config.MaxJobConfig));
+                    await ReplyAsync(ModuleBaseHelper.InvalidConfigRangeMessage(_GlobalConfig.Config.MinJobConfig, _GlobalConfig.Config.MaxJobConfig));
                     return;
                 case JobConfigState.Valid:
                     await SaveConfig(interval, time);

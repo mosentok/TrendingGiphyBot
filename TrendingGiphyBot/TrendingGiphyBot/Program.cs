@@ -69,7 +69,6 @@ namespace TrendingGiphyBot
             });
             foreach (var config in configs)
             {
-                //TODO what is this check even for?? Look what's getting passed into this method every call lol
                 var match = postImageJobs.SingleOrDefault(s => s.Interval == config.Interval && s.Time == config.Time.ToTime());
                 if (match == null)
                 {
