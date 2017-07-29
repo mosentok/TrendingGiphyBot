@@ -1,7 +1,7 @@
 # TrendingGiphyBot
 When a member of a Discord server, this bot posts the trending GIPHY GIF on a configurable job timer.
 
-Oh,|hi!
+&nbsp;|&nbsp;
 -|-
 <img src="https://discordapp.com/assets/fc0b01fe10a0b8c602fb0106d8189d9b.png" width="900px" />|<img src="https://media.giphy.com/media/3o6gbbuLW76jkt8vIc/giphy.gif" width="900px" />
 
