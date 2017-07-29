@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using System.Timers;
 using TrendingGiphyBot.Configuration;
@@ -17,8 +18,8 @@ namespace TrendingGiphyBot.Jobs
         protected ILogger Logger { get; }
         protected IGlobalConfig GlobalConfig { get; }
         protected DiscordSocketClient DiscordClient { get; }
-        public int Interval { get; private set; }
-        public Time Time { get; private set; }
+        internal int Interval { get; }
+        internal Time Time { get; }
         protected DateTime NextElapse { get; private set; }
         protected Job(IServiceProvider services, ILogger logger, int interval, string time) : this(services, logger, interval, time.ToTime()) { }
         protected Job(IServiceProvider services, ILogger logger, int interval, Time time)
@@ -37,13 +38,6 @@ namespace TrendingGiphyBot.Jobs
             Logger.Info("Timer fired.");
             await Run();
             Logger.Info("Job success.");
-            StartTimerWithCloseInterval();
-        }
-        internal void Restart(int interval, string time)
-        {
-            _Timer.Stop();
-            Interval = interval;
-            Time = time.ToTime();
             StartTimerWithCloseInterval();
         }
         internal void StartTimerWithCloseInterval()
@@ -79,6 +73,7 @@ namespace TrendingGiphyBot.Jobs
         int DetermineDifference(int component) => Interval - component % Interval;
         protected virtual void TimerStartedLog() => Logger.Debug($"Config: {Interval} {Time}. Next elapse: {NextElapse}.");
         protected internal abstract Task Run();
+        [SuppressMessage("Microsoft.Usage", "CA2213:DisposableFieldsShouldBeDisposed", MessageId = "_Timer")]
         public void Dispose()
         {
             _Timer?.Dispose();

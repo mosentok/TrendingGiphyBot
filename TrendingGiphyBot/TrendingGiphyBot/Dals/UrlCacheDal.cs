@@ -5,7 +5,7 @@ namespace TrendingGiphyBot.Dals
 {
     class UrlCacheDal : Dal
     {
-        public UrlCacheDal(string connectionString) : base(connectionString) { }
+        internal UrlCacheDal(string connectionString) : base(connectionString) { }
         internal Task<bool> Any(string url)
         {
             return Task.Run(() =>
@@ -29,14 +29,6 @@ namespace TrendingGiphyBot.Dals
                 entities.UrlCaches.Add(new UrlCache { Url = url });
                 await entities.SaveChangesAsync();
             }
-        }
-        internal Task<UrlCache> Get(string url)
-        {
-            return Task.Run(() =>
-            {
-                using (var entities = new TrendingGiphyBotEntities(ConnectionString))
-                    return entities.UrlCaches.SingleOrDefault(s => s.Url == url);
-            });
         }
         internal Task<string> GetLatestUrl()
         {
