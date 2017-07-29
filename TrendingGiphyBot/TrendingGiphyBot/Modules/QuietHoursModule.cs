@@ -39,8 +39,10 @@ namespace TrendingGiphyBot.Modules
                     .WithIconUrl(avatarUrl);
                 var embedBuilder = new EmbedBuilder()
                     .WithAuthor(author);
-                embedBuilder = AddQuietHour(embedBuilder, nameof(config.MinQuietHour), config.MinQuietHour);
-                embedBuilder = AddQuietHour(embedBuilder, nameof(config.MaxQuietHour), config.MaxQuietHour);
+                var minQuietHour = ReverseHourOffset(config.MinQuietHour);
+                var maxQuietHour = ReverseHourOffset(config.MaxQuietHour);
+                embedBuilder = AddQuietHour(embedBuilder, nameof(config.MinQuietHour), minQuietHour);
+                embedBuilder = AddQuietHour(embedBuilder, nameof(config.MaxQuietHour), maxQuietHour);
                 await ReplyAsync(string.Empty, embed: embedBuilder);
             }
             else
@@ -51,11 +53,13 @@ namespace TrendingGiphyBot.Modules
         {
             if (await _GlobalConfig.JobConfigDal.Any(Context.Channel.Id))
             {
+                var minQuietHour = ApplyHourOffset(minHour);
+                var maxQuietHour = ApplyHourOffset(maxHour);
                 var config = new JobConfig
                 {
                     ChannelId = Context.Channel.Id,
-                    MinQuietHour = minHour,
-                    MaxQuietHour = maxHour
+                    MinQuietHour = minQuietHour,
+                    MaxQuietHour = maxQuietHour
                 };
                 await UpdateJobConfig(config);
             }
@@ -77,6 +81,28 @@ namespace TrendingGiphyBot.Modules
             }
             else
                 await ReplyAsync(NotConfiguredMessage);
+        }
+        short? ReverseHourOffset(short? hour)
+        {
+            if (hour.HasValue)
+            {
+                var newHour = hour - _GlobalConfig.Config.HourOffset;
+                if (newHour >= 24)
+                    newHour = newHour - 24;
+                else if (newHour < 0)
+                    newHour = newHour + 24;
+                return (short)newHour;
+            }
+            return null;
+        }
+        short ApplyHourOffset(short hour)
+        {
+            var newHour = hour + _GlobalConfig.Config.HourOffset;
+            if (newHour >= 24)
+                newHour = newHour - 24;
+            else if (newHour < 0)
+                newHour = newHour + 24;
+            return (short)newHour;
         }
         async Task UpdateJobConfig(JobConfig config)
         {
