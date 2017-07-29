@@ -79,7 +79,7 @@ Use this to set a custom prefix (default is !).
 
 ### QuietHours
 
-Sets a range of hours where the bot won't post, like late at night. Hours are 24-hours, 0 - 23.
+Sets a range of hours where the bot won't post, like late at night. Hours are 24-hours, 0 - 23, central standard time.
 
 ```
 !QuietHours Get
