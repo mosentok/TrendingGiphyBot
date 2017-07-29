@@ -5,7 +5,7 @@ namespace TrendingGiphyBot.Dals
 {
     class ChannelConfigDal : Dal
     {
-        public ChannelConfigDal(string connectionString) : base(connectionString) { }
+        internal ChannelConfigDal(string connectionString) : base(connectionString) { }
         internal Task<bool> Any(ulong channelId)
         {
             return Task.Run(() =>

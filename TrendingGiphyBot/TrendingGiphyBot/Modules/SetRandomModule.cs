@@ -51,7 +51,7 @@ namespace TrendingGiphyBot.Modules
                 await ReplyAsync(NotConfiguredMessage);
         }
         [Command(nameof(On))]
-        public async Task On(params string[] searchString)
+        public async Task On(params string[] searchValues)
         {
             if (await _GlobalConfig.JobConfigDal.Any(Context.Channel.Id))
             {
@@ -59,7 +59,7 @@ namespace TrendingGiphyBot.Modules
                 {
                     ChannelId = Context.Channel.Id,
                     RandomIsOn = true,
-                    RandomSearchString = string.Join(" ", searchString)
+                    RandomSearchString = string.Join(" ", searchValues)
                 };
                 await UpdateJobs(config);
                 await _GlobalConfig.JobConfigDal.UpdateRandom(config);

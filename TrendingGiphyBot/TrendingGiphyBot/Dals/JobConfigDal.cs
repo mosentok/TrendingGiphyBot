@@ -6,15 +6,7 @@ namespace TrendingGiphyBot.Dals
 {
     class JobConfigDal : Dal
     {
-        public JobConfigDal(string connectionString) : base(connectionString) { }
-        internal Task<int> GetCount()
-        {
-            return Task.Run(() =>
-            {
-                using (var entities = new TrendingGiphyBotEntities(ConnectionString))
-                    return entities.JobConfigs.Count();
-            });
-        }
+        internal JobConfigDal(string connectionString) : base(connectionString) { }
         internal Task<List<JobConfig>> GetAll()
         {
             return Task.Run(() =>
