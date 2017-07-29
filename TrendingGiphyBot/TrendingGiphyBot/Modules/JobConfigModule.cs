@@ -177,7 +177,7 @@ namespace TrendingGiphyBot.Modules
         }
         Task AddNewJobConfig(JobConfig fullJobConfig)
         {
-            var postImageJob = new PostImageJob(_Services, fullJobConfig);
+            var postImageJob = new PostImageJob(_Services, fullJobConfig.Interval, fullJobConfig.Time);
             postImageJob.JobConfigs.Add(fullJobConfig);
             _GlobalConfig.Jobs.Add(postImageJob);
             postImageJob.StartTimerWithCloseInterval();

@@ -72,7 +72,7 @@ namespace TrendingGiphyBot
                 var match = postImageJobs.SingleOrDefault(s => s.Interval == config.Interval && s.Time == config.Time.ToTime());
                 if (match == null)
                 {
-                    var postImageJob = new PostImageJob(_Services, config);
+                    var postImageJob = new PostImageJob(_Services, config.Interval, config.Time);
                     postImageJob.JobConfigs.Add(config);
                     postImageJobs.Add(postImageJob);
                 }
