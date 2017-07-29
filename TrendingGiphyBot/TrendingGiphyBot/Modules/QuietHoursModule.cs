@@ -14,7 +14,7 @@ namespace TrendingGiphyBot.Modules
     public class QuietHoursModule : ModuleBase
     {
         const string _Name = "QuietHours";
-        IGlobalConfig _GlobalConfig;
+        readonly IGlobalConfig _GlobalConfig;
         public QuietHoursModule(IServiceProvider services)
         {
             _GlobalConfig = services.GetRequiredService<IGlobalConfig>();

@@ -43,7 +43,7 @@ namespace TrendingGiphyBot.Dals
             return Task.Run(() =>
             {
                 using (var entities = new TrendingGiphyBotEntities(ConnectionString))
-                    return entities.UrlCaches.OrderByDescending(s => s.Stamp).FirstOrDefault().Url;
+                    return entities.UrlCaches.OrderByDescending(s => s.Stamp).FirstOrDefault()?.Url;
             });
         }
     }

@@ -13,7 +13,7 @@ namespace TrendingGiphyBot.Helpers
                 IEnumerable<int> quietHours;
                 if (jobConfig.MinQuietHour.Value == jobConfig.MaxQuietHour.Value)
                     quietHours = new List<int> { jobConfig.MinQuietHour.Value };
-                if (jobConfig.MinQuietHour.Value < jobConfig.MaxQuietHour.Value)
+                else if (jobConfig.MinQuietHour.Value < jobConfig.MaxQuietHour.Value)
                     quietHours = Enumerable.Range(jobConfig.MinQuietHour.Value, jobConfig.MaxQuietHour.Value - jobConfig.MinQuietHour.Value + 1);
                 else
                 {

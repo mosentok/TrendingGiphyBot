@@ -13,7 +13,7 @@ namespace TrendingGiphyBot.Jobs
 {
     abstract class Job : IDisposable
     {
-        Timer _Timer;
+        readonly Timer _Timer;
         protected ILogger Logger { get; }
         protected IGlobalConfig GlobalConfig { get; }
         protected DiscordSocketClient DiscordClient { get; }

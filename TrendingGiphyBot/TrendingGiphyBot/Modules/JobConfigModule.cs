@@ -6,7 +6,6 @@ using TrendingGiphyBot.Helpers;
 using TrendingGiphyBot.Jobs;
 using System.Linq;
 using Discord;
-using TrendingGiphyBot.Attributes;
 using System;
 using TrendingGiphyBot.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,8 +15,8 @@ namespace TrendingGiphyBot.Modules
     [Group(nameof(JobConfig))]
     public class JobConfigModule : ModuleBase
     {
-        IServiceProvider _Services;
-        IGlobalConfig _GlobalConfig;
+        readonly IServiceProvider _Services;
+        readonly IGlobalConfig _GlobalConfig;
         public JobConfigModule(IServiceProvider services)
         {
             _Services = services;
@@ -25,29 +24,11 @@ namespace TrendingGiphyBot.Modules
         }
         string NotConfiguredMessage => $"{Context.Channel.Id} not configured. Configure me senpai! Use '{_GlobalConfig.Config.DefaultPrefix}{nameof(JobConfig)}' or '{_GlobalConfig.Config.DefaultPrefix}{nameof(JobConfig)} {nameof(Help)}' to learn how to.";
         [Command(nameof(Help))]
-        [Summary("Help menu for the " + nameof(JobConfig) + " commands.")]
-        [Alias(nameof(Help), "")]
-        [Example("!" + nameof(JobConfig) + " " + nameof(Help))]
         public async Task Help()
         {
             await ReplyAsync($"Visit {_GlobalConfig.Config.GitHubUrl} for help!");
-            //await SendHelpMenu();
-        }
-        async Task SendHelpMenu()
-        {
-            var avatarUrl = Context.Client.CurrentUser.GetAvatarUrl();
-            var author = new EmbedAuthorBuilder()
-                .WithName(nameof(JobConfig))
-                .WithIconUrl(avatarUrl);
-            var fields = ModuleBaseHelper.BuildFields<JobConfigModule>();
-            var embed = new EmbedBuilder { Fields = fields }
-                .WithAuthor(author)
-                .WithDescription($"Commands for interacting with {nameof(JobConfig)}.\n- You can configure this bot in different channels on your server. Configuration is saved per channel.\n- You have complete control over how often it posts. Have fun with it! If it gets annoying or something, just dial it back a bit.");
-            await ReplyAsync(string.Empty, embed: embed);
         }
         [Command(nameof(Get))]
-        [Summary("Gets the " + nameof(JobConfig) + " for this channel.")]
-        [Example("!" + nameof(JobConfig) + " " + nameof(Get))]
         public async Task Get()
         {
             var any = await _GlobalConfig.JobConfigDal.Any(Context.Channel.Id);
@@ -68,13 +49,7 @@ namespace TrendingGiphyBot.Modules
                 await ReplyAsync(NotConfiguredMessage);
         }
         [Command(nameof(Set))]
-        [Summary("Sets the " + nameof(JobConfig) + " for this channel.")]
-        [Example("!JobConfig Set 5 Seconds", "!jobconfig set 10 minutes", "!JoBcOnFiG sEt 1 HoUr")]
-        public async Task Set(
-            [Summary(nameof(JobConfig.Interval) + " to set.")]
-            int interval,
-            [Summary(nameof(JobConfig.Time) + " to set.")]
-            Time time)
+        public async Task Set(int interval, Time time)
         {
             var state = _GlobalConfig.Config.DetermineJobConfigState(interval, time);
             switch (state)
@@ -105,8 +80,6 @@ namespace TrendingGiphyBot.Modules
             }
         }
         [Command(nameof(Remove))]
-        [Summary("Removes the " + nameof(JobConfig) + " for this channel.")]
-        [Example("!" + nameof(JobConfig) + " " + nameof(Remove))]
         public async Task Remove()
         {
             if (await _GlobalConfig.JobConfigDal.Any(Context.Channel.Id))
@@ -120,13 +93,13 @@ namespace TrendingGiphyBot.Modules
             else
                 await ReplyAsync(NotConfiguredMessage);
         }
-        static string Alternate(string s) => string.Concat(s.ToLower().AsEnumerable().Select((c, i) => i % 2 == 0 ? c : char.ToUpper(c)));
+
         Task RemoveJobIfNoChannels(PostImageJob postImageJob)
         {
             if (!postImageJob.JobConfigs.Any())
             {
                 _GlobalConfig.Jobs.Remove(postImageJob);
-                postImageJob?.Dispose();
+                postImageJob.Dispose();
             }
             return Task.CompletedTask;
         }
@@ -134,7 +107,6 @@ namespace TrendingGiphyBot.Modules
         {
              await ReplyAsync("Configuration removed.");
         }
-        static string CapitalizeFirstLetter(string s) => char.ToUpper(s[0]) + s.Substring(1);
         async Task SaveConfig(int interval, Time time)
         {
             var config = new JobConfig
