@@ -21,8 +21,7 @@ namespace TrendingGiphyBot.Jobs
             {
                 var latestUrl = await GlobalConfig.UrlCacheDal.GetLatestUrl();
                 var nowHour = DateTime.Now.Hour;
-                var jobConfigsNotInQuietHours = JobConfigs.Where(s => !(s.MinQuietHour.HasValue && nowHour >= s.MinQuietHour.Value
-                    && s.MaxQuietHour.HasValue && nowHour <= s.MaxQuietHour.Value)).ToList();
+                var jobConfigsNotInQuietHours = JobConfigs.Where(s => !s.IsInQuietHours(nowHour)).ToList();
                 var channelsNotPostedToYet = jobConfigsNotInQuietHours.Where(s => UrlHasNotBeenPostedToChannel(s.ChannelId, latestUrl)).ToList();
                 await PostNewUrls(latestUrl, channelsNotPostedToYet);
                 var channelsStillNotPostedToYet = jobConfigsNotInQuietHours.Except(channelsNotPostedToYet).ToList();
