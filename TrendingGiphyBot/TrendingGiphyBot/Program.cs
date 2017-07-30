@@ -23,7 +23,7 @@ namespace TrendingGiphyBot
         CommandService _Commands;
         IServiceProvider _Services;
         IGlobalConfig _GlobalConfig;
-        DiscordSocketClient _DiscordClient => _GlobalConfig.DiscordClient;
+        DiscordSocketClient DiscordClient => _GlobalConfig.DiscordClient;
         static void Main(string[] args) => new Program().MainAsync().GetAwaiter().GetResult();
         async Task MainAsync()
         {
@@ -34,12 +34,12 @@ namespace TrendingGiphyBot
                     .BuildServiceProvider();
                 _GlobalConfig = _Services.GetRequiredService<IGlobalConfig>();
                 _Commands = new CommandService();
-                _DiscordClient.MessageReceived += MessageReceived;
-                _DiscordClient.Log += Log;
-                _DiscordClient.Ready += Ready;
+                DiscordClient.MessageReceived += MessageReceived;
+                DiscordClient.Log += Log;
+                DiscordClient.Ready += Ready;
                 await _Commands.AddModulesAsync(Assembly.GetEntryAssembly());
-                await _DiscordClient.LoginAsync(TokenType.Bot, _GlobalConfig.Config.DiscordToken);
-                await _DiscordClient.StartAsync();
+                await DiscordClient.LoginAsync(TokenType.Bot, _GlobalConfig.Config.DiscordToken);
+                await DiscordClient.StartAsync();
                 await Task.Delay(-1);
             }
             catch (Exception ex)
@@ -57,8 +57,8 @@ namespace TrendingGiphyBot
             _GlobalConfig.Jobs.AddRange(postImageJobs);
             _GlobalConfig.Jobs.Add(new RefreshImagesJob(_Services, _GlobalConfig.Config.RefreshImageJobConfig.Interval, _GlobalConfig.Config.RefreshImageJobConfig.Time));
             _GlobalConfig.Jobs.ForEach(s => s.StartTimerWithCloseInterval());
-            await _DiscordClient.SetGameAsync(string.Empty);
-            await _DiscordClient.SetGameAsync(_GlobalConfig.Config.PlayingGame);
+            await DiscordClient.SetGameAsync(string.Empty);
+            await DiscordClient.SetGameAsync(_GlobalConfig.Config.PlayingGame);
         }
         void AddJobs(ICollection<PostImageJob> postImageJobs, IEnumerable<JobConfig> channelsThatExist, params Time[] times)
         {
@@ -83,7 +83,7 @@ namespace TrendingGiphyBot
         async Task<IEnumerable<JobConfig>> GetConfigsWithAliveChannels()
         {
             var configuredJobs = await _GlobalConfig.JobConfigDal.GetAll();
-            var channelsNotFound = configuredJobs.Where(s => _DiscordClient.GetChannel(s.ChannelId.ToULong()) == null);
+            var channelsNotFound = configuredJobs.Where(s => DiscordClient.GetChannel(s.ChannelId.ToULong()) == null);
             return configuredJobs.Except(channelsNotFound);
         }
         async Task MessageReceived(SocketMessage messageParam)
@@ -92,9 +92,9 @@ namespace TrendingGiphyBot
             {
                 int argPos = 0;
                 var prefix = await DeterminePrefix(message);
-                if (message.HasStringPrefix(prefix, ref argPos) || message.HasMentionPrefix(_DiscordClient.CurrentUser, ref argPos))
+                if (message.HasStringPrefix(prefix, ref argPos) || message.HasMentionPrefix(DiscordClient.CurrentUser, ref argPos))
                 {
-                    var context = new CommandContext(_DiscordClient, message);
+                    var context = new CommandContext(DiscordClient, message);
                     var result = await _Commands.ExecuteAsync(context, argPos, _Services);
                     if (!result.IsSuccess)
                         await HandleError(context, result);
