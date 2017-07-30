@@ -24,6 +24,7 @@ namespace TrendingGiphyBot
         IServiceProvider _Services;
         IGlobalConfig _GlobalConfig;
         DiscordSocketClient DiscordClient => _GlobalConfig.DiscordClient;
+        List<string> _ModuleNames;
         static void Main()
         {
             using (var program = new Program())
@@ -38,10 +39,13 @@ namespace TrendingGiphyBot
                     .BuildServiceProvider();
                 _GlobalConfig = _Services.GetRequiredService<IGlobalConfig>();
                 _Commands = new CommandService();
+                await _Commands.AddModulesAsync(Assembly.GetEntryAssembly());
+                var moduleNames = _Commands.Modules.Select(s => s.Name);
+                var aliases = _Commands.Modules.SelectMany(s => s.Aliases);
+                _ModuleNames = moduleNames.Concat(aliases).Distinct().ToList();
                 DiscordClient.MessageReceived += MessageReceived;
                 DiscordClient.Log += Log;
                 DiscordClient.Ready += Ready;
-                await _Commands.AddModulesAsync(Assembly.GetEntryAssembly());
                 await DiscordClient.LoginAsync(TokenType.Bot, _GlobalConfig.Config.DiscordToken);
                 await DiscordClient.StartAsync();
                 await Task.Delay(-1);
@@ -94,14 +98,19 @@ namespace TrendingGiphyBot
         {
             if (messageParam is SocketUserMessage message)
             {
-                int argPos = 0;
-                var prefix = await DeterminePrefix(message);
-                if (message.HasStringPrefix(prefix, ref argPos) || message.HasMentionPrefix(DiscordClient.CurrentUser, ref argPos))
+                var isRecognizedModule = _ModuleNames.Any(s => message.Content.ContainsIgnoreCase(s));
+                if (isRecognizedModule)
                 {
-                    var context = new CommandContext(DiscordClient, message);
-                    var result = await _Commands.ExecuteAsync(context, argPos, _Services);
-                    if (!result.IsSuccess)
-                        await HandleError(context, result);
+                    var argPos = 0;
+                    var prefix = await DeterminePrefix(message);
+                    if (message.HasStringPrefix(prefix, ref argPos) ||
+                        message.HasMentionPrefix(DiscordClient.CurrentUser, ref argPos))
+                    {
+                        var context = new CommandContext(DiscordClient, message);
+                        var result = await _Commands.ExecuteAsync(context, argPos, _Services);
+                        if (!result.IsSuccess)
+                            await HandleError(context, result);
+                    }
                 }
             }
         }
