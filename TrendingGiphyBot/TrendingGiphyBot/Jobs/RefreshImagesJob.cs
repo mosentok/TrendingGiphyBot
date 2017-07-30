@@ -15,10 +15,10 @@ namespace TrendingGiphyBot.Jobs
         {
             try
             {
-                var gifResult = await GlobalConfig.GiphyClient.TrendingGifs(new TrendingParameter { Limit = 1 });
-                var url = gifResult.Data.FirstOrDefault()?.Url;
-                if (!await GlobalConfig.UrlCacheDal.Any(url))
-                    await GlobalConfig.UrlCacheDal.Insert(url);
+                var gifResult = await GlobalConfig.GiphyClient.TrendingGifs(new TrendingParameter());
+                var dataNotYetPosted = gifResult.Data.FirstOrDefault(s => !GlobalConfig.UrlCacheDal.Any(s.Url).Result);
+                if (dataNotYetPosted != null)
+                    await GlobalConfig.UrlCacheDal.Insert(dataNotYetPosted.Url);
             }
             catch (WebException ex)
             {
