@@ -32,9 +32,6 @@ namespace TrendingGiphyBot.Configuration
         public List<LogSeverity> LogSeverities { get; set; }
         [JsonRequired]
         public string DefaultPrefix { get; set; }
-        public string WordnikBaseAddress { get; set; }
-        public string WordnikToken { get; set; }
-        public string SpotifyClientId { get; set; }
         [JsonRequired]
         public string GitHubUrl { get; set; }
         [JsonRequired]
@@ -49,33 +46,37 @@ namespace TrendingGiphyBot.Configuration
             if (configgedSeconds >= minSeconds)
             {
                 if (configgedSeconds <= maxSeconds)
-                    switch (time)
-                    {
-                        case Time.Hour:
-                        case Time.Hours:
-                            if (ValidHours.Any())
-                            {
-                                if (ValidHours.Contains(interval))
-                                    return JobConfigState.Valid;
-                                return JobConfigState.InvalidHours;
-                            }
-                            return JobConfigState.InvalidTime;
-                        case Time.Minute:
-                        case Time.Minutes:
-                            if (ValidMinutes.Any())
-                                return IsValid(interval, JobConfigState.InvalidMinutes, ValidMinutes);
-                            return JobConfigState.InvalidMinutes;
-                        case Time.Second:
-                        case Time.Seconds:
-                            if (ValidSeconds.Any())
-                                return IsValid(interval, JobConfigState.InvalidSeconds, ValidSeconds);
-                            return JobConfigState.InvalidTime;
-                        default:
-                            return JobConfigState.InvalidTime;
-                    }
+                    return DetermineTimeState(interval, time);
                 return JobConfigState.IntervallTooBig;
             }
             return JobConfigState.IntervalTooSmall;
+        }
+        JobConfigState DetermineTimeState(int interval, Time time)
+        {
+            switch (time)
+            {
+                case Time.Hour:
+                case Time.Hours:
+                    if (ValidHours.Any())
+                    {
+                        if (ValidHours.Contains(interval))
+                            return JobConfigState.Valid;
+                        return JobConfigState.InvalidHours;
+                    }
+                    return JobConfigState.InvalidTime;
+                case Time.Minute:
+                case Time.Minutes:
+                    if (ValidMinutes.Any())
+                        return IsValid(interval, JobConfigState.InvalidMinutes, ValidMinutes);
+                    return JobConfigState.InvalidMinutes;
+                case Time.Second:
+                case Time.Seconds:
+                    if (ValidSeconds.Any())
+                        return IsValid(interval, JobConfigState.InvalidSeconds, ValidSeconds);
+                    return JobConfigState.InvalidTime;
+                default:
+                    return JobConfigState.InvalidTime;
+            }
         }
         static JobConfigState IsValid(int interval, JobConfigState invalidState, List<int> validMinutes)
         {
