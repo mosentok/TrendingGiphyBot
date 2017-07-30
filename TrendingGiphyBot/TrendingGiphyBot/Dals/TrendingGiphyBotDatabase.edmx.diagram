@@ -10,7 +10,6 @@
         <AssociationConnector Association="TrendingGiphyBotModel.FK_JobConfig_Time" ManuallyRouted="false" />
         <EntityTypeShape EntityType="TrendingGiphyBotModel.UrlHistory" Width="1.5" PointX="3.375" PointY="3.75" />
         <EntityTypeShape EntityType="TrendingGiphyBotModel.UrlCache" Width="1.5" PointX="0.75" PointY="3.75" />
-        <EntityTypeShape EntityType="TrendingGiphyBotModel.BotConfig" Width="1.5" PointX="5.375" PointY="0.75" />
         <EntityTypeShape EntityType="TrendingGiphyBotModel.ChannelConfig" Width="1.5" PointX="5.375" PointY="3.75" />
       </Diagram>
     </edmx:Diagrams>

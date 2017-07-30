@@ -6,6 +6,7 @@ using TrendingGiphyBot.Dals;
 using TrendingGiphyBot.Jobs;
 using Discord.WebSocket;
 using System.Linq;
+using Microsoft.WindowsAzure.Storage;
 using NLog;
 
 namespace TrendingGiphyBot.Configuration
@@ -22,13 +23,12 @@ namespace TrendingGiphyBot.Configuration
         public DiscordSocketClient DiscordClient { get; set; }
         public GlobalConfig()
         {
-            var connectionString = ConfigurationManager.AppSettings["ConnectionString"];
-            using (var entities = new TrendingGiphyBotEntities(connectionString))
-            {
-                var config = entities.BotConfigs.Single(s => s.Key == "TrendingGiphyBot").Value;
-                LogManager.GetCurrentClassLogger().Trace(config);
-                Config = JsonConvert.DeserializeObject<Config>(config);
-            }
+            var connectionString = ConfigurationManager.AppSettings["connectionString"];
+            var containerName = ConfigurationManager.AppSettings["containerName"];
+            var blobName = ConfigurationManager.AppSettings["blobName"];
+            var config = CloudStorageAccount.Parse(connectionString).CreateCloudBlobClient().GetContainerReference(containerName).GetBlockBlobReference(blobName).DownloadText();
+            LogManager.GetCurrentClassLogger().Trace(config);
+            Config = JsonConvert.DeserializeObject<Config>(config);
             JobConfigDal = new JobConfigDal(Config.ConnectionString);
             UrlCacheDal = new UrlCacheDal(Config.ConnectionString);
             UrlHistoryDal = new UrlHistoryDal(Config.ConnectionString);
