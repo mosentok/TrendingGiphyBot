@@ -134,7 +134,7 @@ namespace TrendingGiphyBot
                 await context.Channel.SendMessageAsync(string.Empty, embed: embed);
             }
         }
-        Task Log(LogMessage logMessage)
+        static Task Log(LogMessage logMessage)
         {
             var message = logMessage.ToString();
             switch (logMessage.Severity)

@@ -6,8 +6,10 @@ using TrendingGiphyBot.Jobs;
 using System.Linq;
 using Discord;
 using System;
+using System.Collections.Generic;
 using TrendingGiphyBot.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using TrendingGiphyBot.Helpers;
 
 namespace TrendingGiphyBot.Modules
 {
@@ -54,16 +56,13 @@ namespace TrendingGiphyBot.Modules
             switch (state)
             {
                 case JobConfigState.InvalidHours:
-                    var validHours = string.Join(", ", _GlobalConfig.Config.ValidHours);
-                    await ReplyAsync(InvalidConfigMessage(time, validHours));
+                    await ReplyAsync(InvalidConfigMessage(time, _GlobalConfig.Config.ValidHours));
                     return;
                 case JobConfigState.InvalidMinutes:
-                    var validMinutes = string.Join(", ", _GlobalConfig.Config.ValidMinutes);
-                    await ReplyAsync(InvalidConfigMessage(time, validMinutes));
+                    await ReplyAsync(InvalidConfigMessage(time, _GlobalConfig.Config.ValidMinutes));
                     return;
                 case JobConfigState.InvalidSeconds:
-                    var validSeconds = string.Join(", ", _GlobalConfig.Config.ValidSeconds);
-                    await ReplyAsync(InvalidConfigMessage(time, validSeconds));
+                    await ReplyAsync(InvalidConfigMessage(time, _GlobalConfig.Config.ValidSeconds));
                     return;
                 case JobConfigState.InvalidTime:
                     await ReplyAsync($"{time} is an invalid {nameof(Time)}.");
@@ -149,8 +148,8 @@ namespace TrendingGiphyBot.Modules
             postImageJob.StartTimerWithCloseInterval();
             return Task.CompletedTask;
         }
-        static string InvalidConfigMessage(Time time, string validValues) =>
-            $"When {nameof(Time)} is {time}, interval must be {validValues}.";
+        static string InvalidConfigMessage(Time time, List<int> validValues) =>
+            $"When {nameof(Time)} is {time}, interval must be {validValues.Join(", ")}.";
         static string InvalidConfigRangeMessage(SubJobConfig minConfig, SubJobConfig maxConfig) =>
             $"Interval must be between {minConfig.Interval} {minConfig.Time} and {maxConfig.Interval} {maxConfig.Time}.";
     }
