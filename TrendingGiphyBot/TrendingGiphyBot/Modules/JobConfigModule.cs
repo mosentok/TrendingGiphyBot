@@ -2,7 +2,6 @@
 using Discord.Commands;
 using TrendingGiphyBot.Enums;
 using TrendingGiphyBot.Dals;
-using TrendingGiphyBot.Helpers;
 using TrendingGiphyBot.Jobs;
 using System.Linq;
 using Discord;
@@ -88,12 +87,11 @@ namespace TrendingGiphyBot.Modules
                 var postImageJob = _GlobalConfig.Jobs.OfType<PostImageJob>().Single(s => s.ChannelIds != null && s.ChannelIds.Contains(Context.Channel.Id));
                 RemoveJobConfig(postImageJob);
                 await RemoveJobIfNoChannels(postImageJob);
-                await SendRemoveMessage();
+                await ReplyAsync("Configuration removed.");
             }
             else
                 await ReplyAsync(NotConfiguredMessage);
         }
-
         Task RemoveJobIfNoChannels(PostImageJob postImageJob)
         {
             if (!postImageJob.JobConfigs.Any())
@@ -102,10 +100,6 @@ namespace TrendingGiphyBot.Modules
                 postImageJob.Dispose();
             }
             return Task.CompletedTask;
-        }
-        async Task SendRemoveMessage()
-        {
-             await ReplyAsync("Configuration removed.");
         }
         async Task SaveConfig(int interval, Time time)
         {
