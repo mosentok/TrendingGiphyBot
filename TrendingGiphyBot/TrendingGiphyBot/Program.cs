@@ -7,6 +7,7 @@ using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using System.Collections.Generic;
+using System.Globalization;
 using TrendingGiphyBot.Dals;
 using TrendingGiphyBot.Jobs;
 using TrendingGiphyBot.Enums;
