@@ -24,7 +24,11 @@ namespace TrendingGiphyBot
         IServiceProvider _Services;
         IGlobalConfig _GlobalConfig;
         DiscordSocketClient DiscordClient => _GlobalConfig.DiscordClient;
-        static void Main(string[] args) => new Program().MainAsync().GetAwaiter().GetResult();
+        static void Main()
+        {
+            using (var program = new Program())
+                program.MainAsync().GetAwaiter().GetResult();
+        }
         async Task MainAsync()
         {
             try
