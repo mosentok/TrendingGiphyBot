@@ -38,6 +38,8 @@ namespace TrendingGiphyBot.Configuration
         public string PlayingGame { get; set; }
         [JsonRequired]
         public short HourOffset { get; set; }
+        [JsonRequired]
+        public ushort RandomSearchStringMaxLength { get; set; }
         internal JobConfigState DetermineJobConfigState(int interval, Time time)
         {
             var minSeconds = DetermineConfiggedSeconds(MinJobConfig);

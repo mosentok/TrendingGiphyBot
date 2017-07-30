@@ -20,7 +20,7 @@
           <Property Name="Interval" Type="int" Nullable="false" />
           <Property Name="Time" Type="varchar" MaxLength="16" Nullable="false" />
           <Property Name="RandomIsOn" Type="bit" Nullable="false" />
-          <Property Name="RandomSearchString" Type="varchar" MaxLength="16" />
+          <Property Name="RandomSearchString" Type="varchar" MaxLength="32" />
           <Property Name="MinQuietHour" Type="smallint" />
           <Property Name="MaxQuietHour" Type="smallint" />
         </EntityType>
@@ -82,7 +82,7 @@
           <Property Name="Time" Type="String" MaxLength="16" FixedLength="false" Unicode="false" Nullable="false" />
           <NavigationProperty Name="Time1" Relationship="Self.FK_JobConfig_Time" FromRole="JobConfig" ToRole="Time" />
           <Property Name="RandomIsOn" Type="Boolean" Nullable="false" />
-          <Property Name="RandomSearchString" Type="String" MaxLength="16" FixedLength="false" Unicode="false" />
+          <Property Name="RandomSearchString" Type="String" MaxLength="32" FixedLength="false" Unicode="false" />
           <Property Name="MinQuietHour" Type="Int16" />
           <Property Name="MaxQuietHour" Type="Int16" />
         </EntityType>

@@ -56,15 +56,21 @@ namespace TrendingGiphyBot.Modules
         {
             if (await _GlobalConfig.JobConfigDal.Any(Context.Channel.Id))
             {
-                var config = new JobConfig
+                var randomSearchString = string.Join(" ", searchValues);
+                if (randomSearchString.Length <= _GlobalConfig.Config.RandomSearchStringMaxLength)
                 {
-                    ChannelId = Context.Channel.Id,
-                    RandomIsOn = true,
-                    RandomSearchString = string.Join(" ", searchValues)
-                };
-                await UpdateJobs(config);
-                await _GlobalConfig.JobConfigDal.UpdateRandom(config);
-                await Get();
+                    var config = new JobConfig
+                    {
+                        ChannelId = Context.Channel.Id,
+                        RandomIsOn = true,
+                        RandomSearchString = randomSearchString
+                    };
+                    await UpdateJobs(config);
+                    await _GlobalConfig.JobConfigDal.UpdateRandom(config);
+                    await Get();
+                }
+                else
+                    await ReplyAsync($"Random search string must be at most {_GlobalConfig.Config.RandomSearchStringMaxLength} characters long.");
             }
             else
                 await ReplyAsync(NotConfiguredMessage);
