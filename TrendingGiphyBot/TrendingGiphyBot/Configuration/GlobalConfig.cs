@@ -24,13 +24,9 @@ namespace TrendingGiphyBot.Configuration
         public GlobalConfig()
         {
             var connectionString = ConfigurationManager.AppSettings["connectionString"];
-            var shareName = ConfigurationManager.AppSettings["shareName"];
-            var directoryName = ConfigurationManager.AppSettings["directoryName"];
-            var fileName = ConfigurationManager.AppSettings["fileName"];
-            var config = CloudStorageAccount
-                .Parse(connectionString).CreateCloudFileClient().GetShareReference(shareName)
-                .GetRootDirectoryReference().GetDirectoryReference(directoryName).GetFileReference(fileName)
-                .DownloadText();
+            var containerName = ConfigurationManager.AppSettings["containerName"];
+            var blobName = ConfigurationManager.AppSettings["blobName"];
+            var config = CloudStorageAccount.Parse(connectionString).CreateCloudBlobClient().GetContainerReference(containerName).GetBlockBlobReference(blobName).DownloadText();
             LogManager.GetCurrentClassLogger().Trace(config);
             Config = JsonConvert.DeserializeObject<Config>(config);
             JobConfigDal = new JobConfigDal(Config.ConnectionString);
