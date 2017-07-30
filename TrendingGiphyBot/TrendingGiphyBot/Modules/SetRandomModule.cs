@@ -21,6 +21,7 @@ namespace TrendingGiphyBot.Modules
         }
         string NotConfiguredMessage => $"{Context.Channel.Id} not configured. Configure me senpai! Use '{_GlobalConfig.Config.DefaultPrefix}{nameof(JobConfig)}' or '{_GlobalConfig.Config.DefaultPrefix}{nameof(JobConfig)} {nameof(Help)}' to learn how to.";
         [Command(nameof(Help))]
+        [Alias(nameof(Help), "")]
         public async Task Help()
         {
             await ReplyAsync($"Visit {_GlobalConfig.Config.GitHubUrl} for help!");

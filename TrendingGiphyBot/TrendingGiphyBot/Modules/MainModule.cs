@@ -16,6 +16,7 @@ namespace TrendingGiphyBot.Modules
             _GlobalConfig = services.GetRequiredService<IGlobalConfig>();
         }
         [Command(nameof(Help))]
+        [Alias(nameof(Help), "")]
         public async Task Help()
         {
             await ReplyAsync($"Visit {_GlobalConfig.Config.GitHubUrl} for help!");
