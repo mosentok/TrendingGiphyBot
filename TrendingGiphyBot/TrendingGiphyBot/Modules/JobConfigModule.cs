@@ -56,22 +56,22 @@ namespace TrendingGiphyBot.Modules
             {
                 case JobConfigState.InvalidHours:
                     var validHours = string.Join(", ", _GlobalConfig.Config.ValidHours);
-                    await ReplyAsync(ModuleBaseHelper.InvalidConfigMessage(time, validHours));
+                    await ReplyAsync(InvalidConfigMessage(time, validHours));
                     return;
                 case JobConfigState.InvalidMinutes:
                     var validMinutes = string.Join(", ", _GlobalConfig.Config.ValidMinutes);
-                    await ReplyAsync(ModuleBaseHelper.InvalidConfigMessage(time, validMinutes));
+                    await ReplyAsync(InvalidConfigMessage(time, validMinutes));
                     return;
                 case JobConfigState.InvalidSeconds:
                     var validSeconds = string.Join(", ", _GlobalConfig.Config.ValidSeconds);
-                    await ReplyAsync(ModuleBaseHelper.InvalidConfigMessage(time, validSeconds));
+                    await ReplyAsync(InvalidConfigMessage(time, validSeconds));
                     return;
                 case JobConfigState.InvalidTime:
                     await ReplyAsync($"{time} is an invalid {nameof(Time)}.");
                     return;
                 case JobConfigState.IntervalTooSmall:
                 case JobConfigState.IntervallTooBig:
-                    await ReplyAsync(ModuleBaseHelper.InvalidConfigRangeMessage(_GlobalConfig.Config.MinJobConfig, _GlobalConfig.Config.MaxJobConfig));
+                    await ReplyAsync(InvalidConfigRangeMessage(_GlobalConfig.Config.MinJobConfig, _GlobalConfig.Config.MaxJobConfig));
                     return;
                 case JobConfigState.Valid:
                     await SaveConfig(interval, time);
@@ -155,5 +155,9 @@ namespace TrendingGiphyBot.Modules
             postImageJob.StartTimerWithCloseInterval();
             return Task.CompletedTask;
         }
+        static string InvalidConfigMessage(Time time, string validValues) =>
+            $"When {nameof(Time)} is {time}, interval must be {validValues}.";
+        static string InvalidConfigRangeMessage(SubJobConfig minConfig, SubJobConfig maxConfig) =>
+            $"Interval must be between {minConfig.Interval} {minConfig.Time} and {maxConfig.Interval} {maxConfig.Time}.";
     }
 }

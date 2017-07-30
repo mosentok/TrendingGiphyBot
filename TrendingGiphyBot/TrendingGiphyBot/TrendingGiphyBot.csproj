@@ -260,7 +260,6 @@
     <Compile Include="Exceptions\InvalidTimeException.cs" />
     <Compile Include="Helpers\DecimalExtensions.cs" />
     <Compile Include="Helpers\JobConfigExtensions.cs" />
-    <Compile Include="Helpers\ModuleBaseHelper.cs" />
     <Compile Include="Helpers\TimeExtensions.cs" />
     <Compile Include="Jobs\PostImageJob.cs" />
     <Compile Include="Jobs\RefreshImagesJob.cs" />
