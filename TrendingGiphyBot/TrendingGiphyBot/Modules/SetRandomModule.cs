@@ -56,8 +56,8 @@ namespace TrendingGiphyBot.Modules
         {
             if (await _GlobalConfig.JobConfigDal.Any(Context.Channel.Id))
             {
-                var randomSearchString = string.Join(" ", searchValues);
-                if (randomSearchString.Length <= _GlobalConfig.Config.RandomSearchStringMaxLength)
+                var randomSearchString = DetermineRandomSearchString(searchValues);
+                if (string.IsNullOrEmpty(randomSearchString) || randomSearchString.Length <= _GlobalConfig.Config.RandomSearchStringMaxLength)
                 {
                     var config = new JobConfig
                     {
@@ -74,6 +74,12 @@ namespace TrendingGiphyBot.Modules
             }
             else
                 await ReplyAsync(NotConfiguredMessage);
+        }
+        static string DetermineRandomSearchString(string[] searchValues)
+        {
+            if (searchValues.Any())
+                return string.Join(" ", searchValues);
+            return null;
         }
         [Command(nameof(Off))]
         public async Task Off()
