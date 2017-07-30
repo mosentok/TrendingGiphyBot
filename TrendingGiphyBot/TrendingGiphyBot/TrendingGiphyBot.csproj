@@ -239,9 +239,6 @@
     <Compile Include="Configuration\IGlobalConfig.cs" />
     <Compile Include="Configuration\SubJobConfig.cs" />
     <Compile Include="Containers\ErrorResult.cs" />
-    <Compile Include="Dals\BotConfig.cs">
-      <DependentUpon>TrendingGiphyBotDatabase.tt</DependentUpon>
-    </Compile>
     <Compile Include="Dals\ChannelConfig.cs">
       <DependentUpon>TrendingGiphyBotDatabase.tt</DependentUpon>
     </Compile>
