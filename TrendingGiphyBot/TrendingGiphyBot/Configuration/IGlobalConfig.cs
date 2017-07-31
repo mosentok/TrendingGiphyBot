@@ -19,5 +19,6 @@ namespace TrendingGiphyBot.Configuration
         List<Job> Jobs { get; set; }
         DiscordSocketClient DiscordClient { get; set; }
         Rating Ratings { get; }
+        void RefreshConfig();
     }
 }

@@ -281,7 +281,7 @@
     <Compile Include="Exceptions\InvalidTimeException.cs" />
     <Compile Include="Helpers\DecimalExtensions.cs" />
     <Compile Include="Helpers\JobConfigExtensions.cs" />
-    <Compile Include="Helpers\ListExtensions.cs" />
+    <Compile Include="Helpers\IEnumerableExtensions.cs" />
     <Compile Include="Helpers\StringExtensions.cs" />
     <Compile Include="Helpers\TimeExtensions.cs" />
     <Compile Include="Jobs\PostImageJob.cs" />
@@ -289,6 +289,7 @@
     <Compile Include="Modules\JobConfigModule.cs" />
     <Compile Include="Jobs\Job.cs" />
     <Compile Include="Modules\MainModule.cs" />
+    <Compile Include="Modules\OwnerModule.cs" />
     <Compile Include="Modules\QuietHoursModule.cs" />
     <Compile Include="Modules\SetPrefixModule.cs" />
     <Compile Include="Modules\SetRandomModule.cs" />

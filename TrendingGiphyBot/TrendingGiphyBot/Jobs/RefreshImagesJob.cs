@@ -10,7 +10,7 @@ namespace TrendingGiphyBot.Jobs
 {
     class RefreshImagesJob : Job
     {
-        public RefreshImagesJob(IServiceProvider services, int interval, Time time) : base(services, LogManager.GetCurrentClassLogger(), interval, time) { }
+        internal RefreshImagesJob(IServiceProvider services, int interval, Time time) : base(services, LogManager.GetCurrentClassLogger(), interval, time) { }
         protected internal override async Task Run()
         {
             try

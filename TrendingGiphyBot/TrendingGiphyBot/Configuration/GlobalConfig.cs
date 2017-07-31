@@ -26,12 +26,7 @@ namespace TrendingGiphyBot.Configuration
         public Rating Ratings => Enum.GetValues(typeof(Rating)).OfType<Rating>().Where(s => s != Rating.R).Aggregate((a, b) => a | b);
         public GlobalConfig()
         {
-            var connectionString = ConfigurationManager.AppSettings["connectionString"];
-            var containerName = ConfigurationManager.AppSettings["containerName"];
-            var blobName = ConfigurationManager.AppSettings["blobName"];
-            var config = CloudStorageAccount.Parse(connectionString).CreateCloudBlobClient().GetContainerReference(containerName).GetBlockBlobReference(blobName).DownloadText();
-            LogManager.GetCurrentClassLogger().Trace(config);
-            Config = JsonConvert.DeserializeObject<Config>(config);
+            RefreshConfig();
             JobConfigDal = new JobConfigDal(Config.ConnectionString);
             UrlCacheDal = new UrlCacheDal(Config.ConnectionString);
             UrlHistoryDal = new UrlHistoryDal(Config.ConnectionString);
@@ -40,6 +35,15 @@ namespace TrendingGiphyBot.Configuration
             Jobs = new List<Job>();
             var configgedLogSeverities = Config.LogSeverities.Aggregate((a, b) => a | b);
             DiscordClient = new DiscordSocketClient(new DiscordSocketConfig { LogLevel = configgedLogSeverities });
+        }
+        public void RefreshConfig()
+        {
+            var connectionString = ConfigurationManager.AppSettings["connectionString"];
+            var containerName = ConfigurationManager.AppSettings["containerName"];
+            var blobName = ConfigurationManager.AppSettings["blobName"];
+            var config = CloudStorageAccount.Parse(connectionString).CreateCloudBlobClient().GetContainerReference(containerName).GetBlockBlobReference(blobName).DownloadText();
+            LogManager.GetCurrentClassLogger().Trace(config);
+            Config = JsonConvert.DeserializeObject<Config>(config);
         }
         public void Dispose()
         {
