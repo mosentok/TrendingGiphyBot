@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
 using GiphyDotNet.Model.Parameters;
-using System.Linq;
 using NLog;
 using TrendingGiphyBot.Enums;
 using System.Net;
+using GiphyDotNet.Model.GiphyImage;
 
 namespace TrendingGiphyBot.Jobs
 {
@@ -15,15 +15,22 @@ namespace TrendingGiphyBot.Jobs
         {
             try
             {
-                var gifResult = await GlobalConfig.GiphyClient.TrendingGifs(new TrendingParameter());
-                var dataNotYetPosted = gifResult.Data.FirstOrDefault(s => !GlobalConfig.UrlCacheDal.Any(s.Url).Result);
-                if (dataNotYetPosted != null)
-                    await GlobalConfig.UrlCacheDal.Insert(dataNotYetPosted.Url);
+                var newTrendingGif = await FindNewTrendingGif();
+                if (newTrendingGif != null)
+                    await GlobalConfig.UrlCacheDal.Insert(newTrendingGif.Url);
             }
             catch (WebException ex)
             {
                 Logger.Error(ex);
             }
+        }
+        async Task<Data> FindNewTrendingGif()
+        {
+            var gifResult = await GlobalConfig.GiphyClient.TrendingGifs(new TrendingParameter());
+            foreach (var data in gifResult.Data)
+                if (!await GlobalConfig.UrlCacheDal.Any(data.Url))
+                    return data;
+            return null;
         }
     }
 }
