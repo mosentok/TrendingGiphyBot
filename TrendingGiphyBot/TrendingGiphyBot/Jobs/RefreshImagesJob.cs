@@ -26,7 +26,8 @@ namespace TrendingGiphyBot.Jobs
         }
         async Task<Data> FindNewTrendingGif()
         {
-            var gifResult = await GlobalConfig.GiphyClient.TrendingGifs(new TrendingParameter());
+            var trendingParameter = new TrendingParameter { Rating = GlobalConfig.Ratings };
+            var gifResult = await GlobalConfig.GiphyClient.TrendingGifs(trendingParameter);
             foreach (var data in gifResult.Data)
                 if (!await GlobalConfig.UrlCacheDal.Any(data.Url))
                     return data;

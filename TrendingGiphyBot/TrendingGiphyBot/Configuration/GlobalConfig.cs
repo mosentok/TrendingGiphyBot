@@ -1,4 +1,5 @@
-﻿using GiphyDotNet.Manager;
+﻿using System;
+using GiphyDotNet.Manager;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Configuration;
@@ -6,6 +7,7 @@ using TrendingGiphyBot.Dals;
 using TrendingGiphyBot.Jobs;
 using Discord.WebSocket;
 using System.Linq;
+using GiphyDotNet.Model.Parameters;
 using Microsoft.WindowsAzure.Storage;
 using NLog;
 
@@ -21,6 +23,7 @@ namespace TrendingGiphyBot.Configuration
         public Giphy GiphyClient { get; set; }
         public List<Job> Jobs { get; set; }
         public DiscordSocketClient DiscordClient { get; set; }
+        public Rating Ratings => Enum.GetValues(typeof(Rating)).OfType<Rating>().Where(s => s != Rating.R).Aggregate((a, b) => a | b);
         public GlobalConfig()
         {
             var connectionString = ConfigurationManager.AppSettings["connectionString"];
