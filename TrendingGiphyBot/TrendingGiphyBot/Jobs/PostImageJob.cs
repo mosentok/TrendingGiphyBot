@@ -20,8 +20,7 @@ namespace TrendingGiphyBot.Jobs
             if (await GlobalConfig.UrlCacheDal.Any())
             {
                 var latestUrl = await GlobalConfig.UrlCacheDal.GetLatestUrl();
-                var nowHour = DateTime.Now.Hour;
-                var jobConfigsNotInQuietHours = JobConfigs.Where(s => !s.IsInQuietHours(nowHour)).ToList();
+                var jobConfigsNotInQuietHours = JobConfigs.Where(s => !s.IsInQuietHours(DateTime.Now.Hour)).ToList();
                 var channelsForNewUrl = jobConfigsNotInQuietHours.Where(s => UrlHasNotBeenPostedToChannel(s.ChannelId, latestUrl)).ToList();
                 await PostNewUrls(latestUrl, channelsForNewUrl);
                 var channelsWithRandomStringOn = jobConfigsNotInQuietHours.Except(channelsForNewUrl).Where(s => s.RandomIsOn && !string.IsNullOrEmpty(s.RandomSearchString)).ToList();
@@ -44,13 +43,13 @@ namespace TrendingGiphyBot.Jobs
         {
             foreach (var jobConfig in channelsWithRandomStringOn)
             {
-                var giphyRandomResult = await GlobalConfig.GiphyClient.RandomGif(new RandomParameter { Tag = jobConfig.RandomSearchString });
+                var giphyRandomResult = await GlobalConfig.GiphyClient.RandomGif(new RandomParameter { Tag = jobConfig.RandomSearchString, Rating = GlobalConfig.Ratings });
                 await PostGif(jobConfig, giphyRandomResult.Data.Url);
             }
         }
         async Task PostChannelsWithRandomStringOff(List<JobConfig> channelsWithRandomStringOff)
         {
-            var giphyRandomResult = await GlobalConfig.GiphyClient.RandomGif(new RandomParameter());
+            var giphyRandomResult = await GlobalConfig.GiphyClient.RandomGif(new RandomParameter { Rating = GlobalConfig.Ratings });
             foreach (var jobConfig in channelsWithRandomStringOff)
                 await PostGif(jobConfig, giphyRandomResult.Data.Url);
         }

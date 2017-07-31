@@ -2,6 +2,7 @@
 using GiphyDotNet.Manager;
 using System;
 using System.Collections.Generic;
+using GiphyDotNet.Model.Parameters;
 using TrendingGiphyBot.Dals;
 using TrendingGiphyBot.Jobs;
 
@@ -17,5 +18,6 @@ namespace TrendingGiphyBot.Configuration
         Giphy GiphyClient { get; set; }
         List<Job> Jobs { get; set; }
         DiscordSocketClient DiscordClient { get; set; }
+        Rating Ratings { get; }
     }
 }
