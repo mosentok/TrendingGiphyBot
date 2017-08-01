@@ -7,6 +7,7 @@ using TrendingGiphyBot.Dals;
 using TrendingGiphyBot.Jobs;
 using Discord.WebSocket;
 using System.Linq;
+using System.Threading.Tasks;
 using GiphyDotNet.Model.Parameters;
 using Microsoft.WindowsAzure.Storage;
 using NLog;
@@ -26,7 +27,7 @@ namespace TrendingGiphyBot.Configuration
         public Rating Ratings => Enum.GetValues(typeof(Rating)).OfType<Rating>().Where(s => s != Rating.R).Aggregate((a, b) => a | b);
         public GlobalConfig()
         {
-            RefreshConfig();
+            RefreshConfig().Wait();
             JobConfigDal = new JobConfigDal(Config.ConnectionString);
             UrlCacheDal = new UrlCacheDal(Config.ConnectionString);
             UrlHistoryDal = new UrlHistoryDal(Config.ConnectionString);
@@ -36,12 +37,12 @@ namespace TrendingGiphyBot.Configuration
             var configgedLogSeverities = Config.LogSeverities.Aggregate((a, b) => a | b);
             DiscordClient = new DiscordSocketClient(new DiscordSocketConfig { LogLevel = configgedLogSeverities });
         }
-        public void RefreshConfig()
+        public async Task RefreshConfig()
         {
             var connectionString = ConfigurationManager.AppSettings["connectionString"];
             var containerName = ConfigurationManager.AppSettings["containerName"];
             var blobName = ConfigurationManager.AppSettings["blobName"];
-            var config = CloudStorageAccount.Parse(connectionString).CreateCloudBlobClient().GetContainerReference(containerName).GetBlockBlobReference(blobName).DownloadText();
+            var config = await CloudStorageAccount.Parse(connectionString).CreateCloudBlobClient().GetContainerReference(containerName).GetBlockBlobReference(blobName).DownloadTextAsync();
             LogManager.GetCurrentClassLogger().Trace(config);
             Config = JsonConvert.DeserializeObject<Config>(config);
         }
