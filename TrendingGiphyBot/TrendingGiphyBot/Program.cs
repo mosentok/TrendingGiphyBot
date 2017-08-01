@@ -13,6 +13,7 @@ using TrendingGiphyBot.Enums;
 using NLog;
 using TrendingGiphyBot.Containers;
 using TrendingGiphyBot.Configuration;
+using TrendingGiphyBot.Exceptions;
 using TrendingGiphyBot.Helpers;
 
 namespace TrendingGiphyBot
@@ -172,6 +173,8 @@ namespace TrendingGiphyBot
                 case LogSeverity.Info:
                     _Logger.Info(message);
                     break;
+                default:
+                    throw new InvalidLogSeverityException(logMessage.Severity);
             }
             return Task.CompletedTask;
         }
