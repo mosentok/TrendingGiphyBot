@@ -21,7 +21,7 @@ namespace TrendingGiphyBot.Modules
         {
             if (Context.User.Id == _GlobalConfig.Config.OwnerId)
             {
-                _GlobalConfig.RefreshConfig();
+                await _GlobalConfig.RefreshConfig();
                 await ReplyAsync("Done.");
             }
         }
