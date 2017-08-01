@@ -66,6 +66,6 @@ namespace TrendingGiphyBot.Jobs
         bool UrlHasNotBeenPostedToChannel(decimal channelId, string latestUrl) =>
             GlobalConfig.JobConfigDal.Any(channelId).Result &&
             !GlobalConfig.UrlHistoryDal.Any(channelId, latestUrl).Result;
-        protected override void TimerStartedLog() => Logger.Debug($"Config: {Interval} {Time}. Next elapse: {NextElapse}. Channel IDs: {string.Join(", ", ChannelIds)}.");
+        protected override string TimerStartedLog => $"{Name} config: {Interval} {Time}. Next elapse: {NextElapse}. Channel IDs: {string.Join(", ", ChannelIds)}.";
     }
 }
