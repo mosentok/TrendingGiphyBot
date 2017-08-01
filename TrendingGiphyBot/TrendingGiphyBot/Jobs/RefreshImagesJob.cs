@@ -11,6 +11,7 @@ namespace TrendingGiphyBot.Jobs
     class RefreshImagesJob : Job
     {
         internal RefreshImagesJob(IServiceProvider services, int interval, Time time) : base(services, LogManager.GetCurrentClassLogger(), interval, time) { }
+        protected override string TimerStartedLog => $"{Name} config: {Interval} {Time}. Next elapse: {NextElapse}.";
         protected internal override async Task Run()
         {
             try

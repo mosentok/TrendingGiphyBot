@@ -21,6 +21,7 @@ namespace TrendingGiphyBot.Jobs
         internal int Interval { get; }
         internal Time Time { get; }
         protected DateTime NextElapse { get; private set; }
+        protected string Name { get; }
         protected Job(IServiceProvider services, ILogger logger, int interval, string time) : this(services, logger, interval, time.ToTime()) { }
         protected Job(IServiceProvider services, ILogger logger, int interval, Time time)
         {
@@ -31,13 +32,14 @@ namespace TrendingGiphyBot.Jobs
             Logger = logger;
             _Timer = new Timer();
             _Timer.Elapsed += Elapsed;
+            Name = GetType().Name;
         }
         async void Elapsed(object sender, ElapsedEventArgs e)
         {
             _Timer.Stop();
-            Logger.Info("Timer fired.");
+            Logger.Info($"{Name} fired.");
             await Run();
-            Logger.Info("Job success.");
+            Logger.Info($"{Name} success.");
             StartTimerWithCloseInterval();
         }
         internal void StartTimerWithCloseInterval()
@@ -47,7 +49,7 @@ namespace TrendingGiphyBot.Jobs
             var interval = (NextElapse - now).TotalMilliseconds;
             _Timer.Interval = interval;
             _Timer.Start();
-            TimerStartedLog();
+            Logger.Debug(TimerStartedLog);
         }
         DateTime DetermineNextElapse(DateTime now)
         {
@@ -71,7 +73,7 @@ namespace TrendingGiphyBot.Jobs
             }
         }
         int DetermineDifference(int component) => Interval - component % Interval;
-        protected virtual void TimerStartedLog() => Logger.Debug($"Config: {Interval} {Time}. Next elapse: {NextElapse}.");
+        protected abstract string TimerStartedLog { get; }
         protected internal abstract Task Run();
         [SuppressMessage("Microsoft.Usage", "CA2213:DisposableFieldsShouldBeDisposed", MessageId = "_Timer")]
         public void Dispose()
