@@ -174,7 +174,7 @@ namespace TrendingGiphyBot
                     _Logger.Info(message);
                     break;
                 default:
-                    throw new InvalidLogSeverityException(logMessage.Severity);
+                    throw new UnexpectedLogSeverityException(logMessage.Severity);
             }
             return Task.CompletedTask;
         }

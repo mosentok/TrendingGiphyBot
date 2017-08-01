@@ -104,7 +104,7 @@ namespace TrendingGiphyBot.Configuration
                 case Time.Seconds:
                     return TimeSpan.FromSeconds(interval).TotalSeconds;
                 default:
-                    throw new InvalidTimeException(time);
+                    throw new UnexpectedTimeException(time);
             }
         }
     }
