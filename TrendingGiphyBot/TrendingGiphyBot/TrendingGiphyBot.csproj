@@ -278,6 +278,7 @@
     </Compile>
     <Compile Include="Dals\UrlHistoryDal.cs" />
     <Compile Include="Enums\JobConfigState.cs" />
+    <Compile Include="Exceptions\InvalidLogSeverityException.cs" />
     <Compile Include="Exceptions\InvalidTimeException.cs" />
     <Compile Include="Helpers\DecimalExtensions.cs" />
     <Compile Include="Helpers\JobConfigExtensions.cs" />
