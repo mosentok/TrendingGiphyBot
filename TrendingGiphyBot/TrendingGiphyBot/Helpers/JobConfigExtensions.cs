@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using TrendingGiphyBot.Dals;
 
@@ -6,8 +7,9 @@ namespace TrendingGiphyBot.Helpers
 {
     internal static class JobConfigExtensions
     {
-        internal static bool IsInQuietHours(this JobConfig jobConfig, int nowHour)
+        internal static bool IsInQuietHours(this JobConfig jobConfig)
         {
+            var nowHour = DateTime.Now.Hour;
             if (jobConfig.MinQuietHour.HasValue && jobConfig.MaxQuietHour.HasValue)
             {
                 IEnumerable<int> quietHours;

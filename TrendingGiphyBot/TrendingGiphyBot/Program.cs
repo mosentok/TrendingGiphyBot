@@ -26,11 +26,17 @@ namespace TrendingGiphyBot
         IGlobalConfig _GlobalConfig;
         DiscordSocketClient DiscordClient => _GlobalConfig.DiscordClient;
         List<string> _ModuleNames;
-        static readonly List<Time> _Times = Enum.GetValues(typeof(Time)).OfType<Time>().ToList();
         static void Main()
         {
-            using (var program = new Program())
-                program.MainAsync().GetAwaiter().GetResult();
+            try
+            {
+                using (var program = new Program())
+                    program.MainAsync().GetAwaiter().GetResult();
+            }
+            catch (Exception ex)
+            {
+                _Logger.Error(ex);
+            }
         }
         async Task MainAsync()
         {
@@ -54,7 +60,7 @@ namespace TrendingGiphyBot
             }
             catch (Exception ex)
             {
-                LogManager.GetCurrentClassLogger()?.Error(ex);
+                _Logger.Error(ex);
             }
         }
         async Task Ready()
@@ -99,8 +105,8 @@ namespace TrendingGiphyBot
                     var isRecognizedModule = _ModuleNames.Any(s => message.Content.ContainsIgnoreCase(s));
                     if (isRecognizedModule)
                     {
-                        var argPos = 0;
                         var prefix = await DeterminePrefix(message);
+                        var argPos = 0;
                         if (message.HasStringPrefix(prefix, ref argPos) ||
                             message.HasMentionPrefix(DiscordClient.CurrentUser, ref argPos))
                         {
