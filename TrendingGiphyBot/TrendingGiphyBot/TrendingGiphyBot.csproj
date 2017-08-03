@@ -281,6 +281,7 @@
     <Compile Include="Exceptions\UnexpectedLogSeverityException.cs" />
     <Compile Include="Exceptions\UnexpectedTimeException.cs" />
     <Compile Include="Helpers\DecimalExtensions.cs" />
+    <Compile Include="Helpers\EmbedBuilderExtensions.cs" />
     <Compile Include="Helpers\JobConfigExtensions.cs" />
     <Compile Include="Helpers\IEnumerableExtensions.cs" />
     <Compile Include="Helpers\StringExtensions.cs" />

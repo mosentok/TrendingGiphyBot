@@ -8,21 +8,18 @@ using System.Timers;
 using TrendingGiphyBot.Configuration;
 using TrendingGiphyBot.Enums;
 using TrendingGiphyBot.Exceptions;
-using TrendingGiphyBot.Helpers;
 
 namespace TrendingGiphyBot.Jobs
 {
     abstract class Job : IDisposable
     {
         readonly Timer _Timer;
+        readonly string _Name;
         protected ILogger Logger { get; }
         protected IGlobalConfig GlobalConfig { get; }
         protected DiscordSocketClient DiscordClient { get; }
-        internal int Interval { get; }
-        internal Time Time { get; }
-        protected DateTime NextElapse { get; private set; }
-        protected string Name { get; }
-        protected Job(IServiceProvider services, ILogger logger, int interval, string time) : this(services, logger, interval, time.ToTime()) { }
+        protected int Interval { get; }
+        protected Time Time { get; }
         protected Job(IServiceProvider services, ILogger logger, int interval, Time time)
         {
             GlobalConfig = services.GetRequiredService<IGlobalConfig>();
@@ -32,24 +29,24 @@ namespace TrendingGiphyBot.Jobs
             Logger = logger;
             _Timer = new Timer();
             _Timer.Elapsed += Elapsed;
-            Name = GetType().Name;
+            _Name = $"{GetType().Name} {Interval} {Time}";
         }
         async void Elapsed(object sender, ElapsedEventArgs e)
         {
             _Timer.Stop();
-            Logger.Info($"{Name} fired.");
+            Logger.Info($"{_Name} fired.");
             await Run();
-            Logger.Info($"{Name} success.");
+            Logger.Info($"{_Name} success.");
             StartTimerWithCloseInterval();
         }
         internal void StartTimerWithCloseInterval()
         {
             var now = DateTime.Now;
-            NextElapse = DetermineNextElapse(now);
-            var interval = (NextElapse - now).TotalMilliseconds;
+            var nextElapse = DetermineNextElapse(now);
+            var interval = (nextElapse - now).TotalMilliseconds;
             _Timer.Interval = interval;
             _Timer.Start();
-            Logger.Debug(TimerStartedLog);
+            Logger.Info($"{_Name} next elapse: {nextElapse}.");
         }
         DateTime DetermineNextElapse(DateTime now)
         {
@@ -73,8 +70,7 @@ namespace TrendingGiphyBot.Jobs
             }
         }
         int DetermineDifference(int component) => Interval - component % Interval;
-        protected abstract string TimerStartedLog { get; }
-        protected internal abstract Task Run();
+        protected abstract Task Run();
         [SuppressMessage("Microsoft.Usage", "CA2213:DisposableFieldsShouldBeDisposed", MessageId = "_Timer")]
         public void Dispose()
         {
