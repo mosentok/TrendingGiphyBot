@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using TrendingGiphyBot.Configuration;
 using TrendingGiphyBot.Dals;
-using TrendingGiphyBot.Jobs;
+using TrendingGiphyBot.Helpers;
 
 namespace TrendingGiphyBot.Modules
 {
@@ -39,13 +39,7 @@ namespace TrendingGiphyBot.Modules
                 var embedBuilder = new EmbedBuilder()
                     .WithAuthor(author)
                     .AddInlineField(nameof(config.RandomIsOn), config.RandomIsOn);
-                EmbedBuilder embed;
-                if (!string.IsNullOrEmpty(config.RandomSearchString))
-                    embed = embedBuilder
-                        .AddInlineField(nameof(config.RandomSearchString), config.RandomSearchString);
-                else
-                    embed = embedBuilder
-                        .AddInlineField(nameof(config.RandomSearchString), "null");
+                var embed = embedBuilder.AddInlineJobConfigField(config);
                 await ReplyAsync(string.Empty, embed: embed);
             }
             else
@@ -65,7 +59,6 @@ namespace TrendingGiphyBot.Modules
                         RandomIsOn = true,
                         RandomSearchString = randomSearchString
                     };
-                    await UpdateJobs(config);
                     await _GlobalConfig.JobConfigDal.UpdateRandom(config);
                     await Get();
                 }
@@ -87,21 +80,11 @@ namespace TrendingGiphyBot.Modules
             if (await _GlobalConfig.JobConfigDal.Any(Context.Channel.Id))
             {
                 var config = new JobConfig { ChannelId = Context.Channel.Id, RandomIsOn = false };
-                await UpdateJobs(config);
                 await _GlobalConfig.JobConfigDal.UpdateRandom(config);
                 await ReplyAsync("No more Randies.");
             }
             else
                 await ReplyAsync(NotConfiguredMessage);
-        }
-        Task UpdateJobs(JobConfig config)
-        {
-            //TODO centralize random set
-            var postImageJobs = _GlobalConfig.Jobs.OfType<PostImageJob>().ToList();
-            var jobConfig = postImageJobs.SelectMany(s => s.JobConfigs).Single(s => s.ChannelId == Context.Channel.Id);
-            jobConfig.RandomIsOn = config.RandomIsOn;
-            jobConfig.RandomSearchString = config.RandomSearchString;
-            return Task.CompletedTask;
         }
     }
 }

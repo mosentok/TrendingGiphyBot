@@ -2,11 +2,9 @@
 using Discord.Commands;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using TrendingGiphyBot.Configuration;
 using TrendingGiphyBot.Dals;
-using TrendingGiphyBot.Jobs;
 
 namespace TrendingGiphyBot.Modules
 {
@@ -39,8 +37,8 @@ namespace TrendingGiphyBot.Modules
                     .WithIconUrl(avatarUrl);
                 var embedBuilder = new EmbedBuilder()
                     .WithAuthor(author);
-                var minQuietHour = ReverseHourOffset(config.MinQuietHour);
-                var maxQuietHour = ReverseHourOffset(config.MaxQuietHour);
+                var minQuietHour = UndoHourOffset(config.MinQuietHour);
+                var maxQuietHour = UndoHourOffset(config.MaxQuietHour);
                 embedBuilder = AddQuietHour(embedBuilder, nameof(config.MinQuietHour), minQuietHour);
                 embedBuilder = AddQuietHour(embedBuilder, nameof(config.MaxQuietHour), maxQuietHour);
                 await ReplyAsync(string.Empty, embed: embedBuilder);
@@ -82,7 +80,7 @@ namespace TrendingGiphyBot.Modules
             else
                 await ReplyAsync(NotConfiguredMessage);
         }
-        short? ReverseHourOffset(short? hour)
+        short? UndoHourOffset(short? hour)
         {
             if (hour.HasValue)
             {
@@ -106,7 +104,6 @@ namespace TrendingGiphyBot.Modules
         }
         async Task UpdateJobConfig(JobConfig config)
         {
-            await UpdateJobs(config);
             await _GlobalConfig.JobConfigDal.UpdateQuietHours(config);
             await Get();
         }
@@ -117,15 +114,6 @@ namespace TrendingGiphyBot.Modules
                     .AddInlineField(name, quietHour.Value);
             return embedBuilder
                 .AddInlineField(name, "null");
-        }
-        Task UpdateJobs(JobConfig config)
-        {
-            //TODO centralize min/max quiet hours set
-            var postImageJobs = _GlobalConfig.Jobs.OfType<PostImageJob>().ToList();
-            var configToUpdate = postImageJobs.SelectMany(s => s.JobConfigs).Single(s => s.ChannelId == Context.Channel.Id);
-            configToUpdate.MinQuietHour = config.MinQuietHour;
-            configToUpdate.MaxQuietHour = config.MaxQuietHour;
-            return Task.CompletedTask;
         }
     }
 }

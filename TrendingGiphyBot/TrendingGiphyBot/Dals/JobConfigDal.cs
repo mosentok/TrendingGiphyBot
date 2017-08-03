@@ -1,20 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TrendingGiphyBot.Enums;
 
 namespace TrendingGiphyBot.Dals
 {
     class JobConfigDal : Dal
     {
         internal JobConfigDal(string connectionString) : base(connectionString) { }
-        internal Task<List<JobConfig>> GetAll()
-        {
-            return Task.Run(() =>
-            {
-                using (var entities = new TrendingGiphyBotEntities(ConnectionString))
-                    return entities.JobConfigs.ToList();
-            });
-        }
         internal Task<JobConfig> Get(decimal id)
         {
             return Task.Run(() =>
@@ -29,6 +22,14 @@ namespace TrendingGiphyBot.Dals
             {
                 using (var entities = new TrendingGiphyBotEntities(ConnectionString))
                     return entities.JobConfigs.Any(s => s.ChannelId == id);
+            });
+        }
+        internal Task<List<JobConfig>> Get(int interval, Time time)
+        {
+            return Task.Run(() =>
+            {
+                using (var entities = new TrendingGiphyBotEntities(ConnectionString))
+                    return entities.JobConfigs.Where(s => s.Interval == interval && s.Time == time.ToString()).ToList();
             });
         }
         internal async Task Insert(JobConfig config)

@@ -26,6 +26,7 @@ namespace TrendingGiphyBot
         IGlobalConfig _GlobalConfig;
         DiscordSocketClient DiscordClient => _GlobalConfig.DiscordClient;
         List<string> _ModuleNames;
+        static readonly List<Time> _Times = Enum.GetValues(typeof(Time)).OfType<Time>().ToList();
         static void Main()
         {
             using (var program = new Program())
@@ -58,41 +59,36 @@ namespace TrendingGiphyBot
         }
         async Task Ready()
         {
-            var postImageJobs = new List<PostImageJob>();
-            var channelsThatExist = (await GetConfigsWithAliveChannels()).ToList();
-            AddJobs(postImageJobs, channelsThatExist, Time.Hour, Time.Hours);
-            AddJobs(postImageJobs, channelsThatExist, Time.Minute, Time.Minutes);
-            AddJobs(postImageJobs, channelsThatExist, Time.Second, Time.Seconds);
+            var postImageJobs = BuildPostImageJobs();
             _GlobalConfig.Jobs.AddRange(postImageJobs);
             _GlobalConfig.Jobs.Add(new RefreshImagesJob(_Services, _GlobalConfig.Config.RefreshImageJobConfig.Interval, _GlobalConfig.Config.RefreshImageJobConfig.Time));
             _GlobalConfig.Jobs.ForEach(s => s.StartTimerWithCloseInterval());
             await DiscordClient.SetGameAsync(_GlobalConfig.Config.PlayingGame);
         }
-        void AddJobs(ICollection<PostImageJob> postImageJobs, IEnumerable<JobConfig> channelsThatExist, params Time[] times)
+        List<PostImageJob> BuildPostImageJobs()
         {
-            var configs = channelsThatExist.Where(s =>
+            var postImageJobs = new List<PostImageJob>();
+            //TODO all these foreachs bug me
+            foreach (var second in _GlobalConfig.Config.ValidSeconds)
             {
-                var convertedTime = s.Time.ToTime();
-                return times.Contains(convertedTime);
-            });
-            foreach (var config in configs)
-            {
-                var match = postImageJobs.SingleOrDefault(s => s.Interval == config.Interval && s.Time == config.Time.ToTime());
-                if (match == null)
-                {
-                    var postImageJob = new PostImageJob(_Services, config.Interval, config.Time);
-                    postImageJob.JobConfigs.Add(config);
-                    postImageJobs.Add(postImageJob);
-                }
-                else
-                    match.JobConfigs.Add(config);
+                AddJob(postImageJobs, second, Time.Second);
+                AddJob(postImageJobs, second, Time.Seconds);
             }
+            foreach (var minute in _GlobalConfig.Config.ValidMinutes)
+            {
+                AddJob(postImageJobs, minute, Time.Minute);
+                AddJob(postImageJobs, minute, Time.Minutes);
+            }
+            foreach (var hour in _GlobalConfig.Config.ValidHours)
+            {
+                AddJob(postImageJobs, hour, Time.Hour);
+                AddJob(postImageJobs, hour, Time.Hours);
+            }
+            return postImageJobs;
         }
-        async Task<IEnumerable<JobConfig>> GetConfigsWithAliveChannels()
+        void AddJob(List<PostImageJob> postImageJobs, int interval, Time time)
         {
-            var configuredJobs = await _GlobalConfig.JobConfigDal.GetAll();
-            var channelsNotFound = configuredJobs.Where(s => DiscordClient.GetChannel(s.ChannelId.ToULong()) == null);
-            return configuredJobs.Except(channelsNotFound);
+            postImageJobs.Add(new PostImageJob(_Services, interval, time));
         }
         async Task MessageReceived(SocketMessage messageParam)
         {

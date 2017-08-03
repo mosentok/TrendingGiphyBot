@@ -6,21 +6,21 @@ using NLog;
 using System.Collections.Generic;
 using System.Linq;
 using GiphyDotNet.Model.Parameters;
+using TrendingGiphyBot.Enums;
 using TrendingGiphyBot.Helpers;
 
 namespace TrendingGiphyBot.Jobs
 {
     class PostImageJob : Job
     {
-        internal List<JobConfig> JobConfigs { get; } = new List<JobConfig>();
-        internal List<ulong> ChannelIds => JobConfigs?.Select(s => s.ChannelId.ToULong()).ToList();
-        internal PostImageJob(IServiceProvider services, int interval, string time) : base(services, LogManager.GetCurrentClassLogger(), interval, time) { }
-        protected internal override async Task Run()
+        internal PostImageJob(IServiceProvider services, int interval, Time time) : base(services, LogManager.GetCurrentClassLogger(), interval, time) { }
+        protected override async Task Run()
         {
             if (await GlobalConfig.UrlCacheDal.Any())
             {
                 var latestUrl = await GlobalConfig.UrlCacheDal.GetLatestUrl();
-                var jobConfigsNotInQuietHours = JobConfigs.Where(s => !s.IsInQuietHours(DateTime.Now.Hour)).ToList();
+                var jobConfigs = await GlobalConfig.JobConfigDal.Get(Interval, Time);
+                var jobConfigsNotInQuietHours = jobConfigs.Where(s => !s.IsInQuietHours(DateTime.Now.Hour)).ToList();
                 var channelsForNewUrl = jobConfigsNotInQuietHours.Where(s => UrlHasNotBeenPostedToChannel(s.ChannelId, latestUrl)).ToList();
                 await PostNewUrls(latestUrl, channelsForNewUrl);
                 var channelsWithRandomStringOn = jobConfigsNotInQuietHours.Except(channelsForNewUrl).Where(s => s.RandomIsOn && !string.IsNullOrEmpty(s.RandomSearchString)).ToList();
@@ -66,6 +66,5 @@ namespace TrendingGiphyBot.Jobs
         bool UrlHasNotBeenPostedToChannel(decimal channelId, string latestUrl) =>
             GlobalConfig.JobConfigDal.Any(channelId).Result &&
             !GlobalConfig.UrlHistoryDal.Any(channelId, latestUrl).Result;
-        protected override string TimerStartedLog => $"{Name} config: {Interval} {Time}. Next elapse: {NextElapse}. Channel IDs: {string.Join(", ", ChannelIds)}.";
     }
 }

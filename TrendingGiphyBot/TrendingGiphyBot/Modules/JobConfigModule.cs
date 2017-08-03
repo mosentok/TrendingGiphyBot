@@ -2,8 +2,6 @@
 using Discord.Commands;
 using TrendingGiphyBot.Enums;
 using TrendingGiphyBot.Dals;
-using TrendingGiphyBot.Jobs;
-using System.Linq;
 using Discord;
 using System;
 using System.Collections.Generic;
@@ -16,11 +14,9 @@ namespace TrendingGiphyBot.Modules
     [Group(nameof(JobConfig))]
     public class JobConfigModule : ModuleBase
     {
-        readonly IServiceProvider _Services;
         readonly IGlobalConfig _GlobalConfig;
         public JobConfigModule(IServiceProvider services)
         {
-            _Services = services;
             _GlobalConfig = services.GetRequiredService<IGlobalConfig>();
         }
         string NotConfiguredMessage => $"{Context.Channel.Id} not configured. Configure me senpai! Use '{_GlobalConfig.Config.DefaultPrefix}{nameof(JobConfig)}' or '{_GlobalConfig.Config.DefaultPrefix}{nameof(JobConfig)} {nameof(Help)}' to learn how to.";
@@ -84,22 +80,10 @@ namespace TrendingGiphyBot.Modules
             if (await _GlobalConfig.JobConfigDal.Any(Context.Channel.Id))
             {
                 await _GlobalConfig.JobConfigDal.Remove(Context.Channel.Id);
-                var postImageJob = _GlobalConfig.Jobs.OfType<PostImageJob>().Single(s => s.ChannelIds != null && s.ChannelIds.Contains(Context.Channel.Id));
-                RemoveJobConfig(postImageJob);
-                await RemoveJobIfNoChannels(postImageJob);
                 await ReplyAsync("Configuration removed.");
             }
             else
                 await ReplyAsync(NotConfiguredMessage);
-        }
-        Task RemoveJobIfNoChannels(PostImageJob postImageJob)
-        {
-            if (!postImageJob.JobConfigs.Any())
-            {
-                _GlobalConfig.Jobs.Remove(postImageJob);
-                postImageJob.Dispose();
-            }
-            return Task.CompletedTask;
         }
         async Task SaveConfig(int interval, Time time)
         {
@@ -109,45 +93,15 @@ namespace TrendingGiphyBot.Modules
                 Interval = interval,
                 Time = time.ToString()
             };
-            var fullConfig = await UpdateJobConfigTable(config);
-            await UpdateJobWithNewConfig(interval, time, fullConfig);
+            await UpdateJobConfigTable(config);
         }
-        async Task<JobConfig> UpdateJobConfigTable(JobConfig config)
+        async Task UpdateJobConfigTable(JobConfig config)
         {
             var any = await _GlobalConfig.JobConfigDal.Any(Context.Channel.Id);
             if (any)
                 await _GlobalConfig.JobConfigDal.Update(config);
             else
                 await _GlobalConfig.JobConfigDal.Insert(config);
-            return await _GlobalConfig.JobConfigDal.Get(Context.Channel.Id);
-        }
-        async Task UpdateJobWithNewConfig(int interval, Time time, JobConfig fullJobConfig)
-        {
-            var postImageJobs = _GlobalConfig.Jobs.OfType<PostImageJob>().ToList();
-            var existingJob = postImageJobs.SingleOrDefault(s => s.ChannelIds != null && s.ChannelIds.Contains(Context.Channel.Id));
-            if (existingJob != null)
-            {
-                RemoveJobConfig(existingJob);
-                await RemoveJobIfNoChannels(existingJob);
-            }
-            var postImageJob = postImageJobs.SingleOrDefault(s => s.Interval == interval && s.Time == time);
-            if (postImageJob == null)
-                await AddNewJobConfig(fullJobConfig);
-            else
-                postImageJob.JobConfigs.Add(fullJobConfig);
-        }
-        void RemoveJobConfig(PostImageJob postImageJob)
-        {
-            var match = postImageJob.JobConfigs.Single(s => s.ChannelId == Context.Channel.Id);
-            postImageJob.JobConfigs.Remove(match);
-        }
-        Task AddNewJobConfig(JobConfig fullJobConfig)
-        {
-            var postImageJob = new PostImageJob(_Services, fullJobConfig.Interval, fullJobConfig.Time);
-            postImageJob.JobConfigs.Add(fullJobConfig);
-            _GlobalConfig.Jobs.Add(postImageJob);
-            postImageJob.StartTimerWithCloseInterval();
-            return Task.CompletedTask;
         }
         static string InvalidConfigMessage(Time time, List<int> validValues) =>
             $"When {nameof(Time)} is {time}, interval must be {validValues.Join(", ")}.";
