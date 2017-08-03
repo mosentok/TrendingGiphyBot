@@ -98,6 +98,11 @@ namespace TrendingGiphyBot
                 AddJob(postImageJobs, hour, Time.Hour);
                 AddJob(postImageJobs, hour, Time.Hours);
             }
+            return postImageJobs;
+        }
+        void AddJob(List<PostImageJob> postImageJobs, int interval, Time time)
+        {
+            postImageJobs.Add(new PostImageJob(_Services, interval, time));
         }
         async Task MessageReceived(SocketMessage messageParam)
         {
