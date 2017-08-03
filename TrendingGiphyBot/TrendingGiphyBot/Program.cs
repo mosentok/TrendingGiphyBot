@@ -63,6 +63,13 @@ namespace TrendingGiphyBot
                 _Logger.Error(ex);
             }
         }
+        async Task JoinedGuild(SocketGuild arg)
+        {
+            var jobConfig = new JobConfig { ChannelId = arg.DefaultChannel.Id, Time = Time.Minutes.ToString(), Interval = 30 };
+            await _GlobalConfig.JobConfigDal.Insert(jobConfig);
+            var welcomeMessage = $"Whoa cool! Thanks for the invite! I went ahead and set myself up for this channel to post a trending GIPHY GIF every {_GlobalConfig.Config.DefaultJobConfig.Interval} {_GlobalConfig.Config.DefaultJobConfig.Time}. Visit {_GlobalConfig.Config.GitHubUrl} for more details on how you can interact with me.";
+            await arg.DefaultChannel.SendMessageAsync(welcomeMessage);
+        }
         async Task Ready()
         {
             var postImageJobs = BuildPostImageJobs();
@@ -70,6 +77,7 @@ namespace TrendingGiphyBot
             _GlobalConfig.Jobs.Add(new RefreshImagesJob(_Services, _GlobalConfig.Config.RefreshImageJobConfig.Interval, _GlobalConfig.Config.RefreshImageJobConfig.Time));
             _GlobalConfig.Jobs.ForEach(s => s.StartTimerWithCloseInterval());
             await DiscordClient.SetGameAsync(_GlobalConfig.Config.PlayingGame);
+            DiscordClient.JoinedGuild += JoinedGuild;
         }
         List<PostImageJob> BuildPostImageJobs()
         {
@@ -90,11 +98,6 @@ namespace TrendingGiphyBot
                 AddJob(postImageJobs, hour, Time.Hour);
                 AddJob(postImageJobs, hour, Time.Hours);
             }
-            return postImageJobs;
-        }
-        void AddJob(List<PostImageJob> postImageJobs, int interval, Time time)
-        {
-            postImageJobs.Add(new PostImageJob(_Services, interval, time));
         }
         async Task MessageReceived(SocketMessage messageParam)
         {

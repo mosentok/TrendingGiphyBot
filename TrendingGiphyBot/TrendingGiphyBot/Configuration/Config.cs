@@ -42,6 +42,8 @@ namespace TrendingGiphyBot.Configuration
         public ushort RandomSearchStringMaxLength { get; set; }
         [JsonRequired]
         public ulong OwnerId { get; set; }
+        [JsonRequired]
+        public SubJobConfig DefaultJobConfig { get; set; }
         internal JobConfigState DetermineJobConfigState(int interval, Time time)
         {
             var minSeconds = DetermineConfiggedSeconds(MinJobConfig);
