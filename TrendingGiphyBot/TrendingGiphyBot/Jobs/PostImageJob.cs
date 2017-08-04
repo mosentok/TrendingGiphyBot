@@ -36,7 +36,7 @@ namespace TrendingGiphyBot.Jobs
                 if (!await GlobalConfig.UrlHistoryDal.Any(jobConfig.ChannelId, url)
                     && DiscordClient.GetChannel(jobConfig.ChannelId.ToULong()) is SocketTextChannel socketTextChannel)
                 {
-                    await PostRandomGif(jobConfig, url, $"*Trending!* {url}", socketTextChannel);
+                    await PostGif(jobConfig.ChannelId, url, $"*Trending!* {url}", socketTextChannel);
                     channelsPostedTo.Add(jobConfig);
                 }
             return channelsPostedTo;
@@ -59,12 +59,12 @@ namespace TrendingGiphyBot.Jobs
         {
             if (!await GlobalConfig.UrlHistoryDal.Any(jobConfig.ChannelId, url)
                 && DiscordClient.GetChannel(jobConfig.ChannelId.ToULong()) is SocketTextChannel socketTextChannel)
-                await PostRandomGif(jobConfig, url, url, socketTextChannel);
+                await PostGif(jobConfig.ChannelId, url, url, socketTextChannel);
         }
-        async Task PostRandomGif(JobConfig jobConfig, string url, string message, SocketTextChannel socketTextChannel)
+        async Task PostGif(decimal channelId, string url, string message, SocketTextChannel socketTextChannel)
         {
             await socketTextChannel.SendMessageAsync(message);
-            var history = new UrlHistory { ChannelId = jobConfig.ChannelId, Url = url };
+            var history = new UrlHistory { ChannelId = channelId, Url = url };
             await GlobalConfig.UrlHistoryDal.Insert(history);
         }
     }
