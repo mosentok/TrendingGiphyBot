@@ -63,9 +63,16 @@ namespace TrendingGiphyBot.Jobs
         }
         async Task PostGif(decimal channelId, string url, string message, SocketTextChannel socketTextChannel)
         {
-            await socketTextChannel.SendMessageAsync(message);
-            var history = new UrlHistory { ChannelId = channelId, Url = url };
-            await GlobalConfig.UrlHistoryDal.Insert(history);
+            try
+            {
+                await socketTextChannel.SendMessageAsync(message);
+                var history = new UrlHistory { ChannelId = channelId, Url = url };
+                await GlobalConfig.UrlHistoryDal.Insert(history);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+            }
         }
     }
 }
