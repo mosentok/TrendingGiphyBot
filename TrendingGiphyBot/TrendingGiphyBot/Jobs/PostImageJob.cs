@@ -45,7 +45,7 @@ namespace TrendingGiphyBot.Jobs
         {
             foreach (var jobConfig in jobConfigsWithRandomStringOn)
             {
-                var giphyRandomResult = await GlobalConfig.GiphyClient.RandomGif(new RandomParameter { Tag = jobConfig.RandomSearchString, Rating = GlobalConfig.Ratings });
+                var giphyRandomResult = await GlobalConfig.GiphyClient.RandomGif(new RandomParameter { Rating = GlobalConfig.Ratings, Tag = jobConfig.RandomSearchString });
                 await PostRandomGif(jobConfig, giphyRandomResult.Data.Url);
             }
         }
