@@ -24,7 +24,8 @@ namespace TrendingGiphyBot.Configuration
         public Giphy GiphyClient { get; set; }
         public List<Job> Jobs { get; set; }
         public DiscordSocketClient DiscordClient { get; set; }
-        public Rating Ratings => Enum.GetValues(typeof(Rating)).OfType<Rating>().Where(s => s != Rating.R).Aggregate((a, b) => a | b);
+        static readonly Rating _Ratings = Enum.GetValues(typeof(Rating)).OfType<Rating>().Where(s => s != Rating.R).Aggregate((a, b) => a | b);
+        public Rating Ratings => _Ratings;
         public GlobalConfig()
         {
             RefreshConfig().Wait();

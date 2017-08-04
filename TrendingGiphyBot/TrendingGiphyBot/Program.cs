@@ -65,6 +65,8 @@ namespace TrendingGiphyBot
         }
         async Task JoinedGuild(SocketGuild arg)
         {
+            if (await _GlobalConfig.JobConfigDal.Any(arg.DefaultChannel.Id))
+                await _GlobalConfig.JobConfigDal.Remove(arg.DefaultChannel.Id);
             var jobConfig = new JobConfig { ChannelId = arg.DefaultChannel.Id, Time = Time.Minutes.ToString(), Interval = 30 };
             await _GlobalConfig.JobConfigDal.Insert(jobConfig);
             var welcomeMessage = $"Whoa cool! Thanks for the invite! I went ahead and set myself up for this channel to post a trending GIPHY GIF every {_GlobalConfig.Config.DefaultJobConfig.Interval} {_GlobalConfig.Config.DefaultJobConfig.Time}. Visit {_GlobalConfig.Config.GitHubUrl} for more details on how you can interact with me.";
