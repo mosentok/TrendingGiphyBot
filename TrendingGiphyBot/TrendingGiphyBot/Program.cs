@@ -47,9 +47,7 @@ namespace TrendingGiphyBot
                 _GlobalConfig = _Services.GetRequiredService<IGlobalConfig>();
                 _Commands = new CommandService();
                 await _Commands.AddModulesAsync(Assembly.GetEntryAssembly());
-                var moduleNames = _Commands.Modules.Select(s => s.Name);
-                var aliases = _Commands.Modules.SelectMany(s => s.Aliases);
-                _ModuleNames = moduleNames.Concat(aliases).Distinct().ToList();
+                DetermineModuleNames();
                 DiscordClient.MessageReceived += MessageReceived;
                 DiscordClient.Log += Log;
                 DiscordClient.Ready += Ready;
@@ -57,6 +55,12 @@ namespace TrendingGiphyBot
                 await DiscordClient.StartAsync();
                 await Task.Delay(-1);
             });
+        }
+        void DetermineModuleNames()
+        {
+            var moduleNames = _Commands.Modules.Select(s => s.Name);
+            var aliases = _Commands.Modules.SelectMany(s => s.Aliases);
+            _ModuleNames = moduleNames.Concat(aliases).Distinct().ToList();
         }
         async Task Ready()
         {
@@ -73,7 +77,12 @@ namespace TrendingGiphyBot
         {
             if (await _GlobalConfig.JobConfigDal.Any(arg.DefaultChannel.Id))
                 await _GlobalConfig.JobConfigDal.Remove(arg.DefaultChannel.Id);
-            var jobConfig = new JobConfig { ChannelId = arg.DefaultChannel.Id, Time = _GlobalConfig.Config.DefaultJobConfig.Time.ToString(), Interval = _GlobalConfig.Config.DefaultJobConfig.Interval };
+            var jobConfig = new JobConfig
+            {
+                ChannelId = arg.DefaultChannel.Id,
+                Interval = _GlobalConfig.Config.DefaultJobConfig.Interval,
+                Time = _GlobalConfig.Config.DefaultJobConfig.Time.ToString()
+            };
             await _GlobalConfig.JobConfigDal.Insert(jobConfig);
             await ReportStats();
             var welcomeMessage = $"Whoa cool! Thanks for the invite! I went ahead and set myself up for this channel to post a trending GIPHY GIF every {_GlobalConfig.Config.DefaultJobConfig.Interval} {_GlobalConfig.Config.DefaultJobConfig.Time}. Visit {_GlobalConfig.Config.GitHubUrl} for more details on how you can interact with me.";
