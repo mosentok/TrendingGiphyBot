@@ -9,7 +9,7 @@ using TrendingGiphyBot.Jobs;
 
 namespace TrendingGiphyBot.Configuration
 {
-    interface IGlobalConfig : IDisposable
+    public interface IGlobalConfig : IDisposable
     {
         Config Config { get; set; }
         JobConfigDal JobConfigDal { get; set; }

@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace TrendingGiphyBot.Dals
 {
-    class ChannelConfigDal : Dal
+    public class ChannelConfigDal : Dal
     {
         internal ChannelConfigDal(string connectionString) : base(connectionString) { }
         internal Task<bool> Any(ulong channelId)

@@ -1,6 +1,6 @@
 ﻿namespace TrendingGiphyBot.Dals
 {
-    abstract class Dal
+    public abstract class Dal
     {
         protected string ConnectionString { get; }
         protected Dal(string connectionString)

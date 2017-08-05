@@ -6,33 +6,29 @@ using Discord;
 using System;
 using System.Collections.Generic;
 using TrendingGiphyBot.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+using NLog;
 using TrendingGiphyBot.Helpers;
 
 namespace TrendingGiphyBot.Modules
 {
     [Group(nameof(JobConfig))]
-    public class JobConfigModule : ModuleBase
+    public class JobConfigModule : LoggingModuleBase
     {
-        readonly IGlobalConfig _GlobalConfig;
-        public JobConfigModule(IServiceProvider services)
-        {
-            _GlobalConfig = services.GetRequiredService<IGlobalConfig>();
-        }
-        string NotConfiguredMessage => $"{Context.Channel.Id} not configured. Configure me senpai! Use '{_GlobalConfig.Config.DefaultPrefix}{nameof(JobConfig)}' or '{_GlobalConfig.Config.DefaultPrefix}{nameof(JobConfig)} {nameof(Help)}' to learn how to.";
+        public JobConfigModule(IServiceProvider services) : base(services, LogManager.GetCurrentClassLogger()){}
+        string NotConfiguredMessage => $"{Context.Channel.Id} not configured. Configure me senpai! Use '{GlobalConfig.Config.DefaultPrefix}{nameof(JobConfig)}' or '{GlobalConfig.Config.DefaultPrefix}{nameof(JobConfig)} {nameof(Help)}' to learn how to.";
         [Command(nameof(Help))]
         [Alias(nameof(Help), "")]
         public async Task Help()
         {
-            await ReplyAsync($"Visit {_GlobalConfig.Config.GitHubUrl} for help!");
+            await ReplyAsync($"Visit {GlobalConfig.Config.GitHubUrl} for help!");
         }
         [Command(nameof(Get))]
         public async Task Get()
         {
-            var any = await _GlobalConfig.JobConfigDal.Any(Context.Channel.Id);
+            var any = await GlobalConfig.JobConfigDal.Any(Context.Channel.Id);
             if (any)
             {
-                var config = await _GlobalConfig.JobConfigDal.Get(Context.Channel.Id);
+                var config = await GlobalConfig.JobConfigDal.Get(Context.Channel.Id);
                 var avatarUrl = (await Context.Client.GetGuildAsync(Context.Guild.Id)).IconUrl;
                 var author = new EmbedAuthorBuilder()
                     .WithName($"{Context.Channel.Name}'s {nameof(JobConfig)}")
@@ -49,24 +45,24 @@ namespace TrendingGiphyBot.Modules
         [Command(nameof(Set))]
         public async Task Set(int interval, Time time)
         {
-            var state = _GlobalConfig.Config.DetermineJobConfigState(interval, time);
+            var state = GlobalConfig.Config.DetermineJobConfigState(interval, time);
             switch (state)
             {
                 case JobConfigState.InvalidHours:
-                    await ReplyAsync(InvalidConfigMessage(time, _GlobalConfig.Config.ValidHours));
+                    await ReplyAsync(InvalidConfigMessage(time, GlobalConfig.Config.ValidHours));
                     return;
                 case JobConfigState.InvalidMinutes:
-                    await ReplyAsync(InvalidConfigMessage(time, _GlobalConfig.Config.ValidMinutes));
+                    await ReplyAsync(InvalidConfigMessage(time, GlobalConfig.Config.ValidMinutes));
                     return;
                 case JobConfigState.InvalidSeconds:
-                    await ReplyAsync(InvalidConfigMessage(time, _GlobalConfig.Config.ValidSeconds));
+                    await ReplyAsync(InvalidConfigMessage(time, GlobalConfig.Config.ValidSeconds));
                     return;
                 case JobConfigState.InvalidTime:
                     await ReplyAsync($"{time} is an invalid {nameof(Time)}.");
                     return;
                 case JobConfigState.IntervalTooSmall:
                 case JobConfigState.IntervallTooBig:
-                    await ReplyAsync(InvalidConfigRangeMessage(_GlobalConfig.Config.MinJobConfig, _GlobalConfig.Config.MaxJobConfig));
+                    await ReplyAsync(InvalidConfigRangeMessage(GlobalConfig.Config.MinJobConfig, GlobalConfig.Config.MaxJobConfig));
                     return;
                 case JobConfigState.Valid:
                     await SaveConfig(interval, time);
@@ -77,9 +73,9 @@ namespace TrendingGiphyBot.Modules
         [Command(nameof(Remove))]
         public async Task Remove()
         {
-            if (await _GlobalConfig.JobConfigDal.Any(Context.Channel.Id))
+            if (await GlobalConfig.JobConfigDal.Any(Context.Channel.Id))
             {
-                await _GlobalConfig.JobConfigDal.Remove(Context.Channel.Id);
+                await GlobalConfig.JobConfigDal.Remove(Context.Channel.Id);
                 await ReplyAsync("Configuration removed.");
             }
             else
@@ -97,11 +93,11 @@ namespace TrendingGiphyBot.Modules
         }
         async Task UpdateJobConfigTable(JobConfig config)
         {
-            var any = await _GlobalConfig.JobConfigDal.Any(Context.Channel.Id);
+            var any = await GlobalConfig.JobConfigDal.Any(Context.Channel.Id);
             if (any)
-                await _GlobalConfig.JobConfigDal.Update(config);
+                await GlobalConfig.JobConfigDal.Update(config);
             else
-                await _GlobalConfig.JobConfigDal.Insert(config);
+                await GlobalConfig.JobConfigDal.Insert(config);
         }
         static string InvalidConfigMessage(Time time, List<int> validValues) =>
             $"When {nameof(Time)} is {time}, interval must be {validValues.Join(", ")}.";

@@ -11,7 +11,7 @@ using TrendingGiphyBot.Exceptions;
 
 namespace TrendingGiphyBot.Jobs
 {
-    abstract class Job : IDisposable
+    public abstract class Job : IDisposable
     {
         readonly Timer _Timer;
         readonly string _Name;

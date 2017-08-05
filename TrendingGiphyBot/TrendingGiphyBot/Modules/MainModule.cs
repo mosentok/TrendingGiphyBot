@@ -1,25 +1,20 @@
 ﻿using Discord.Commands;
 using System;
 using System.Threading.Tasks;
-using TrendingGiphyBot.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+using NLog;
 
 namespace TrendingGiphyBot.Modules
 {
     [Group(nameof(TrendingGiphyBot))]
     [Alias("TGB")]
-    public class MainModule : ModuleBase
+    public class MainModule : LoggingModuleBase
     {
-        readonly IGlobalConfig _GlobalConfig;
-        public MainModule(IServiceProvider services)
-        {
-            _GlobalConfig = services.GetRequiredService<IGlobalConfig>();
-        }
+        public MainModule(IServiceProvider services) : base(services, LogManager.GetCurrentClassLogger()){}
         [Command(nameof(Help))]
         [Alias(nameof(Help), "")]
         public async Task Help()
         {
-            await ReplyAsync($"Visit {_GlobalConfig.Config.GitHubUrl} for help!");
+            await ReplyAsync($"Visit {GlobalConfig.Config.GitHubUrl} for help!");
         }
     }
 }
