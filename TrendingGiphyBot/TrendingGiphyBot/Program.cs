@@ -88,13 +88,19 @@ namespace TrendingGiphyBot
         }
         async Task ReportStats()
         {
+            var content = $"{{\"server_count\":{_GlobalConfig.DiscordClient.Guilds.Count}}}";
+            await ReportStats(content, $"https://discordbots.org/api/bots/{DiscordClient.CurrentUser.Id}/stats", _GlobalConfig.Config.DiscordBotsOrgToken);
+            await ReportStats(content, $"https://bots.discord.pw/api/bots/{DiscordClient.CurrentUser.Id}/stats", _GlobalConfig.Config.DiscordBotsPwToken);
+        }
+        static async Task ReportStats(string content, string requestUri, string token)
+        {
             await _Logger.SwallowAsync(async () =>
             {
                 using (var httpClient = new HttpClient())
-                using (var content = new StringContent($"{{\"server_count\":{_GlobalConfig.DiscordClient.Guilds.Count}}}", Encoding.UTF8, "application/json"))
+                using (var stringContent = new StringContent(content, Encoding.UTF8, "application/json"))
                 {
-                    httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(_GlobalConfig.Config.DiscordBotsOrgToken);
-                    await httpClient.PostAsync($"https://discordbots.org/api/bots/{DiscordClient.CurrentUser.Id}/stats", content);
+                    httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(token);
+                    await httpClient.PostAsync(requestUri, stringContent);
                 }
             });
         }
