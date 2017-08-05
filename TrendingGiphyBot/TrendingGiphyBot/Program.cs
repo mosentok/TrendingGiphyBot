@@ -28,19 +28,15 @@ namespace TrendingGiphyBot
         List<string> _ModuleNames;
         static void Main()
         {
-            try
+            _Logger.Swallow(() =>
             {
                 using (var program = new Program())
                     program.MainAsync().GetAwaiter().GetResult();
-            }
-            catch (Exception ex)
-            {
-                _Logger.Error(ex);
-            }
+            });
         }
         async Task MainAsync()
         {
-            try
+            await _Logger.SwallowAsync(async () =>
             {
                 _Services = new ServiceCollection()
                     .AddSingleton<IGlobalConfig, GlobalConfig>()
@@ -57,11 +53,7 @@ namespace TrendingGiphyBot
                 await DiscordClient.LoginAsync(TokenType.Bot, _GlobalConfig.Config.DiscordToken);
                 await DiscordClient.StartAsync();
                 await Task.Delay(-1);
-            }
-            catch (Exception ex)
-            {
-                _Logger.Error(ex);
-            }
+            });
         }
         async Task JoinedGuild(SocketGuild arg)
         {
@@ -108,7 +100,7 @@ namespace TrendingGiphyBot
         }
         async Task MessageReceived(SocketMessage messageParam)
         {
-            try
+            await _Logger.SwallowAsync(async () =>
             {
                 if (messageParam is SocketUserMessage message)
                 {
@@ -127,11 +119,7 @@ namespace TrendingGiphyBot
                         }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                _Logger.Error(ex);
-            }
+            });
         }
         async Task<string> DeterminePrefix(SocketUserMessage message)
         {
