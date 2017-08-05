@@ -5,7 +5,7 @@ using TrendingGiphyBot.Dals;
 
 namespace TrendingGiphyBot.Helpers
 {
-    internal static class JobConfigExtensions
+    static class JobConfigExtensions
     {
         internal static bool IsInQuietHours(this JobConfig jobConfig)
         {
