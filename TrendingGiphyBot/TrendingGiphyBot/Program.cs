@@ -7,6 +7,9 @@ using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using System.Collections.Generic;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
 using TrendingGiphyBot.Dals;
 using TrendingGiphyBot.Jobs;
 using TrendingGiphyBot.Enums;
@@ -55,23 +58,45 @@ namespace TrendingGiphyBot
                 await Task.Delay(-1);
             });
         }
+        async Task Ready()
+        {
+            var postImageJobs = BuildPostImageJobs();
+            _GlobalConfig.Jobs.AddRange(postImageJobs);
+            _GlobalConfig.Jobs.Add(new RefreshImagesJob(_Services, _GlobalConfig.Config.RefreshImageJobConfig.Interval, _GlobalConfig.Config.RefreshImageJobConfig.Time));
+            _GlobalConfig.Jobs.Add(new ReportStatsJob(_Services, _Logger, 1, Time.Minute));
+            _GlobalConfig.Jobs.ForEach(s => s.StartTimerWithCloseInterval());
+            await DiscordClient.SetGameAsync(_GlobalConfig.Config.PlayingGame);
+            await ReportStats();
+            DiscordClient.JoinedGuild += JoinedGuild;
+            DiscordClient.LeftGuild += LeftGuild;
+        }
         async Task JoinedGuild(SocketGuild arg)
         {
             if (await _GlobalConfig.JobConfigDal.Any(arg.DefaultChannel.Id))
                 await _GlobalConfig.JobConfigDal.Remove(arg.DefaultChannel.Id);
             var jobConfig = new JobConfig { ChannelId = arg.DefaultChannel.Id, Time = _GlobalConfig.Config.DefaultJobConfig.Time.ToString(), Interval = _GlobalConfig.Config.DefaultJobConfig.Interval };
             await _GlobalConfig.JobConfigDal.Insert(jobConfig);
+            await ReportStats();
             var welcomeMessage = $"Whoa cool! Thanks for the invite! I went ahead and set myself up for this channel to post a trending GIPHY GIF every {_GlobalConfig.Config.DefaultJobConfig.Interval} {_GlobalConfig.Config.DefaultJobConfig.Time}. Visit {_GlobalConfig.Config.GitHubUrl} for more details on how you can interact with me.";
             await arg.DefaultChannel.SendMessageAsync(welcomeMessage);
         }
-        async Task Ready()
+        async Task LeftGuild(SocketGuild arg)
         {
-            var postImageJobs = BuildPostImageJobs();
-            _GlobalConfig.Jobs.AddRange(postImageJobs);
-            _GlobalConfig.Jobs.Add(new RefreshImagesJob(_Services, _GlobalConfig.Config.RefreshImageJobConfig.Interval, _GlobalConfig.Config.RefreshImageJobConfig.Time));
-            _GlobalConfig.Jobs.ForEach(s => s.StartTimerWithCloseInterval());
-            await DiscordClient.SetGameAsync(_GlobalConfig.Config.PlayingGame);
-            DiscordClient.JoinedGuild += JoinedGuild;
+            if (await _GlobalConfig.JobConfigDal.Any(arg.DefaultChannel.Id))
+                await _GlobalConfig.JobConfigDal.Remove(arg.DefaultChannel.Id);
+            await ReportStats();
+        }
+        async Task ReportStats()
+        {
+            await _Logger.SwallowAsync(async () =>
+            {
+                using (var httpClient = new HttpClient())
+                using (var content = new StringContent($"{{\"server_count\":{_GlobalConfig.DiscordClient.Guilds.Count}}}", Encoding.UTF8, "application/json"))
+                {
+                    httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(_GlobalConfig.Config.DiscordBotsOrgToken);
+                    await httpClient.PostAsync($"https://discordbots.org/api/bots/{DiscordClient.CurrentUser.Id}/stats", content);
+                }
+            });
         }
         List<PostImageJob> BuildPostImageJobs()
         {
