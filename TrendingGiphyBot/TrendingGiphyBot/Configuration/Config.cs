@@ -8,7 +8,7 @@ using TrendingGiphyBot.Exceptions;
 
 namespace TrendingGiphyBot.Configuration
 {
-    class Config
+    public class Config
     {
         [JsonRequired]
         public string DiscordToken { get; set; }

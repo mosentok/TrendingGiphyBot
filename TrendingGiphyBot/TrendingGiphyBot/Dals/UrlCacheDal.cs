@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace TrendingGiphyBot.Dals
 {
-    class UrlCacheDal : Dal
+    public class UrlCacheDal : Dal
     {
         internal UrlCacheDal(string connectionString) : base(connectionString) { }
         internal Task<bool> Any(string url)

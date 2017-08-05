@@ -5,7 +5,7 @@ using TrendingGiphyBot.Enums;
 
 namespace TrendingGiphyBot.Dals
 {
-    class JobConfigDal : Dal
+    public class JobConfigDal : Dal
     {
         internal JobConfigDal(string connectionString) : base(connectionString) { }
         internal Task<JobConfig> Get(decimal id)

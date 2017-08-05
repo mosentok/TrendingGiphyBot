@@ -286,6 +286,7 @@
     <Compile Include="Helpers\IEnumerableExtensions.cs" />
     <Compile Include="Helpers\StringExtensions.cs" />
     <Compile Include="Helpers\TimeExtensions.cs" />
+    <Compile Include="Modules\LoggingModuleBase.cs" />
     <Compile Include="Jobs\PostImageJob.cs" />
     <Compile Include="Jobs\RefreshImagesJob.cs" />
     <Compile Include="Modules\JobConfigModule.cs" />
