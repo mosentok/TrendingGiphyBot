@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using GiphyDotNet.Model.Parameters;
 using NLog;
 using TrendingGiphyBot.Enums;
-using System.Net;
 using GiphyDotNet.Model.GiphyImage;
 
 namespace TrendingGiphyBot.Jobs
@@ -13,16 +12,12 @@ namespace TrendingGiphyBot.Jobs
         internal RefreshImagesJob(IServiceProvider services, int interval, Time time) : base(services, LogManager.GetCurrentClassLogger(), interval, time) { }
         protected override async Task Run()
         {
-            try
+            await Logger.SwallowAsync(async () =>
             {
                 var newTrendingGif = await FindNewTrendingGif();
                 if (newTrendingGif != null)
                     await GlobalConfig.UrlCacheDal.Insert(newTrendingGif.Url);
-            }
-            catch (WebException ex)
-            {
-                Logger.Error(ex);
-            }
+            });
         }
         async Task<Data> FindNewTrendingGif()
         {
