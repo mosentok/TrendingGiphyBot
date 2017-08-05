@@ -13,6 +13,8 @@ namespace TrendingGiphyBot.Configuration
         [JsonRequired]
         public string DiscordToken { get; set; }
         [JsonRequired]
+        public string DiscordBotsPwToken { get; set; }
+        [JsonRequired]
         public string DiscordBotsOrgToken { get; set; }
         [JsonRequired]
         public string GiphyToken { get; set; }
