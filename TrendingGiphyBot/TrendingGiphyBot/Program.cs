@@ -63,7 +63,6 @@ namespace TrendingGiphyBot
             var postImageJobs = BuildPostImageJobs();
             _GlobalConfig.Jobs.AddRange(postImageJobs);
             _GlobalConfig.Jobs.Add(new RefreshImagesJob(_Services, _GlobalConfig.Config.RefreshImageJobConfig.Interval, _GlobalConfig.Config.RefreshImageJobConfig.Time));
-            _GlobalConfig.Jobs.Add(new ReportStatsJob(_Services, _Logger, 1, Time.Minute));
             _GlobalConfig.Jobs.ForEach(s => s.StartTimerWithCloseInterval());
             await DiscordClient.SetGameAsync(_GlobalConfig.Config.PlayingGame);
             await ReportStats();
