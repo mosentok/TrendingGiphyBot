@@ -288,6 +288,7 @@
     <Compile Include="Helpers\TimeExtensions.cs" />
     <Compile Include="Jobs\PostImageJob.cs" />
     <Compile Include="Jobs\RefreshImagesJob.cs" />
+    <Compile Include="Jobs\ReportStatsJob.cs" />
     <Compile Include="Modules\JobConfigModule.cs" />
     <Compile Include="Jobs\Job.cs" />
     <Compile Include="Modules\MainModule.cs" />
