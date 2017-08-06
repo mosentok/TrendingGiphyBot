@@ -12,8 +12,8 @@ When a member of a Discord server, this bot posts the trending GIPHY GIF on a co
   - [Main Menu](https://github.com/mosentok/TrendingGiphyBot#main-menu)
   - [JobConfig](https://github.com/mosentok/TrendingGiphyBot#jobconfig)
   - [SetRandom](https://github.com/mosentok/TrendingGiphyBot#setrandom)
-  - [SetPrefix](https://github.com/mosentok/TrendingGiphyBot#setprefix)
   - [QuietHours](https://github.com/mosentok/TrendingGiphyBot#quiethours)
+  - [SetPrefix](https://github.com/mosentok/TrendingGiphyBot#setprefix)
 - [Shoutout to](https://github.com/mosentok/TrendingGiphyBot#shoutout-to)
 
 ## Invite
