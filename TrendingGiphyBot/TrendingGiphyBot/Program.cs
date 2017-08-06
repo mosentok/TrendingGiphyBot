@@ -219,7 +219,7 @@ namespace TrendingGiphyBot
         }
         public void Dispose()
         {
-            _GlobalConfig.Dispose();
+            _GlobalConfig?.Dispose();
         }
     }
 }
