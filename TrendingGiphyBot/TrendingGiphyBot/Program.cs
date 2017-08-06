@@ -141,21 +141,19 @@ namespace TrendingGiphyBot
         {
             await _Logger.SwallowAsync(async () =>
             {
-                if (messageParam is SocketUserMessage message && !message.Author.IsBot)
+                if (messageParam is SocketUserMessage message &&
+                    !message.Author.IsBot &&
+                    message.IsRecognizedModule(_ModuleNames))
                 {
-                    var isRecognizedModule = _ModuleNames.Any(s => message.Content.ContainsIgnoreCase(s));
-                    if (isRecognizedModule)
+                    var prefix = await DeterminePrefix(message);
+                    var argPos = 0;
+                    if (message.HasStringPrefix(prefix, ref argPos) ||
+                        message.HasMentionPrefix(DiscordClient.CurrentUser, ref argPos))
                     {
-                        var prefix = await DeterminePrefix(message);
-                        var argPos = 0;
-                        if (message.HasStringPrefix(prefix, ref argPos) ||
-                            message.HasMentionPrefix(DiscordClient.CurrentUser, ref argPos))
-                        {
-                            var context = new CommandContext(DiscordClient, message);
-                            var result = await _Commands.ExecuteAsync(context, argPos, _Services);
-                            if (!result.IsSuccess)
-                                await HandleError(context, result);
-                        }
+                        var context = new CommandContext(DiscordClient, message);
+                        var result = await _Commands.ExecuteAsync(context, argPos, _Services);
+                        if (!result.IsSuccess)
+                            await HandleError(context, result);
                     }
                 }
             });
