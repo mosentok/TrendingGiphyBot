@@ -284,6 +284,7 @@
     <Compile Include="Helpers\EmbedBuilderExtensions.cs" />
     <Compile Include="Helpers\JobConfigExtensions.cs" />
     <Compile Include="Helpers\IEnumerableExtensions.cs" />
+    <Compile Include="Helpers\SocketUserMessageExtensions.cs" />
     <Compile Include="Helpers\StringExtensions.cs" />
     <Compile Include="Helpers\TimeExtensions.cs" />
     <Compile Include="Modules\LoggingModuleBase.cs" />
