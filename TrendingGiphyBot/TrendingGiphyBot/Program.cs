@@ -141,7 +141,7 @@ namespace TrendingGiphyBot
         {
             await _Logger.SwallowAsync(async () =>
             {
-                if (messageParam is SocketUserMessage message)
+                if (messageParam is SocketUserMessage message && !message.Author.IsBot)
                 {
                     var isRecognizedModule = _ModuleNames.Any(s => message.Content.ContainsIgnoreCase(s));
                     if (isRecognizedModule)
