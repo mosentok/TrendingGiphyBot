@@ -85,8 +85,12 @@ namespace TrendingGiphyBot
             };
             await _GlobalConfig.JobConfigDal.Insert(jobConfig);
             await ReportStats();
-            var welcomeMessage = $"Whoa cool! Thanks for the invite! I went ahead and set myself up for this channel to post a trending GIPHY GIF every {_GlobalConfig.Config.DefaultJobConfig.Interval} {_GlobalConfig.Config.DefaultJobConfig.Time}. Visit {_GlobalConfig.Config.GitHubUrl} for more details on how you can interact with me.";
-            await arg.DefaultChannel.SendMessageAsync(welcomeMessage);
+            var builder = new StringBuilder("Whoa cool! Thanks for the invite!");
+            builder.AppendLine($"I went ahead and set myself up for this channel to post a trending GIPHY GIF every {_GlobalConfig.Config.DefaultJobConfig.Interval} {_GlobalConfig.Config.DefaultJobConfig.Time}.");
+            builder.AppendLine($"Please, don't let me annoy you! If {_GlobalConfig.Config.DefaultJobConfig.Interval} {_GlobalConfig.Config.DefaultJobConfig.Time} is too often or annoying, just turn me down.");
+            builder.AppendLine("You can also set quiet hours, so that I don't post, say, overnight while everyone's sleeping.");
+            builder.AppendLine($"Visit {_GlobalConfig.Config.GitHubUrl} on how you can interact with me.");
+            await arg.DefaultChannel.SendMessageAsync(builder.ToString());
         }
         async Task LeftGuild(SocketGuild arg)
         {
