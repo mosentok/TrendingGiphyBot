@@ -45,10 +45,6 @@ namespace TrendingGiphyBot
                     .AddSingleton<IGlobalConfig, GlobalConfig>()
                     .BuildServiceProvider();
                 _GlobalConfig = _Services.GetRequiredService<IGlobalConfig>();
-                _Commands = new CommandService();
-                await _Commands.AddModulesAsync(Assembly.GetEntryAssembly());
-                DetermineModuleNames();
-                DiscordClient.MessageReceived += MessageReceived;
                 DiscordClient.Log += Log;
                 DiscordClient.Ready += Ready;
                 await DiscordClient.LoginAsync(TokenType.Bot, _GlobalConfig.Config.DiscordToken);
@@ -56,14 +52,12 @@ namespace TrendingGiphyBot
                 await Task.Delay(-1);
             });
         }
-        void DetermineModuleNames()
-        {
-            var moduleNames = _Commands.Modules.Select(s => s.Name);
-            var aliases = _Commands.Modules.SelectMany(s => s.Aliases);
-            _ModuleNames = moduleNames.Concat(aliases).Distinct().ToList();
-        }
         async Task Ready()
         {
+            _Commands = new CommandService();
+            await _Commands.AddModulesAsync(Assembly.GetEntryAssembly());
+            DetermineModuleNames();
+            DiscordClient.MessageReceived += MessageReceived;
             var postImageJobs = BuildPostImageJobs();
             _GlobalConfig.Jobs.AddRange(postImageJobs);
             _GlobalConfig.Jobs.Add(new RefreshImagesJob(_Services, _GlobalConfig.Config.RefreshImageJobConfig.Interval, _GlobalConfig.Config.RefreshImageJobConfig.Time));
@@ -72,6 +66,13 @@ namespace TrendingGiphyBot
             await ReportStats();
             DiscordClient.JoinedGuild += JoinedGuild;
             DiscordClient.LeftGuild += LeftGuild;
+            DiscordClient.Ready -= Ready;
+        }
+        void DetermineModuleNames()
+        {
+            var moduleNames = _Commands.Modules.Select(s => s.Name);
+            var aliases = _Commands.Modules.SelectMany(s => s.Aliases);
+            _ModuleNames = moduleNames.Concat(aliases).Distinct().ToList();
         }
         async Task JoinedGuild(SocketGuild arg)
         {
