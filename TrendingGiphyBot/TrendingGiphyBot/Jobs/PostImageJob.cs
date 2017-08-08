@@ -58,12 +58,13 @@ namespace TrendingGiphyBot.Jobs
         }
         async Task PostChannelsWithRandomStringOff(List<JobConfig> jobConfigsWithRandomStringOff)
         {
-            await Logger.SwallowAsync(async () =>
-            {
-                var giphyRandomResult = await GlobalConfig.GiphyClient.RandomGif(new RandomParameter { Rating = GlobalConfig.Ratings });
-                foreach (var jobConfig in jobConfigsWithRandomStringOff)
-                    await PostRandomGif(jobConfig, giphyRandomResult.Data.Url);
-            });
+            if (jobConfigsWithRandomStringOff.Any())
+                await Logger.SwallowAsync(async () =>
+                {
+                    var giphyRandomResult = await GlobalConfig.GiphyClient.RandomGif(new RandomParameter { Rating = GlobalConfig.Ratings });
+                    foreach (var jobConfig in jobConfigsWithRandomStringOff)
+                        await PostRandomGif(jobConfig, giphyRandomResult.Data.Url);
+                });
         }
         async Task PostRandomGif(JobConfig jobConfig, string url)
         {
