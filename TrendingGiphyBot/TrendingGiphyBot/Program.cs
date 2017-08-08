@@ -85,7 +85,8 @@ namespace TrendingGiphyBot
             };
             await _GlobalConfig.JobConfigDal.Insert(jobConfig);
             await ReportStats();
-            var builder = new StringBuilder("Whoa cool! Thanks for the invite!");
+            var builder = new StringBuilder();
+            builder.AppendLine("Whoa cool! Thanks for the invite!");
             builder.AppendLine($"I went ahead and set myself up for this channel to post a trending GIPHY GIF every {_GlobalConfig.Config.DefaultJobConfig.Interval} {_GlobalConfig.Config.DefaultJobConfig.Time}.");
             builder.AppendLine($"Please, don't let me annoy you! If {_GlobalConfig.Config.DefaultJobConfig.Interval} {_GlobalConfig.Config.DefaultJobConfig.Time} is too often or annoying, just turn me down.");
             builder.AppendLine("You can also set quiet hours, so that I don't post, say, overnight while everyone's sleeping.");
