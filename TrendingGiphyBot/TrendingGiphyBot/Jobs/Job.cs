@@ -46,7 +46,7 @@ namespace TrendingGiphyBot.Jobs
             var interval = (nextElapse - now).TotalMilliseconds;
             _Timer.Interval = interval;
             _Timer.Start();
-            Logger.Info($"{_Name} next elapse: {nextElapse}.");
+            Logger.Trace($"{_Name} next elapse: {nextElapse}.");
         }
         DateTime DetermineNextElapse(DateTime now)
         {
