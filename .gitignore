@@ -272,3 +272,4 @@ __pycache__/
 /TrendingGiphyBot/TrendingGiphyBot/Properties/PublishProfiles
 /TrendingGiphyBot/TrendingGiphyBot/App.config
 /TrendingGiphyBot/TrendingGiphyBot/NLog.config
+/TrendingGiphyBot/TrendingGiphyBot/Properties/webjob-publish-settings.json
