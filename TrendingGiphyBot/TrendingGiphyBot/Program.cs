@@ -76,9 +76,7 @@ namespace TrendingGiphyBot
         }
         async Task JoinedGuild(SocketGuild arg)
         {
-            foreach (var id in arg.TextChannels.Select(s => s.Id))
-                if (await _GlobalConfig.JobConfigDal.Any(id))
-                    await _GlobalConfig.JobConfigDal.Remove(id);
+            await RemoveExistingJobConfigs(arg);
             var jobConfig = new JobConfig
             {
                 ChannelId = arg.DefaultChannel.Id,
@@ -97,10 +95,15 @@ namespace TrendingGiphyBot
         }
         async Task LeftGuild(SocketGuild arg)
         {
+            await RemoveExistingJobConfigs(arg);
+        }
+        async Task RemoveExistingJobConfigs(SocketGuild arg)
+        {
             foreach (var id in arg.TextChannels.Select(s => s.Id))
                 if (await _GlobalConfig.JobConfigDal.Any(id))
                     await _GlobalConfig.JobConfigDal.Remove(id);
-            await ReportStats();
+            if (await _GlobalConfig.JobConfigDal.Any(arg.Id))
+                await _GlobalConfig.JobConfigDal.Remove(arg.Id);
         }
         async Task ReportStats()
         {
