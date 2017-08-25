@@ -19,19 +19,18 @@ namespace TrendingGiphyBot.Jobs
             if (await GlobalConfig.UrlCacheDal.Any())
             {
                 var latestUrl = await GlobalConfig.UrlCacheDal.GetLatestUrl();
-                var jobConfigs = await GetLiveJobConfigs();
-                var jobConfigsNotInQuietHours = jobConfigs.Where(s => !s.IsInQuietHours()).ToList();
+                var jobConfigsNotInQuietHours = (await GetLiveJobConfigs()).Where(s => !s.IsInQuietHours()).ToList();
                 var jobConfigsJustPostedTo = await PostChannelsNotInQuietHours(jobConfigsNotInQuietHours, latestUrl);
                 var remainingJobConfigs = jobConfigsNotInQuietHours.Except(jobConfigsJustPostedTo).Where(s => s.RandomIsOn).ToList();
                 var jobConfigsWithRandomStringOn = remainingJobConfigs.Where(s => !string.IsNullOrEmpty(s.RandomSearchString)).ToList();
-                await PostChannelsWithRandomStringOn(jobConfigsWithRandomStringOn);
                 var jobConfigsWithRandomStringOff = remainingJobConfigs.Except(jobConfigsWithRandomStringOn).ToList();
+                await PostChannelsWithRandomStringOn(jobConfigsWithRandomStringOn);
                 await PostChannelsWithRandomStringOff(jobConfigsWithRandomStringOff);
             }
         }
         async Task<IEnumerable<JobConfig>> GetLiveJobConfigs()
         {
-            var liveChannelIds = GlobalConfig.DiscordClient.Guilds.SelectMany(s => s.TextChannels).Select(s => s.Id);
+            var liveChannelIds = GlobalConfig.DiscordClient.Guilds.SelectMany(s => s.TextChannels).Select(s => s.Id).ToList();
             return (await GlobalConfig.JobConfigDal.Get(Interval, Time))
                 .Where(s => liveChannelIds.Contains(s.ChannelId.ToULong()));
         }
