@@ -15,14 +15,14 @@ namespace TrendingGiphyBot.Configuration
 {
     class GlobalConfig : IGlobalConfig
     {
-        public Config Config { get; set; }
-        public JobConfigDal JobConfigDal { get; set; }
-        public UrlCacheDal UrlCacheDal { get; set; }
-        public UrlHistoryDal UrlHistoryDal { get; set; }
-        public ChannelConfigDal ChannelConfigDal { get; set; }
-        public Giphy GiphyClient { get; set; }
-        public DiscordSocketClient DiscordClient { get; set; }
-        public JobManager JobManager { get; set; }
+        public Config Config { get; }
+        public JobConfigDal JobConfigDal { get; }
+        public UrlCacheDal UrlCacheDal { get; }
+        public UrlHistoryDal UrlHistoryDal { get; }
+        public ChannelConfigDal ChannelConfigDal { get; }
+        public Giphy GiphyClient { get; }
+        public DiscordSocketClient DiscordClient { get; }
+        public JobManager JobManager { get; }
         static readonly Rating _Ratings = Enum.GetValues(typeof(Rating)).OfType<Rating>().Where(s => s != Rating.R).Aggregate((a, b) => a | b);
         public Rating Ratings => _Ratings;
         public GlobalConfig()
@@ -33,6 +33,7 @@ namespace TrendingGiphyBot.Configuration
             UrlHistoryDal = new UrlHistoryDal(Config.ConnectionString);
             ChannelConfigDal = new ChannelConfigDal(Config.ConnectionString);
             GiphyClient = new Giphy(Config.GiphyToken);
+            JobManager = new JobManager(this);
             var configgedLogSeverities = Config.LogSeverities.Aggregate((a, b) => a | b);
             DiscordClient = new DiscordSocketClient(new DiscordSocketConfig { LogLevel = configgedLogSeverities });
         }

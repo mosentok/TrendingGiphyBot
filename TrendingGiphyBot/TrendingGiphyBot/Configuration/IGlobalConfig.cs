@@ -10,14 +10,14 @@ namespace TrendingGiphyBot.Configuration
 {
     public interface IGlobalConfig : IDisposable
     {
-        Config Config { get; set; }
-        JobConfigDal JobConfigDal { get; set; }
-        UrlCacheDal UrlCacheDal { get; set; }
-        UrlHistoryDal UrlHistoryDal { get; set; }
-        ChannelConfigDal ChannelConfigDal { get; set; }
-        Giphy GiphyClient { get; set; }
-        DiscordSocketClient DiscordClient { get; set; }
-        JobManager JobManager { get; set; }
+        Config Config { get; }
+        JobConfigDal JobConfigDal { get; }
+        UrlCacheDal UrlCacheDal { get; }
+        UrlHistoryDal UrlHistoryDal { get; }
+        ChannelConfigDal ChannelConfigDal { get; }
+        Giphy GiphyClient { get; }
+        DiscordSocketClient DiscordClient { get; }
+        JobManager JobManager { get; }
         Rating Ratings { get; }
         Task RefreshConfig();
     }
