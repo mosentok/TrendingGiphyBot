@@ -21,6 +21,8 @@ namespace TrendingGiphyBot.Jobs
             var postImageJobs = BuildPostImageJobs();
             _Jobs.AddRange(postImageJobs);
             _Jobs.Add(new RefreshImagesJob(_GlobalConfig, Config.RefreshImageJobConfig.Interval, Config.RefreshImageJobConfig.Time));
+            _Jobs.Add(new DeleteOldUrlCachesJob(_GlobalConfig, Config.DeleteOldUrlCachesJobConfig.Interval, Config.DeleteOldUrlCachesJobConfig.Time));
+            _Jobs.Add(new DeleteOldUrlHistoriesJob(_GlobalConfig, Config.DeleteOldUrlHistoriesJobConfig.Interval, Config.DeleteOldUrlHistoriesJobConfig.Time));
             _Jobs.ForEach(s => s.StartTimerWithCloseInterval());
         }
         List<PostImageJob> BuildPostImageJobs()
