@@ -41,6 +41,7 @@ namespace TrendingGiphyBot.Configuration
         {
             await SetConfig();
             JobManager.Ready();
+            await DiscordClient.SetGameAsync(Config.PlayingGame);
         }
         async Task SetConfig()
         {
