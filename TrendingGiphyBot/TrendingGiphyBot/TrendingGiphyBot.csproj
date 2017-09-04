@@ -287,6 +287,8 @@
     <Compile Include="Helpers\SocketUserMessageExtensions.cs" />
     <Compile Include="Helpers\StringExtensions.cs" />
     <Compile Include="Helpers\TimeExtensions.cs" />
+    <Compile Include="Jobs\DeleteOldUrlCachesJob.cs" />
+    <Compile Include="Jobs\DeleteOldUrlHistoriesJob.cs" />
     <Compile Include="Jobs\JobManager.cs" />
     <Compile Include="Modules\LoggingModuleBase.cs" />
     <Compile Include="Jobs\PostImageJob.cs" />
