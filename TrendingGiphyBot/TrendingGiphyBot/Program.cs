@@ -104,6 +104,8 @@ namespace TrendingGiphyBot
                     await _GlobalConfig.JobConfigDal.Remove(id);
             if (await _GlobalConfig.JobConfigDal.Any(arg.Id))
                 await _GlobalConfig.JobConfigDal.Remove(arg.Id);
+            if (arg.DefaultChannel != null && await _GlobalConfig.JobConfigDal.Any(arg.DefaultChannel.Id))
+                await _GlobalConfig.JobConfigDal.Remove(arg.DefaultChannel.Id);
         }
         async Task ReportStats()
         {
@@ -152,7 +154,8 @@ namespace TrendingGiphyBot
         {
             await _Logger.SwallowAsync(async () =>
             {
-                if (messageParam is SocketUserMessage message &&
+                if (messageParam.Channel is SocketTextChannel &&
+                    messageParam is SocketUserMessage message &&
                     !message.Author.IsBot &&
                     message.IsRecognizedModule(_ModuleNames))
                 {
