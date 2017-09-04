@@ -62,6 +62,7 @@ namespace TrendingGiphyBot
             _GlobalConfig.Jobs.AddRange(postImageJobs);
             _GlobalConfig.Jobs.Add(new RefreshImagesJob(_Services, _GlobalConfig.Config.RefreshImageJobConfig.Interval, _GlobalConfig.Config.RefreshImageJobConfig.Time));
             _GlobalConfig.Jobs.Add(new DeleteOldUrlHistoriesJob(_Services, _GlobalConfig.Config.DeleteOldUrlHistoriesJobConfig.Interval, _GlobalConfig.Config.DeleteOldUrlHistoriesJobConfig.Time));
+            _GlobalConfig.Jobs.Add(new DeleteOldUrlCachesJob(_Services, _GlobalConfig.Config.DeleteOldUrlCachesJobConfig.Interval, _GlobalConfig.Config.DeleteOldUrlCachesJobConfig.Time));
             _GlobalConfig.Jobs.ForEach(s => s.StartTimerWithCloseInterval());
             await DiscordClient.SetGameAsync(_GlobalConfig.Config.PlayingGame);
             await ReportStats();
