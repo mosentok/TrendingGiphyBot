@@ -1,5 +1,4 @@
 ﻿using Discord.WebSocket;
-using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using System;
 using System.Diagnostics.CodeAnalysis;
@@ -20,9 +19,9 @@ namespace TrendingGiphyBot.Jobs
         protected DiscordSocketClient DiscordClient { get; }
         protected int Interval { get; }
         protected Time Time { get; }
-        protected Job(IServiceProvider services, ILogger logger, int interval, Time time)
+        protected Job(IGlobalConfig globalConfig, ILogger logger, int interval, Time time)
         {
-            GlobalConfig = services.GetRequiredService<IGlobalConfig>();
+            GlobalConfig = globalConfig;
             DiscordClient = GlobalConfig.DiscordClient;
             Interval = interval;
             Time = time;

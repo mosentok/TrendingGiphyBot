@@ -1,7 +1,6 @@
 ﻿using System;
 using GiphyDotNet.Manager;
 using Newtonsoft.Json;
-using System.Collections.Generic;
 using System.Configuration;
 using TrendingGiphyBot.Dals;
 using TrendingGiphyBot.Jobs;
@@ -22,23 +21,27 @@ namespace TrendingGiphyBot.Configuration
         public UrlHistoryDal UrlHistoryDal { get; set; }
         public ChannelConfigDal ChannelConfigDal { get; set; }
         public Giphy GiphyClient { get; set; }
-        public List<Job> Jobs { get; set; }
         public DiscordSocketClient DiscordClient { get; set; }
+        public JobManager JobManager { get; set; }
         static readonly Rating _Ratings = Enum.GetValues(typeof(Rating)).OfType<Rating>().Where(s => s != Rating.R).Aggregate((a, b) => a | b);
         public Rating Ratings => _Ratings;
         public GlobalConfig()
         {
-            RefreshConfig().Wait();
+            SetConfig().Wait();
             JobConfigDal = new JobConfigDal(Config.ConnectionString);
             UrlCacheDal = new UrlCacheDal(Config.ConnectionString);
             UrlHistoryDal = new UrlHistoryDal(Config.ConnectionString);
             ChannelConfigDal = new ChannelConfigDal(Config.ConnectionString);
             GiphyClient = new Giphy(Config.GiphyToken);
-            Jobs = new List<Job>();
             var configgedLogSeverities = Config.LogSeverities.Aggregate((a, b) => a | b);
             DiscordClient = new DiscordSocketClient(new DiscordSocketConfig { LogLevel = configgedLogSeverities });
         }
         public async Task RefreshConfig()
+        {
+            await SetConfig();
+            JobManager.Ready();
+        }
+        async Task SetConfig()
         {
             var connectionString = ConfigurationManager.AppSettings["connectionString"];
             var containerName = ConfigurationManager.AppSettings["containerName"];
@@ -51,7 +54,7 @@ namespace TrendingGiphyBot.Configuration
         {
             DiscordClient?.LogoutAsync().Wait();
             DiscordClient?.Dispose();
-            Jobs?.ForEach(s => s?.Dispose());
+            JobManager?.Dispose();
         }
     }
 }

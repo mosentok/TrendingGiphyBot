@@ -1,11 +1,11 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Discord.WebSocket;
 using TrendingGiphyBot.Dals;
 using NLog;
 using System.Collections.Generic;
 using System.Linq;
 using GiphyDotNet.Model.Parameters;
+using TrendingGiphyBot.Configuration;
 using TrendingGiphyBot.Enums;
 using TrendingGiphyBot.Helpers;
 
@@ -13,7 +13,7 @@ namespace TrendingGiphyBot.Jobs
 {
     class PostImageJob : Job
     {
-        internal PostImageJob(IServiceProvider services, int interval, Time time) : base(services, LogManager.GetCurrentClassLogger(), interval, time) { }
+        internal PostImageJob(IGlobalConfig globalConfig, int interval, Time time) : base(globalConfig, LogManager.GetCurrentClassLogger(), interval, time) { }
         protected override async Task Run()
         {
             if (await GlobalConfig.UrlCacheDal.Any())

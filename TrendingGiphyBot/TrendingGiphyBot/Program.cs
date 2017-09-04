@@ -11,8 +11,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using TrendingGiphyBot.Dals;
-using TrendingGiphyBot.Jobs;
-using TrendingGiphyBot.Enums;
 using NLog;
 using TrendingGiphyBot.Containers;
 using TrendingGiphyBot.Configuration;
@@ -58,10 +56,7 @@ namespace TrendingGiphyBot
             await _Commands.AddModulesAsync(Assembly.GetEntryAssembly());
             DetermineModuleNames();
             DiscordClient.MessageReceived += MessageReceived;
-            var postImageJobs = BuildPostImageJobs();
-            _GlobalConfig.Jobs.AddRange(postImageJobs);
-            _GlobalConfig.Jobs.Add(new RefreshImagesJob(_Services, _GlobalConfig.Config.RefreshImageJobConfig.Interval, _GlobalConfig.Config.RefreshImageJobConfig.Time));
-            _GlobalConfig.Jobs.ForEach(s => s.StartTimerWithCloseInterval());
+            _GlobalConfig.JobManager.Ready();
             await DiscordClient.SetGameAsync(_GlobalConfig.Config.PlayingGame);
             await ReportStats();
             DiscordClient.JoinedGuild += JoinedGuild;
@@ -124,31 +119,6 @@ namespace TrendingGiphyBot
                     await httpClient.PostAsync(requestUri, stringContent);
                 }
             });
-        }
-        List<PostImageJob> BuildPostImageJobs()
-        {
-            var postImageJobs = new List<PostImageJob>();
-            //TODO all these foreachs bug me
-            foreach (var second in _GlobalConfig.Config.ValidSeconds)
-            {
-                AddJob(postImageJobs, second, Time.Second);
-                AddJob(postImageJobs, second, Time.Seconds);
-            }
-            foreach (var minute in _GlobalConfig.Config.ValidMinutes)
-            {
-                AddJob(postImageJobs, minute, Time.Minute);
-                AddJob(postImageJobs, minute, Time.Minutes);
-            }
-            foreach (var hour in _GlobalConfig.Config.ValidHours)
-            {
-                AddJob(postImageJobs, hour, Time.Hour);
-                AddJob(postImageJobs, hour, Time.Hours);
-            }
-            return postImageJobs;
-        }
-        void AddJob(List<PostImageJob> postImageJobs, int interval, Time time)
-        {
-            postImageJobs.Add(new PostImageJob(_Services, interval, time));
         }
         async Task MessageReceived(SocketMessage messageParam)
         {
