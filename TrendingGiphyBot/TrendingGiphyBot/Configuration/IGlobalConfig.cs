@@ -1,7 +1,6 @@
 ﻿using Discord.WebSocket;
 using GiphyDotNet.Manager;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using GiphyDotNet.Model.Parameters;
 using TrendingGiphyBot.Dals;
@@ -17,8 +16,8 @@ namespace TrendingGiphyBot.Configuration
         UrlHistoryDal UrlHistoryDal { get; set; }
         ChannelConfigDal ChannelConfigDal { get; set; }
         Giphy GiphyClient { get; set; }
-        List<Job> Jobs { get; set; }
         DiscordSocketClient DiscordClient { get; set; }
+        JobManager JobManager { get; set; }
         Rating Ratings { get; }
         Task RefreshConfig();
     }
