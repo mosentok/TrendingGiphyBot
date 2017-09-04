@@ -15,7 +15,7 @@ namespace TrendingGiphyBot.Configuration
 {
     class GlobalConfig : IGlobalConfig
     {
-        public Config Config { get; }
+        public Config Config { get; set; }
         public JobConfigDal JobConfigDal { get; }
         public UrlCacheDal UrlCacheDal { get; }
         public UrlHistoryDal UrlHistoryDal { get; }
