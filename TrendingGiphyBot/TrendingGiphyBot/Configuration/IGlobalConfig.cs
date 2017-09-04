@@ -10,7 +10,7 @@ namespace TrendingGiphyBot.Configuration
 {
     public interface IGlobalConfig : IDisposable
     {
-        Config Config { get; }
+        Config Config { get; set; }
         JobConfigDal JobConfigDal { get; }
         UrlCacheDal UrlCacheDal { get; }
         UrlHistoryDal UrlHistoryDal { get; }
