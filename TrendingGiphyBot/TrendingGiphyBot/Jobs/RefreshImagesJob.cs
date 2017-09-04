@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
 using GiphyDotNet.Model.Parameters;
 using NLog;
-using TrendingGiphyBot.Enums;
 using GiphyDotNet.Model.GiphyImage;
 using TrendingGiphyBot.Configuration;
 
@@ -9,7 +8,7 @@ namespace TrendingGiphyBot.Jobs
 {
     class RefreshImagesJob : Job
     {
-        internal RefreshImagesJob(IGlobalConfig globalConfig, int interval, Time time) : base(globalConfig, LogManager.GetCurrentClassLogger(), interval, time) { }
+        internal RefreshImagesJob(IGlobalConfig globalConfig, SubJobConfig subJobConfig) : base(globalConfig, LogManager.GetCurrentClassLogger(), subJobConfig) { }
         protected override async Task Run()
         {
             await Logger.SwallowAsync(async () =>
