@@ -19,6 +19,7 @@ namespace TrendingGiphyBot.Jobs
         protected DiscordSocketClient DiscordClient { get; }
         protected int Interval { get; }
         protected Time Time { get; }
+        protected Job(IGlobalConfig globalConfig, ILogger logger, SubJobConfig subJobConfig) : this(globalConfig, logger, subJobConfig.Interval, subJobConfig.Time) { }
         protected Job(IGlobalConfig globalConfig, ILogger logger, int interval, Time time)
         {
             GlobalConfig = globalConfig;
