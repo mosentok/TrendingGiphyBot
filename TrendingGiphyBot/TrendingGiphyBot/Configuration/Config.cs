@@ -48,6 +48,10 @@ namespace TrendingGiphyBot.Configuration
         public ulong OwnerId { get; set; }
         [JsonRequired]
         public SubJobConfig DefaultJobConfig { get; set; }
+        [JsonRequired]
+        public SubJobConfig DeleteOldUrlHistoriesJobConfig { get; set; }
+        [JsonRequired]
+        public ushort UrlHistoriesMaxDaysOld { get; set; }
         internal JobConfigState DetermineJobConfigState(int interval, Time time)
         {
             var minSeconds = DetermineConfiggedSeconds(MinJobConfig);
