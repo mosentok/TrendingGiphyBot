@@ -56,6 +56,10 @@ namespace TrendingGiphyBot.Configuration
         public SubJobConfig DeleteOldUrlCachesJobConfig { get; set; }
         [JsonRequired]
         public ushort UrlCachesMaxDaysOld { get; set; }
+        [JsonRequired]
+        public EmbedConfig WelcomeMessage { get; set; }
+        [JsonRequired]
+        public EmbedConfig HelpMessage { get; set; }
         internal JobConfigState DetermineJobConfigState(int interval, Time time)
         {
             var minSeconds = DetermineConfiggedSeconds(MinJobConfig);

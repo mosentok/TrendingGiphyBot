@@ -7,6 +7,7 @@ using TrendingGiphyBot.Jobs;
 using Discord.WebSocket;
 using System.Linq;
 using System.Threading.Tasks;
+using Discord;
 using GiphyDotNet.Model.Parameters;
 using Microsoft.WindowsAzure.Storage;
 using NLog;
@@ -25,6 +26,8 @@ namespace TrendingGiphyBot.Configuration
         public JobManager JobManager { get; }
         static readonly Rating _Ratings = Enum.GetValues(typeof(Rating)).OfType<Rating>().Where(s => s != Rating.R).Aggregate((a, b) => a | b);
         public Rating Ratings => _Ratings;
+        public Lazy<Embed> WelcomeMessagEmbed { get; private set; }
+        public Lazy<Embed> HelpMessagEmbed { get; private set; }
         public GlobalConfig()
         {
             SetConfig().Wait();
@@ -51,6 +54,32 @@ namespace TrendingGiphyBot.Configuration
             var config = await CloudStorageAccount.Parse(connectionString).CreateCloudBlobClient().GetContainerReference(containerName).GetBlockBlobReference(blobName).DownloadTextAsync();
             LogManager.GetCurrentClassLogger().Trace(config);
             Config = JsonConvert.DeserializeObject<Config>(config);
+            WelcomeMessagEmbed = new Lazy<Embed>(GetWelcomeMessageEmbed);
+            HelpMessagEmbed = new Lazy<Embed>(GetHelpMessageEmbed);
+        }
+        Embed GetWelcomeMessageEmbed()
+        {
+            var welcomeMessage = Config.WelcomeMessage;
+            var author = new EmbedAuthorBuilder()
+                .WithName(welcomeMessage.Author.Name)
+                .WithUrl(welcomeMessage.Author.Url);
+            var field = new EmbedFieldBuilder()
+                .WithName(welcomeMessage.Field.Name)
+                .WithValue(welcomeMessage.Field.Value);
+            return new EmbedBuilder()
+                .WithDescription(welcomeMessage.Description)
+                .WithImageUrl(welcomeMessage.ImageUrl)
+                .WithAuthor(author)
+                .AddField(field)
+                .Build();
+        }
+        Embed GetHelpMessageEmbed()
+        {
+            var helpMessage = Config.HelpMessage;
+            return new EmbedBuilder()
+                .WithDescription(helpMessage.Description)
+                .WithImageUrl(helpMessage.ImageUrl)
+                .Build();
         }
         public void Dispose()
         {
