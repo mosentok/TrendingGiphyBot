@@ -277,6 +277,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\Author.cs" />
+    <Compile Include="Configuration\EmbedConfig.cs" />
+    <Compile Include="Configuration\Field.cs" />
     <Compile Include="Configuration\GlobalConfig.cs" />
     <Compile Include="Configuration\IGlobalConfig.cs" />
     <Compile Include="Configuration\SubJobConfig.cs" />
