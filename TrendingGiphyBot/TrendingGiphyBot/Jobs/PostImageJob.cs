@@ -1,9 +1,11 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Discord.WebSocket;
 using TrendingGiphyBot.Dals;
 using NLog;
 using System.Collections.Generic;
 using System.Linq;
+using Discord.Net;
 using GiphyDotNet.Model.Parameters;
 using TrendingGiphyBot.Configuration;
 using TrendingGiphyBot.Enums;
@@ -73,12 +75,20 @@ namespace TrendingGiphyBot.Jobs
         }
         async Task PostGif(decimal channelId, string url, string message, SocketTextChannel socketTextChannel)
         {
-            await Logger.SwallowAsync(async () =>
+            try
             {
                 await socketTextChannel.SendMessageAsync(message);
                 var history = new UrlHistory { ChannelId = channelId, Url = url };
                 await GlobalConfig.UrlHistoryDal.Insert(history);
-            });
+            }
+            catch (HttpException httpException)
+            {
+                Logger.Error(httpException.Message);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+            }
         }
     }
 }
