@@ -4,6 +4,7 @@ using GiphyDotNet.Model.Parameters;
 using NLog;
 using GiphyDotNet.Model.GiphyImage;
 using TrendingGiphyBot.Configuration;
+using TrendingGiphyBot.Helpers;
 
 namespace TrendingGiphyBot.Jobs
 {
@@ -22,11 +23,7 @@ namespace TrendingGiphyBot.Jobs
         {
             var trendingParameter = new TrendingParameter { Rating = GlobalConfig.Ratings };
             var gifResult = await GlobalConfig.GiphyClient.TrendingGifs(trendingParameter);
-            var results = new List<Data>();
-            foreach (var data in gifResult.Data)
-                if (!await GlobalConfig.UrlCacheDal.Any(data.Url))
-                    results.Add(data);
-            return results;
+            return await gifResult.Data.Where(async s => !await GlobalConfig.UrlCacheDal.Any(s.Url));
         }
     }
 }

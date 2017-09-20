@@ -93,14 +93,13 @@ namespace TrendingGiphyBot.Modules
         }
         async Task UpdateJobConfigTable(JobConfig config)
         {
-            var any = await GlobalConfig.JobConfigDal.Any(Context.Channel.Id);
-            if (any)
+            if (await GlobalConfig.JobConfigDal.Any(Context.Channel.Id))
                 await GlobalConfig.JobConfigDal.Update(config);
             else
                 await GlobalConfig.JobConfigDal.Insert(config);
         }
         static string InvalidConfigMessage(Time time, List<int> validValues) =>
-            $"When {nameof(Time)} is {time}, interval must be {validValues.Join(", ")}.";
+            $"When {nameof(Time)} is {time}, interval must be {validValues.FlattenWith(", ")}.";
         static string InvalidConfigRangeMessage(SubJobConfig minConfig, SubJobConfig maxConfig) =>
             $"Interval must be between {minConfig.Interval} {minConfig.Time} and {maxConfig.Interval} {maxConfig.Time}.";
     }

@@ -1,10 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace TrendingGiphyBot.Helpers
 {
     static class IEnumerableExtensions
     {
-        internal static string Join(this IEnumerable<int> ints, string separator) => string.Join(separator, ints);
-        internal static string Join(this IEnumerable<string> ints, string separator) => string.Join(separator, ints);
+        internal static string FlattenWith<T>(this IEnumerable<T> values, string separator) => string.Join(separator, values);
+        internal static async Task<List<TSource>> Where<TSource>(this IEnumerable<TSource> source, Func<TSource, Task<bool>> predicate)
+        {
+            var results = new List<TSource>();
+            foreach (var element in source)
+                if (await predicate(element))
+                    results.Add(element);
+            return results;
+        }
     }
 }
