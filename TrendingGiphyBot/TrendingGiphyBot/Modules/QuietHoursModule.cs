@@ -53,7 +53,7 @@ namespace TrendingGiphyBot.Modules
                     MinQuietHour = minQuietHour,
                     MaxQuietHour = maxQuietHour
                 };
-                await UpdateJobConfig(config);
+                await UpdateQuietHours(config);
             }
             else
                 await ReplyAsync(NotConfiguredMessage);
@@ -69,7 +69,7 @@ namespace TrendingGiphyBot.Modules
                     MinQuietHour = null,
                     MaxQuietHour = null
                 };
-                await UpdateJobConfig(config);
+                await UpdateQuietHours(config);
             }
             else
                 await ReplyAsync(NotConfiguredMessage);
@@ -96,7 +96,7 @@ namespace TrendingGiphyBot.Modules
                 newHour = newHour + 24;
             return (short)newHour;
         }
-        async Task UpdateJobConfig(JobConfig config)
+        async Task UpdateQuietHours(JobConfig config)
         {
             await GlobalConfig.JobConfigDal.UpdateQuietHours(config);
             await Get();
