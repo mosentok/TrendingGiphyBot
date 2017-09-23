@@ -22,20 +22,12 @@ namespace TrendingGiphyBot
     class Program : IDisposable
     {
         static readonly ILogger _Logger = LogManager.GetCurrentClassLogger();
-        CommandService _Commands;
-        IServiceProvider _Services;
-        IGlobalConfig _GlobalConfig;
-        DiscordSocketClient DiscordClient => _GlobalConfig.DiscordClient;
-        List<string> _ModuleNames;
-        static void Main()
-        {
-            _Logger.Swallow(() =>
-            {
-                using (var program = new Program())
-                    program.MainAsync().GetAwaiter().GetResult();
-            });
-        }
-        async Task MainAsync()
+        static CommandService _Commands;
+        static IServiceProvider _Services;
+        static IGlobalConfig _GlobalConfig;
+        static DiscordSocketClient DiscordClient => _GlobalConfig.DiscordClient;
+        static List<string> _ModuleNames;
+        static async Task Main()
         {
             await _Logger.SwallowAsync(async () =>
             {
@@ -50,7 +42,7 @@ namespace TrendingGiphyBot
                 await Task.Delay(-1);
             });
         }
-        async Task Ready()
+        static async Task Ready()
         {
             _Commands = new CommandService();
             await _Commands.AddModulesAsync(Assembly.GetEntryAssembly());
@@ -63,13 +55,13 @@ namespace TrendingGiphyBot
             DiscordClient.LeftGuild += LeftGuild;
             DiscordClient.Ready -= Ready;
         }
-        void DetermineModuleNames()
+        static void DetermineModuleNames()
         {
             var moduleNames = _Commands.Modules.Select(s => s.Name);
             var aliases = _Commands.Modules.SelectMany(s => s.Aliases);
             _ModuleNames = moduleNames.Concat(aliases).Distinct().ToList();
         }
-        async Task JoinedGuild(SocketGuild arg)
+        static async Task JoinedGuild(SocketGuild arg)
         {
             await RemoveThisGuildsJobConfigs(arg);
             var jobConfig = new JobConfig
@@ -82,11 +74,11 @@ namespace TrendingGiphyBot
             await ReportStats();
             await arg.DefaultChannel.SendMessageAsync(string.Empty, embed: _GlobalConfig.WelcomeMessagEmbed.Value);
         }
-        async Task LeftGuild(SocketGuild arg)
+        static async Task LeftGuild(SocketGuild arg)
         {
             await RemoveThisGuildsJobConfigs(arg);
         }
-        async Task RemoveThisGuildsJobConfigs(SocketGuild arg)
+        static async Task RemoveThisGuildsJobConfigs(SocketGuild arg)
         {
             var toRemove = await arg.TextChannels.Select(s => s.Id).Where(async s => await _GlobalConfig.JobConfigDal.Any(s));
             foreach (var id in toRemove)
@@ -96,7 +88,7 @@ namespace TrendingGiphyBot
             if (arg.DefaultChannel != null && await _GlobalConfig.JobConfigDal.Any(arg.DefaultChannel.Id))
                 await _GlobalConfig.JobConfigDal.Remove(arg.DefaultChannel.Id);
         }
-        async Task ReportStats()
+        static async Task ReportStats()
         {
             var content = $"{{\"server_count\":{_GlobalConfig.DiscordClient.Guilds.Count}}}";
             await ReportStats(content, $"https://discordbots.org/api/bots/{DiscordClient.CurrentUser.Id}/stats", _GlobalConfig.Config.DiscordBotsOrgToken);
@@ -114,7 +106,7 @@ namespace TrendingGiphyBot
                 }
             });
         }
-        async Task MessageReceived(SocketMessage messageParam)
+        static async Task MessageReceived(SocketMessage messageParam)
         {
             await _Logger.SwallowAsync(async () =>
             {
@@ -136,7 +128,7 @@ namespace TrendingGiphyBot
                 }
             });
         }
-        async Task<string> DeterminePrefix(SocketUserMessage message)
+        static async Task<string> DeterminePrefix(SocketUserMessage message)
         {
             if (await _GlobalConfig.ChannelConfigDal.Any(message.Channel.Id))
                 return await _GlobalConfig.ChannelConfigDal.GetPrefix(message.Channel.Id);
