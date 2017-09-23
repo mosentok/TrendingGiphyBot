@@ -4,6 +4,7 @@ using System;
 using System.Threading.Tasks;
 using NLog;
 using TrendingGiphyBot.Dals;
+using TrendingGiphyBot.Helpers;
 
 namespace TrendingGiphyBot.Modules
 {
@@ -30,11 +31,8 @@ namespace TrendingGiphyBot.Modules
                     .WithName($"{Context.Channel.Name}'s {_Name}")
                     .WithIconUrl(avatarUrl);
                 var embedBuilder = new EmbedBuilder()
-                    .WithAuthor(author);
-                var minQuietHour = UndoHourOffset(config.MinQuietHour);
-                var maxQuietHour = UndoHourOffset(config.MaxQuietHour);
-                embedBuilder = AddQuietHour(embedBuilder, nameof(config.MinQuietHour), minQuietHour);
-                embedBuilder = AddQuietHour(embedBuilder, nameof(config.MaxQuietHour), maxQuietHour);
+                    .WithAuthor(author)
+                    .WithQuietHourFields(config, GlobalConfig.Config.HourOffset);
                 await ReplyAsync(string.Empty, embed: embedBuilder);
             }
             else
@@ -45,13 +43,11 @@ namespace TrendingGiphyBot.Modules
         {
             if (await GlobalConfig.JobConfigDal.Any(Context.Channel.Id))
             {
-                var minQuietHour = ApplyHourOffset(minHour);
-                var maxQuietHour = ApplyHourOffset(maxHour);
                 var config = new JobConfig
                 {
                     ChannelId = Context.Channel.Id,
-                    MinQuietHour = minQuietHour,
-                    MaxQuietHour = maxQuietHour
+                    MinQuietHour = ApplyHourOffset(minHour),
+                    MaxQuietHour = ApplyHourOffset(maxHour)
                 };
                 await UpdateJobConfig(config);
             }
@@ -74,40 +70,11 @@ namespace TrendingGiphyBot.Modules
             else
                 await ReplyAsync(NotConfiguredMessage);
         }
-        short? UndoHourOffset(short? hour)
-        {
-            if (hour.HasValue)
-            {
-                var newHour = hour - GlobalConfig.Config.HourOffset;
-                if (newHour >= 24)
-                    newHour = newHour - 24;
-                else if (newHour < 0)
-                    newHour = newHour + 24;
-                return (short)newHour;
-            }
-            return null;
-        }
-        short ApplyHourOffset(short hour)
-        {
-            var newHour = hour + GlobalConfig.Config.HourOffset;
-            if (newHour >= 24)
-                newHour = newHour - 24;
-            else if (newHour < 0)
-                newHour = newHour + 24;
-            return (short)newHour;
-        }
+        short ApplyHourOffset(short hour) => (short)((hour + GlobalConfig.Config.HourOffset) % 24);
         async Task UpdateJobConfig(JobConfig config)
         {
             await GlobalConfig.JobConfigDal.UpdateQuietHours(config);
             await Get();
-        }
-        static EmbedBuilder AddQuietHour(EmbedBuilder embedBuilder, string name, short? quietHour)
-        {
-            if (quietHour.HasValue)
-                return embedBuilder
-                    .AddInlineField(name, quietHour.Value);
-            return embedBuilder
-                .AddInlineField(name, "null");
         }
     }
 }

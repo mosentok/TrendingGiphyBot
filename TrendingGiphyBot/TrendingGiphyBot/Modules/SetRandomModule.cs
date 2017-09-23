@@ -33,9 +33,8 @@ namespace TrendingGiphyBot.Modules
                     .WithIconUrl(avatarUrl);
                 var embedBuilder = new EmbedBuilder()
                     .WithAuthor(author)
-                    .AddInlineField(nameof(config.RandomIsOn), config.RandomIsOn);
-                var embed = embedBuilder.AddInlineJobConfigField(config);
-                await ReplyAsync(string.Empty, embed: embed);
+                    .WithRandomConfigFields(config);
+                await ReplyAsync(string.Empty, embed: embedBuilder);
             }
             else
                 await ReplyAsync(NotConfiguredMessage);
