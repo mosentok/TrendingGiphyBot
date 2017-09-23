@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -7,13 +8,10 @@ namespace TrendingGiphyBot.Dals
     public class UrlHistoryDal : Dal
     {
         internal UrlHistoryDal(string connectionString) : base(connectionString) { }
-        internal Task<bool> Any(decimal channelId, string url)
+        internal async Task<bool> Any(decimal channelId, string url)
         {
-            return Task.Run(() =>
-            {
-                using (var entities = new TrendingGiphyBotEntities(ConnectionString))
-                    return entities.UrlHistories.Any(s => s.ChannelId == channelId && s.Url == url);
-            });
+            using (var entities = new TrendingGiphyBotEntities(ConnectionString))
+                return await entities.UrlHistories.AnyAsync(s => s.ChannelId == channelId && s.Url == url);
         }
         internal async Task Insert(UrlHistory urlHistory)
         {

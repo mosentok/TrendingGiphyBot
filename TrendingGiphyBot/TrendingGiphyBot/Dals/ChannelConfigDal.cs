@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Data.Entity;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace TrendingGiphyBot.Dals
@@ -6,21 +7,15 @@ namespace TrendingGiphyBot.Dals
     public class ChannelConfigDal : Dal
     {
         internal ChannelConfigDal(string connectionString) : base(connectionString) { }
-        internal Task<bool> Any(ulong channelId)
+        internal async Task<bool> Any(ulong channelId)
         {
-            return Task.Run(() =>
-            {
-                using (var entities = new TrendingGiphyBotEntities(ConnectionString))
-                    return entities.ChannelConfigs.Any(s => s.ChannelId == channelId);
-            });
+            using (var entities = new TrendingGiphyBotEntities(ConnectionString))
+                return await entities.ChannelConfigs.AnyAsync(s => s.ChannelId == channelId);
         }
-        internal Task<string> GetPrefix(ulong channelId)
+        internal async Task<string> GetPrefix(ulong channelId)
         {
-            return Task.Run(() =>
-            {
-                using (var entities = new TrendingGiphyBotEntities(ConnectionString))
-                    return entities.ChannelConfigs.Single(s => s.ChannelId == channelId).Prefix;
-            });
+            using (var entities = new TrendingGiphyBotEntities(ConnectionString))
+                return (await entities.ChannelConfigs.SingleAsync(s => s.ChannelId == channelId)).Prefix;
         }
         internal async Task SetPrefix(ulong channelId, string prefix)
         {
