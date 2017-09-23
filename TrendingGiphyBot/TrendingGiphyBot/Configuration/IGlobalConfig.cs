@@ -11,7 +11,7 @@ namespace TrendingGiphyBot.Configuration
 {
     public interface IGlobalConfig : IDisposable
     {
-        Config Config { get; set; }
+        Config Config { get; }
         JobConfigDal JobConfigDal { get; }
         UrlCacheDal UrlCacheDal { get; }
         UrlHistoryDal UrlHistoryDal { get; }

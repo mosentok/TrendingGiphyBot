@@ -20,9 +20,9 @@ namespace TrendingGiphyBot.Jobs
         {
             if (await GlobalConfig.UrlCacheDal.Any())
             {
-                var latestUrl = await GlobalConfig.UrlCacheDal.GetLatestUrl();
+                var latestUrls = await GlobalConfig.UrlCacheDal.GetLatestUrls();
                 var jobConfigsNotInQuietHours = (await GetLiveJobConfigs()).Where(s => !s.IsInQuietHours()).ToList();
-                var jobConfigsJustPostedTo = await PostChannelsNotInQuietHours(jobConfigsNotInQuietHours, latestUrl);
+                var jobConfigsJustPostedTo = await PostChannelsNotInQuietHours(jobConfigsNotInQuietHours, latestUrls);
                 var remainingJobConfigs = jobConfigsNotInQuietHours.Except(jobConfigsJustPostedTo).Where(s => s.RandomIsOn).ToList();
                 var jobConfigsWithRandomStringOn = remainingJobConfigs.Where(s => !string.IsNullOrEmpty(s.RandomSearchString)).ToList();
                 var jobConfigsWithRandomStringOff = remainingJobConfigs.Except(jobConfigsWithRandomStringOn).ToList();
@@ -33,19 +33,21 @@ namespace TrendingGiphyBot.Jobs
         async Task<IEnumerable<JobConfig>> GetLiveJobConfigs()
         {
             var liveChannelIds = GlobalConfig.DiscordClient.Guilds.SelectMany(s => s.TextChannels).Select(s => s.Id).ToList();
-            return (await GlobalConfig.JobConfigDal.Get(Interval, Time))
-                .Where(s => liveChannelIds.Contains(s.ChannelId.ToULong()));
+            return (await GlobalConfig.JobConfigDal.Get(Interval, Time)).Where(s => liveChannelIds.Contains(s.ChannelId.ToULong()));
         }
-        async Task<List<JobConfig>> PostChannelsNotInQuietHours(List<JobConfig> jobConfigsNotInQuietHours, string url)
+        async Task<List<JobConfig>> PostChannelsNotInQuietHours(List<JobConfig> jobConfigsNotInQuietHours, List<string> urls)
         {
+            //TODO this is some ugly code and atm idk how to refactor it...
             var channelsPostedTo = new List<JobConfig>();
             foreach (var jobConfig in jobConfigsNotInQuietHours)
-                if (!await GlobalConfig.UrlHistoryDal.Any(jobConfig.ChannelId, url)
-                    && DiscordClient.GetChannel(jobConfig.ChannelId.ToULong()) is SocketTextChannel socketTextChannel)
-                {
-                    await PostGif(jobConfig.ChannelId, url, $"*Trending!* {url}", socketTextChannel);
-                    channelsPostedTo.Add(jobConfig);
-                }
+                foreach (var url in urls)
+                    if (!await GlobalConfig.UrlHistoryDal.Any(jobConfig.ChannelId, url)
+                        && DiscordClient.GetChannel(jobConfig.ChannelId.ToULong()) is SocketTextChannel socketTextChannel)
+                    {
+                        await PostGif(jobConfig.ChannelId, url, $"*Trending!* {url}", socketTextChannel);
+                        channelsPostedTo.Add(jobConfig);
+                        break;
+                    }
             return channelsPostedTo;
         }
         async Task PostChannelsWithRandomStringOn(List<JobConfig> jobConfigsWithRandomStringOn)
