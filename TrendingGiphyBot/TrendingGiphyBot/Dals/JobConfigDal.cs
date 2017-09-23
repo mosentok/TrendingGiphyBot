@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using TrendingGiphyBot.Enums;
@@ -8,29 +9,20 @@ namespace TrendingGiphyBot.Dals
     public class JobConfigDal : Dal
     {
         internal JobConfigDal(string connectionString) : base(connectionString) { }
-        internal Task<JobConfig> Get(decimal id)
+        internal async Task<JobConfig> Get(decimal id)
         {
-            return Task.Run(() =>
-            {
-                using (var entities = new TrendingGiphyBotEntities(ConnectionString))
-                    return entities.JobConfigs.SingleOrDefault(s => s.ChannelId == id);
-            });
+            using (var entities = new TrendingGiphyBotEntities(ConnectionString))
+                return await entities.JobConfigs.SingleOrDefaultAsync(s => s.ChannelId == id);
         }
-        internal Task<bool> Any(decimal id)
+        internal async Task<bool> Any(decimal id)
         {
-            return Task.Run(() =>
-            {
-                using (var entities = new TrendingGiphyBotEntities(ConnectionString))
-                    return entities.JobConfigs.Any(s => s.ChannelId == id);
-            });
+            using (var entities = new TrendingGiphyBotEntities(ConnectionString))
+                return await entities.JobConfigs.AnyAsync(s => s.ChannelId == id);
         }
-        internal Task<List<JobConfig>> Get(int interval, Time time)
+        internal async Task<List<JobConfig>> Get(int interval, Time time)
         {
-            return Task.Run(() =>
-            {
-                using (var entities = new TrendingGiphyBotEntities(ConnectionString))
-                    return entities.JobConfigs.Where(s => s.Interval == interval && s.Time == time.ToString()).ToList();
-            });
+            using (var entities = new TrendingGiphyBotEntities(ConnectionString))
+                return await entities.JobConfigs.Where(s => s.Interval == interval && s.Time == time.ToString()).ToListAsync();
         }
         internal async Task Insert(JobConfig config)
         {
