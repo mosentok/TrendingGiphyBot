@@ -36,8 +36,9 @@ namespace TrendingGiphyBot.Dals
         {
             return Task.Run(() =>
             {
+                var yesterday = DateTime.Now.AddDays(-1);
                 using (var entities = new TrendingGiphyBotEntities(ConnectionString))
-                    return entities.UrlCaches.Where(s => s.Stamp >= DateTime.Now.AddDays(-1)).Select(s => s.Url).ToList();
+                    return entities.UrlCaches.Where(s => s.Stamp >= yesterday).Select(s => s.Url).ToList();
             });
         }
         internal async Task DeleteOlderThan(DateTime oldestDate)
