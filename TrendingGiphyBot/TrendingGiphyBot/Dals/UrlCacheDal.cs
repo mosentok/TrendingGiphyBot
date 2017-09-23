@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -31,12 +32,12 @@ namespace TrendingGiphyBot.Dals
                 await entities.SaveChangesAsync();
             }
         }
-        internal Task<string> GetLatestUrl()
+        internal Task<List<string>> GetLatestUrls()
         {
             return Task.Run(() =>
             {
                 using (var entities = new TrendingGiphyBotEntities(ConnectionString))
-                    return entities.UrlCaches.OrderByDescending(s => s.Stamp).FirstOrDefault()?.Url;
+                    return entities.UrlCaches.Where(s => s.Stamp >= DateTime.Now.AddDays(-1)).Select(s => s.Url).ToList();
             });
         }
         internal async Task DeleteOlderThan(DateTime oldestDate)

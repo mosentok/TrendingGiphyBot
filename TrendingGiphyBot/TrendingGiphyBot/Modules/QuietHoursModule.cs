@@ -49,7 +49,7 @@ namespace TrendingGiphyBot.Modules
                     MinQuietHour = ApplyHourOffset(minHour),
                     MaxQuietHour = ApplyHourOffset(maxHour)
                 };
-                await UpdateJobConfig(config);
+                await UpdateQuietHours(config);
             }
             else
                 await ReplyAsync(NotConfiguredMessage);
@@ -65,7 +65,7 @@ namespace TrendingGiphyBot.Modules
                     MinQuietHour = null,
                     MaxQuietHour = null
                 };
-                await UpdateJobConfig(config);
+                await UpdateQuietHours(config);
             }
             else
                 await ReplyAsync(NotConfiguredMessage);

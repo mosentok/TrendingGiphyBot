@@ -1,8 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using GiphyDotNet.Model.Parameters;
 using NLog;
 using GiphyDotNet.Model.GiphyImage;
 using TrendingGiphyBot.Configuration;
+using TrendingGiphyBot.Helpers;
 
 namespace TrendingGiphyBot.Jobs
 {
@@ -13,19 +15,15 @@ namespace TrendingGiphyBot.Jobs
         {
             await Logger.SwallowAsync(async () =>
             {
-                var newTrendingGif = await FindNewTrendingGif();
-                if (newTrendingGif != null)
-                    await GlobalConfig.UrlCacheDal.Insert(newTrendingGif.Url);
+                var results = await FindNewTrendingGifs();
+                results.ForEach(async s => await GlobalConfig.UrlCacheDal.Insert(s.Url));
             });
         }
-        async Task<Data> FindNewTrendingGif()
+        async Task<List<Data>> FindNewTrendingGifs()
         {
             var trendingParameter = new TrendingParameter { Rating = GlobalConfig.Ratings };
             var gifResult = await GlobalConfig.GiphyClient.TrendingGifs(trendingParameter);
-            foreach (var data in gifResult.Data)
-                if (!await GlobalConfig.UrlCacheDal.Any(data.Url))
-                    return data;
-            return null;
+            return await gifResult.Data.Where(async s => !await GlobalConfig.UrlCacheDal.Any(s.Url));
         }
     }
 }

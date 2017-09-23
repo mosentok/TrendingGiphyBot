@@ -21,11 +21,11 @@ namespace TrendingGiphyBot.Modules
             }
         }
         [Command(nameof(SetGame))]
-        public async Task SetGame(params string[] searchValues)
+        public async Task SetGame(params string[] literalSentenceToSetAsGame)
         {
             if (Context.User.Id == GlobalConfig.Config.OwnerId)
             {
-                var game = DetermineGame(searchValues);
+                var game = DetermineGame(literalSentenceToSetAsGame);
                 if (!string.IsNullOrEmpty(game))
                 {
                     await GlobalConfig.DiscordClient.SetGameAsync(game);
@@ -33,10 +33,10 @@ namespace TrendingGiphyBot.Modules
                 }
             }
         }
-        static string DetermineGame(string[] searchValues)
+        static string DetermineGame(string[] words)
         {
-            if (searchValues.Any())
-                return searchValues.Join(" ");
+            if (words.Any())
+                return words.FlattenWith(" ");
             return null;
         }
     }
