@@ -7,6 +7,7 @@ When a member of a Discord server, this bot posts the trending GIPHY GIF on a co
 
 ## Table of Contents
 
+- [What is Trending Giphy Bot?](https://github.com/mosentok/TrendingGiphyBot#What%20is%20Trending%20Giphy%20Bot%3F)
 - [Invite](https://github.com/mosentok/TrendingGiphyBot#invite)
 - [Commands](https://github.com/mosentok/TrendingGiphyBot#commands)
   - [Main Menu](https://github.com/mosentok/TrendingGiphyBot#main-menu)
@@ -15,6 +16,10 @@ When a member of a Discord server, this bot posts the trending GIPHY GIF on a co
   - [QuietHours](https://github.com/mosentok/TrendingGiphyBot#quiethours)
   - [SetPrefix](https://github.com/mosentok/TrendingGiphyBot#setprefix)
 - [Shoutout to](https://github.com/mosentok/TrendingGiphyBot#shoutout-to)
+
+## What is Trending Giphy Bot?
+
+Trending Giphy Bot is a bot that posts trending gifs on its own. It's meant to just sit in your Discord server and post however often you want it to. It's a bot that you'll probably rarely interact with except initially setting it up and maybe tweaking it later.
 
 ## Invite
 
