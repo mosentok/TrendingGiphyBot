@@ -80,7 +80,7 @@ namespace TrendingGiphyBot
         }
         static async Task RemoveThisGuildsJobConfigs(SocketGuild arg)
         {
-            var toRemove = await arg.TextChannels.Select(s => s.Id).Where(async s => await _GlobalConfig.JobConfigDal.Any(s));
+            var toRemove = await arg.TextChannels.Select(s => s.Id).WhereAsync(async s => await _GlobalConfig.JobConfigDal.Any(s));
             foreach (var id in toRemove)
                 await _GlobalConfig.JobConfigDal.Remove(id);
             if (await _GlobalConfig.JobConfigDal.Any(arg.Id))

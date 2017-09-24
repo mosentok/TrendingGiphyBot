@@ -37,18 +37,20 @@ namespace TrendingGiphyBot.Jobs
         }
         async Task<List<JobConfig>> PostChannelsNotInQuietHours(List<JobConfig> jobConfigsNotInQuietHours, List<string> urls)
         {
-            //TODO this is some ugly code and atm idk how to refactor it...
             var channelsPostedTo = new List<JobConfig>();
             foreach (var jobConfig in jobConfigsNotInQuietHours)
-                foreach (var url in urls)
-                    if (!await GlobalConfig.UrlHistoryDal.Any(jobConfig.ChannelId, url)
-                        && DiscordClient.GetChannel(jobConfig.ChannelId.ToULong()) is SocketTextChannel socketTextChannel)
-                    {
-                        await PostGif(jobConfig.ChannelId, url, $"*Trending!* {url}", socketTextChannel);
-                        channelsPostedTo.Add(jobConfig);
-                        break;
-                    }
+                if (DiscordClient.GetChannel(jobConfig.ChannelId.ToULong()) is SocketTextChannel socketTextChannel)
+                    await PostFirstNewGif(urls, channelsPostedTo, jobConfig, socketTextChannel);
             return channelsPostedTo;
+        }
+        async Task PostFirstNewGif(List<string> urls, List<JobConfig> channelsPostedTo, JobConfig jobConfig, SocketTextChannel socketTextChannel)
+        {
+            var url = await urls.FirstOrDefaultAsync(async s => !await GlobalConfig.UrlHistoryDal.Any(jobConfig.ChannelId, s));
+            if (url != default)
+            {
+                await PostGif(jobConfig.ChannelId, url, $"*Trending!* {url}", socketTextChannel);
+                channelsPostedTo.Add(jobConfig);
+            }
         }
         async Task PostChannelsWithRandomStringOn(List<JobConfig> jobConfigsWithRandomStringOn)
         {
