@@ -348,6 +348,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Configuration\Config.cs" />
     <Compile Include="Enums\Time.cs" />
+    <Compile Include="Bot.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Properties\webjob-publish-settings.json" />
