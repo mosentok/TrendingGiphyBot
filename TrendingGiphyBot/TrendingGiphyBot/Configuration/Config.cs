@@ -13,10 +13,6 @@ namespace TrendingGiphyBot.Configuration
         [JsonRequired]
         public string DiscordToken { get; set; }
         [JsonRequired]
-        public string DiscordBotsPwToken { get; set; }
-        [JsonRequired]
-        public string DiscordBotsOrgToken { get; set; }
-        [JsonRequired]
         public string GiphyToken { get; set; }
         [JsonRequired]
         public string ConnectionString { get; set; }
@@ -60,6 +56,7 @@ namespace TrendingGiphyBot.Configuration
         public EmbedConfig WelcomeMessage { get; set; }
         [JsonRequired]
         public EmbedConfig HelpMessage { get; set; }
+        public List<StatPost> StatPosts { get; set; }
         internal JobConfigState DetermineJobConfigState(int interval, Time time)
         {
             var minSeconds = DetermineConfiggedSeconds(MinJobConfig);

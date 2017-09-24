@@ -16,7 +16,8 @@ namespace TrendingGiphyBot.Jobs
             await Logger.SwallowAsync(async () =>
             {
                 var results = await FindNewTrendingGifs();
-                results.ForEach(async s => await GlobalConfig.UrlCacheDal.Insert(s.Url));
+                foreach (var result in results)
+                    await GlobalConfig.UrlCacheDal.Insert(result.Url);
             });
         }
         async Task<List<Data>> FindNewTrendingGifs()
