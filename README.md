@@ -7,7 +7,7 @@ When a member of a Discord server, this bot posts the trending GIPHY GIF on a co
 
 ## Table of Contents
 
-- [What is Trending Giphy Bot?](https://github.com/mosentok/TrendingGiphyBot#What%20is%20Trending%20Giphy%20Bot%3F)
+- [What is Trending Giphy Bot?](https://github.com/mosentok/TrendingGiphyBot#what-is-trending-giphy-bot)
 - [Invite](https://github.com/mosentok/TrendingGiphyBot#invite)
 - [Commands](https://github.com/mosentok/TrendingGiphyBot#commands)
   - [Main Menu](https://github.com/mosentok/TrendingGiphyBot#main-menu)
