@@ -46,7 +46,7 @@ namespace TrendingGiphyBot
             DiscordClient.MessageReceived += MessageReceived;
             _GlobalConfig.JobManager.Ready();
             await DiscordClient.SetGameAsync(_GlobalConfig.Config.PlayingGame);
-            await ReportStats();
+            await PostStats();
             DiscordClient.JoinedGuild += JoinedGuild;
             DiscordClient.LeftGuild += LeftGuild;
             DiscordClient.Ready -= Ready;
@@ -67,12 +67,13 @@ namespace TrendingGiphyBot
                 Time = _GlobalConfig.Config.DefaultJobConfig.Time.ToString()
             };
             await _GlobalConfig.JobConfigDal.Insert(jobConfig);
-            await ReportStats();
+            await PostStats();
             await arg.DefaultChannel.SendMessageAsync(string.Empty, embed: _GlobalConfig.WelcomeMessagEmbed.Value);
         }
         async Task LeftGuild(SocketGuild arg)
         {
             await RemoveThisGuildsJobConfigs(arg);
+            await PostStats();
         }
         async Task RemoveThisGuildsJobConfigs(SocketGuild arg)
         {
@@ -84,20 +85,22 @@ namespace TrendingGiphyBot
             if (arg.DefaultChannel != null && await _GlobalConfig.JobConfigDal.Any(arg.DefaultChannel.Id))
                 await _GlobalConfig.JobConfigDal.Remove(arg.DefaultChannel.Id);
         }
-        async Task ReportStats()
+        async Task PostStats()
         {
-            var content = $"{{\"server_count\":{_GlobalConfig.DiscordClient.Guilds.Count}}}";
-            await ReportStats(content, $"https://discordbots.org/api/bots/{DiscordClient.CurrentUser.Id}/stats", _GlobalConfig.Config.DiscordBotsOrgToken);
-            await ReportStats(content, $"https://bots.discord.pw/api/bots/{DiscordClient.CurrentUser.Id}/stats", _GlobalConfig.Config.DiscordBotsPwToken);
+            if (_GlobalConfig.Config.StatPosts != null)
+                foreach (var statPost in _GlobalConfig.Config.StatPosts)
+                    await PostStat(statPost);
         }
-        async Task ReportStats(string content, string requestUri, string token)
+        async Task PostStat(StatPost statPost)
         {
             await _Logger.SwallowAsync(async () =>
             {
+                var content = $"{{\"server_count\":{_GlobalConfig.DiscordClient.Guilds.Count}}}";
+                var requestUri = string.Format(statPost.UrlStringFormat, DiscordClient.CurrentUser.Id);
                 using (var httpClient = new HttpClient())
                 using (var stringContent = new StringContent(content, Encoding.UTF8, "application/json"))
                 {
-                    httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(token);
+                    httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(statPost.Token);
                     await httpClient.PostAsync(requestUri, stringContent);
                 }
             });

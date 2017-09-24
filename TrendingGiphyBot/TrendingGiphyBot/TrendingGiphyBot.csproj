@@ -284,6 +284,7 @@
     <Compile Include="Configuration\Field.cs" />
     <Compile Include="Configuration\GlobalConfig.cs" />
     <Compile Include="Configuration\IGlobalConfig.cs" />
+    <Compile Include="Configuration\StatPost.cs" />
     <Compile Include="Configuration\SubJobConfig.cs" />
     <Compile Include="Containers\ErrorResult.cs" />
     <Compile Include="Dals\ChannelConfig.cs">
