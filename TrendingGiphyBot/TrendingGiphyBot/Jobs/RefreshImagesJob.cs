@@ -23,7 +23,7 @@ namespace TrendingGiphyBot.Jobs
         {
             var trendingParameter = new TrendingParameter { Rating = GlobalConfig.Ratings };
             var gifResult = await GlobalConfig.GiphyClient.TrendingGifs(trendingParameter);
-            return await gifResult.Data.Where(async s => !await GlobalConfig.UrlCacheDal.Any(s.Url));
+            return await gifResult.Data.WhereAsync(async s => !await GlobalConfig.UrlCacheDal.Any(s.Url));
         }
     }
 }
