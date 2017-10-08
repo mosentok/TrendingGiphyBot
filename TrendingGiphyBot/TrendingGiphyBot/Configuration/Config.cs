@@ -57,6 +57,8 @@ namespace TrendingGiphyBot.Configuration
         [JsonRequired]
         public EmbedConfig HelpMessage { get; set; }
         public List<StatPost> StatPosts { get; set; }
+        [JsonRequired]
+        public ushort IntervalOffsetSeconds { get; set; }
         internal JobConfigState DetermineJobConfigState(int interval, Time time)
         {
             var minSeconds = DetermineConfiggedSeconds(MinJobConfig);

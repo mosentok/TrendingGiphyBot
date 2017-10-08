@@ -43,7 +43,7 @@ namespace TrendingGiphyBot.Jobs
         {
             var now = DateTime.Now;
             var nextElapse = DetermineNextElapse(now);
-            var interval = (nextElapse - now).TotalMilliseconds;
+            var interval = (nextElapse - now + TimeSpan.FromSeconds(GlobalConfig.Config.IntervalOffsetSeconds)).TotalMilliseconds;
             _Timer.Interval = interval;
             _Timer.Start();
             Logger.Trace($"{_Name} next elapse: {nextElapse}.");
@@ -74,6 +74,7 @@ namespace TrendingGiphyBot.Jobs
         [SuppressMessage("Microsoft.Usage", "CA2213:DisposableFieldsShouldBeDisposed", MessageId = "_Timer")]
         public void Dispose()
         {
+            _Timer?.Stop();
             _Timer?.Dispose();
         }
     }
