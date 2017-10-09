@@ -88,9 +88,9 @@ namespace TrendingGiphyBot.Jobs
                 var history = new UrlHistory { ChannelId = channelId, Url = url };
                 await GlobalConfig.UrlHistoryDal.Insert(history);
             }
-            catch (HttpException httpException)
+            catch (HttpException httpException) when (httpException.Message == "The server responded with error 50013: Missing Permissions" || httpException.Message == "The server responded with error 50001: Missing Access")
             {
-                Logger.Error(httpException.Message);
+                Logger.Warn(httpException.Message);
             }
             catch (Exception ex)
             {
