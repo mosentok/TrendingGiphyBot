@@ -109,10 +109,9 @@ namespace TrendingGiphyBot
         {
             await _Logger.SwallowAsync(async () =>
             {
-                if (messageParam.Channel is SocketTextChannel &&
-                    messageParam is SocketUserMessage message &&
-                    !message.Author.IsBot &&
-                    message.IsRecognizedModule(_ModuleNames))
+                if (messageParam.IsRecognizedModule(_ModuleNames) &&
+                    !messageParam.Author.IsBot &&
+                    messageParam is SocketUserMessage message)
                 {
                     var prefix = await DeterminePrefix(message);
                     var argPos = 0;
