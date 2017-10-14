@@ -1,6 +1,7 @@
 ﻿using Discord.WebSocket;
 using GiphyDotNet.Manager;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Discord;
 using GiphyDotNet.Model.Parameters;
@@ -23,5 +24,6 @@ namespace TrendingGiphyBot.Configuration
         Task RefreshConfig();
         Lazy<Embed> WelcomeMessagEmbed { get; }
         Lazy<Embed> HelpMessagEmbed { get; }
+        List<string> LatestUrls { get; set; }
     }
 }

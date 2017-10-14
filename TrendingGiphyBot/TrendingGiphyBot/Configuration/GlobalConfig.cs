@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using GiphyDotNet.Manager;
 using Newtonsoft.Json;
 using System.Configuration;
@@ -28,6 +29,7 @@ namespace TrendingGiphyBot.Configuration
         public Rating Ratings => _Ratings;
         public Lazy<Embed> WelcomeMessagEmbed { get; private set; }
         public Lazy<Embed> HelpMessagEmbed { get; private set; }
+        public List<string> LatestUrls { get; set; }
         public GlobalConfig()
         {
             SetConfig().Wait();
@@ -36,6 +38,7 @@ namespace TrendingGiphyBot.Configuration
             UrlHistoryDal = new UrlHistoryDal(Config.ConnectionString);
             ChannelConfigDal = new ChannelConfigDal(Config.ConnectionString);
             GiphyClient = new Giphy(Config.GiphyToken);
+            LatestUrls = UrlCacheDal.GetLatestUrls().Result;
             JobManager = new JobManager(this);
             var configgedLogSeverities = Config.LogSeverities.Aggregate((a, b) => a | b);
             DiscordClient = new DiscordSocketClient(new DiscordSocketConfig { LogLevel = configgedLogSeverities });

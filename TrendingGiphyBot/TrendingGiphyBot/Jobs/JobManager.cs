@@ -29,7 +29,8 @@ namespace TrendingGiphyBot.Jobs
         List<PostImageJob> BuildPostImageJobs() => BuildPostImageJobs(Config.ValidSeconds, Time.Second, Time.Seconds)
             .Concat(BuildPostImageJobs(Config.ValidMinutes, Time.Minute, Time.Minutes))
             .Concat(BuildPostImageJobs(Config.ValidHours, Time.Hour, Time.Hours)).ToList();
-        IEnumerable<PostImageJob> BuildPostImageJobs(List<int> validIntervals, params Time[] times) => times.SelectMany(t => validIntervals.Select(s => new PostImageJob(_GlobalConfig, s, t)));
+        IEnumerable<PostImageJob> BuildPostImageJobs(List<int> validIntervals, params Time[] times) =>
+            times.SelectMany(time => validIntervals.Select(interval => new PostImageJob(_GlobalConfig, new SubJobConfig(interval, time))));
         public void Dispose()
         {
             _Jobs.ForEach(s => s?.Dispose());
