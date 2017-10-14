@@ -1,5 +1,5 @@
 # TrendingGiphyBot
-When a member of a Discord server, this bot posts the trending GIPHY GIF on a configurable job timer.
+Stay up to date with the latest trending gifs, right inside Discord.
 
 &nbsp;|&nbsp;
 -|-
