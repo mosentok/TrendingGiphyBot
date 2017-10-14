@@ -19,13 +19,14 @@ namespace TrendingGiphyBot.Jobs
         protected DiscordSocketClient DiscordClient { get; }
         protected int Interval { get; }
         protected Time Time { get; }
-        protected Job(IGlobalConfig globalConfig, ILogger logger, SubJobConfig subJobConfig) : this(globalConfig, logger, subJobConfig.Interval, subJobConfig.Time) { }
-        protected Job(IGlobalConfig globalConfig, ILogger logger, int interval, Time time)
+        readonly ushort _IntervalOffsetSeconds;
+        protected Job(IGlobalConfig globalConfig, ILogger logger, SubJobConfig subJobConfig)
         {
             GlobalConfig = globalConfig;
             DiscordClient = GlobalConfig.DiscordClient;
-            Interval = interval;
-            Time = time;
+            Interval = subJobConfig.Interval;
+            Time = subJobConfig.Time;
+            _IntervalOffsetSeconds = subJobConfig.IntervalOffsetSeconds;
             Logger = logger;
             _Timer = new Timer();
             _Timer.Elapsed += Elapsed;
@@ -43,8 +44,7 @@ namespace TrendingGiphyBot.Jobs
         {
             var now = DateTime.Now;
             var nextElapse = DetermineNextElapse(now);
-            var interval = (nextElapse - now + TimeSpan.FromSeconds(GlobalConfig.Config.IntervalOffsetSeconds)).TotalMilliseconds;
-            _Timer.Interval = interval;
+            _Timer.Interval = (nextElapse - now + TimeSpan.FromSeconds(GlobalConfig.Config.IntervalOffsetSeconds + _IntervalOffsetSeconds)).TotalMilliseconds;
             _Timer.Start();
             Logger.Trace($"{_Name} next elapse: {nextElapse}.");
         }
