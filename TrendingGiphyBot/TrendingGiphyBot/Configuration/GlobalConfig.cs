@@ -63,18 +63,18 @@ namespace TrendingGiphyBot.Configuration
         Embed GetWelcomeMessageEmbed()
         {
             var welcomeMessage = Config.WelcomeMessage;
-            var author = new EmbedAuthorBuilder()
-                .WithName(welcomeMessage.Author.Name)
-                .WithUrl(welcomeMessage.Author.Url);
-            var field = new EmbedFieldBuilder()
-                .WithName(welcomeMessage.Field.Name)
-                .WithValue(welcomeMessage.Field.Value);
-            return new EmbedBuilder()
+            var embedBuilder = new EmbedBuilder()
                 .WithDescription(welcomeMessage.Description)
-                .WithImageUrl(welcomeMessage.ImageUrl)
-                .WithAuthor(author)
-                .AddField(field)
-                .Build();
+                .WithImageUrl(welcomeMessage.ImageUrl);
+            if (welcomeMessage.Author != null)
+                embedBuilder.Author = new EmbedAuthorBuilder()
+                    .WithName(welcomeMessage.Author.Name)
+                    .WithUrl(welcomeMessage.Author.Url);
+            if (welcomeMessage.Field != null)
+                embedBuilder.Fields.Add(new EmbedFieldBuilder()
+                    .WithName(welcomeMessage.Field.Name)
+                    .WithValue(welcomeMessage.Field.Value));
+            return embedBuilder.Build();
         }
         Embed GetHelpMessageEmbed()
         {
