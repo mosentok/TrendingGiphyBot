@@ -158,7 +158,7 @@ namespace TrendingGiphyBot
         }
         Task Log(LogMessage logMessage)
         {
-            var message = logMessage.ToString();
+            var message = logMessage.ToString(prependTimestamp: false, padSource: 0);
             switch (logMessage.Severity)
             {
                 case LogSeverity.Debug:
