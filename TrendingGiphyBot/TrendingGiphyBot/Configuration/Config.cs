@@ -61,6 +61,8 @@ namespace TrendingGiphyBot.Configuration
         public ushort IntervalOffsetSeconds { get; set; }
         [JsonRequired]
         public List<string> UrlsToIgnore { get; set; }
+        [JsonRequired]
+        public List<string> HttpExceptionsToWarn { get; set; }
         internal JobConfigState DetermineJobConfigState(int interval, Time time)
         {
             var minSeconds = DetermineConfiggedSeconds(MinJobConfig);

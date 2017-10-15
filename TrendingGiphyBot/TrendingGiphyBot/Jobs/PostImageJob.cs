@@ -9,7 +9,6 @@ using System.Linq;
 using Discord.Net;
 using GiphyDotNet.Model.Parameters;
 using TrendingGiphyBot.Configuration;
-using TrendingGiphyBot.Enums;
 using TrendingGiphyBot.Helpers;
 
 namespace TrendingGiphyBot.Jobs
@@ -87,7 +86,7 @@ namespace TrendingGiphyBot.Jobs
                 var history = new UrlHistory { ChannelId = channelId, Url = url };
                 await GlobalConfig.UrlHistoryDal.Insert(history);
             }
-            catch (HttpException httpException) when (httpException.Message == "The server responded with error 50013: Missing Permissions" || httpException.Message == "The server responded with error 50001: Missing Access")
+            catch (HttpException httpException) when (GlobalConfig.Config.HttpExceptionsToWarn.Contains(httpException.Message))
             {
                 Logger.Warn(httpException.Message);
             }
