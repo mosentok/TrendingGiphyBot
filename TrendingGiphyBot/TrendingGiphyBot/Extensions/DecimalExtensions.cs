@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TrendingGiphyBot.Helpers
+namespace TrendingGiphyBot.Extensions
 {
     static class DecimalExtensions
     {

@@ -9,6 +9,7 @@ using System.Linq;
 using Discord.Net;
 using GiphyDotNet.Model.Parameters;
 using TrendingGiphyBot.Configuration;
+using TrendingGiphyBot.Extensions;
 using TrendingGiphyBot.Helpers;
 
 namespace TrendingGiphyBot.Jobs
