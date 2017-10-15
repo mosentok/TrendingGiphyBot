@@ -21,6 +21,7 @@ namespace TrendingGiphyBot.Configuration
         DiscordSocketClient DiscordClient { get; }
         JobManager JobManager { get; }
         Rating Ratings { get; }
+        Task Initialize();
         Task RefreshConfig();
         Lazy<Embed> WelcomeMessagEmbed { get; }
         Lazy<Embed> HelpMessagEmbed { get; }

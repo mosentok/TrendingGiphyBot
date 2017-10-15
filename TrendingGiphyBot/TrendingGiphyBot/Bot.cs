@@ -33,6 +33,7 @@ namespace TrendingGiphyBot
                 .AddSingleton<IGlobalConfig, GlobalConfig>()
                 .BuildServiceProvider();
             _GlobalConfig = _Services.GetRequiredService<IGlobalConfig>();
+            await _GlobalConfig.Initialize();
             DiscordClient.Log += Log;
             DiscordClient.Ready += Ready;
             await DiscordClient.LoginAsync(TokenType.Bot, _GlobalConfig.Config.DiscordToken);
