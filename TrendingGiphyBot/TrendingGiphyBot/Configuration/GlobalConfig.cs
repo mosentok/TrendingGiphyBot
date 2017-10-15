@@ -18,21 +18,21 @@ namespace TrendingGiphyBot.Configuration
     class GlobalConfig : IGlobalConfig
     {
         public Config Config { get; private set; }
-        public JobConfigDal JobConfigDal { get; }
-        public UrlCacheDal UrlCacheDal { get; }
-        public UrlHistoryDal UrlHistoryDal { get; }
-        public ChannelConfigDal ChannelConfigDal { get; }
-        public Giphy GiphyClient { get; }
-        public DiscordSocketClient DiscordClient { get; }
-        public JobManager JobManager { get; }
+        public JobConfigDal JobConfigDal { get; private set; }
+        public UrlCacheDal UrlCacheDal { get; private set; }
+        public UrlHistoryDal UrlHistoryDal { get; private set; }
+        public ChannelConfigDal ChannelConfigDal { get; private set; }
+        public Giphy GiphyClient { get; private set; }
+        public DiscordSocketClient DiscordClient { get; private set; }
+        public JobManager JobManager { get; private set; }
         static readonly Rating _Ratings = Enum.GetValues(typeof(Rating)).OfType<Rating>().Where(s => s != Rating.R).Aggregate((a, b) => a | b);
         public Rating Ratings => _Ratings;
         public Lazy<Embed> WelcomeMessagEmbed { get; private set; }
         public Lazy<Embed> HelpMessagEmbed { get; private set; }
         public List<string> LatestUrls { get; set; }
-        public GlobalConfig()
+        public async Task Initialize()
         {
-            SetConfig().Wait();
+            await SetConfig();
             JobConfigDal = new JobConfigDal(Config.ConnectionString);
             UrlCacheDal = new UrlCacheDal(Config.ConnectionString);
             UrlHistoryDal = new UrlHistoryDal(Config.ConnectionString);
