@@ -23,7 +23,8 @@ namespace TrendingGiphyBot.Configuration
         Rating Ratings { get; }
         Task Initialize();
         Task RefreshConfig();
-        Lazy<Embed> WelcomeMessagEmbed { get; }
+        Lazy<Embed> WelcomeMessagDefaultEmbed { get; }
+        Lazy<Embed> WelcomeMessagOwnerEmbed { get; }
         Lazy<Embed> HelpMessagEmbed { get; }
         List<string> LatestUrls { get; set; }
     }

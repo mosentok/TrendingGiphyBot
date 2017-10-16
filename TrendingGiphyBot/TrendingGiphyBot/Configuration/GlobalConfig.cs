@@ -27,7 +27,8 @@ namespace TrendingGiphyBot.Configuration
         public JobManager JobManager { get; private set; }
         static readonly Rating _Ratings = Enum.GetValues(typeof(Rating)).OfType<Rating>().Where(s => s != Rating.R).Aggregate((a, b) => a | b);
         public Rating Ratings => _Ratings;
-        public Lazy<Embed> WelcomeMessagEmbed { get; private set; }
+        public Lazy<Embed> WelcomeMessagDefaultEmbed { get; private set; }
+        public Lazy<Embed> WelcomeMessagOwnerEmbed { get; private set; }
         public Lazy<Embed> HelpMessagEmbed { get; private set; }
         public List<string> LatestUrls { get; set; }
         public async Task Initialize()
@@ -57,12 +58,14 @@ namespace TrendingGiphyBot.Configuration
             var config = await CloudStorageAccount.Parse(connectionString).CreateCloudBlobClient().GetContainerReference(containerName).GetBlockBlobReference(blobName).DownloadTextAsync();
             LogManager.GetCurrentClassLogger().Trace(config);
             Config = JsonConvert.DeserializeObject<Config>(config);
-            WelcomeMessagEmbed = new Lazy<Embed>(GetWelcomeMessageEmbed);
+            WelcomeMessagDefaultEmbed = new Lazy<Embed>(GetWelcomeMessageDefaultEmbed);
+            WelcomeMessagOwnerEmbed = new Lazy<Embed>(GetWelcomeMessageOwnerEmbed);
             HelpMessagEmbed = new Lazy<Embed>(GetHelpMessageEmbed);
         }
-        Embed GetWelcomeMessageEmbed()
+        Embed GetWelcomeMessageDefaultEmbed() => GetWelcomeMessageEmbed(Config.WelcomeMessageDefault);
+        Embed GetWelcomeMessageOwnerEmbed() => GetWelcomeMessageEmbed(Config.WelcomeMessageOwner);
+        Embed GetWelcomeMessageEmbed(EmbedConfig welcomeMessage)
         {
-            var welcomeMessage = Config.WelcomeMessage;
             var embedBuilder = new EmbedBuilder()
                 .WithDescription(welcomeMessage.Description)
                 .WithImageUrl(welcomeMessage.ImageUrl);
@@ -74,6 +77,9 @@ namespace TrendingGiphyBot.Configuration
                 embedBuilder.Fields.Add(new EmbedFieldBuilder()
                     .WithName(welcomeMessage.Field.Name)
                     .WithValue(welcomeMessage.Field.Value));
+            if (!string.IsNullOrEmpty(welcomeMessage.FooterText))
+                embedBuilder.Footer = new EmbedFooterBuilder()
+                    .WithText(welcomeMessage.FooterText);
             return embedBuilder.Build();
         }
         Embed GetHelpMessageEmbed()

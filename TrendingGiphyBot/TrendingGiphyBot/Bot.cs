@@ -61,15 +61,20 @@ namespace TrendingGiphyBot
         async Task JoinedGuild(SocketGuild arg)
         {
             await RemoveThisGuildsJobConfigs(arg);
-            var jobConfig = new JobConfig
+            if (arg.DefaultChannel != null)
             {
-                ChannelId = arg.DefaultChannel.Id,
-                Interval = _GlobalConfig.Config.DefaultJobConfig.Interval,
-                Time = _GlobalConfig.Config.DefaultJobConfig.Time.ToString()
-            };
-            await _GlobalConfig.JobConfigDal.Insert(jobConfig);
+                var jobConfig = new JobConfig
+                {
+                    ChannelId = arg.DefaultChannel.Id,
+                    Interval = _GlobalConfig.Config.DefaultJobConfig.Interval,
+                    Time = _GlobalConfig.Config.DefaultJobConfig.Time.ToString()
+                };
+                await _GlobalConfig.JobConfigDal.Insert(jobConfig);
+                await arg.DefaultChannel.SendMessageAsync(string.Empty, embed: _GlobalConfig.WelcomeMessagDefaultEmbed.Value);
+            }
+            else
+                await arg.Owner.SendMessageAsync(string.Empty, embed: _GlobalConfig.WelcomeMessagOwnerEmbed.Value);
             await PostStats();
-            await arg.DefaultChannel.SendMessageAsync(string.Empty, embed: _GlobalConfig.WelcomeMessagEmbed.Value);
         }
         async Task LeftGuild(SocketGuild arg)
         {

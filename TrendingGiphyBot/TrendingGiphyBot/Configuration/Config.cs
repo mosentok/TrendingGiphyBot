@@ -53,7 +53,9 @@ namespace TrendingGiphyBot.Configuration
         [JsonRequired]
         public ushort UrlCachesMaxDaysOld { get; set; }
         [JsonRequired]
-        public EmbedConfig WelcomeMessage { get; set; }
+        public EmbedConfig WelcomeMessageDefault { get; set; }
+        [JsonRequired]
+        public EmbedConfig WelcomeMessageOwner { get; set; }
         [JsonRequired]
         public EmbedConfig HelpMessage { get; set; }
         public List<StatPost> StatPosts { get; set; }
