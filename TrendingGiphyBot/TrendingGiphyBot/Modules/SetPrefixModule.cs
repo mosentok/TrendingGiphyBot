@@ -14,7 +14,7 @@ namespace TrendingGiphyBot.Modules
         [Alias(nameof(Help), "")]
         public async Task Help()
         {
-            await ReplyAsync(string.Empty, embed: GlobalConfig.HelpMessagEmbed.Value);
+            await ReplyAsync(string.Empty, embed: GlobalConfig.HelpMessagEmbed);
         }
         [Command(nameof(Get))]
         public async Task Get()

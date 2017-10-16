@@ -27,9 +27,7 @@ namespace TrendingGiphyBot.Configuration
         public JobManager JobManager { get; private set; }
         static readonly Rating _Ratings = Enum.GetValues(typeof(Rating)).OfType<Rating>().Where(s => s != Rating.R).Aggregate((a, b) => a | b);
         public Rating Ratings => _Ratings;
-        public Lazy<Embed> WelcomeMessagDefaultEmbed { get; private set; }
-        public Lazy<Embed> WelcomeMessagOwnerEmbed { get; private set; }
-        public Lazy<Embed> HelpMessagEmbed { get; private set; }
+        public Embed HelpMessagEmbed { get; private set; }
         public List<string> LatestUrls { get; set; }
         public async Task Initialize()
         {
@@ -58,13 +56,9 @@ namespace TrendingGiphyBot.Configuration
             var config = await CloudStorageAccount.Parse(connectionString).CreateCloudBlobClient().GetContainerReference(containerName).GetBlockBlobReference(blobName).DownloadTextAsync();
             LogManager.GetCurrentClassLogger().Trace(config);
             Config = JsonConvert.DeserializeObject<Config>(config);
-            WelcomeMessagDefaultEmbed = new Lazy<Embed>(GetWelcomeMessageDefaultEmbed);
-            WelcomeMessagOwnerEmbed = new Lazy<Embed>(GetWelcomeMessageOwnerEmbed);
-            HelpMessagEmbed = new Lazy<Embed>(GetHelpMessageEmbed);
+            HelpMessagEmbed = GetHelpMessageEmbed();
         }
-        Embed GetWelcomeMessageDefaultEmbed() => GetWelcomeMessageEmbed(Config.WelcomeMessageDefault);
-        Embed GetWelcomeMessageOwnerEmbed() => GetWelcomeMessageEmbed(Config.WelcomeMessageOwner);
-        Embed GetWelcomeMessageEmbed(EmbedConfig welcomeMessage)
+        public EmbedBuilder BuildWelcomeMessageEmbed(EmbedConfig welcomeMessage)
         {
             var embedBuilder = new EmbedBuilder()
                 .WithDescription(welcomeMessage.Description)
@@ -80,7 +74,7 @@ namespace TrendingGiphyBot.Configuration
             if (!string.IsNullOrEmpty(welcomeMessage.FooterText))
                 embedBuilder.Footer = new EmbedFooterBuilder()
                     .WithText(welcomeMessage.FooterText);
-            return embedBuilder.Build();
+            return embedBuilder;
         }
         Embed GetHelpMessageEmbed()
         {

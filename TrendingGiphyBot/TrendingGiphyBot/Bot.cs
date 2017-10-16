@@ -62,19 +62,36 @@ namespace TrendingGiphyBot
         {
             await RemoveThisGuildsJobConfigs(arg);
             if (arg.DefaultChannel != null)
-            {
-                var jobConfig = new JobConfig
-                {
-                    ChannelId = arg.DefaultChannel.Id,
-                    Interval = _GlobalConfig.Config.DefaultJobConfig.Interval,
-                    Time = _GlobalConfig.Config.DefaultJobConfig.Time.ToString()
-                };
-                await _GlobalConfig.JobConfigDal.Insert(jobConfig);
-                await arg.DefaultChannel.SendMessageAsync(string.Empty, embed: _GlobalConfig.WelcomeMessagDefaultEmbed.Value);
-            }
+                await PostToDefaultChannel(arg);
             else
-                await arg.Owner.SendMessageAsync(string.Empty, embed: _GlobalConfig.WelcomeMessagOwnerEmbed.Value);
+                await PostToOwner(arg);
             await PostStats();
+        }
+        async Task PostToDefaultChannel(SocketGuild arg)
+        {
+            var jobConfig = new JobConfig
+            {
+                ChannelId = arg.DefaultChannel.Id,
+                Interval = _GlobalConfig.Config.DefaultJobConfig.Interval,
+                Time = _GlobalConfig.Config.DefaultJobConfig.Time.ToString()
+            };
+            await _GlobalConfig.JobConfigDal.Insert(jobConfig);
+            var embed = _GlobalConfig.BuildWelcomeMessageEmbed(_GlobalConfig.Config.WelcomeMessageDefault);
+            if (!string.IsNullOrEmpty(_GlobalConfig.Config.WelcomeMessageDefault.FooterText))
+                embed.Footer = new EmbedFooterBuilder()
+                    .WithText(_GlobalConfig.Config.WelcomeMessageDefault.FooterText);
+            await arg.DefaultChannel.SendMessageAsync(string.Empty, embed: embed);
+        }
+        async Task PostToOwner(SocketGuild arg)
+        {
+            var embed = _GlobalConfig.BuildWelcomeMessageEmbed(_GlobalConfig.Config.WelcomeMessageOwner);
+            if (!string.IsNullOrEmpty(_GlobalConfig.Config.WelcomeMessageOwner.FooterText))
+            {
+                var footerWithGuild = string.Format(_GlobalConfig.Config.WelcomeMessageOwner.FooterText, arg.Name);
+                embed.Footer = new EmbedFooterBuilder()
+                    .WithText(footerWithGuild);
+            }
+            await arg.Owner.SendMessageAsync(string.Empty, embed: embed);
         }
         async Task LeftGuild(SocketGuild arg)
         {
