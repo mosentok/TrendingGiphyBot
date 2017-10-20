@@ -10,7 +10,7 @@ using TrendingGiphyBot.Helpers;
 namespace TrendingGiphyBot.Modules
 {
     [Group(_Name)]
-    public class SetRandomModule : LoggingModuleBase
+    public class SetRandomModule : BotModuleBase
     {
         const string _Name = "SetRandom";
         public SetRandomModule(IServiceProvider services) : base(services, LogManager.GetCurrentClassLogger()) { }

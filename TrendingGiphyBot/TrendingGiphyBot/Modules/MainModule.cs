@@ -7,7 +7,7 @@ namespace TrendingGiphyBot.Modules
 {
     [Group(nameof(TrendingGiphyBot))]
     [Alias("TGB")]
-    public class MainModule : LoggingModuleBase
+    public class MainModule : BotModuleBase
     {
         public MainModule(IServiceProvider services) : base(services, LogManager.GetCurrentClassLogger()){}
         [Command(nameof(Help))]

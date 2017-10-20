@@ -10,11 +10,11 @@ using TrendingGiphyBot.Configuration;
 
 namespace TrendingGiphyBot.Modules
 {
-    public abstract class LoggingModuleBase : ModuleBase
+    public abstract class BotModuleBase : ModuleBase
     {
         readonly ILogger _Logger;
         protected IGlobalConfig GlobalConfig { get; }
-        protected LoggingModuleBase(IServiceProvider services, ILogger logger)
+        protected BotModuleBase(IServiceProvider services, ILogger logger)
         {
             _Logger = logger;
             GlobalConfig = services.GetRequiredService<IGlobalConfig>();
