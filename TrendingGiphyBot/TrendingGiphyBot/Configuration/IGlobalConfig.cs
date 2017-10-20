@@ -23,8 +23,7 @@ namespace TrendingGiphyBot.Configuration
         Rating Ratings { get; }
         Task Initialize();
         Task RefreshConfig();
-        Embed HelpMessagEmbed { get; }
         List<string> LatestUrls { get; set; }
-        EmbedBuilder BuildWelcomeMessageEmbed(EmbedConfig welcomeMessage);
+        EmbedBuilder BuildEmbedFromConfig(EmbedConfig embedConfig);
     }
 }

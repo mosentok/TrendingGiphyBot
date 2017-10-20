@@ -76,7 +76,7 @@ namespace TrendingGiphyBot
                 Time = _GlobalConfig.Config.DefaultJobConfig.Time.ToString()
             };
             await _GlobalConfig.JobConfigDal.Insert(jobConfig);
-            var embed = _GlobalConfig.BuildWelcomeMessageEmbed(_GlobalConfig.Config.WelcomeMessageDefault);
+            var embed = _GlobalConfig.BuildEmbedFromConfig(_GlobalConfig.Config.WelcomeMessageDefault);
             if (!string.IsNullOrEmpty(_GlobalConfig.Config.WelcomeMessageDefault.FooterText))
                 embed.Footer = new EmbedFooterBuilder()
                     .WithText(_GlobalConfig.Config.WelcomeMessageDefault.FooterText);
@@ -84,7 +84,7 @@ namespace TrendingGiphyBot
         }
         async Task PostToOwner(SocketGuild arg)
         {
-            var embed = _GlobalConfig.BuildWelcomeMessageEmbed(_GlobalConfig.Config.WelcomeMessageOwner);
+            var embed = _GlobalConfig.BuildEmbedFromConfig(_GlobalConfig.Config.WelcomeMessageOwner);
             if (!string.IsNullOrEmpty(_GlobalConfig.Config.WelcomeMessageOwner.FooterText))
             {
                 var footerWithGuild = string.Format(_GlobalConfig.Config.WelcomeMessageOwner.FooterText, arg.Name);

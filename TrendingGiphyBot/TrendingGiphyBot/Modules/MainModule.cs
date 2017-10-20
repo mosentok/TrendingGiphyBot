@@ -12,9 +12,6 @@ namespace TrendingGiphyBot.Modules
         public MainModule(IServiceProvider services) : base(services, LogManager.GetCurrentClassLogger()){}
         [Command(nameof(Help))]
         [Alias(nameof(Help), "")]
-        public async Task Help()
-        {
-            await ReplyAsync(string.Empty, embed: GlobalConfig.HelpMessagEmbed);
-        }
+        public async Task Help() => await HelpMessageReplyAsync();
     }
 }

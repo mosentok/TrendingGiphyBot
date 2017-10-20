@@ -12,10 +12,7 @@ namespace TrendingGiphyBot.Modules
         public SetPrefixModule(IServiceProvider services) : base(services, LogManager.GetCurrentClassLogger()){}
         [Command(nameof(Help))]
         [Alias(nameof(Help), "")]
-        public async Task Help()
-        {
-            await ReplyAsync(string.Empty, embed: GlobalConfig.HelpMessagEmbed);
-        }
+        public async Task Help() => await HelpMessageReplyAsync();
         [Command(nameof(Get))]
         public async Task Get()
         {
