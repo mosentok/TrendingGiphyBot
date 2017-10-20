@@ -31,10 +31,10 @@ namespace TrendingGiphyBot.Modules
                 var embedBuilder = new EmbedBuilder()
                     .WithAuthor(author)
                     .WithRandomConfigFields(config);
-                await ReplyAsync(string.Empty, embed: embedBuilder);
+                await TryReplyAsync(embedBuilder);
             }
             else
-                await ReplyAsync(NotConfiguredMessage);
+                await TryReplyAsync(NotConfiguredMessage);
         }
         [Command(nameof(On))]
         public async Task On(params string[] searchValues)
@@ -54,10 +54,10 @@ namespace TrendingGiphyBot.Modules
                     await Get();
                 }
                 else
-                    await ReplyAsync($"Random search string must be at most {GlobalConfig.Config.RandomSearchStringMaxLength} characters long.");
+                    await TryReplyAsync($"Random search string must be at most {GlobalConfig.Config.RandomSearchStringMaxLength} characters long.");
             }
             else
-                await ReplyAsync(NotConfiguredMessage);
+                await TryReplyAsync(NotConfiguredMessage);
         }
         static string DetermineRandomSearchString(string[] searchValues)
         {
@@ -72,10 +72,10 @@ namespace TrendingGiphyBot.Modules
             {
                 var config = new JobConfig { ChannelId = Context.Channel.Id, RandomIsOn = false };
                 await GlobalConfig.JobConfigDal.UpdateRandom(config);
-                await ReplyAsync("No more Randies.");
+                await TryReplyAsync("No more Randies.");
             }
             else
-                await ReplyAsync(NotConfiguredMessage);
+                await TryReplyAsync(NotConfiguredMessage);
         }
     }
 }

@@ -19,7 +19,7 @@ namespace TrendingGiphyBot.Modules
             if (await GlobalConfig.ChannelConfigDal.Any(Context.Channel.Id))
             {
                 var prefix = await GlobalConfig.ChannelConfigDal.GetPrefix(Context.Channel.Id);
-                await ReplyAsync($"Your prefix is {prefix}");
+                await TryReplyAsync($"Your prefix is {prefix}");
             }
             else
                 await Reset();
@@ -37,7 +37,7 @@ namespace TrendingGiphyBot.Modules
                 await Get();
             }
             else
-                await ReplyAsync("Prefix must be 1-4 characters long.");
+                await TryReplyAsync("Prefix must be 1-4 characters long.");
         }
         [Command(nameof(Reset))]
         public async Task Reset()
