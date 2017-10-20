@@ -30,14 +30,14 @@ namespace TrendingGiphyBot.Modules
                 var author = new EmbedAuthorBuilder()
                     .WithName($"{Context.Channel.Name}'s {nameof(JobConfig)}")
                     .WithIconUrl(avatarUrl);
-                var embed = new EmbedBuilder()
+                var embedBuilder = new EmbedBuilder()
                     .WithAuthor(author)
                     .AddInlineField(nameof(config.Interval), config.Interval)
                     .AddInlineField(nameof(config.Time), config.Time);
-                await ReplyAsync(string.Empty, embed: embed);
+                await TryReplyAsync(embedBuilder);
             }
             else
-                await ReplyAsync(NotConfiguredMessage);
+                await TryReplyAsync(NotConfiguredMessage);
         }
         [Command(nameof(Set))]
         public async Task Set(int interval, Time time)
@@ -46,20 +46,20 @@ namespace TrendingGiphyBot.Modules
             switch (state)
             {
                 case JobConfigState.InvalidHours:
-                    await ReplyAsync(InvalidConfigMessage(time, GlobalConfig.Config.ValidHours));
+                    await TryReplyAsync(InvalidConfigMessage(time, GlobalConfig.Config.ValidHours));
                     return;
                 case JobConfigState.InvalidMinutes:
-                    await ReplyAsync(InvalidConfigMessage(time, GlobalConfig.Config.ValidMinutes));
+                    await TryReplyAsync(InvalidConfigMessage(time, GlobalConfig.Config.ValidMinutes));
                     return;
                 case JobConfigState.InvalidSeconds:
-                    await ReplyAsync(InvalidConfigMessage(time, GlobalConfig.Config.ValidSeconds));
+                    await TryReplyAsync(InvalidConfigMessage(time, GlobalConfig.Config.ValidSeconds));
                     return;
                 case JobConfigState.InvalidTime:
-                    await ReplyAsync($"{time} is an invalid {nameof(Time)}.");
+                    await TryReplyAsync($"{time} is an invalid {nameof(Time)}.");
                     return;
                 case JobConfigState.IntervalTooSmall:
                 case JobConfigState.IntervallTooBig:
-                    await ReplyAsync(InvalidConfigRangeMessage(GlobalConfig.Config.MinJobConfig, GlobalConfig.Config.MaxJobConfig));
+                    await TryReplyAsync(InvalidConfigRangeMessage(GlobalConfig.Config.MinJobConfig, GlobalConfig.Config.MaxJobConfig));
                     return;
                 case JobConfigState.Valid:
                     await SaveConfig(interval, time);
@@ -73,10 +73,10 @@ namespace TrendingGiphyBot.Modules
             if (await GlobalConfig.JobConfigDal.Any(Context.Channel.Id))
             {
                 await GlobalConfig.JobConfigDal.Remove(Context.Channel.Id);
-                await ReplyAsync("Configuration removed.");
+                await TryReplyAsync("Configuration removed.");
             }
             else
-                await ReplyAsync(NotConfiguredMessage);
+                await TryReplyAsync(NotConfiguredMessage);
         }
         async Task SaveConfig(int interval, Time time)
         {

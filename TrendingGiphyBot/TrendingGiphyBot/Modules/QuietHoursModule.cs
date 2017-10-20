@@ -30,10 +30,10 @@ namespace TrendingGiphyBot.Modules
                 var embedBuilder = new EmbedBuilder()
                     .WithAuthor(author)
                     .WithQuietHourFields(config, GlobalConfig.Config.HourOffset);
-                await ReplyAsync(string.Empty, embed: embedBuilder);
+                await TryReplyAsync(embedBuilder);
             }
             else
-                await ReplyAsync(NotConfiguredMessage);
+                await TryReplyAsync(NotConfiguredMessage);
         }
         [Command(nameof(Set))]
         public async Task Set(short minHour, short maxHour)
@@ -49,7 +49,7 @@ namespace TrendingGiphyBot.Modules
                 await UpdateJobConfig(config);
             }
             else
-                await ReplyAsync(NotConfiguredMessage);
+                await TryReplyAsync(NotConfiguredMessage);
         }
         [Command(nameof(Reset))]
         public async Task Reset()
@@ -65,7 +65,7 @@ namespace TrendingGiphyBot.Modules
                 await UpdateJobConfig(config);
             }
             else
-                await ReplyAsync(NotConfiguredMessage);
+                await TryReplyAsync(NotConfiguredMessage);
         }
         short ApplyHourOffset(short hour) => (short)((hour + GlobalConfig.Config.HourOffset) % 24);
         async Task UpdateJobConfig(JobConfig config)

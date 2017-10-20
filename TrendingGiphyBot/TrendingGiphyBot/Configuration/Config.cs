@@ -65,6 +65,7 @@ namespace TrendingGiphyBot.Configuration
         public List<string> UrlsToIgnore { get; set; }
         [JsonRequired]
         public List<string> HttpExceptionsToWarn { get; set; }
+        public string FailedReplyDisclaimer { get; set; }
         internal JobConfigState DetermineJobConfigState(int interval, Time time)
         {
             var minSeconds = DetermineConfiggedSeconds(MinJobConfig);

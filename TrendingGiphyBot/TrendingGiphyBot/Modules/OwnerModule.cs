@@ -17,7 +17,7 @@ namespace TrendingGiphyBot.Modules
             if (Context.User.Id == GlobalConfig.Config.OwnerId)
             {
                 await GlobalConfig.RefreshConfig();
-                await ReplyAsync("Done.");
+                await TryReplyAsync("Done.");
             }
         }
         [Command(nameof(SetGame))]
@@ -29,7 +29,7 @@ namespace TrendingGiphyBot.Modules
                 if (!string.IsNullOrEmpty(game))
                 {
                     await GlobalConfig.DiscordClient.SetGameAsync(game);
-                    await ReplyAsync("Done.");
+                    await TryReplyAsync("Done.");
                 }
             }
         }
