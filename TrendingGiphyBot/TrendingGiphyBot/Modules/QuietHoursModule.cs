@@ -9,7 +9,7 @@ using TrendingGiphyBot.Helpers;
 namespace TrendingGiphyBot.Modules
 {
     [Group(_Name)]
-    public class QuietHoursModule : LoggingModuleBase
+    public class QuietHoursModule : BotModuleBase
     {
         const string _Name = "QuietHours";
         public QuietHoursModule(IServiceProvider services) : base(services, LogManager.GetCurrentClassLogger()) { }

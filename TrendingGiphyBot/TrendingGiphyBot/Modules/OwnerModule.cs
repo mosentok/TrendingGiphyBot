@@ -8,7 +8,7 @@ using TrendingGiphyBot.Helpers;
 namespace TrendingGiphyBot.Modules
 {
     [Group("Owner")]
-    public class OwnerModule : LoggingModuleBase
+    public class OwnerModule : BotModuleBase
     {
         public OwnerModule(IServiceProvider services) : base(services, LogManager.GetCurrentClassLogger()) { }
         [Command(nameof(RefreshConfig))]

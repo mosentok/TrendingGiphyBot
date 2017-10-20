@@ -12,7 +12,7 @@ using TrendingGiphyBot.Helpers;
 namespace TrendingGiphyBot.Modules
 {
     [Group(nameof(JobConfig))]
-    public class JobConfigModule : LoggingModuleBase
+    public class JobConfigModule : BotModuleBase
     {
         public JobConfigModule(IServiceProvider services) : base(services, LogManager.GetCurrentClassLogger()){}
         string NotConfiguredMessage => $"{Context.Channel.Id} not configured. Configure me senpai! Use '{GlobalConfig.Config.DefaultPrefix}{nameof(JobConfig)}' or '{GlobalConfig.Config.DefaultPrefix}{nameof(JobConfig)} {nameof(Help)}' to learn how to.";

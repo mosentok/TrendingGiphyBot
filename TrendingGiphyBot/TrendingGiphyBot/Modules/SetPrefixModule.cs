@@ -7,7 +7,7 @@ using NLog;
 namespace TrendingGiphyBot.Modules
 {
     [Group("SetPrefix")]
-    public class SetPrefixModule : LoggingModuleBase
+    public class SetPrefixModule : BotModuleBase
     {
         public SetPrefixModule(IServiceProvider services) : base(services, LogManager.GetCurrentClassLogger()){}
         [Command(nameof(Help))]
