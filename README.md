@@ -12,8 +12,8 @@ Stay up to date with the latest trending gifs, right inside Discord.
 - [Commands](https://github.com/mosentok/TrendingGiphyBot#commands)
   - [Main Menu](https://github.com/mosentok/TrendingGiphyBot#main-menu)
   - [JobConfig](https://github.com/mosentok/TrendingGiphyBot#jobconfig)
-  - [SetRandom](https://github.com/mosentok/TrendingGiphyBot#setrandom)
   - [QuietHours](https://github.com/mosentok/TrendingGiphyBot#quiethours)
+  - [SetRandom](https://github.com/mosentok/TrendingGiphyBot#setrandom)
   - [SetPrefix](https://github.com/mosentok/TrendingGiphyBot#setprefix)
 - [Shoutout to](https://github.com/mosentok/TrendingGiphyBot#shoutout-to)
 
@@ -55,6 +55,17 @@ Configures the job timer.
 !jobconfig help (or just !jobconfig)
 ```
 
+### QuietHours
+
+Sets a range of hours where the bot won't post, like late at night. Hours are 24-hours, 0 - 23, central standard time.
+
+```
+!QuietHours Get
+!quiethours set 1 9
+!QuIeThOuRs ReSeT
+!quiethours help (or just !quiethours)
+```
+
 ### SetRandom
 
 Want the bot to post a random GIF if there's no new trending one?
@@ -65,17 +76,6 @@ Want the bot to post a random GIF if there's no new trending one?
 !SeTrAnDoM oFf
 !setrandom get
 !setrandom help (or just !setrandom)
-```
-
-### QuietHours
-
-Sets a range of hours where the bot won't post, like late at night. Hours are 24-hours, 0 - 23, central standard time.
-
-```
-!QuietHours Get
-!quiethours set 1 9
-!QuIeThOuRs ReSeT
-!quiethours help (or just !quiethours)
 ```
 
 ### SetPrefix
