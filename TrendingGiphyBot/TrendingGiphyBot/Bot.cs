@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using Discord.Net;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using NLog;
@@ -161,22 +162,37 @@ namespace TrendingGiphyBot
             {
                 if (result is ExecuteResult executeResult)
                     _Logger.Error(executeResult.Exception);
-                ErrorResult errorResult;
-                if (result.Error.Value == CommandError.Exception)
-                    errorResult = new ErrorResult(CommandError.Exception, "An unexpected error occurred.", false);
-                else
-                    errorResult = new ErrorResult(result);
-                var avatarUrl = (await context.Client.GetGuildAsync(context.Guild.Id)).IconUrl;
-                var author = new EmbedAuthorBuilder()
-                    .WithName(nameof(JobConfig))
-                    .WithIconUrl(avatarUrl);
-                var embed = new EmbedBuilder()
-                    .WithAuthor(author)
-                    .AddInlineField(nameof(errorResult.Error), errorResult.Error)
-                    .AddInlineField(nameof(errorResult.ErrorReason), errorResult.ErrorReason)
-                    .AddInlineField(nameof(errorResult.IsSuccess), errorResult.IsSuccess);
-                await context.Channel.SendMessageAsync(string.Empty, embed: embed);
+                var errorResult = DetermineErrorResult(result);
+                var embedBuilder = await BuildErrorEmbedBuilder(context, errorResult);
+                var message = string.Empty;
+                try
+                {
+                    await context.Channel.SendMessageAsync(message, embed: embedBuilder);
+                }
+                catch (HttpException httpException) when (_GlobalConfig.Config.HttpExceptionsToWarn.Contains(httpException.Message))
+                {
+                    _Logger.Warn(httpException.Message);
+                    await _GlobalConfig.MessageHelper.SendMessageToUser(context, message, embedBuilder);
+                }
             }
+        }
+        static ErrorResult DetermineErrorResult(IResult result)
+        {
+            if (result.Error.HasValue && result.Error.Value == CommandError.Exception)
+                return new ErrorResult(CommandError.Exception, "An unexpected error occurred.", false);
+            return new ErrorResult(result);
+        }
+        static async Task<EmbedBuilder> BuildErrorEmbedBuilder(ICommandContext context, ErrorResult errorResult)
+        {
+            var avatarUrl = (await context.Client.GetGuildAsync(context.Guild.Id)).IconUrl;
+            var author = new EmbedAuthorBuilder()
+                .WithName(nameof(JobConfig))
+                .WithIconUrl(avatarUrl);
+            return new EmbedBuilder()
+                .WithAuthor(author)
+                .AddInlineField(nameof(errorResult.Error), errorResult.Error)
+                .AddInlineField(nameof(errorResult.ErrorReason), errorResult.ErrorReason)
+                .AddInlineField(nameof(errorResult.IsSuccess), errorResult.IsSuccess);
         }
         Task Log(LogMessage logMessage)
         {
