@@ -332,6 +332,7 @@
     <Compile Include="Extensions\SocketUserMessageExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Extensions\TimeExtensions.cs" />
+    <Compile Include="Helpers\MessageHelper.cs" />
     <Compile Include="Jobs\DeleteOldUrlCachesJob.cs" />
     <Compile Include="Jobs\DeleteOldUrlHistoriesJob.cs" />
     <Compile Include="Jobs\JobManager.cs" />

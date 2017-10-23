@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -35,35 +34,8 @@ namespace TrendingGiphyBot.Modules
             catch (HttpException httpException) when (GlobalConfig.Config.HttpExceptionsToWarn.Contains(httpException.Message))
             {
                 _Logger.Warn(httpException.Message);
-                await SendMessageToUser(message, embedBuilder);
+                await GlobalConfig.MessageHelper.SendMessageToUser(Context, message, embedBuilder);
             }
-        }
-        async Task SendMessageToUser(string message, EmbedBuilder embedBuilder)
-        {
-            if (!string.IsNullOrEmpty(GlobalConfig.Config.FailedReplyDisclaimer))
-            {
-                var failedReplyDisclaimer = string.Format(GlobalConfig.Config.FailedReplyDisclaimer, Context.Channel.Name);
-                if (embedBuilder != null)
-                    await SendMessageToUserWithDisclaimerFooter(message, failedReplyDisclaimer, embedBuilder);
-                else
-                    await SendMessageToUserWithDisclaimerText(message, failedReplyDisclaimer);
-            }
-            else
-                await Context.User.SendMessageAsync(message, embed: embedBuilder);
-        }
-        async Task SendMessageToUserWithDisclaimerFooter(string message, string failedReplyDisclaimer, EmbedBuilder embedBuilder)
-        {
-            embedBuilder.Footer = new EmbedFooterBuilder()
-                .WithText(failedReplyDisclaimer);
-            await Context.User.SendMessageAsync(message, embed: embedBuilder);
-        }
-        async Task SendMessageToUserWithDisclaimerText(string message, string failedReplyDisclaimer)
-        {
-            var stringBuilder = new StringBuilder();
-            stringBuilder.AppendLine(message);
-            stringBuilder.AppendLine();
-            stringBuilder.AppendLine($"*{failedReplyDisclaimer}*");
-            await Context.User.SendMessageAsync(stringBuilder.ToString().TrimEnd());
         }
         protected override void BeforeExecute(CommandInfo command) => _Logger.Trace($"Calling {command.Name}.");
         protected override void AfterExecute(CommandInfo command) => _Logger.Trace($"{command.Name} done.");

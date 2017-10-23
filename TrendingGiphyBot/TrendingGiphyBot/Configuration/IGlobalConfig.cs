@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Discord;
 using GiphyDotNet.Model.Parameters;
 using TrendingGiphyBot.Dals;
+using TrendingGiphyBot.Helpers;
 using TrendingGiphyBot.Jobs;
 
 namespace TrendingGiphyBot.Configuration
@@ -25,5 +26,6 @@ namespace TrendingGiphyBot.Configuration
         Task RefreshConfig();
         List<string> LatestUrls { get; set; }
         EmbedBuilder BuildEmbedFromConfig(EmbedConfig embedConfig);
+        MessageHelper MessageHelper { get; }
     }
 }

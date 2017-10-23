@@ -12,6 +12,7 @@ using Discord;
 using GiphyDotNet.Model.Parameters;
 using Microsoft.WindowsAzure.Storage;
 using NLog;
+using TrendingGiphyBot.Helpers;
 
 namespace TrendingGiphyBot.Configuration
 {
@@ -28,6 +29,7 @@ namespace TrendingGiphyBot.Configuration
         static readonly Rating _Ratings = Enum.GetValues(typeof(Rating)).OfType<Rating>().Where(s => s != Rating.R).Aggregate((a, b) => a | b);
         public Rating Ratings => _Ratings;
         public List<string> LatestUrls { get; set; }
+        public MessageHelper MessageHelper { get; private set; }
         public async Task Initialize()
         {
             await SetConfig();
@@ -55,6 +57,7 @@ namespace TrendingGiphyBot.Configuration
             var config = await CloudStorageAccount.Parse(connectionString).CreateCloudBlobClient().GetContainerReference(containerName).GetBlockBlobReference(blobName).DownloadTextAsync();
             LogManager.GetCurrentClassLogger().Trace(config);
             Config = JsonConvert.DeserializeObject<Config>(config);
+            MessageHelper = new MessageHelper(Config.FailedReplyDisclaimer);
         }
         public EmbedBuilder BuildEmbedFromConfig(EmbedConfig embedConfig)
         {
