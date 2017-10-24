@@ -24,7 +24,7 @@ namespace TrendingGiphyBot.Configuration
         Rating Ratings { get; }
         Task Initialize();
         Task RefreshConfig();
-        List<string> LatestUrls { get; set; }
+        List<UrlCache> LatestUrls { get; set; }
         EmbedBuilder BuildEmbedFromConfig(EmbedConfig embedConfig);
         MessageHelper MessageHelper { get; }
     }

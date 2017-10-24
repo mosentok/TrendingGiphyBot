@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 
-namespace TrendingGiphyBot.Helpers
+namespace TrendingGiphyBot.Extensions
 {
     static class StringExtensions
     {

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using GiphyDotNet.Model.Parameters;
 using NLog;
 using TrendingGiphyBot.Configuration;
-using TrendingGiphyBot.Helpers;
+using TrendingGiphyBot.Extensions;
 
 namespace TrendingGiphyBot.Jobs
 {

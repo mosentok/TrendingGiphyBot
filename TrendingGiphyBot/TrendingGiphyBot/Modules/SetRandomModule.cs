@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using NLog;
 using TrendingGiphyBot.Dals;
-using TrendingGiphyBot.Helpers;
+using TrendingGiphyBot.Extensions;
 
 namespace TrendingGiphyBot.Modules
 {
