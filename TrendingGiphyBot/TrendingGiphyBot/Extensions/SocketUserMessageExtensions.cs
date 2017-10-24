@@ -2,7 +2,7 @@
 using System.Linq;
 using Discord.WebSocket;
 
-namespace TrendingGiphyBot.Helpers
+namespace TrendingGiphyBot.Extensions
 {
     static class SocketUserMessageExtensions
     {

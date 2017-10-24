@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using TrendingGiphyBot.Configuration;
 using NLog;
-using TrendingGiphyBot.Helpers;
+using TrendingGiphyBot.Extensions;
 
 namespace TrendingGiphyBot.Modules
 {

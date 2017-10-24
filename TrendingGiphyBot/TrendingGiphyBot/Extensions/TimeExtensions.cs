@@ -1,7 +1,7 @@
 ﻿using System;
 using TrendingGiphyBot.Enums;
 
-namespace TrendingGiphyBot.Helpers
+namespace TrendingGiphyBot.Extensions
 {
     static class TimeExtensions
     {

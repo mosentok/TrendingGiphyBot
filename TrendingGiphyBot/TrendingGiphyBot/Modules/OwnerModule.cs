@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord.Commands;
 using NLog;
-using TrendingGiphyBot.Helpers;
+using TrendingGiphyBot.Extensions;
 
 namespace TrendingGiphyBot.Modules
 {

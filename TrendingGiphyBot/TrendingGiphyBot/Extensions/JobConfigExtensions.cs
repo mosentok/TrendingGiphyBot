@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TrendingGiphyBot.Dals;
 
-namespace TrendingGiphyBot.Helpers
+namespace TrendingGiphyBot.Extensions
 {
     static class JobConfigExtensions
     {

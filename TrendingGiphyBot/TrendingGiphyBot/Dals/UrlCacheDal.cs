@@ -27,11 +27,11 @@ namespace TrendingGiphyBot.Dals
                 await entities.SaveChangesAsync();
             }
         }
-        internal async Task<List<string>> GetLatestUrls()
+        internal async Task<List<UrlCache>> GetLatestUrls()
         {
             var yesterday = DateTime.Now.AddDays(-1);
             using (var entities = new TrendingGiphyBotEntities(ConnectionString))
-                return await entities.UrlCaches.Where(s => s.Stamp >= yesterday).Select(s => s.Url).ToListAsync();
+                return await entities.UrlCaches.Where(s => s.Stamp >= yesterday).ToListAsync();
         }
         internal async Task DeleteOlderThan(DateTime oldestDate)
         {

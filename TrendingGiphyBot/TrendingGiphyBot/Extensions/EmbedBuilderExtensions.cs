@@ -1,7 +1,7 @@
 ﻿using Discord;
 using TrendingGiphyBot.Dals;
 
-namespace TrendingGiphyBot.Helpers
+namespace TrendingGiphyBot.Extensions
 {
     static class EmbedBuilderExtensions
     {

@@ -16,7 +16,7 @@ using TrendingGiphyBot.Configuration;
 using TrendingGiphyBot.Containers;
 using TrendingGiphyBot.Dals;
 using TrendingGiphyBot.Exceptions;
-using TrendingGiphyBot.Helpers;
+using TrendingGiphyBot.Extensions;
 
 namespace TrendingGiphyBot
 {
