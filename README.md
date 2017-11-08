@@ -23,7 +23,7 @@ Trending Giphy Bot is a bot that posts trending gifs on its own. It's meant to j
 
 ## Invite
 
-Invite the bot [here](https://discordapp.com/oauth2/authorize?client_id=333392663061463040&scope=bot&permissions=0)!
+Invite the bot [here](https://discordapp.com/oauth2/authorize?client_id=333392663061463040&scope=bot&permissions=2048)!
 
 ## Commands
 
