@@ -131,24 +131,26 @@ namespace TrendingGiphyBot
         }
         async Task MessageReceived(SocketMessage messageParam)
         {
-            await _Logger.SwallowAsync(async () =>
-            {
-                if (messageParam.IsRecognizedModule(_ModuleNames) &&
-                    !messageParam.Author.IsBot &&
-                    messageParam is SocketUserMessage message)
+            var isDmChannel = DiscordClient.DMChannels.Contains(messageParam.Channel);
+            if (!isDmChannel)
+                await _Logger.SwallowAsync(async () =>
                 {
-                    var prefix = await DeterminePrefix(message);
-                    var argPos = 0;
-                    if (message.HasStringPrefix(prefix, ref argPos) ||
-                        message.HasMentionPrefix(DiscordClient.CurrentUser, ref argPos))
+                    if (messageParam.IsRecognizedModule(_ModuleNames) &&
+                        !messageParam.Author.IsBot &&
+                        messageParam is SocketUserMessage message)
                     {
-                        var context = new CommandContext(DiscordClient, message);
-                        var result = await _Commands.ExecuteAsync(context, argPos, _Services);
-                        if (!result.IsSuccess)
-                            await HandleError(context, result);
+                        var prefix = await DeterminePrefix(message);
+                        var argPos = 0;
+                        if (message.HasStringPrefix(prefix, ref argPos) ||
+                            message.HasMentionPrefix(DiscordClient.CurrentUser, ref argPos))
+                        {
+                            var context = new CommandContext(DiscordClient, message);
+                            var result = await _Commands.ExecuteAsync(context, argPos, _Services);
+                            if (!result.IsSuccess)
+                                await HandleError(context, result);
+                        }
                     }
-                }
-            });
+                });
         }
         async Task<string> DeterminePrefix(SocketUserMessage message)
         {
