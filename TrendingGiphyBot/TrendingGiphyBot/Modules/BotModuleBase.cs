@@ -25,7 +25,7 @@ namespace TrendingGiphyBot.Modules
         }
         protected async Task TryReplyAsync(string message) => await TryReplyAsync(message, null);
         protected async Task TryReplyAsync(EmbedBuilder embedBuilder) => await TryReplyAsync(string.Empty, embedBuilder);
-        protected async Task TryReplyAsync(string message, EmbedBuilder embedBuilder)
+        async Task TryReplyAsync(string message, EmbedBuilder embedBuilder)
         {
             try
             {
