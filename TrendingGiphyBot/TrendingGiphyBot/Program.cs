@@ -1,5 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System.Data.Entity;
+using System.Threading.Tasks;
 using NLog;
+using TrendingGiphyBot.Dals;
 
 namespace TrendingGiphyBot
 {
@@ -9,6 +11,7 @@ namespace TrendingGiphyBot
         {
             await LogManager.GetCurrentClassLogger().SwallowAsync(async () =>
             {
+                DbConfiguration.SetConfiguration(new SqlAzureConfiguration());
                 using (var bot = new Bot())
                 {
                     await bot.Run();
