@@ -18,16 +18,19 @@ namespace TrendingGiphyBot.Jobs
         internal PostImageJob(IGlobalConfig globalConfig, SubJobConfig subJobConfig) : base(globalConfig, LogManager.GetCurrentClassLogger(), subJobConfig) { }
         protected override async Task Run()
         {
-            if (await GlobalConfig.UrlCacheDal.Any())
+            await Logger.SwallowAsync(async () =>
             {
-                var jobConfigsNotInQuietHours = (await GetLiveJobConfigs()).Where(s => !s.IsInQuietHours()).ToList();
-                var jobConfigsJustPostedTo = await PostChannelsNotInQuietHours(jobConfigsNotInQuietHours);
-                var remainingJobConfigs = jobConfigsNotInQuietHours.Except(jobConfigsJustPostedTo).Where(s => s.RandomIsOn).ToList();
-                var jobConfigsWithRandomStringOn = remainingJobConfigs.Where(s => !string.IsNullOrEmpty(s.RandomSearchString)).ToList();
-                var jobConfigsWithRandomStringOff = remainingJobConfigs.Except(jobConfigsWithRandomStringOn).ToList();
-                await PostChannelsWithRandomStringOn(jobConfigsWithRandomStringOn);
-                await PostChannelsWithRandomStringOff(jobConfigsWithRandomStringOff);
-            }
+                if (await GlobalConfig.UrlCacheDal.Any())
+                {
+                    var jobConfigsNotInQuietHours = (await GetLiveJobConfigs()).Where(s => !s.IsInQuietHours()).ToList();
+                    var jobConfigsJustPostedTo = await PostChannelsNotInQuietHours(jobConfigsNotInQuietHours);
+                    var remainingJobConfigs = jobConfigsNotInQuietHours.Except(jobConfigsJustPostedTo).Where(s => s.RandomIsOn).ToList();
+                    var jobConfigsWithRandomStringOn = remainingJobConfigs.Where(s => !string.IsNullOrEmpty(s.RandomSearchString)).ToList();
+                    var jobConfigsWithRandomStringOff = remainingJobConfigs.Except(jobConfigsWithRandomStringOn).ToList();
+                    await PostChannelsWithRandomStringOn(jobConfigsWithRandomStringOn);
+                    await PostChannelsWithRandomStringOff(jobConfigsWithRandomStringOff);
+                }
+            });
         }
         async Task<IEnumerable<JobConfig>> GetLiveJobConfigs()
         {
