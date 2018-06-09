@@ -273,3 +273,4 @@ __pycache__/
 /TrendingGiphyBot/TrendingGiphyBot/App.config
 /TrendingGiphyBot/TrendingGiphyBot/NLog.config
 /TrendingGiphyBot/TrendingGiphyBot/Properties/webjob-publish-settings.json
+/TrendingGiphyBot/TrendingGiphyBot/NLog.xsd
