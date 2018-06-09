@@ -37,16 +37,17 @@ namespace TrendingGiphyBot.Jobs
         async Task<ConcurrentBag<JobConfig>> PostChannelsNotInQuietHours(List<JobConfig> jobConfigsNotInQuietHours)
         {
             var channelsPostedTo = new ConcurrentBag<JobConfig>();
-            var tasks = new List<Task>();
             foreach (var jobConfig in jobConfigsNotInQuietHours)
                 if (DiscordClient.GetChannel(jobConfig.ChannelId.ToULong()) is SocketTextChannel socketTextChannel)
-                    tasks.Add(PostFirstNewGif(channelsPostedTo, jobConfig, socketTextChannel));
-            await Task.WhenAll(tasks);
+                    await PostFirstNewGif(channelsPostedTo, jobConfig, socketTextChannel);
             return channelsPostedTo;
         }
         async Task PostFirstNewGif(ConcurrentBag<JobConfig> channelsPostedTo, JobConfig jobConfig, SocketTextChannel socketTextChannel)
         {
-            var url = await GlobalConfig.LatestUrls.OrderByDescending(s => s.Stamp).Select(s => s.Url).FirstOrDefaultAsync(async s => !await GlobalConfig.UrlHistoryDal.Any(jobConfig.ChannelId, s));
+            var url = await GlobalConfig.LatestUrls
+                .OrderByDescending(s => s.Stamp)
+                .Select(s => s.Url)
+                .FirstOrDefaultAsync(async s => !await GlobalConfig.UrlHistoryDal.Any(jobConfig.ChannelId, s));
             if (url != default)
             {
                 await PostGif(jobConfig.ChannelId, url, $"*Trending!* {url}", socketTextChannel);
@@ -55,12 +56,13 @@ namespace TrendingGiphyBot.Jobs
         }
         async Task PostChannelsWithRandomStringOn(List<JobConfig> jobConfigsWithRandomStringOn)
         {
-            var tasks = jobConfigsWithRandomStringOn.Select(jobConfig => Logger.SwallowAsync(async () =>
-            {
-                var giphyRandomResult = await GlobalConfig.GiphyClient.RandomGif(new RandomParameter { Rating = GlobalConfig.Ratings, Tag = jobConfig.RandomSearchString });
-                await PostRandomGif(jobConfig, giphyRandomResult.Data.Url);
-            })).ToList();
-            await Task.WhenAll(tasks);
+            foreach (var jobConfig in jobConfigsWithRandomStringOn)
+                await Logger.SwallowAsync(async () =>
+                {
+                    var randomParameter = new RandomParameter { Rating = GlobalConfig.Ratings, Tag = jobConfig.RandomSearchString };
+                    var giphyRandomResult = await GlobalConfig.GiphyClient.RandomGif(randomParameter);
+                    await PostRandomGif(jobConfig, giphyRandomResult.Data.Url);
+                });
         }
         async Task PostChannelsWithRandomStringOff(List<JobConfig> jobConfigsWithRandomStringOff)
         {
@@ -68,8 +70,8 @@ namespace TrendingGiphyBot.Jobs
                 await Logger.SwallowAsync(async () =>
                 {
                     var giphyRandomResult = await GlobalConfig.GiphyClient.RandomGif(new RandomParameter { Rating = GlobalConfig.Ratings });
-                    var tasks = jobConfigsWithRandomStringOff.Select(jobConfig => PostRandomGif(jobConfig, giphyRandomResult.Data.Url)).ToList();
-                    await Task.WhenAll(tasks);
+                    foreach (var jobConfig in jobConfigsWithRandomStringOff)
+                        await PostRandomGif(jobConfig, giphyRandomResult.Data.Url);
                 });
         }
         async Task PostRandomGif(JobConfig jobConfig, string url)
