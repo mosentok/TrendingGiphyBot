@@ -33,8 +33,6 @@ namespace TrendingGiphyBot.Configuration
         [JsonRequired]
         public string DefaultPrefix { get; set; }
         [JsonRequired]
-        public string GitHubUrl { get; set; }
-        [JsonRequired]
         public string PlayingGame { get; set; }
         [JsonRequired]
         public short HourOffset { get; set; }
