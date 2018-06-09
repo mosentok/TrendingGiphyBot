@@ -91,7 +91,7 @@ namespace TrendingGiphyBot.Jobs
             catch (HttpException httpException) when (GlobalConfig.Config.HttpExceptionsToWarn.Contains(httpException.Message))
             {
                 Logger.Warn(httpException.Message);
-                await GlobalConfig.JobConfigDal.Remove(channelId);
+                await Logger.SwallowAsync(GlobalConfig.JobConfigDal.Remove(channelId));
             }
             catch (Exception ex)
             {
