@@ -28,7 +28,7 @@ namespace TrendingGiphyBot.Configuration
         public JobManager JobManager { get; private set; }
         static readonly Rating _Ratings = Enum.GetValues(typeof(Rating)).OfType<Rating>().Where(s => s != Rating.R).Aggregate((a, b) => a | b);
         public Rating Ratings => _Ratings;
-        public List<UrlCache> LatestUrls { get; set; }
+        public List<string> LatestUrlsOrdered { get; set; }
         public MessageHelper MessageHelper { get; private set; }
         public List<int> AllValidMinutes { get; private set; }
         public async Task Initialize()
@@ -39,10 +39,15 @@ namespace TrendingGiphyBot.Configuration
             UrlHistoryDal = new UrlHistoryDal(Config.ConnectionString);
             ChannelConfigDal = new ChannelConfigDal(Config.ConnectionString);
             GiphyClient = new Giphy(Config.GiphyToken);
-            LatestUrls = await UrlCacheDal.GetLatestUrls();
+            await UpdateLatestUrls();
             JobManager = new JobManager(this);
             var configgedLogSeverities = Config.LogSeverities.Aggregate((a, b) => a | b);
             DiscordClient = new DiscordSocketClient(new DiscordSocketConfig { LogLevel = configgedLogSeverities });
+        }
+        public async Task UpdateLatestUrls()
+        {
+            var latestUrls = await UrlCacheDal.GetLatestUrls();
+            LatestUrlsOrdered = latestUrls.OrderByDescending(s => s.Stamp).Select(s => s.Url).ToList();
         }
         public async Task RefreshConfig()
         {
