@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using GiphyDotNet.Model.Parameters;
 using NLog;
@@ -15,16 +14,12 @@ namespace TrendingGiphyBot.Jobs
         {
             await Logger.SwallowAsync(async () =>
             {
-                var urls = await FindNewTrendingGifs();
+                var trendingParameter = new TrendingParameter { Rating = GlobalConfig.Ratings };
+                var gifResult = await GlobalConfig.GiphyClient.TrendingGifs(trendingParameter);
+                var urls = await gifResult.Data.Select(s => s.Url).Except(GlobalConfig.Config.UrlsToIgnore).WhereAsync(async s => !await GlobalConfig.UrlCacheDal.Any(s));
                 await GlobalConfig.UrlCacheDal.Insert(urls);
                 await GlobalConfig.UpdateLatestUrls();
             });
-        }
-        async Task<List<string>> FindNewTrendingGifs()
-        {
-            var trendingParameter = new TrendingParameter { Rating = GlobalConfig.Ratings };
-            var gifResult = await GlobalConfig.GiphyClient.TrendingGifs(trendingParameter);
-            return await gifResult.Data.Select(s => s.Url).Except(GlobalConfig.Config.UrlsToIgnore).WhereAsync(async s => !await GlobalConfig.UrlCacheDal.Any(s));
         }
     }
 }
