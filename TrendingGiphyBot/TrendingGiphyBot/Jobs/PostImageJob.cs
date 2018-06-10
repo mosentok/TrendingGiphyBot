@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Discord.Net;
 using GiphyDotNet.Model.Parameters;
+using Newtonsoft.Json;
 using TrendingGiphyBot.Configuration;
 using TrendingGiphyBot.Enums;
 using TrendingGiphyBot.Extensions;
@@ -63,9 +64,20 @@ namespace TrendingGiphyBot.Jobs
             foreach (var jobConfig in jobConfigsWithRandomStringOn)
                 await Logger.SwallowAsync(async () =>
                 {
-                    var randomParameter = new RandomParameter { Rating = GlobalConfig.Ratings, Tag = jobConfig.RandomSearchString };
-                    var giphyRandomResult = await GlobalConfig.GiphyClient.RandomGif(randomParameter);
-                    await PostRandomGif(jobConfig, giphyRandomResult.Data.Url);
+                    try
+                    {
+                        var randomParameter = new RandomParameter { Rating = GlobalConfig.Ratings, Tag = jobConfig.RandomSearchString };
+                        var giphyRandomResult = await GlobalConfig.GiphyClient.RandomGif(randomParameter);
+                        await PostRandomGif(jobConfig, giphyRandomResult.Data.Url);
+                    }
+                    catch (JsonSerializationException jsEx)
+                    {
+                        await Logger.SwallowAsync(async () =>
+                        {
+                            Logger.Trace(jsEx);
+                            await GlobalConfig.JobConfigDal.BlankRandomConfig(jobConfig.ChannelId);
+                        });
+                    }
                 });
         }
         async Task PostChannelsWithRandomStringOff(List<JobConfig> jobConfigsWithRandomStringOff)
