@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using TrendingGiphyBot.Configuration;
-using TrendingGiphyBot.Enums;
 
 namespace TrendingGiphyBot.Jobs
 {
@@ -18,7 +17,7 @@ namespace TrendingGiphyBot.Jobs
         {
             _Jobs.ForEach(s => s?.Dispose());
             _Jobs.Clear();
-            _Jobs.Add(new PostImageJob(_GlobalConfig, new SubJobConfig(10, Time.Minutes)));
+            _Jobs.Add(new PostImageJob(_GlobalConfig));
             _Jobs.Add(new RefreshImagesJob(_GlobalConfig, Config.RefreshImageJobConfig));
             _Jobs.Add(new DeleteOldUrlCachesJob(_GlobalConfig, Config.DeleteOldUrlCachesJobConfig));
             _Jobs.Add(new DeleteOldUrlHistoriesJob(_GlobalConfig, Config.DeleteOldUrlHistoriesJobConfig));

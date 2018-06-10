@@ -9,13 +9,14 @@ using System.Linq;
 using Discord.Net;
 using GiphyDotNet.Model.Parameters;
 using TrendingGiphyBot.Configuration;
+using TrendingGiphyBot.Enums;
 using TrendingGiphyBot.Extensions;
 
 namespace TrendingGiphyBot.Jobs
 {
     class PostImageJob : Job
     {
-        internal PostImageJob(IGlobalConfig globalConfig, SubJobConfig subJobConfig) : base(globalConfig, LogManager.GetCurrentClassLogger(), subJobConfig) { }
+        internal PostImageJob(IGlobalConfig globalConfig) : base(globalConfig, LogManager.GetCurrentClassLogger(), new SubJobConfig(5, Time.Minutes)) { }
         protected override async Task Run()
         {
             await Logger.SwallowAsync(async () =>
