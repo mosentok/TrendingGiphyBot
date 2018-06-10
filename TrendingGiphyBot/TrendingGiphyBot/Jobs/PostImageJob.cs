@@ -23,24 +23,28 @@ namespace TrendingGiphyBot.Jobs
             {
                 if (await GlobalConfig.UrlCacheDal.Any())
                 {
-                    var jobConfigsNotInQuietHours = (await GetLiveJobConfigs()).Where(s => !s.IsInQuietHours()).ToList();
-                    var jobConfigsJustPostedTo = await PostChannelsNotInQuietHours(jobConfigsNotInQuietHours);
-                    var remainingJobConfigs = jobConfigsNotInQuietHours.Except(jobConfigsJustPostedTo).Where(s => s.RandomIsOn).ToList();
-                    var jobConfigsWithRandomStringOn = remainingJobConfigs.Where(s => !string.IsNullOrEmpty(s.RandomSearchString)).ToList();
-                    var jobConfigsWithRandomStringOff = remainingJobConfigs.Except(jobConfigsWithRandomStringOn).ToList();
-                    await PostChannelsWithRandomStringOn(jobConfigsWithRandomStringOn);
-                    await PostChannelsWithRandomStringOff(jobConfigsWithRandomStringOff);
+                    var currentValidMinutes = DetermineCurrentValidMinutes();
+                    if (currentValidMinutes.Any())
+                    {
+                        var jobConfigs = await GlobalConfig.JobConfigDal.Get(currentValidMinutes);
+                        var jobConfigsNotInQuietHours = jobConfigs.Where(s => !s.IsInQuietHours()).ToList();
+                        var jobConfigsJustPostedTo = await PostChannelsNotInQuietHours(jobConfigsNotInQuietHours);
+                        var remainingJobConfigs = jobConfigsNotInQuietHours.Except(jobConfigsJustPostedTo).Where(s => s.RandomIsOn).ToList();
+                        var jobConfigsWithRandomStringOn = remainingJobConfigs.Where(s => !string.IsNullOrEmpty(s.RandomSearchString)).ToList();
+                        var jobConfigsWithRandomStringOff = remainingJobConfigs.Except(jobConfigsWithRandomStringOn).ToList();
+                        await PostChannelsWithRandomStringOn(jobConfigsWithRandomStringOn);
+                        await PostChannelsWithRandomStringOff(jobConfigsWithRandomStringOff);
+                    }
                 }
             });
         }
-        async Task<IEnumerable<JobConfig>> GetLiveJobConfigs()
+        List<int> DetermineCurrentValidMinutes()
         {
             var now = DateTime.Now;
             var totalMinutes = now.Hour * 60 + now.Minute;
             if (totalMinutes == 0)
                 totalMinutes = 24 * 60;
-            var allValidMinutes = GlobalConfig.AllValidMinutes.Where(s => totalMinutes % s == 0).ToList();
-            return await GlobalConfig.JobConfigDal.Get(allValidMinutes);
+            return GlobalConfig.AllValidMinutes.Where(s => totalMinutes % s == 0).ToList();
         }
         async Task<ConcurrentBag<JobConfig>> PostChannelsNotInQuietHours(List<JobConfig> jobConfigsNotInQuietHours)
         {
