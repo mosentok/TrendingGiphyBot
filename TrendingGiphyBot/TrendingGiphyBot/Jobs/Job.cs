@@ -44,7 +44,8 @@ namespace TrendingGiphyBot.Jobs
         {
             var now = DateTime.Now;
             var nextElapse = DetermineNextElapse(now);
-            _Timer.Interval = (nextElapse - now + TimeSpan.FromSeconds(GlobalConfig.Config.IntervalOffsetSeconds + _IntervalOffsetSeconds)).TotalMilliseconds;
+            var offset = TimeSpan.FromSeconds(GlobalConfig.Config.IntervalOffsetSeconds + _IntervalOffsetSeconds);
+            _Timer.Interval = (nextElapse - now + offset).TotalMilliseconds;
             _Timer.Start();
             Logger.Trace($"{_Name} next elapse: {nextElapse}.");
         }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using TrendingGiphyBot.Configuration;
 using TrendingGiphyBot.Enums;
 
@@ -19,18 +18,12 @@ namespace TrendingGiphyBot.Jobs
         {
             _Jobs.ForEach(s => s?.Dispose());
             _Jobs.Clear();
-            var postImageJobs = BuildPostImageJobs();
-            _Jobs.AddRange(postImageJobs);
+            _Jobs.Add(new PostImageJob(_GlobalConfig, new SubJobConfig(10, Time.Minutes)));
             _Jobs.Add(new RefreshImagesJob(_GlobalConfig, Config.RefreshImageJobConfig));
             _Jobs.Add(new DeleteOldUrlCachesJob(_GlobalConfig, Config.DeleteOldUrlCachesJobConfig));
             _Jobs.Add(new DeleteOldUrlHistoriesJob(_GlobalConfig, Config.DeleteOldUrlHistoriesJobConfig));
             _Jobs.ForEach(s => s.StartTimerWithCloseInterval());
         }
-        List<PostImageJob> BuildPostImageJobs() => BuildPostImageJobs(Config.ValidSeconds, Time.Second, Time.Seconds)
-            .Concat(BuildPostImageJobs(Config.ValidMinutes, Time.Minute, Time.Minutes))
-            .Concat(BuildPostImageJobs(Config.ValidHours, Time.Hour, Time.Hours)).ToList();
-        IEnumerable<PostImageJob> BuildPostImageJobs(List<int> validIntervals, params Time[] times) =>
-            times.SelectMany(time => validIntervals.Select(interval => new PostImageJob(_GlobalConfig, new SubJobConfig(interval, time))));
         public void Dispose()
         {
             _Jobs.ForEach(s => s?.Dispose());

@@ -34,8 +34,12 @@ namespace TrendingGiphyBot.Jobs
         }
         async Task<IEnumerable<JobConfig>> GetLiveJobConfigs()
         {
-            var liveChannelIds = GlobalConfig.DiscordClient.Guilds.SelectMany(s => s.TextChannels).Select(s => s.Id).ToList();
-            return (await GlobalConfig.JobConfigDal.Get(Interval, Time)).Where(s => liveChannelIds.Contains(s.ChannelId.ToULong()));
+            var now = DateTime.Now;
+            var totalMinutes = now.Hour * 60 + now.Minute;
+            if (totalMinutes == 0)
+                totalMinutes = 24 * 60;
+            var allValidMinutes = GlobalConfig.AllValidMinutes.Where(s => totalMinutes % s == 0).ToList();
+            return await GlobalConfig.JobConfigDal.Get(allValidMinutes);
         }
         async Task<ConcurrentBag<JobConfig>> PostChannelsNotInQuietHours(List<JobConfig> jobConfigsNotInQuietHours)
         {
