@@ -28,7 +28,7 @@ namespace TrendingGiphyBot.Jobs
                     var jobConfigsJustPostedTo = await PostChannelsNotInQuietHours(jobConfigsNotInQuietHours);
                     var remainingJobConfigs = jobConfigsNotInQuietHours.Except(jobConfigsJustPostedTo).Where(s => s.RandomIsOn).ToList();
                     var jobConfigsWithRandomStringOn = remainingJobConfigs.Where(s => !string.IsNullOrEmpty(s.RandomSearchString)).ToList();
-                    var jobConfigsWithRandomStringOff =remainingJobConfigs.Except(jobConfigsWithRandomStringOn).ToList();
+                    var jobConfigsWithRandomStringOff = remainingJobConfigs.Except(jobConfigsWithRandomStringOn).ToList();
                     await PostChannelsWithRandomStringOn(jobConfigsWithRandomStringOn);
                     await PostChannelsWithRandomStringOff(jobConfigsWithRandomStringOff);
                 });
