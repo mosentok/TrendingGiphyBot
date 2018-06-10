@@ -82,5 +82,15 @@ namespace TrendingGiphyBot.Dals
                 await entities.SaveChangesAsync();
             }
         }
+        public async Task BlankRandomConfig(decimal channelId)
+        {
+            using (var entities = new TrendingGiphyBotEntities(ConnectionString))
+            {
+                var match = entities.JobConfigs.Single(s => s.ChannelId == channelId);
+                match.RandomIsOn = false;
+                match.RandomSearchString = null;
+                await entities.SaveChangesAsync();
+            }
+        }
     }
 }
