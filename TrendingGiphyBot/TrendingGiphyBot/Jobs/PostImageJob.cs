@@ -20,7 +20,7 @@ namespace TrendingGiphyBot.Jobs
         protected override async Task Run()
         {
             var currentValidMinutes = DetermineCurrentValidMinutes();
-            if (currentValidMinutes.Any() && GlobalConfig.LatestUrls.Any())
+            if (currentValidMinutes.Any() && GlobalConfig.LatestUrlsOrdered.Any())
                 await Logger.SwallowAsync(async () =>
                 {
                     var jobConfigs = await GlobalConfig.JobConfigDal.Get(currentValidMinutes);
@@ -51,10 +51,7 @@ namespace TrendingGiphyBot.Jobs
         }
         async Task PostFirstNewGif(ConcurrentBag<JobConfig> channelsPostedTo, JobConfig jobConfig, SocketTextChannel socketTextChannel)
         {
-            var url = await GlobalConfig.LatestUrls
-                .OrderByDescending(s => s.Stamp)
-                .Select(s => s.Url)
-                .FirstOrDefaultAsync(async s => !await GlobalConfig.UrlHistoryDal.Any(jobConfig.ChannelId, s));
+            var url = await GlobalConfig.LatestUrlsOrdered.FirstOrDefaultAsync(async s => !await GlobalConfig.UrlHistoryDal.Any(jobConfig.ChannelId, s));
             if (url != default)
             {
                 await PostGif(jobConfig.ChannelId, url, $"*Trending!* {url}", socketTextChannel);
