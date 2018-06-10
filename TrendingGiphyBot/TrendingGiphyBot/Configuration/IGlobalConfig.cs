@@ -27,5 +27,6 @@ namespace TrendingGiphyBot.Configuration
         List<UrlCache> LatestUrls { get; set; }
         EmbedBuilder BuildEmbedFromConfig(EmbedConfig embedConfig);
         MessageHelper MessageHelper { get; }
+        List<int> AllValidMinutes { get; }
     }
 }
