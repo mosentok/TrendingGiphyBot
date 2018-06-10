@@ -19,11 +19,12 @@ namespace TrendingGiphyBot.Dals
             using (var entities = new TrendingGiphyBotEntities(ConnectionString))
                 return await entities.UrlCaches.AnyAsync();
         }
-        internal async Task Insert(string url)
+        internal async Task Insert(List<string> urls)
         {
+            var urlCaches = urls.Select(s => new UrlCache { Url = s });
             using (var entities = new TrendingGiphyBotEntities(ConnectionString))
             {
-                entities.UrlCaches.Add(new UrlCache { Url = url });
+                entities.UrlCaches.AddRange(urlCaches);
                 await entities.SaveChangesAsync();
             }
         }
