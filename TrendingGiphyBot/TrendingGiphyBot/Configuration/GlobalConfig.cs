@@ -30,6 +30,7 @@ namespace TrendingGiphyBot.Configuration
         public Rating Ratings => _Ratings;
         public List<UrlCache> LatestUrls { get; set; }
         public MessageHelper MessageHelper { get; private set; }
+        public List<int> AllValidMinutes { get; private set; }
         public async Task Initialize()
         {
             await SetConfig();
@@ -58,6 +59,8 @@ namespace TrendingGiphyBot.Configuration
             LogManager.GetCurrentClassLogger().Trace(config);
             Config = JsonConvert.DeserializeObject<Config>(config);
             MessageHelper = new MessageHelper(Config.FailedReplyDisclaimer);
+            var validHoursAsMinutes = Config.ValidHours.Select(s => s * 60);
+            AllValidMinutes = Config.ValidMinutes.Concat(validHoursAsMinutes).ToList();
         }
         public EmbedBuilder BuildEmbedFromConfig(EmbedConfig embedConfig)
         {

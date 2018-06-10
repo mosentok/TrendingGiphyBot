@@ -9,33 +9,42 @@ using System.Linq;
 using Discord.Net;
 using GiphyDotNet.Model.Parameters;
 using TrendingGiphyBot.Configuration;
+using TrendingGiphyBot.Enums;
 using TrendingGiphyBot.Extensions;
 
 namespace TrendingGiphyBot.Jobs
 {
     class PostImageJob : Job
     {
-        internal PostImageJob(IGlobalConfig globalConfig, SubJobConfig subJobConfig) : base(globalConfig, LogManager.GetCurrentClassLogger(), subJobConfig) { }
+        internal PostImageJob(IGlobalConfig globalConfig) : base(globalConfig, LogManager.GetCurrentClassLogger(), new SubJobConfig(5, Time.Minutes)) { }
         protected override async Task Run()
         {
             await Logger.SwallowAsync(async () =>
             {
                 if (GlobalConfig.LatestUrls.Any())
                 {
-                    var jobConfigsNotInQuietHours = (await GetLiveJobConfigs()).Where(s => !s.IsInQuietHours()).ToList();
-                    var jobConfigsJustPostedTo = await PostChannelsNotInQuietHours(jobConfigsNotInQuietHours);
-                    var remainingJobConfigs = jobConfigsNotInQuietHours.Except(jobConfigsJustPostedTo).Where(s => s.RandomIsOn).ToList();
-                    var jobConfigsWithRandomStringOn = remainingJobConfigs.Where(s => !string.IsNullOrEmpty(s.RandomSearchString)).ToList();
-                    var jobConfigsWithRandomStringOff = remainingJobConfigs.Except(jobConfigsWithRandomStringOn).ToList();
-                    await PostChannelsWithRandomStringOn(jobConfigsWithRandomStringOn);
-                    await PostChannelsWithRandomStringOff(jobConfigsWithRandomStringOff);
+                    var currentValidMinutes = DetermineCurrentValidMinutes();
+                    if (currentValidMinutes.Any())
+                    {
+                        var jobConfigs = await GlobalConfig.JobConfigDal.Get(currentValidMinutes);
+                        var jobConfigsNotInQuietHours = jobConfigs.Where(s => !s.IsInQuietHours()).ToList();
+                        var jobConfigsJustPostedTo = await PostChannelsNotInQuietHours(jobConfigsNotInQuietHours);
+                        var remainingJobConfigs = jobConfigsNotInQuietHours.Except(jobConfigsJustPostedTo).Where(s => s.RandomIsOn).ToList();
+                        var jobConfigsWithRandomStringOn = remainingJobConfigs.Where(s => !string.IsNullOrEmpty(s.RandomSearchString)).ToList();
+                        var jobConfigsWithRandomStringOff = remainingJobConfigs.Except(jobConfigsWithRandomStringOn).ToList();
+                        await PostChannelsWithRandomStringOn(jobConfigsWithRandomStringOn);
+                        await PostChannelsWithRandomStringOff(jobConfigsWithRandomStringOff);
+                    }
                 }
             });
         }
-        async Task<IEnumerable<JobConfig>> GetLiveJobConfigs()
+        List<int> DetermineCurrentValidMinutes()
         {
-            var liveChannelIds = GlobalConfig.DiscordClient.Guilds.SelectMany(s => s.TextChannels).Select(s => s.Id).ToList();
-            return (await GlobalConfig.JobConfigDal.Get(Interval, Time)).Where(s => liveChannelIds.Contains(s.ChannelId.ToULong()));
+            var now = DateTime.Now;
+            var totalMinutes = now.Hour * 60 + now.Minute;
+            if (totalMinutes == 0)
+                totalMinutes = 24 * 60;
+            return GlobalConfig.AllValidMinutes.Where(s => totalMinutes % s == 0).ToList();
         }
         async Task<ConcurrentBag<JobConfig>> PostChannelsNotInQuietHours(List<JobConfig> jobConfigsNotInQuietHours)
         {
