@@ -20,7 +20,7 @@ namespace TrendingGiphyBot.Jobs
         {
             await Logger.SwallowAsync(async () =>
             {
-                if (await GlobalConfig.UrlCacheDal.Any())
+                if (GlobalConfig.LatestUrls.Any())
                 {
                     var jobConfigsNotInQuietHours = (await GetLiveJobConfigs()).Where(s => !s.IsInQuietHours()).ToList();
                     var jobConfigsJustPostedTo = await PostChannelsNotInQuietHours(jobConfigsNotInQuietHours);
