@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,11 +13,11 @@ namespace TrendingGiphyBot.Dals
             using (var entities = new TrendingGiphyBotEntities(ConnectionString))
                 return await entities.UrlHistories.AnyAsync(s => s.ChannelId == channelId && s.Url == url);
         }
-        internal async Task Insert(List<UrlHistory> successes)
+        internal async Task Insert(UrlHistory urlHistory)
         {
             using (var entities = new TrendingGiphyBotEntities(ConnectionString))
             {
-                entities.UrlHistories.AddRange(successes);
+                entities.UrlHistories.Add(urlHistory);
                 await entities.SaveChangesAsync();
             }
         }
