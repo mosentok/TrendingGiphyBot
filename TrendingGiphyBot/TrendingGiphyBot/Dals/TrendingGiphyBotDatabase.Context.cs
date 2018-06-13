@@ -29,10 +29,10 @@ namespace TrendingGiphyBot.Dals
             throw new UnintentionalCodeFirstException();
         }
     
-        public virtual DbSet<JobConfig> JobConfigs { get; set; }
-        public virtual DbSet<TimeRecord> TimeRecords { get; set; }
         public virtual DbSet<UrlHistory> UrlHistories { get; set; }
         public virtual DbSet<UrlCache> UrlCaches { get; set; }
         public virtual DbSet<ChannelConfig> ChannelConfigs { get; set; }
+        public virtual DbSet<JobConfig> JobConfigs { get; set; }
+        public virtual DbSet<TimeRecord> TimeRecords { get; set; }
     }
 }

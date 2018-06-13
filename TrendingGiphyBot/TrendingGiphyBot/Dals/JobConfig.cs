@@ -21,6 +21,7 @@ namespace TrendingGiphyBot.Dals
         public string RandomSearchString { get; set; }
         public Nullable<short> MinQuietHour { get; set; }
         public Nullable<short> MaxQuietHour { get; set; }
+        public int IntervalMinutes { get; set; }
     
         public virtual TimeRecord Time1 { get; set; }
     }
