@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-    <Schema Namespace="TrendingGiphyBotModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="TrendingGiphyBotModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012.Azure" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="ChannelConfig">
           <Key>
             <PropertyRef Name="ChannelId" />
@@ -23,6 +23,7 @@
           <Property Name="RandomSearchString" Type="varchar" MaxLength="32" />
           <Property Name="MinQuietHour" Type="smallint" />
           <Property Name="MaxQuietHour" Type="smallint" />
+          <Property Name="IntervalMinutes" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="Time">
           <Key>
@@ -73,48 +74,16 @@
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="TrendingGiphyBotModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
-        <EntityType Name="JobConfig">
-          <Key>
-            <PropertyRef Name="ChannelId" />
-          </Key>
-          <Property Name="ChannelId" Type="Decimal" Precision="20" Scale="0" Nullable="false" />
-          <Property Name="Interval" Type="Int32" Nullable="false" />
-          <Property Name="Time" Type="String" MaxLength="16" FixedLength="false" Unicode="false" Nullable="false" />
-          <NavigationProperty Name="Time1" Relationship="Self.FK_JobConfig_Time" FromRole="JobConfig" ToRole="Time" />
-          <Property Name="RandomIsOn" Type="Boolean" Nullable="false" />
-          <Property Name="RandomSearchString" Type="String" MaxLength="32" FixedLength="false" Unicode="false" />
-          <Property Name="MinQuietHour" Type="Int16" />
-          <Property Name="MaxQuietHour" Type="Int16" />
-        </EntityType>
-        <EntityType Name="TimeRecord">
-          <Key>
-            <PropertyRef Name="Value" />
-          </Key>
-          <Property Name="Value" Type="String" MaxLength="16" FixedLength="false" Unicode="false" Nullable="false" />
-          <NavigationProperty Name="JobConfigs" Relationship="Self.FK_JobConfig_Time" FromRole="Time" ToRole="JobConfig" />
-        </EntityType>
-        <Association Name="FK_JobConfig_Time">
-          <End Role="Time" Type="TrendingGiphyBotModel.TimeRecord" Multiplicity="1" />
-          <End Role="JobConfig" Type="Self.JobConfig" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Time">
-              <PropertyRef Name="Value" />
-            </Principal>
-            <Dependent Role="JobConfig">
-              <PropertyRef Name="Time" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <EntityContainer Name="TrendingGiphyBotEntities" annotation:LazyLoadingEnabled="true">
-          <EntitySet Name="JobConfigs" EntityType="Self.JobConfig" />
-          <EntitySet Name="TimeRecords" EntityType="TrendingGiphyBotModel.TimeRecord" />
-          <AssociationSet Name="FK_JobConfig_Time" Association="Self.FK_JobConfig_Time">
-            <End Role="Time" EntitySet="TimeRecords" />
-            <End Role="JobConfig" EntitySet="JobConfigs" />
-          </AssociationSet>
           <EntitySet Name="UrlHistories" EntityType="TrendingGiphyBotModel.UrlHistory" />
           <EntitySet Name="UrlCaches" EntityType="TrendingGiphyBotModel.UrlCache" />
           <EntitySet Name="ChannelConfigs" EntityType="TrendingGiphyBotModel.ChannelConfig" />
+          <EntitySet Name="JobConfigs" EntityType="TrendingGiphyBotModel.JobConfig" />
+          <EntitySet Name="TimeRecords" EntityType="TrendingGiphyBotModel.TimeRecord" />
+          <AssociationSet Name="FK_JobConfig_Time" Association="TrendingGiphyBotModel.FK_JobConfig_Time">
+            <End Role="Time" EntitySet="TimeRecords" />
+            <End Role="JobConfig" EntitySet="JobConfigs" />
+          </AssociationSet>
         </EntityContainer>
         <EntityType Name="UrlHistory">
           <Key>
@@ -139,32 +108,45 @@
           <Property Name="ChannelId" Type="Decimal" Nullable="false" Precision="20" Scale="0" />
           <Property Name="Prefix" Type="String" Nullable="false" MaxLength="4" FixedLength="false" Unicode="false" />
         </EntityType>
+        <EntityType Name="JobConfig">
+          <Key>
+            <PropertyRef Name="ChannelId" />
+          </Key>
+          <Property Name="ChannelId" Type="Decimal" Nullable="false" Precision="20" Scale="0" />
+          <Property Name="Interval" Type="Int32" Nullable="false" />
+          <Property Name="Time" Type="String" Nullable="false" MaxLength="16" FixedLength="false" Unicode="false" />
+          <Property Name="RandomIsOn" Type="Boolean" Nullable="false" />
+          <Property Name="RandomSearchString" Type="String" MaxLength="32" FixedLength="false" Unicode="false" />
+          <Property Name="MinQuietHour" Type="Int16" />
+          <Property Name="MaxQuietHour" Type="Int16" />
+          <Property Name="IntervalMinutes" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Time1" Relationship="TrendingGiphyBotModel.FK_JobConfig_Time" FromRole="JobConfig" ToRole="Time" />
+        </EntityType>
+        <EntityType Name="TimeRecord">
+          <Key>
+            <PropertyRef Name="Value" />
+          </Key>
+          <Property Name="Value" Type="String" Nullable="false" MaxLength="16" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="JobConfigs" Relationship="TrendingGiphyBotModel.FK_JobConfig_Time" FromRole="Time" ToRole="JobConfig" />
+        </EntityType>
+        <Association Name="FK_JobConfig_Time">
+          <End Type="TrendingGiphyBotModel.TimeRecord" Role="Time" Multiplicity="1" />
+          <End Type="TrendingGiphyBotModel.JobConfig" Role="JobConfig" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Time">
+              <PropertyRef Name="Value" />
+            </Principal>
+            <Dependent Role="JobConfig">
+              <PropertyRef Name="Time" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
         <EntityContainerMapping StorageEntityContainer="TrendingGiphyBotModelStoreContainer" CdmEntityContainer="TrendingGiphyBotEntities">
-          <EntitySetMapping Name="JobConfigs">
-            <EntityTypeMapping TypeName="TrendingGiphyBotModel.JobConfig">
-              <MappingFragment StoreEntitySet="JobConfig">
-                <ScalarProperty Name="MaxQuietHour" ColumnName="MaxQuietHour" />
-                <ScalarProperty Name="MinQuietHour" ColumnName="MinQuietHour" />
-                <ScalarProperty Name="RandomSearchString" ColumnName="RandomSearchString" />
-                <ScalarProperty Name="RandomIsOn" ColumnName="RandomIsOn" />
-                <ScalarProperty Name="ChannelId" ColumnName="ChannelId" />
-                <ScalarProperty Name="Interval" ColumnName="Interval" />
-                <ScalarProperty Name="Time" ColumnName="Time" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="TimeRecords">
-            <EntityTypeMapping TypeName="TrendingGiphyBotModel.TimeRecord">
-              <MappingFragment StoreEntitySet="Time">
-                <ScalarProperty Name="Value" ColumnName="Value" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="UrlHistories">
             <EntityTypeMapping TypeName="TrendingGiphyBotModel.UrlHistory">
               <MappingFragment StoreEntitySet="UrlHistory">
@@ -187,6 +169,27 @@
               <MappingFragment StoreEntitySet="ChannelConfig">
                 <ScalarProperty Name="Prefix" ColumnName="Prefix" />
                 <ScalarProperty Name="ChannelId" ColumnName="ChannelId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="JobConfigs">
+            <EntityTypeMapping TypeName="TrendingGiphyBotModel.JobConfig">
+              <MappingFragment StoreEntitySet="JobConfig">
+                <ScalarProperty Name="IntervalMinutes" ColumnName="IntervalMinutes" />
+                <ScalarProperty Name="MaxQuietHour" ColumnName="MaxQuietHour" />
+                <ScalarProperty Name="MinQuietHour" ColumnName="MinQuietHour" />
+                <ScalarProperty Name="RandomSearchString" ColumnName="RandomSearchString" />
+                <ScalarProperty Name="RandomIsOn" ColumnName="RandomIsOn" />
+                <ScalarProperty Name="Time" ColumnName="Time" />
+                <ScalarProperty Name="Interval" ColumnName="Interval" />
+                <ScalarProperty Name="ChannelId" ColumnName="ChannelId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TimeRecords">
+            <EntityTypeMapping TypeName="TrendingGiphyBotModel.TimeRecord">
+              <MappingFragment StoreEntitySet="Time">
+                <ScalarProperty Name="Value" ColumnName="Value" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
