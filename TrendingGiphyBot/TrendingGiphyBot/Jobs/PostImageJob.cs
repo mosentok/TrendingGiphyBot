@@ -73,11 +73,8 @@ namespace TrendingGiphyBot.Jobs
                     }
                     catch (JsonSerializationException jsEx)
                     {
-                        await Logger.SwallowAsync(async () =>
-                        {
-                            Logger.Trace(jsEx);
-                            await GlobalConfig.JobConfigDal.BlankRandomConfig(jobConfig.ChannelId);
-                        });
+                        Logger.Error(jsEx);
+                        await Logger.SwallowAsync(GlobalConfig.JobConfigDal.BlankRandomConfig(jobConfig.ChannelId));
                     }
                 });
         }
