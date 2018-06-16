@@ -21,19 +21,18 @@ namespace TrendingGiphyBot.Jobs
         {
             var currentValidMinutes = DetermineCurrentValidMinutes();
             if (currentValidMinutes.Any() && GlobalConfig.LatestUrlsOrdered.Any())
-                await Logger.SwallowAsync(async () =>
-                {
-                    var successes = new List<UrlHistory>();
-                    var jobConfigs = await GlobalConfig.JobConfigDal.Get(currentValidMinutes);
-                    var jobConfigsNotInQuietHours = jobConfigs.Where(s => !s.IsInQuietHours()).ToList();
-                    var jobConfigsJustPostedTo = await PostChannelsNotInQuietHours(jobConfigsNotInQuietHours, successes);
-                    var remainingJobConfigs = jobConfigsNotInQuietHours.Except(jobConfigsJustPostedTo).Where(s => s.RandomIsOn).ToList();
-                    var jobConfigsWithRandomStringOn = remainingJobConfigs.Where(s => !string.IsNullOrEmpty(s.RandomSearchString)).ToList();
-                    var jobConfigsWithRandomStringOff = remainingJobConfigs.Except(jobConfigsWithRandomStringOn).ToList();
-                    await PostChannelsWithRandomStringOn(jobConfigsWithRandomStringOn, successes);
-                    await PostChannelsWithRandomStringOff(jobConfigsWithRandomStringOff, successes);
-                    await GlobalConfig.UrlHistoryDal.Insert(successes);
-                });
+            {
+                var successes = new List<UrlHistory>();
+                var jobConfigs = await GlobalConfig.JobConfigDal.Get(currentValidMinutes);
+                var jobConfigsNotInQuietHours = jobConfigs.Where(s => !s.IsInQuietHours()).ToList();
+                var jobConfigsJustPostedTo = await PostChannelsNotInQuietHours(jobConfigsNotInQuietHours, successes);
+                var remainingJobConfigs = jobConfigsNotInQuietHours.Except(jobConfigsJustPostedTo).Where(s => s.RandomIsOn).ToList();
+                var jobConfigsWithRandomStringOn = remainingJobConfigs.Where(s => !string.IsNullOrEmpty(s.RandomSearchString)).ToList();
+                var jobConfigsWithRandomStringOff = remainingJobConfigs.Except(jobConfigsWithRandomStringOn).ToList();
+                await PostChannelsWithRandomStringOn(jobConfigsWithRandomStringOn, successes);
+                await PostChannelsWithRandomStringOff(jobConfigsWithRandomStringOff, successes);
+                await GlobalConfig.UrlHistoryDal.Insert(successes);
+            }
         }
         List<int> DetermineCurrentValidMinutes()
         {

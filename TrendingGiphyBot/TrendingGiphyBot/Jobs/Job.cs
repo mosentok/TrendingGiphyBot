@@ -36,7 +36,7 @@ namespace TrendingGiphyBot.Jobs
         {
             _Timer.Stop();
             Logger.Info($"{_Name} fired.");
-            await Run();
+            await Logger.SwallowAsync(Run);
             Logger.Info($"{_Name} success.");
             StartTimerWithCloseInterval();
         }
