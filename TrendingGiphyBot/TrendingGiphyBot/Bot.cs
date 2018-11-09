@@ -28,6 +28,7 @@ namespace TrendingGiphyBot
         IGlobalConfig _GlobalConfig;
         DiscordSocketClient DiscordClient => _GlobalConfig.DiscordClient;
         List<string> _ModuleNames;
+        static readonly HttpClient _HttpClient = new HttpClient();
         internal async Task Run()
         {
             _Services = new ServiceCollection()
@@ -121,11 +122,10 @@ namespace TrendingGiphyBot
             {
                 var content = $"{{\"server_count\":{_GlobalConfig.DiscordClient.Guilds.Count}}}";
                 var requestUri = string.Format(statPost.UrlStringFormat, DiscordClient.CurrentUser.Id);
-                using (var httpClient = new HttpClient())
                 using (var stringContent = new StringContent(content, Encoding.UTF8, "application/json"))
                 {
-                    httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(statPost.Token);
-                    await httpClient.PostAsync(requestUri, stringContent);
+                    _HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(statPost.Token);
+                    await _HttpClient.PostAsync(requestUri, stringContent);
                 }
             });
         }
@@ -227,6 +227,7 @@ namespace TrendingGiphyBot
         public void Dispose()
         {
             _GlobalConfig?.Dispose();
+            _HttpClient?.Dispose();
         }
     }
 }
