@@ -20,7 +20,7 @@ namespace TrendingGiphyBot.Jobs
         protected override async Task Run()
         {
             var currentValidMinutes = DetermineCurrentValidMinutes();
-            if (currentValidMinutes.Any() && GlobalConfig.LatestUrlsOrdered.Any())
+            if (currentValidMinutes.Any())
             {
                 var successes = new List<UrlHistory>();
                 var jobConfigs = await GlobalConfig.JobConfigDal.Get(currentValidMinutes);
@@ -52,8 +52,8 @@ namespace TrendingGiphyBot.Jobs
         }
         async Task PostFirstNewGif(List<JobConfig> channelsPostedTo, JobConfig jobConfig, SocketTextChannel socketTextChannel, List<UrlHistory> successes)
         {
-            var url = await GlobalConfig.LatestUrlsOrdered.FirstOrDefaultAsync(async s => !await GlobalConfig.UrlHistoryDal.Any(jobConfig.ChannelId, s));
-            if (url != default)
+            var url = await GlobalConfig.UrlHistoryDal.GetLastestUrlNotPosted(jobConfig.ChannelId);
+            if (!string.IsNullOrEmpty(url))
             {
                 await PostGif(jobConfig.ChannelId, url, $"*Trending!* {url}", socketTextChannel, successes);
                 channelsPostedTo.Add(jobConfig);

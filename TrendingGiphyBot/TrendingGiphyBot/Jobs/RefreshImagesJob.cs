@@ -16,7 +16,6 @@ namespace TrendingGiphyBot.Jobs
             var gifResult = await GlobalConfig.GiphyClient.TrendingGifs(trendingParameter);
             var urls = await gifResult.Data.Select(s => s.Url).Except(GlobalConfig.Config.UrlsToIgnore).WhereAsync(async s => !await GlobalConfig.UrlCacheDal.Any(s));
             await GlobalConfig.UrlCacheDal.Insert(urls);
-            await GlobalConfig.UpdateLatestUrls();
         }
     }
 }

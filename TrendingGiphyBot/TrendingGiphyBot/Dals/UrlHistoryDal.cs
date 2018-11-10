@@ -11,6 +11,15 @@ namespace TrendingGiphyBot.Dals
     {
         static readonly ILogger _Logger = LogManager.GetCurrentClassLogger();
         internal UrlHistoryDal(string connectionString) : base(connectionString) { }
+        internal async Task<string> GetLastestUrlNotPosted(decimal channelId)
+        {
+            using (var entities = new TrendingGiphyBotEntities(ConnectionString))
+            {
+                var channelsUrls = entities.UrlHistories.Where(s => s.ChannelId == channelId).Select(s => s.Url);
+                var latestUrls = entities.UrlCaches.Select(s => s.Url);
+                return await latestUrls.Except(channelsUrls).FirstOrDefaultAsync();
+            }
+        }
         internal async Task<bool> Any(decimal channelId, string url)
         {
             using (var entities = new TrendingGiphyBotEntities(ConnectionString))
