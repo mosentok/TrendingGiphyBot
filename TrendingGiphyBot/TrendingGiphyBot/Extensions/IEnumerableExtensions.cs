@@ -15,12 +15,5 @@ namespace TrendingGiphyBot.Extensions
                     results.Add(element);
             return results;
         }
-        internal static async Task<TSource> FirstOrDefaultAsync<TSource>(this IEnumerable<TSource> source, Func<TSource, Task<bool>> predicate)
-        {
-            foreach (var element in source)
-                if (await predicate(element))
-                    return element;
-            return default;
-        }
     }
 }
