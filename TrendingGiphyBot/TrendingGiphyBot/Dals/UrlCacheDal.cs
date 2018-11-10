@@ -9,21 +9,14 @@ namespace TrendingGiphyBot.Dals
     public class UrlCacheDal : Dal
     {
         internal UrlCacheDal(string connectionString) : base(connectionString) { }
-        internal async Task<bool> Any(string url)
-        {
-            using (var entities = new TrendingGiphyBotEntities(ConnectionString))
-                return await entities.UrlCaches.AnyAsync(s => s.Url == url);
-        }
-        internal async Task<bool> Any()
-        {
-            using (var entities = new TrendingGiphyBotEntities(ConnectionString))
-                return await entities.UrlCaches.AnyAsync();
-        }
         internal async Task Insert(List<string> urls)
         {
-            var urlCaches = urls.Select(s => new UrlCache { Url = s });
             using (var entities = new TrendingGiphyBotEntities(ConnectionString))
             {
+                var existingUrls = entities.UrlCaches.Select(s => s.Url);
+                var combinedUrls = existingUrls.Concat(urls).Distinct();
+                var newUrls = await combinedUrls.Except(existingUrls).ToListAsync();
+                var urlCaches = newUrls.Select(s => new UrlCache { Url = s });
                 entities.UrlCaches.AddRange(urlCaches);
                 await entities.SaveChangesAsync();
             }
