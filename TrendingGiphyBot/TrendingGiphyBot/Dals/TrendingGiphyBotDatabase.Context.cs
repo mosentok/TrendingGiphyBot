@@ -20,10 +20,6 @@ namespace TrendingGiphyBot.Dals
         {
         }
 
-        public TrendingGiphyBotEntities(string nameOrConnectionString) : base(nameOrConnectionString)
-        {
-        }
-
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             throw new UnintentionalCodeFirstException();
