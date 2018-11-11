@@ -27,7 +27,7 @@ namespace TrendingGiphyBot.Modules
         public async Task Set(short minHour, short maxHour)
         {
             using (var entities = GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities())
-                if (await entities.AnyJobConfigs(Context.Channel.Id))
+                if (await entities.AnyJobConfig(Context.Channel.Id))
                 {
                     var config = new JobConfig
                     {
@@ -44,7 +44,7 @@ namespace TrendingGiphyBot.Modules
         public async Task Reset()
         {
             using (var entities = GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities())
-                if (await entities.AnyJobConfigs(Context.Channel.Id))
+                if (await entities.AnyJobConfig(Context.Channel.Id))
                 {
                     var config = new JobConfig
                     {
@@ -65,7 +65,7 @@ namespace TrendingGiphyBot.Modules
         }
         async Task Get(TrendingGiphyBotEntities entities)
         {
-            if (await entities.AnyJobConfigs(Context.Channel.Id))
+            if (await entities.AnyJobConfig(Context.Channel.Id))
             {
                 var config = await entities.GetJobConfig(Context.Channel.Id);
                 var avatarUrl = (await Context.Client.GetGuildAsync(Context.Guild.Id)).IconUrl;
