@@ -77,7 +77,8 @@ namespace TrendingGiphyBot
                 Interval = _GlobalConfig.Config.DefaultJobConfig.Interval,
                 Time = _GlobalConfig.Config.DefaultJobConfig.Time.ToString()
             };
-            await _GlobalConfig.JobConfigDal.Insert(jobConfig);
+            using (var entities = _GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities())
+                await entities.InsertJobConfig(jobConfig);
             var embed = _GlobalConfig.BuildEmbedFromConfig(_GlobalConfig.Config.WelcomeMessageDefault);
             if (!string.IsNullOrEmpty(_GlobalConfig.Config.WelcomeMessageDefault.FooterText))
                 embed.Footer = new EmbedFooterBuilder()
@@ -102,13 +103,16 @@ namespace TrendingGiphyBot
         }
         async Task RemoveThisGuildsJobConfigs(SocketGuild arg)
         {
-            var toRemove = await arg.TextChannels.Select(s => s.Id).WhereAsync(async s => await _GlobalConfig.JobConfigDal.Any(s));
-            foreach (var id in toRemove)
-                await _GlobalConfig.JobConfigDal.Remove(id);
-            if (await _GlobalConfig.JobConfigDal.Any(arg.Id))
-                await _GlobalConfig.JobConfigDal.Remove(arg.Id);
-            if (arg.DefaultChannel != null && await _GlobalConfig.JobConfigDal.Any(arg.DefaultChannel.Id))
-                await _GlobalConfig.JobConfigDal.Remove(arg.DefaultChannel.Id);
+            using (var entities = _GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities())
+            {
+                var toRemove = await arg.TextChannels.Select(s => s.Id).WhereAsync(async s => await entities.AnyJobConfigs(s));
+                foreach (var id in toRemove)
+                    await entities.RemoveJobConfig(id);
+                if (await entities.AnyJobConfigs(arg.Id))
+                    await entities.RemoveJobConfig(arg.Id);
+                if (arg.DefaultChannel != null && await entities.AnyJobConfigs(arg.DefaultChannel.Id))
+                    await entities.RemoveJobConfig(arg.DefaultChannel.Id);
+            }
         }
         async Task PostStats()
         {
@@ -154,8 +158,9 @@ namespace TrendingGiphyBot
         }
         async Task<string> DeterminePrefix(SocketUserMessage message)
         {
-            if (await _GlobalConfig.ChannelConfigDal.Any(message.Channel.Id))
-                return await _GlobalConfig.ChannelConfigDal.GetPrefix(message.Channel.Id);
+            using (var entites = _GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities())
+                if (await entites.AnyChannelConfigs(message.Channel.Id))
+                    return await entites.GetPrefix(message.Channel.Id);
             return _GlobalConfig.Config.DefaultPrefix;
         }
         async Task HandleError(ICommandContext context, IResult result)

@@ -19,10 +19,7 @@ namespace TrendingGiphyBot.Configuration
     class GlobalConfig : IGlobalConfig
     {
         public Config Config { get; private set; }
-        public JobConfigDal JobConfigDal { get; private set; }
-        public UrlCacheDal UrlCacheDal { get; private set; }
-        public UrlHistoryDal UrlHistoryDal { get; private set; }
-        public ChannelConfigDal ChannelConfigDal { get; private set; }
+        public EntitiesFactory EntitiesFactory { get; private set; }
         public Giphy GiphyClient { get; private set; }
         public DiscordSocketClient DiscordClient { get; private set; }
         public JobManager JobManager { get; private set; }
@@ -33,10 +30,7 @@ namespace TrendingGiphyBot.Configuration
         public async Task Initialize()
         {
             await SetConfig();
-            JobConfigDal = new JobConfigDal(Config.ConnectionString);
-            UrlCacheDal = new UrlCacheDal(Config.ConnectionString);
-            UrlHistoryDal = new UrlHistoryDal(Config.ConnectionString);
-            ChannelConfigDal = new ChannelConfigDal(Config.ConnectionString);
+            EntitiesFactory = new EntitiesFactory(Config.ConnectionString);
             GiphyClient = new Giphy(Config.GiphyToken);
             JobManager = new JobManager(this);
             var configgedLogSeverities = Config.LogSeverities.Aggregate((a, b) => a | b);

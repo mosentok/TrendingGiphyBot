@@ -23,15 +23,18 @@ namespace TrendingGiphyBot.Jobs
             if (currentValidMinutes.Any())
             {
                 var successes = new List<UrlHistory>();
-                var jobConfigs = await GlobalConfig.JobConfigDal.Get(currentValidMinutes);
-                var jobConfigsNotInQuietHours = jobConfigs.Where(s => !s.IsInQuietHours()).ToList();
-                var jobConfigsJustPostedTo = await PostChannelsNotInQuietHours(jobConfigsNotInQuietHours, successes);
-                var remainingJobConfigs = jobConfigsNotInQuietHours.Except(jobConfigsJustPostedTo).Where(s => s.RandomIsOn).ToList();
-                var jobConfigsWithRandomStringOn = remainingJobConfigs.Where(s => !string.IsNullOrEmpty(s.RandomSearchString)).ToList();
-                var jobConfigsWithRandomStringOff = remainingJobConfigs.Except(jobConfigsWithRandomStringOn).ToList();
-                await PostChannelsWithRandomStringOn(jobConfigsWithRandomStringOn, successes);
-                await PostChannelsWithRandomStringOff(jobConfigsWithRandomStringOff, successes);
-                await GlobalConfig.UrlHistoryDal.Insert(successes);
+                using (var entities = GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities())
+                {
+                    var jobConfigs = await entities.GetJobConfigs(currentValidMinutes);
+                    var jobConfigsNotInQuietHours = jobConfigs.Where(s => !s.IsInQuietHours()).ToList();
+                    var jobConfigsJustPostedTo = await PostChannelsNotInQuietHours(entities, jobConfigsNotInQuietHours, successes);
+                    var remainingJobConfigs = jobConfigsNotInQuietHours.Except(jobConfigsJustPostedTo).Where(s => s.RandomIsOn).ToList();
+                    var jobConfigsWithRandomStringOn = remainingJobConfigs.Where(s => !string.IsNullOrEmpty(s.RandomSearchString)).ToList();
+                    var jobConfigsWithRandomStringOff = remainingJobConfigs.Except(jobConfigsWithRandomStringOn).ToList();
+                    await PostChannelsWithRandomStringOn(entities, jobConfigsWithRandomStringOn, successes);
+                    await PostChannelsWithRandomStringOff(entities, jobConfigsWithRandomStringOff, successes);
+                    await entities.InsertUrlHistories(successes);
+                }
             }
         }
         List<int> DetermineCurrentValidMinutes()
@@ -42,24 +45,24 @@ namespace TrendingGiphyBot.Jobs
                 totalMinutes = 24 * 60;
             return GlobalConfig.AllValidMinutes.Where(s => totalMinutes % s == 0).ToList();
         }
-        async Task<List<JobConfig>> PostChannelsNotInQuietHours(List<JobConfig> jobConfigsNotInQuietHours, List<UrlHistory> successes)
+        async Task<List<JobConfig>> PostChannelsNotInQuietHours(TrendingGiphyBotEntities entities, List<JobConfig> jobConfigsNotInQuietHours, List<UrlHistory> successes)
         {
             var channelsPostedTo = new List<JobConfig>();
             foreach (var jobConfig in jobConfigsNotInQuietHours)
                 if (DiscordClient.GetChannel(jobConfig.ChannelId.ToULong()) is SocketTextChannel socketTextChannel)
-                    await PostFirstNewGif(channelsPostedTo, jobConfig, socketTextChannel, successes);
+                    await PostFirstNewGif(entities, channelsPostedTo, jobConfig, socketTextChannel, successes);
             return channelsPostedTo;
         }
-        async Task PostFirstNewGif(List<JobConfig> channelsPostedTo, JobConfig jobConfig, SocketTextChannel socketTextChannel, List<UrlHistory> successes)
+        async Task PostFirstNewGif(TrendingGiphyBotEntities entities, List<JobConfig> channelsPostedTo, JobConfig jobConfig, SocketTextChannel socketTextChannel, List<UrlHistory> successes)
         {
-            var url = await GlobalConfig.UrlHistoryDal.GetLastestUrlNotPosted(jobConfig.ChannelId);
+            var url = await entities.GetLastestUrlNotPosted(jobConfig.ChannelId);
             if (!string.IsNullOrEmpty(url))
             {
-                await PostGif(jobConfig.ChannelId, url, $"*Trending!* {url}", socketTextChannel, successes);
+                await PostGif(entities, jobConfig.ChannelId, url, $"*Trending!* {url}", socketTextChannel, successes);
                 channelsPostedTo.Add(jobConfig);
             }
         }
-        async Task PostChannelsWithRandomStringOn(List<JobConfig> jobConfigsWithRandomStringOn, List<UrlHistory> successes)
+        async Task PostChannelsWithRandomStringOn(TrendingGiphyBotEntities entities, List<JobConfig> jobConfigsWithRandomStringOn, List<UrlHistory> successes)
         {
             foreach (var jobConfig in jobConfigsWithRandomStringOn)
                 await Logger.SwallowAsync(async () =>
@@ -68,32 +71,32 @@ namespace TrendingGiphyBot.Jobs
                     {
                         var randomParameter = new RandomParameter { Rating = GlobalConfig.Ratings, Tag = jobConfig.RandomSearchString };
                         var giphyRandomResult = await GlobalConfig.GiphyClient.RandomGif(randomParameter);
-                        await PostRandomGif(jobConfig, giphyRandomResult.Data.Url, successes);
+                        await PostRandomGif(entities, jobConfig, giphyRandomResult.Data.Url, successes);
                     }
                     catch (JsonSerializationException jsEx)
                     {
                         Logger.Error(jsEx);
-                        await Logger.SwallowAsync(GlobalConfig.JobConfigDal.BlankRandomConfig(jobConfig.ChannelId));
+                        await Logger.SwallowAsync(entities.BlankRandomConfig(jobConfig.ChannelId));
                     }
                 });
         }
-        async Task PostChannelsWithRandomStringOff(List<JobConfig> jobConfigsWithRandomStringOff, List<UrlHistory> successes)
+        async Task PostChannelsWithRandomStringOff(TrendingGiphyBotEntities entities, List<JobConfig> jobConfigsWithRandomStringOff, List<UrlHistory> successes)
         {
             if (jobConfigsWithRandomStringOff.Any())
                 await Logger.SwallowAsync(async () =>
                 {
                     var giphyRandomResult = await GlobalConfig.GiphyClient.RandomGif(new RandomParameter { Rating = GlobalConfig.Ratings });
                     foreach (var jobConfig in jobConfigsWithRandomStringOff)
-                        await PostRandomGif(jobConfig, giphyRandomResult.Data.Url, successes);
+                        await PostRandomGif(entities, jobConfig, giphyRandomResult.Data.Url, successes);
                 });
         }
-        async Task PostRandomGif(JobConfig jobConfig, string url, List<UrlHistory> successes)
+        async Task PostRandomGif(TrendingGiphyBotEntities entities, JobConfig jobConfig, string url, List<UrlHistory> successes)
         {
-            if (!await GlobalConfig.UrlHistoryDal.Any(jobConfig.ChannelId, url)
+            if (!await entities.AnyUrlHistories(jobConfig.ChannelId, url)
                 && DiscordClient.GetChannel(jobConfig.ChannelId.ToULong()) is SocketTextChannel socketTextChannel)
-                await PostGif(jobConfig.ChannelId, url, url, socketTextChannel, successes);
+                await PostGif(entities, jobConfig.ChannelId, url, url, socketTextChannel, successes);
         }
-        async Task PostGif(decimal channelId, string url, string message, SocketTextChannel socketTextChannel, List<UrlHistory> successes)
+        async Task PostGif(TrendingGiphyBotEntities entities, decimal channelId, string url, string message, SocketTextChannel socketTextChannel, List<UrlHistory> successes)
         {
             try
             {
@@ -104,7 +107,7 @@ namespace TrendingGiphyBot.Jobs
             catch (HttpException httpException) when (GlobalConfig.Config.HttpExceptionsToWarn.Contains(httpException.Message))
             {
                 Logger.Warn(httpException.Message);
-                await Logger.SwallowAsync(GlobalConfig.JobConfigDal.Remove(channelId));
+                await Logger.SwallowAsync(entities.RemoveJobConfig(channelId));
             }
             catch (Exception ex)
             {

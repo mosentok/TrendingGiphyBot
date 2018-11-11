@@ -318,16 +318,15 @@
     <Compile Include="Dals\ChannelConfig.cs">
       <DependentUpon>TrendingGiphyBotDatabase.tt</DependentUpon>
     </Compile>
-    <Compile Include="Dals\ChannelConfigDal.cs" />
-    <Compile Include="Dals\Dal.cs" />
+    <Compile Include="Dals\EntitiesFactory.cs" />
     <Compile Include="Dals\JobConfig.cs">
       <DependentUpon>TrendingGiphyBotDatabase.tt</DependentUpon>
     </Compile>
-    <Compile Include="Dals\JobConfigDal.cs" />
     <Compile Include="Dals\SqlAzureConfiguration.cs" />
     <Compile Include="Dals\TimeRecord.cs">
       <DependentUpon>TrendingGiphyBotDatabase.tt</DependentUpon>
     </Compile>
+    <Compile Include="Dals\TrendingGiphyBotEntities.cs" />
     <Compile Include="Dals\TrendingGiphyBotDatabase.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -346,11 +345,9 @@
     <Compile Include="Dals\UrlCache.cs">
       <DependentUpon>TrendingGiphyBotDatabase.tt</DependentUpon>
     </Compile>
-    <Compile Include="Dals\UrlCacheDal.cs" />
     <Compile Include="Dals\UrlHistory.cs">
       <DependentUpon>TrendingGiphyBotDatabase.tt</DependentUpon>
     </Compile>
-    <Compile Include="Dals\UrlHistoryDal.cs" />
     <Compile Include="Enums\JobConfigState.cs" />
     <Compile Include="Exceptions\UnexpectedLogSeverityException.cs" />
     <Compile Include="Exceptions\UnexpectedTimeException.cs" />

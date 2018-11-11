@@ -14,7 +14,7 @@ namespace TrendingGiphyBot.Modules
     [Group(nameof(JobConfig))]
     public class JobConfigModule : BotModuleBase
     {
-        public JobConfigModule(IServiceProvider services) : base(services, LogManager.GetCurrentClassLogger()){}
+        public JobConfigModule(IServiceProvider services) : base(services, LogManager.GetCurrentClassLogger()) { }
         string NotConfiguredMessage => $"{Context.Channel.Id} not configured. Configure me senpai! Use '{GlobalConfig.Config.DefaultPrefix}{nameof(JobConfig)}' or '{GlobalConfig.Config.DefaultPrefix}{nameof(JobConfig)} {nameof(Help)}' to learn how to.";
         [Command(nameof(Help))]
         [Alias(nameof(Help), "")]
@@ -22,22 +22,8 @@ namespace TrendingGiphyBot.Modules
         [Command(nameof(Get))]
         public async Task Get()
         {
-            var any = await GlobalConfig.JobConfigDal.Any(Context.Channel.Id);
-            if (any)
-            {
-                var config = await GlobalConfig.JobConfigDal.Get(Context.Channel.Id);
-                var avatarUrl = (await Context.Client.GetGuildAsync(Context.Guild.Id)).IconUrl;
-                var author = new EmbedAuthorBuilder()
-                    .WithName($"{Context.Channel.Name}'s {nameof(JobConfig)}")
-                    .WithIconUrl(avatarUrl);
-                var embedBuilder = new EmbedBuilder()
-                    .WithAuthor(author)
-                    .AddInlineField(nameof(config.Interval), config.Interval)
-                    .AddInlineField(nameof(config.Time), config.Time);
-                await TryReplyAsync(embedBuilder);
-            }
-            else
-                await TryReplyAsync(NotConfiguredMessage);
+            using (var entities = GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities())
+                await Get(entities);
         }
         [Command(nameof(Set))]
         public async Task Set(int interval, Time time)
@@ -63,20 +49,22 @@ namespace TrendingGiphyBot.Modules
                     return;
                 case JobConfigState.Valid:
                     await SaveConfig(interval, time);
-                    await Get();
+                    using (var entities = GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities())
+                        await Get(entities);
                     return;
             }
         }
         [Command(nameof(Remove))]
         public async Task Remove()
         {
-            if (await GlobalConfig.JobConfigDal.Any(Context.Channel.Id))
-            {
-                await GlobalConfig.JobConfigDal.Remove(Context.Channel.Id);
-                await TryReplyAsync("Configuration removed.");
-            }
-            else
-                await TryReplyAsync(NotConfiguredMessage);
+            using (var entities = GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities())
+                if (await entities.AnyJobConfigs(Context.Channel.Id))
+                {
+                    await entities.RemoveJobConfig(Context.Channel.Id);
+                    await TryReplyAsync("Configuration removed.");
+                }
+                else
+                    await TryReplyAsync(NotConfiguredMessage);
         }
         async Task SaveConfig(int interval, Time time)
         {
@@ -86,18 +74,34 @@ namespace TrendingGiphyBot.Modules
                 Interval = interval,
                 Time = time.ToString()
             };
-            await UpdateJobConfigTable(config);
-        }
-        async Task UpdateJobConfigTable(JobConfig config)
-        {
-            if (await GlobalConfig.JobConfigDal.Any(Context.Channel.Id))
-                await GlobalConfig.JobConfigDal.Update(config);
-            else
-                await GlobalConfig.JobConfigDal.Insert(config);
+            using (var entities = GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities())
+                if (await entities.AnyJobConfigs(Context.Channel.Id))
+                    await entities.UpdateJobConfig(config);
+                else
+                    await entities.InsertJobConfig(config);
         }
         static string InvalidConfigMessage(Time time, List<int> validValues) =>
             $"When {nameof(Time)} is {time}, interval must be {validValues.FlattenWith(", ")}.";
         static string InvalidConfigRangeMessage(SubJobConfig minConfig, SubJobConfig maxConfig) =>
             $"Interval must be between {minConfig.Interval} {minConfig.Time} and {maxConfig.Interval} {maxConfig.Time}.";
+        async Task Get(TrendingGiphyBotEntities entities)
+        {
+            var any = await entities.AnyJobConfigs(Context.Channel.Id);
+            if (any)
+            {
+                var config = await entities.GetJobConfig(Context.Channel.Id);
+                var avatarUrl = (await Context.Client.GetGuildAsync(Context.Guild.Id)).IconUrl;
+                var author = new EmbedAuthorBuilder()
+                    .WithName($"{Context.Channel.Name}'s {nameof(JobConfig)}")
+                    .WithIconUrl(avatarUrl);
+                var embedBuilder = new EmbedBuilder()
+                    .WithAuthor(author)
+                    .AddInlineField(nameof(config.Interval), config.Interval)
+                    .AddInlineField(nameof(config.Time), config.Time);
+                await TryReplyAsync(embedBuilder);
+            }
+            else
+                await TryReplyAsync(NotConfiguredMessage);
+        }
     }
 }
