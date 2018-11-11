@@ -19,11 +19,11 @@ namespace TrendingGiphyBot.Dals
         }
         internal async Task<string> GetPrefix(ulong channelId)
         {
-            return (await ChannelConfigs.SingleAsync(s => s.ChannelId == channelId)).Prefix;
+            return await ChannelConfigs.Where(s => s.ChannelId == channelId).Select(s => s.Prefix).SingleOrDefaultAsync();
         }
         internal async Task SetPrefix(ulong channelId, string prefix)
         {
-            var config = ChannelConfigs.Single(s => s.ChannelId == channelId);
+            var config = await ChannelConfigs.SingleAsync(s => s.ChannelId == channelId);
             config.Prefix = prefix;
             await SaveChangesAsync();
         }
@@ -55,7 +55,7 @@ namespace TrendingGiphyBot.Dals
         }
         internal async Task UpdateJobConfig(JobConfig config)
         {
-            var match = JobConfigs.Single(s => s.ChannelId == config.ChannelId);
+            var match = await JobConfigs.SingleAsync(s => s.ChannelId == config.ChannelId);
             match.Interval = config.Interval;
             match.Time = config.Time;
             match.IntervalMinutes = DetermineIntervalMinutes(config);
@@ -69,27 +69,27 @@ namespace TrendingGiphyBot.Dals
         }
         internal async Task UpdateRandom(JobConfig config)
         {
-            var match = JobConfigs.Single(s => s.ChannelId == config.ChannelId);
+            var match = await JobConfigs.SingleAsync(s => s.ChannelId == config.ChannelId);
             match.RandomIsOn = config.RandomIsOn;
             match.RandomSearchString = config.RandomSearchString;
             await SaveChangesAsync();
         }
         internal async Task UpdateQuietHours(JobConfig config)
         {
-            var match = JobConfigs.Single(s => s.ChannelId == config.ChannelId);
+            var match = await JobConfigs.SingleAsync(s => s.ChannelId == config.ChannelId);
             match.MinQuietHour = config.MinQuietHour;
             match.MaxQuietHour = config.MaxQuietHour;
             await SaveChangesAsync();
         }
         internal async Task RemoveJobConfig(decimal channelId)
         {
-            var match = JobConfigs.Single(s => s.ChannelId == channelId);
+            var match = await JobConfigs.SingleAsync(s => s.ChannelId == channelId);
             JobConfigs.Remove(match);
             await SaveChangesAsync();
         }
         public async Task BlankRandomConfig(decimal channelId)
         {
-            var match = JobConfigs.Single(s => s.ChannelId == channelId);
+            var match = await JobConfigs.SingleAsync(s => s.ChannelId == channelId);
             match.RandomIsOn = false;
             match.RandomSearchString = null;
             await SaveChangesAsync();
