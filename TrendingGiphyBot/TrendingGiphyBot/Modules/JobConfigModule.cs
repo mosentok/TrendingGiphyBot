@@ -58,7 +58,7 @@ namespace TrendingGiphyBot.Modules
         public async Task Remove()
         {
             using (var entities = GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities())
-                if (await entities.AnyJobConfigs(Context.Channel.Id))
+                if (await entities.AnyJobConfig(Context.Channel.Id))
                 {
                     await entities.RemoveJobConfig(Context.Channel.Id);
                     await TryReplyAsync("Configuration removed.");
@@ -75,7 +75,7 @@ namespace TrendingGiphyBot.Modules
                 Time = time.ToString()
             };
             using (var entities = GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities())
-                if (await entities.AnyJobConfigs(Context.Channel.Id))
+                if (await entities.AnyJobConfig(Context.Channel.Id))
                     await entities.UpdateJobConfig(config);
                 else
                     await entities.InsertJobConfig(config);
@@ -86,7 +86,7 @@ namespace TrendingGiphyBot.Modules
             $"Interval must be between {minConfig.Interval} {minConfig.Time} and {maxConfig.Interval} {maxConfig.Time}.";
         async Task Get(TrendingGiphyBotEntities entities)
         {
-            var any = await entities.AnyJobConfigs(Context.Channel.Id);
+            var any = await entities.AnyJobConfig(Context.Channel.Id);
             if (any)
             {
                 var config = await entities.GetJobConfig(Context.Channel.Id);

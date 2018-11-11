@@ -105,12 +105,13 @@ namespace TrendingGiphyBot
         {
             using (var entities = _GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities())
             {
-                var toRemove = await arg.TextChannels.Select(s => s.Id).WhereAsync(async s => await entities.AnyJobConfigs(s));
+                var textChannelIds = arg.TextChannels.Select(s => s.Id).Cast<decimal>();
+                var toRemove = await entities.FindMatchingIds(textChannelIds);
                 foreach (var id in toRemove)
                     await entities.RemoveJobConfig(id);
-                if (await entities.AnyJobConfigs(arg.Id))
+                if (await entities.AnyJobConfig(arg.Id))
                     await entities.RemoveJobConfig(arg.Id);
-                if (arg.DefaultChannel != null && await entities.AnyJobConfigs(arg.DefaultChannel.Id))
+                if (arg.DefaultChannel != null && await entities.AnyJobConfig(arg.DefaultChannel.Id))
                     await entities.RemoveJobConfig(arg.DefaultChannel.Id);
             }
         }

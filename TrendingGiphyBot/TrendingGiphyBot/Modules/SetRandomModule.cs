@@ -28,7 +28,7 @@ namespace TrendingGiphyBot.Modules
         public async Task On(params string[] searchValues)
         {
             using (var entities = GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities())
-                if (await entities.AnyJobConfigs(Context.Channel.Id))
+                if (await entities.AnyJobConfig(Context.Channel.Id))
                 {
                     var randomSearchString = DetermineRandomSearchString(searchValues);
                     if (string.IsNullOrEmpty(randomSearchString) || randomSearchString.Length <= GlobalConfig.Config.RandomSearchStringMaxLength)
@@ -58,7 +58,7 @@ namespace TrendingGiphyBot.Modules
         public async Task Off()
         {
             using (var entities = GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities())
-                if (await entities.AnyJobConfigs(Context.Channel.Id))
+                if (await entities.AnyJobConfig(Context.Channel.Id))
                 {
                     var config = new JobConfig { ChannelId = Context.Channel.Id, RandomIsOn = false };
                     await entities.UpdateRandom(config);
@@ -69,7 +69,7 @@ namespace TrendingGiphyBot.Modules
         }
         async Task Get(TrendingGiphyBotEntities entites)
         {
-            if (await entites.AnyJobConfigs(Context.Channel.Id))
+            if (await entites.AnyJobConfig(Context.Channel.Id))
             {
                 var config = await entites.GetJobConfig(Context.Channel.Id);
                 var avatarUrl = (await Context.Client.GetGuildAsync(Context.Guild.Id)).IconUrl;

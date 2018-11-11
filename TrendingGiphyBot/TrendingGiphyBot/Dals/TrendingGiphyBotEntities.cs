@@ -37,9 +37,14 @@ namespace TrendingGiphyBot.Dals
         {
             return await JobConfigs.SingleOrDefaultAsync(s => s.ChannelId == id);
         }
-        internal async Task<bool> AnyJobConfigs(decimal id)
+        internal async Task<bool> AnyJobConfig(decimal id)
         {
             return await JobConfigs.AnyAsync(s => s.ChannelId == id);
+        }
+        internal async Task<List<decimal>> FindMatchingIds(IEnumerable<decimal> ids)
+        {
+            var jobConfigIds = JobConfigs.Select(s => s.ChannelId);
+            return await jobConfigIds.Intersect(ids).ToListAsync();
         }
         internal async Task<List<JobConfig>> GetJobConfigs(List<int> curentValidMinutes)
         {
