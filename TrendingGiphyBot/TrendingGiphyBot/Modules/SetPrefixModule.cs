@@ -9,20 +9,21 @@ namespace TrendingGiphyBot.Modules
     [Group("SetPrefix")]
     public class SetPrefixModule : BotModuleBase
     {
-        public SetPrefixModule(IServiceProvider services) : base(services, LogManager.GetCurrentClassLogger()){}
+        public SetPrefixModule(IServiceProvider services) : base(services, LogManager.GetCurrentClassLogger()) { }
         [Command(nameof(Help))]
         [Alias(nameof(Help), "")]
         public async Task Help() => await HelpMessageReplyAsync();
         [Command(nameof(Get))]
         public async Task Get()
         {
-            if (await GlobalConfig.ChannelConfigDal.Any(Context.Channel.Id))
-            {
-                var prefix = await GlobalConfig.ChannelConfigDal.GetPrefix(Context.Channel.Id);
-                await TryReplyAsync($"Your prefix is {prefix}");
-            }
-            else
-                await Reset();
+            using (var entities = GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities())
+                if (await entities.AnyChannelConfigs(Context.Channel.Id))
+                {
+                    var prefix = await entities.GetPrefix(Context.Channel.Id);
+                    await TryReplyAsync($"Your prefix is {prefix}");
+                }
+                else
+                    await Reset();
         }
         [Command(nameof(Set))]
         public async Task Set(string prefix)
@@ -30,10 +31,11 @@ namespace TrendingGiphyBot.Modules
             var isValid = !string.IsNullOrEmpty(prefix) && prefix.Any() && prefix.Length <= 4;
             if (isValid)
             {
-                if (await GlobalConfig.ChannelConfigDal.Any(Context.Channel.Id))
-                    await GlobalConfig.ChannelConfigDal.SetPrefix(Context.Channel.Id, prefix);
-                else
-                    await GlobalConfig.ChannelConfigDal.Insert(Context.Channel.Id, prefix);
+                using (var entities = GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities())
+                    if (await entities.AnyChannelConfigs(Context.Channel.Id))
+                        await entities.SetPrefix(Context.Channel.Id, prefix);
+                    else
+                        await entities.InsertChannelConfig(Context.Channel.Id, prefix);
                 await Get();
             }
             else
