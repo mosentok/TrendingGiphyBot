@@ -13,6 +13,7 @@ namespace TrendingGiphyBot.Dals
         static readonly ILogger _Logger = LogManager.GetCurrentClassLogger();
         static readonly string _HourString = Time.Hour.ToString();
         static readonly string _HoursString = Time.Hours.ToString();
+        public TrendingGiphyBotEntities(string nameOrConnectionString) : base(nameOrConnectionString) { }
         internal async Task<bool> AnyChannelConfigs(ulong channelId)
         {
             return await ChannelConfigs.AnyAsync(s => s.ChannelId == channelId);
