@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using TrendingGiphyBot.Configuration;
 using NLog;
-using TrendingGiphyBot.Extensions;
 
 namespace TrendingGiphyBot.Modules
 {
@@ -81,7 +80,7 @@ namespace TrendingGiphyBot.Modules
                     await entities.InsertJobConfig(config);
         }
         static string InvalidConfigMessage(Time time, List<int> validValues) =>
-            $"When {nameof(Time)} is {time}, interval must be {validValues.FlattenWith(", ")}.";
+            $"When {nameof(Time)} is {time}, interval must be {string.Join(", ", validValues)}.";
         static string InvalidConfigRangeMessage(SubJobConfig minConfig, SubJobConfig maxConfig) =>
             $"Interval must be between {minConfig.Interval} {minConfig.Time} and {maxConfig.Interval} {maxConfig.Time}.";
         async Task Get(TrendingGiphyBotEntities entities)

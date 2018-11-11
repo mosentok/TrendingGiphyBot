@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord.Commands;
 using NLog;
-using TrendingGiphyBot.Extensions;
 
 namespace TrendingGiphyBot.Modules
 {
@@ -36,7 +35,7 @@ namespace TrendingGiphyBot.Modules
         static string DetermineGame(string[] words)
         {
             if (words.Any())
-                return words.FlattenWith(" ");
+                return string.Join(" ", words);
             return null;
         }
     }

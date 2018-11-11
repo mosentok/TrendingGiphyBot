@@ -354,7 +354,6 @@
     <Compile Include="Extensions\DecimalExtensions.cs" />
     <Compile Include="Extensions\EmbedBuilderExtensions.cs" />
     <Compile Include="Extensions\JobConfigExtensions.cs" />
-    <Compile Include="Extensions\IEnumerableExtensions.cs" />
     <Compile Include="Extensions\SocketUserMessageExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Helpers\MessageHelper.cs" />
