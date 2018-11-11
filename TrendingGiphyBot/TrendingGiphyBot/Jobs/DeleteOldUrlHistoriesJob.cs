@@ -11,7 +11,8 @@ namespace TrendingGiphyBot.Jobs
         protected override async Task Run()
         {
             var oldestDate = DateTime.Now.AddDays(-GlobalConfig.Config.UrlHistoriesMaxDaysOld);
-            await GlobalConfig.UrlHistoryDal.DeleteOlderThan(oldestDate);
+            using (var entities = GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities())
+                await entities.DeleteUrlHistoriesOlderThan(oldestDate);
         }
     }
 }
