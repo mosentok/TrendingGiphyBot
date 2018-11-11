@@ -131,12 +131,8 @@ namespace TrendingGiphyBot.Dals
         }
         internal async Task InsertUrlHistories(List<UrlHistory> histories)
         {
-            foreach (var history in histories)
-                await _Logger.SwallowAsync(async () =>
-                {
-                    UrlHistories.Add(history);
-                    await SaveChangesAsync();
-                });
+            UrlHistories.AddRange(histories);
+            await SaveChangesAsync();
         }
         internal async Task DeleteUrlHistoriesOlderThan(DateTime oldestDate)
         {
