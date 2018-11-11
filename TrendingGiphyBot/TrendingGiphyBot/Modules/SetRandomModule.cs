@@ -21,43 +21,32 @@ namespace TrendingGiphyBot.Modules
         [Command(nameof(Get))]
         public async Task Get()
         {
-            if (await GlobalConfig.JobConfigDal.Any(Context.Channel.Id))
-            {
-                var config = await GlobalConfig.JobConfigDal.Get(Context.Channel.Id);
-                var avatarUrl = (await Context.Client.GetGuildAsync(Context.Guild.Id)).IconUrl;
-                var author = new EmbedAuthorBuilder()
-                    .WithName($"{Context.Channel.Name}'s {_Name}")
-                    .WithIconUrl(avatarUrl);
-                var embedBuilder = new EmbedBuilder()
-                    .WithAuthor(author)
-                    .WithRandomConfigFields(config);
-                await TryReplyAsync(embedBuilder);
-            }
-            else
-                await TryReplyAsync(NotConfiguredMessage);
+            using (var entities = GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities())
+                await Get(entities);
         }
         [Command(nameof(On))]
         public async Task On(params string[] searchValues)
         {
-            if (await GlobalConfig.JobConfigDal.Any(Context.Channel.Id))
-            {
-                var randomSearchString = DetermineRandomSearchString(searchValues);
-                if (string.IsNullOrEmpty(randomSearchString) || randomSearchString.Length <= GlobalConfig.Config.RandomSearchStringMaxLength)
+            using (var entities = GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities())
+                if (await entities.AnyJobConfig(Context.Channel.Id))
                 {
-                    var config = new JobConfig
+                    var randomSearchString = DetermineRandomSearchString(searchValues);
+                    if (string.IsNullOrEmpty(randomSearchString) || randomSearchString.Length <= GlobalConfig.Config.RandomSearchStringMaxLength)
                     {
-                        ChannelId = Context.Channel.Id,
-                        RandomIsOn = true,
-                        RandomSearchString = randomSearchString
-                    };
-                    await GlobalConfig.JobConfigDal.UpdateRandom(config);
-                    await Get();
+                        var config = new JobConfig
+                        {
+                            ChannelId = Context.Channel.Id,
+                            RandomIsOn = true,
+                            RandomSearchString = randomSearchString
+                        };
+                        await entities.UpdateRandom(config);
+                        await Get(entities);
+                    }
+                    else
+                        await TryReplyAsync($"Random search string must be at most {GlobalConfig.Config.RandomSearchStringMaxLength} characters long.");
                 }
                 else
-                    await TryReplyAsync($"Random search string must be at most {GlobalConfig.Config.RandomSearchStringMaxLength} characters long.");
-            }
-            else
-                await TryReplyAsync(NotConfiguredMessage);
+                    await TryReplyAsync(NotConfiguredMessage);
         }
         static string DetermineRandomSearchString(string[] searchValues)
         {
@@ -68,11 +57,29 @@ namespace TrendingGiphyBot.Modules
         [Command(nameof(Off))]
         public async Task Off()
         {
-            if (await GlobalConfig.JobConfigDal.Any(Context.Channel.Id))
+            using (var entities = GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities())
+                if (await entities.AnyJobConfig(Context.Channel.Id))
+                {
+                    var config = new JobConfig { ChannelId = Context.Channel.Id, RandomIsOn = false };
+                    await entities.UpdateRandom(config);
+                    await TryReplyAsync("No more Randies.");
+                }
+                else
+                    await TryReplyAsync(NotConfiguredMessage);
+        }
+        async Task Get(TrendingGiphyBotEntities entites)
+        {
+            if (await entites.AnyJobConfig(Context.Channel.Id))
             {
-                var config = new JobConfig { ChannelId = Context.Channel.Id, RandomIsOn = false };
-                await GlobalConfig.JobConfigDal.UpdateRandom(config);
-                await TryReplyAsync("No more Randies.");
+                var config = await entites.GetJobConfig(Context.Channel.Id);
+                var avatarUrl = (await Context.Client.GetGuildAsync(Context.Guild.Id)).IconUrl;
+                var author = new EmbedAuthorBuilder()
+                    .WithName($"{Context.Channel.Name}'s {_Name}")
+                    .WithIconUrl(avatarUrl);
+                var embedBuilder = new EmbedBuilder()
+                    .WithAuthor(author)
+                    .WithRandomConfigFields(config);
+                await TryReplyAsync(embedBuilder);
             }
             else
                 await TryReplyAsync(NotConfiguredMessage);

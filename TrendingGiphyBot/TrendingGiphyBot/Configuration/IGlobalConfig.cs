@@ -14,10 +14,7 @@ namespace TrendingGiphyBot.Configuration
     public interface IGlobalConfig : IDisposable
     {
         Config Config { get; }
-        JobConfigDal JobConfigDal { get; }
-        UrlCacheDal UrlCacheDal { get; }
-        UrlHistoryDal UrlHistoryDal { get; }
-        ChannelConfigDal ChannelConfigDal { get; }
+        EntitiesFactory EntitiesFactory { get; }
         Giphy GiphyClient { get; }
         DiscordSocketClient DiscordClient { get; }
         JobManager JobManager { get; }
