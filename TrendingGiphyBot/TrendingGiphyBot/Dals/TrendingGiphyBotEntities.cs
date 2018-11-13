@@ -38,6 +38,18 @@ namespace TrendingGiphyBot.Dals
         {
             return await JobConfigs.SingleOrDefaultAsync(s => s.ChannelId == id);
         }
+        internal async Task<JobConfig> GetJobConfigWithHourOffset(decimal id, short hourOffset)
+        {
+            var match = await JobConfigs.SingleOrDefaultAsync(s => s.ChannelId == id);
+            if (match != null)
+            {
+                if (match.MinQuietHour.HasValue)
+                    match.MinQuietHour = UndoHourOffset(match.MinQuietHour.Value, hourOffset);
+                if (match.MaxQuietHour.HasValue)
+                    match.MaxQuietHour = UndoHourOffset(match.MaxQuietHour.Value, hourOffset);
+            }
+            return match;
+        }
         internal async Task<bool> AnyJobConfig(decimal id)
         {
             return await JobConfigs.AnyAsync(s => s.ChannelId == id);
@@ -47,7 +59,7 @@ namespace TrendingGiphyBot.Dals
             var jobConfigIds = JobConfigs.Select(s => s.ChannelId);
             return await jobConfigIds.Intersect(ids).ToListAsync();
         }
-        internal async Task<List<JobConfig>> GetJobConfigs(List<int> curentValidMinutes)
+        internal async Task<List<JobConfig>> GetJobConfigsToRun(List<int> curentValidMinutes)
         {
             return await (from jobConfig in JobConfigs
                           where curentValidMinutes.Contains(jobConfig.IntervalMinutes)
@@ -67,17 +79,55 @@ namespace TrendingGiphyBot.Dals
             match.IntervalMinutes = DetermineIntervalMinutes(config);
             await SaveChangesAsync();
         }
+        internal async Task UpdateInterval(ulong channelId, int interval, Time time)
+        {
+            var timeString = time.ToString();
+            var intervalMinutes = DetermineIntervalMinutes(interval, timeString);
+            var any = await AnyJobConfig(channelId);
+            if (any)
+            {
+                var match = await JobConfigs.SingleAsync(s => s.ChannelId == channelId);
+                match.Interval = interval;
+                match.Time = timeString;
+                match.IntervalMinutes = intervalMinutes;
+            }
+            else
+            {
+                var config = new JobConfig
+                {
+                    ChannelId = channelId,
+                    Interval = interval,
+                    Time = timeString,
+                    IntervalMinutes = intervalMinutes
+                };
+                JobConfigs.Add(config);
+            }
+            await SaveChangesAsync();
+        }
         static int DetermineIntervalMinutes(JobConfig config)
         {
             if (config.Time == _HourString || config.Time == _HoursString)
                 return config.Interval * 60;
             return config.Interval;
         }
+        static int DetermineIntervalMinutes(int interval, string timeString)
+        {
+            if (timeString == _HourString || timeString == _HoursString)
+                return interval * 60;
+            return interval;
+        }
         internal async Task UpdateRandom(JobConfig config)
         {
             var match = await JobConfigs.SingleAsync(s => s.ChannelId == config.ChannelId);
             match.RandomIsOn = config.RandomIsOn;
             match.RandomSearchString = config.RandomSearchString;
+            await SaveChangesAsync();
+        }
+        internal async Task UpdateRandom(ulong channelId, bool randomIsOn, string randomSearchString)
+        {
+            var match = await JobConfigs.SingleAsync(s => s.ChannelId == channelId);
+            match.RandomIsOn = randomIsOn;
+            match.RandomSearchString = randomSearchString;
             await SaveChangesAsync();
         }
         internal async Task UpdateQuietHours(JobConfig config)
@@ -87,10 +137,31 @@ namespace TrendingGiphyBot.Dals
             match.MaxQuietHour = config.MaxQuietHour;
             await SaveChangesAsync();
         }
-        internal async Task RemoveJobConfig(decimal channelId)
+        internal async Task UpdateQuietHoursWithHourOffset(ulong channelId, short minHour, short maxHour, short hourOffset)
         {
             var match = await JobConfigs.SingleAsync(s => s.ChannelId == channelId);
-            JobConfigs.Remove(match);
+            match.MinQuietHour = ApplyHourOffset(minHour, hourOffset);
+            match.MaxQuietHour = ApplyHourOffset(maxHour, hourOffset);
+            await SaveChangesAsync();
+        }
+        internal async Task TurnOffRandom(ulong channelId)
+        {
+            var match = await JobConfigs.SingleAsync(s => s.ChannelId == channelId);
+            match.RandomIsOn = false;
+            match.RandomSearchString = null;
+            await SaveChangesAsync();
+        }
+        internal async Task TurnOffQuietHours(ulong channelId)
+        {
+            var match = await JobConfigs.SingleAsync(s => s.ChannelId == channelId);
+            match.MinQuietHour = null;
+            match.MaxQuietHour = null;
+            await SaveChangesAsync();
+        }
+        internal async Task RemoveJobConfig(decimal channelId)
+        {
+            var matches = JobConfigs.Where(s => s.ChannelId == channelId);
+            JobConfigs.RemoveRange(matches);
             await SaveChangesAsync();
         }
         public async Task BlankRandomConfig(decimal channelId)
@@ -141,5 +212,7 @@ namespace TrendingGiphyBot.Dals
             UrlHistories.RemoveRange(tooOld);
             await SaveChangesAsync();
         }
+        static short ApplyHourOffset(short hour, short hourOffset) => (short)((hour + hourOffset) % 24);
+        static short UndoHourOffset(short hour, short hourOffset) => (short)((hour - hourOffset) % 24);
     }
 }

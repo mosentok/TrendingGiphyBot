@@ -397,6 +397,7 @@
     <Compile Include="Modules\QuietHoursModule.cs" />
     <Compile Include="Modules\SetPrefixModule.cs" />
     <Compile Include="Modules\SetRandomModule.cs" />
+    <Compile Include="Modules\TrendModule.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Configuration\Config.cs" />
