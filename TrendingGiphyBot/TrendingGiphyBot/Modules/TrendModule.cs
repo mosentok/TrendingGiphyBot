@@ -26,7 +26,7 @@ namespace TrendingGiphyBot.Modules
                 if (isConfigured)
                     await Get(entities);
                 else
-                    await HelpMessageReplyAsync();
+                    await NotConfiguredReplyAsync();
             }
         }
         [Command(nameof(Off))]
@@ -75,9 +75,11 @@ namespace TrendingGiphyBot.Modules
             {
                 var isConfigured = await entities.AnyJobConfig(Context.Channel.Id);
                 if (isConfigured)
-                {
                     if (randomSearchString.Equals("off", StringComparison.CurrentCultureIgnoreCase))
-                        await TurnOffRandom(entities);
+                    {
+                        await entities.TurnOffRandom(Context.Channel.Id);
+                        await Get(entities);
+                    }
                     else
                     {
                         var cleanedRandomSearchString = CleanRandomSearchString(randomSearchString);
@@ -90,9 +92,8 @@ namespace TrendingGiphyBot.Modules
                         else
                             await TryReplyAsync($"Random search string must be at most {GlobalConfig.Config.RandomSearchStringMaxLength} characters long.");
                     }
-                }
                 else
-                    await HelpMessageReplyAsync();
+                    await NotConfiguredReplyAsync();
             }
         }
         static string CleanRandomSearchString(string randomSearchString)
@@ -121,12 +122,15 @@ namespace TrendingGiphyBot.Modules
                 {
                     if (!string.IsNullOrWhiteSpace(quietHoursString))
                         if (quietHoursString.Equals("off", StringComparison.CurrentCultureIgnoreCase))
-                            await TurnOffQuietHours();
+                        {
+                            await entities.TurnOffQuietHours(Context.Channel.Id);
+                            await Get(entities);
+                        }
                         else
                             await UpdateQuietHours(quietHoursString);
                 }
                 else
-                    await HelpMessageReplyAsync();
+                    await NotConfiguredReplyAsync();
             }
         }
         async Task UpdateQuietHours(string quietHoursString)
@@ -141,14 +145,8 @@ namespace TrendingGiphyBot.Modules
                     if (maxHourSuccess)
                         using (var entities = GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities())
                         {
-                            var isConfigured = await entities.AnyJobConfig(Context.Channel.Id);
-                            if (isConfigured)
-                            {
-                                await entities.UpdateQuietHoursWithHourOffset(Context.Channel.Id, minHour, maxHour, GlobalConfig.Config.HourOffset);
-                                await Get(entities);
-                            }
-                            else
-                                await HelpMessageReplyAsync();
+                            await entities.UpdateQuietHoursWithHourOffset(Context.Channel.Id, minHour, maxHour, GlobalConfig.Config.HourOffset);
+                            await Get(entities);
                         }
                     else
                         await HelpMessageReplyAsync();
@@ -158,31 +156,6 @@ namespace TrendingGiphyBot.Modules
             }
             else
                 await HelpMessageReplyAsync();
-        }
-        async Task TurnOffRandom(TrendingGiphyBotEntities entities)
-        {
-            var isConfigured = await entities.AnyJobConfig(Context.Channel.Id);
-            if (isConfigured)
-            {
-                await entities.TurnOffRandom(Context.Channel.Id);
-                await Get(entities);
-            }
-            else
-                await HelpMessageReplyAsync();
-        }
-        async Task TurnOffQuietHours()
-        {
-            using (var entities = GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities())
-            {
-                var isConfigured = await entities.AnyJobConfig(Context.Channel.Id);
-                if (isConfigured)
-                {
-                    await entities.TurnOffQuietHours(Context.Channel.Id);
-                    await Get(entities);
-                }
-                else
-                    await HelpMessageReplyAsync();
-            }
         }
         static string InvalidConfigMessage(Time time, List<int> validValues) =>
             $"When {nameof(Time)} is {time}, interval must be {string.Join(", ", validValues)}.";
@@ -203,6 +176,11 @@ namespace TrendingGiphyBot.Modules
                 .WithRandomConfigFields(config)
                 .WithQuietHourFields(config, GlobalConfig.Config.HourOffset);
             await TryReplyAsync(embedBuilder);
+        }
+        async Task NotConfiguredReplyAsync()
+        {
+            var notConfiguredEmbed = GlobalConfig.BuildEmbedFromConfig(GlobalConfig.Config.NotConfiguredMessage);
+            await TryReplyAsync(notConfiguredEmbed);
         }
     }
 }
