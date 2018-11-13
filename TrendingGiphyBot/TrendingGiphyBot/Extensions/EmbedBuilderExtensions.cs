@@ -15,20 +15,13 @@ namespace TrendingGiphyBot.Extensions
         {
             if (!string.IsNullOrEmpty(config.RandomSearchString))
                 return embedBuilder.AddInlineField(nameof(config.RandomSearchString), config.RandomSearchString);
-            return embedBuilder.AddInlineField(nameof(config.RandomSearchString), "null");
+            return embedBuilder.AddInlineField(nameof(config.RandomSearchString), "none");
         }
         static EmbedBuilder WithQuietHour(this EmbedBuilder embedBuilder, string name, short? quietHour, short hourOffset)
         {
-            var local = UndoHourOffset(quietHour, hourOffset);
-            if (local.HasValue)
-                return embedBuilder.AddInlineField(name, local.Value);
-            return embedBuilder.AddInlineField(name, "null");
-        }
-        static short? UndoHourOffset(short? hour, short hourOffset)
-        {
-            if (hour.HasValue)
-                return (short)((hour - hourOffset) % 24);
-            return null;
+            if (quietHour.HasValue)
+                return embedBuilder.AddInlineField(name, quietHour.Value);
+            return embedBuilder.AddInlineField(name, "none");
         }
     }
 }
