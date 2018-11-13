@@ -40,14 +40,11 @@ namespace TrendingGiphyBot.Dals
         }
         internal async Task<JobConfig> GetJobConfigWithHourOffset(decimal id, short hourOffset)
         {
-            var match = await JobConfigs.SingleOrDefaultAsync(s => s.ChannelId == id);
-            if (match != null)
-            {
-                if (match.MinQuietHour.HasValue)
-                    match.MinQuietHour = UndoHourOffset(match.MinQuietHour.Value, hourOffset);
-                if (match.MaxQuietHour.HasValue)
-                    match.MaxQuietHour = UndoHourOffset(match.MaxQuietHour.Value, hourOffset);
-            }
+            var match = await JobConfigs.SingleAsync(s => s.ChannelId == id);
+            if (match.MinQuietHour.HasValue)
+                match.MinQuietHour = UndoHourOffset(match.MinQuietHour.Value, hourOffset);
+            if (match.MaxQuietHour.HasValue)
+                match.MaxQuietHour = UndoHourOffset(match.MaxQuietHour.Value, hourOffset);
             return match;
         }
         internal async Task<bool> AnyJobConfig(decimal id)
