@@ -56,6 +56,8 @@ namespace TrendingGiphyBot.Configuration
         public EmbedConfig WelcomeMessageOwner { get; set; }
         [JsonRequired]
         public EmbedConfig HelpMessage { get; set; }
+        [JsonRequired]
+        public EmbedConfig NotConfiguredMessage { get; set; }
         public List<StatPost> StatPosts { get; set; }
         [JsonRequired]
         public ushort IntervalOffsetSeconds { get; set; }
