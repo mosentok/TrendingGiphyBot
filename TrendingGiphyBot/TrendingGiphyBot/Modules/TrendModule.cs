@@ -110,7 +110,6 @@ namespace TrendingGiphyBot.Modules
         {
             var isConfigured = await _Entities.AnyJobConfig(Context.Channel.Id);
             if (isConfigured)
-            {
                 if (!string.IsNullOrWhiteSpace(quietHoursString))
                     if (quietHoursString.Equals("off", StringComparison.CurrentCultureIgnoreCase))
                     {
@@ -118,42 +117,29 @@ namespace TrendingGiphyBot.Modules
                         await GetJobConfig();
                     }
                     else
-                        await UpdateQuietHours(quietHoursString);
-            }
-            else
-                await NotConfiguredReplyAsync();
-        }
-        async Task UpdateQuietHours(string quietHoursString)
-        {
-            var split = quietHoursString.Split(_ArgsSplit, StringSplitOptions.RemoveEmptyEntries);
-            if (split.Length == 2)
-            {
-                var minHourSuccess = short.TryParse(split[0], out var minHour);
-                if (minHourSuccess)
-                {
-                    var maxHourSuccess = short.TryParse(split[1], out var maxHour);
-                    if (maxHourSuccess)
-                        using (var entities = _GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities())
-                        {
-                            await entities.UpdateQuietHoursWithHourOffset(Context.Channel.Id, minHour, maxHour, _GlobalConfig.Config.HourOffset);
-                            await GetJobConfig();
-                        }
-                    else
-                        await HelpMessageReplyAsync();
-                }
+                    {
+                        var split = quietHoursString.Split(_ArgsSplit, StringSplitOptions.RemoveEmptyEntries);
+                        if (split.Length == 2 && short.TryParse(split[0], out var minHour) && short.TryParse(split[1], out var maxHour))
+                            using (var entities = _GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities())
+                            {
+                                await entities.UpdateQuietHoursWithHourOffset(Context.Channel.Id, minHour, maxHour, _GlobalConfig.Config.HourOffset);
+                                await GetJobConfig();
+                            }
+                        else
+                            await HelpMessageReplyAsync();
+                    }
                 else
                     await HelpMessageReplyAsync();
-            }
             else
-                await HelpMessageReplyAsync();
+                await NotConfiguredReplyAsync();
         }
         async Task GetJobConfig()
         {
             var config = await _Entities.GetJobConfigWithHourOffset(Context.Channel.Id, _GlobalConfig.Config.HourOffset);
-            var avatarUrl = (await Context.Client.GetGuildAsync(Context.Guild.Id)).IconUrl;
+            var guild = await Context.Client.GetGuildAsync(Context.Guild.Id);
             var author = new EmbedAuthorBuilder()
                 .WithName("Your Trending Giphy Bot Setup")
-                .WithIconUrl(avatarUrl);
+                .WithIconUrl(guild.IconUrl);
             var embedBuilder = new EmbedBuilder()
                 .WithAuthor(author)
                 .WithDescription(_GlobalConfig.Config.HelpMessage.Description)
