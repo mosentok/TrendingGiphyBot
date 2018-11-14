@@ -17,6 +17,7 @@ using TrendingGiphyBot.Containers;
 using TrendingGiphyBot.Dals;
 using TrendingGiphyBot.Exceptions;
 using TrendingGiphyBot.Extensions;
+using TrendingGiphyBot.Helpers;
 
 namespace TrendingGiphyBot
 {
@@ -33,6 +34,7 @@ namespace TrendingGiphyBot
         {
             _Services = new ServiceCollection()
                 .AddSingleton<IGlobalConfig, GlobalConfig>()
+                .AddSingleton<ITrendHelper, TrendHelper>()
                 .BuildServiceProvider();
             _GlobalConfig = _Services.GetRequiredService<IGlobalConfig>();
             await _GlobalConfig.Initialize();
