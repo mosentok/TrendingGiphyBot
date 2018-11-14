@@ -14,35 +14,33 @@ using TrendingGiphyBot.Extensions;
 namespace TrendingGiphyBot.Modules
 {
     [Group("Trend")]
-    public class TrendModule : ModuleBase
+    public class TrendModule : ModuleBase, IDisposable
     {
         readonly ILogger _Logger;
         readonly IGlobalConfig _GlobalConfig;
+        readonly TrendingGiphyBotEntities _Entities;
         static readonly char[] _ArgsSplit = new[] { ' ' };
         public TrendModule(IServiceProvider services)
         {
             _Logger = LogManager.GetCurrentClassLogger();
             _GlobalConfig = services.GetRequiredService<IGlobalConfig>();
+            _Entities = _GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities();
         }
         [Command(nameof(Get))]
         [Alias(nameof(Get), "", "Config", "Setup", "Help")]
         public async Task Get()
         {
-            using (var entities = _GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities())
-            {
-                var isConfigured = await entities.AnyJobConfig(Context.Channel.Id);
-                if (isConfigured)
-                    await Get(entities);
-                else
-                    await NotConfiguredReplyAsync();
-            }
+            var isConfigured = await _Entities.AnyJobConfig(Context.Channel.Id);
+            if (isConfigured)
+                await GetJobConfig();
+            else
+                await NotConfiguredReplyAsync();
         }
         [Command(nameof(Off))]
         [Alias("Remove", "Stop")]
         public async Task Off()
         {
-            using (var entities = _GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities())
-                await entities.RemoveJobConfig(Context.Channel.Id);
+            await _Entities.RemoveJobConfig(Context.Channel.Id);
             await TryReplyAsync("Done.");
         }
         [Command(nameof(Every))]
@@ -71,7 +69,7 @@ namespace TrendingGiphyBot.Modules
                     using (var entities = _GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities())
                     {
                         await entities.UpdateInterval(Context.Channel.Id, interval, time);
-                        await Get(entities);
+                        await GetJobConfig();
                     }
                     return;
             }
@@ -79,30 +77,27 @@ namespace TrendingGiphyBot.Modules
         [Command("Random")]
         public async Task TrendRandom([Remainder] string randomSearchString = null)
         {
-            using (var entities = _GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities())
-            {
-                var isConfigured = await entities.AnyJobConfig(Context.Channel.Id);
-                if (isConfigured)
-                    if (randomSearchString.Equals("off", StringComparison.CurrentCultureIgnoreCase))
+            var isConfigured = await _Entities.AnyJobConfig(Context.Channel.Id);
+            if (isConfigured)
+                if (randomSearchString.Equals("off", StringComparison.CurrentCultureIgnoreCase))
+                {
+                    await _Entities.TurnOffRandom(Context.Channel.Id);
+                    await GetJobConfig();
+                }
+                else
+                {
+                    var cleanedRandomSearchString = CleanRandomSearchString(randomSearchString);
+                    var isValidRandomSearchString = string.IsNullOrWhiteSpace(cleanedRandomSearchString) || cleanedRandomSearchString.Length <= _GlobalConfig.Config.RandomSearchStringMaxLength;
+                    if (isValidRandomSearchString)
                     {
-                        await entities.TurnOffRandom(Context.Channel.Id);
-                        await Get(entities);
+                        await _Entities.UpdateRandom(Context.Channel.Id, true, cleanedRandomSearchString);
+                        await GetJobConfig();
                     }
                     else
-                    {
-                        var cleanedRandomSearchString = CleanRandomSearchString(randomSearchString);
-                        var isValidRandomSearchString = string.IsNullOrWhiteSpace(cleanedRandomSearchString) || cleanedRandomSearchString.Length <= _GlobalConfig.Config.RandomSearchStringMaxLength;
-                        if (isValidRandomSearchString)
-                        {
-                            await entities.UpdateRandom(Context.Channel.Id, true, cleanedRandomSearchString);
-                            await Get(entities);
-                        }
-                        else
-                            await TryReplyAsync($"Random search string must be at most {_GlobalConfig.Config.RandomSearchStringMaxLength} characters long.");
-                    }
-                else
-                    await NotConfiguredReplyAsync();
-            }
+                        await TryReplyAsync($"Random search string must be at most {_GlobalConfig.Config.RandomSearchStringMaxLength} characters long.");
+                }
+            else
+                await NotConfiguredReplyAsync();
         }
         static string CleanRandomSearchString(string randomSearchString)
         {
@@ -123,23 +118,20 @@ namespace TrendingGiphyBot.Modules
         [Command(nameof(QuietHours))]
         public async Task QuietHours([Remainder] string quietHoursString = null)
         {
-            using (var entities = _GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities())
+            var isConfigured = await _Entities.AnyJobConfig(Context.Channel.Id);
+            if (isConfigured)
             {
-                var isConfigured = await entities.AnyJobConfig(Context.Channel.Id);
-                if (isConfigured)
-                {
-                    if (!string.IsNullOrWhiteSpace(quietHoursString))
-                        if (quietHoursString.Equals("off", StringComparison.CurrentCultureIgnoreCase))
-                        {
-                            await entities.TurnOffQuietHours(Context.Channel.Id);
-                            await Get(entities);
-                        }
-                        else
-                            await UpdateQuietHours(quietHoursString);
-                }
-                else
-                    await NotConfiguredReplyAsync();
+                if (!string.IsNullOrWhiteSpace(quietHoursString))
+                    if (quietHoursString.Equals("off", StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        await _Entities.TurnOffQuietHours(Context.Channel.Id);
+                        await GetJobConfig();
+                    }
+                    else
+                        await UpdateQuietHours(quietHoursString);
             }
+            else
+                await NotConfiguredReplyAsync();
         }
         async Task UpdateQuietHours(string quietHoursString)
         {
@@ -154,7 +146,7 @@ namespace TrendingGiphyBot.Modules
                         using (var entities = _GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities())
                         {
                             await entities.UpdateQuietHoursWithHourOffset(Context.Channel.Id, minHour, maxHour, _GlobalConfig.Config.HourOffset);
-                            await Get(entities);
+                            await GetJobConfig();
                         }
                     else
                         await HelpMessageReplyAsync();
@@ -169,9 +161,9 @@ namespace TrendingGiphyBot.Modules
             $"When {nameof(Time)} is {time}, interval must be {string.Join(", ", validValues)}.";
         static string InvalidConfigRangeMessage(SubJobConfig minConfig, SubJobConfig maxConfig) =>
             $"Interval must be between {minConfig.Interval} {minConfig.Time} and {maxConfig.Interval} {maxConfig.Time}.";
-        async Task Get(TrendingGiphyBotEntities entities)
+        async Task GetJobConfig()
         {
-            var config = await entities.GetJobConfigWithHourOffset(Context.Channel.Id, _GlobalConfig.Config.HourOffset);
+            var config = await _Entities.GetJobConfigWithHourOffset(Context.Channel.Id, _GlobalConfig.Config.HourOffset);
             var avatarUrl = (await Context.Client.GetGuildAsync(Context.Guild.Id)).IconUrl;
             var author = new EmbedAuthorBuilder()
                 .WithName("Your Trending Giphy Bot Setup")
@@ -211,5 +203,9 @@ namespace TrendingGiphyBot.Modules
         }
         protected override void BeforeExecute(CommandInfo command) => _Logger.Trace($"Calling {command.Name}.");
         protected override void AfterExecute(CommandInfo command) => _Logger.Trace($"{command.Name} done.");
+        public void Dispose()
+        {
+            _Entities?.Dispose();
+        }
     }
 }
