@@ -3,20 +3,30 @@ using TrendingGiphyBot.Dals;
 
 namespace TrendingGiphyBot.Extensions
 {
+    //TODO something about the magic strings
     static class EmbedBuilderExtensions
     {
-        internal static EmbedBuilder WithRandomConfigFields(this EmbedBuilder embedBuilder, JobConfig config) =>
-            embedBuilder.AddInlineField(nameof(config.RandomIsOn), config.RandomIsOn)
+        internal static EmbedBuilder WithRandomConfigFields(this EmbedBuilder embedBuilder, JobConfig config)
+        {
+            var fieldValue = DetermineRandomFieldValue(config.RandomIsOn);
+            return embedBuilder.AddInlineField("Random Gifs?", fieldValue)
                 .WithRandomSearchString(config);
-        internal static EmbedBuilder WithQuietHourFields(this EmbedBuilder embedBuilder, JobConfig jobConfig, short hourOffset) =>
-            embedBuilder.WithQuietHour(nameof(jobConfig.MinQuietHour), jobConfig.MinQuietHour, hourOffset)
-                .WithQuietHour(nameof(jobConfig.MaxQuietHour), jobConfig.MaxQuietHour, hourOffset);
+        }
+        static string DetermineRandomFieldValue(bool randomIsOn)
+        {
+            if (randomIsOn)
+                return "yes";
+            return "no";
+        }
         static EmbedBuilder WithRandomSearchString(this EmbedBuilder embedBuilder, JobConfig config)
         {
-            if (!string.IsNullOrEmpty(config.RandomSearchString))
-                return embedBuilder.AddInlineField(nameof(config.RandomSearchString), config.RandomSearchString);
-            return embedBuilder.AddInlineField(nameof(config.RandomSearchString), "none");
+            if (string.IsNullOrEmpty(config.RandomSearchString))
+                return embedBuilder.AddInlineField("Random Gif Filter", "none");
+            return embedBuilder.AddInlineField("Random Gif Filter", $"\"{config.RandomSearchString}\"");
         }
+        internal static EmbedBuilder WithQuietHourFields(this EmbedBuilder embedBuilder, JobConfig jobConfig, short hourOffset) =>
+            embedBuilder.WithQuietHour("Start Quiet Hour", jobConfig.MinQuietHour, hourOffset)
+                .WithQuietHour("End Quiet Hour", jobConfig.MaxQuietHour, hourOffset);
         static EmbedBuilder WithQuietHour(this EmbedBuilder embedBuilder, string name, short? quietHour, short hourOffset)
         {
             if (quietHour.HasValue)
