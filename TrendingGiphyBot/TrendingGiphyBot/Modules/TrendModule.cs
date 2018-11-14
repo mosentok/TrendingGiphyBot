@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -10,6 +9,7 @@ using TrendingGiphyBot.Configuration;
 using TrendingGiphyBot.Dals;
 using TrendingGiphyBot.Enums;
 using TrendingGiphyBot.Extensions;
+using TrendingGiphyBot.Helpers;
 
 namespace TrendingGiphyBot.Modules
 {
@@ -19,12 +19,14 @@ namespace TrendingGiphyBot.Modules
         readonly ILogger _Logger;
         readonly IGlobalConfig _GlobalConfig;
         readonly TrendingGiphyBotEntities _Entities;
+        readonly ITrendHelper _TrendHelper;
         static readonly char[] _ArgsSplit = new[] { ' ' };
         public TrendModule(IServiceProvider services)
         {
             _Logger = LogManager.GetCurrentClassLogger();
             _GlobalConfig = services.GetRequiredService<IGlobalConfig>();
             _Entities = _GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities();
+            _TrendHelper = services.GetRequiredService<ITrendHelper>();
         }
         [Command(nameof(Get))]
         [Alias(nameof(Get), "", "Config", "Setup", "Help")]
@@ -50,20 +52,24 @@ namespace TrendingGiphyBot.Modules
             switch (state)
             {
                 case JobConfigState.InvalidHours:
-                    await TryReplyAsync(InvalidConfigMessage(time, _GlobalConfig.Config.ValidHours));
+                    var invalidHoursMessage = _TrendHelper.InvalidConfigMessage(time, _GlobalConfig.Config.ValidHours);
+                    await TryReplyAsync(invalidHoursMessage);
                     return;
                 case JobConfigState.InvalidMinutes:
-                    await TryReplyAsync(InvalidConfigMessage(time, _GlobalConfig.Config.ValidMinutes));
+                    var invalidMinutesMessage = _TrendHelper.InvalidConfigMessage(time, _GlobalConfig.Config.ValidMinutes);
+                    await TryReplyAsync(invalidMinutesMessage);
                     return;
                 case JobConfigState.InvalidSeconds:
-                    await TryReplyAsync(InvalidConfigMessage(time, _GlobalConfig.Config.ValidSeconds));
+                    var invalidConfigMessage = _TrendHelper.InvalidConfigMessage(time, _GlobalConfig.Config.ValidSeconds);
+                    await TryReplyAsync(invalidConfigMessage);
                     return;
                 case JobConfigState.InvalidTime:
                     await TryReplyAsync($"{time} is an invalid {nameof(Time)}.");
                     return;
                 case JobConfigState.IntervalTooSmall:
                 case JobConfigState.IntervallTooBig:
-                    await TryReplyAsync(InvalidConfigRangeMessage(_GlobalConfig.Config.MinJobConfig, _GlobalConfig.Config.MaxJobConfig));
+                    var invalidConfigRangeMessage = _TrendHelper.InvalidConfigRangeMessage(_GlobalConfig.Config.MinJobConfig, _GlobalConfig.Config.MaxJobConfig);
+                    await TryReplyAsync(invalidConfigRangeMessage);
                     return;
                 case JobConfigState.Valid:
                     using (var entities = _GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities())
@@ -86,8 +92,8 @@ namespace TrendingGiphyBot.Modules
                 }
                 else
                 {
-                    var cleanedRandomSearchString = CleanRandomSearchString(randomSearchString);
-                    var isValidRandomSearchString = string.IsNullOrWhiteSpace(cleanedRandomSearchString) || cleanedRandomSearchString.Length <= _GlobalConfig.Config.RandomSearchStringMaxLength;
+                    var cleanedRandomSearchString = _TrendHelper.CleanRandomSearchString(randomSearchString);
+                    var isValidRandomSearchString = _TrendHelper.IsValidRandomSearchString(cleanedRandomSearchString, _GlobalConfig.Config.RandomSearchStringMaxLength);
                     if (isValidRandomSearchString)
                     {
                         await _Entities.UpdateRandom(Context.Channel.Id, true, cleanedRandomSearchString);
@@ -98,22 +104,6 @@ namespace TrendingGiphyBot.Modules
                 }
             else
                 await NotConfiguredReplyAsync();
-        }
-        static string CleanRandomSearchString(string randomSearchString)
-        {
-            if (!string.IsNullOrEmpty(randomSearchString))
-            {
-                if (randomSearchString.StartsWith("gifs of", StringComparison.CurrentCultureIgnoreCase))
-                    return randomSearchString.Substring(7).TrimStart();
-                if (randomSearchString.StartsWith("gif of", StringComparison.CurrentCultureIgnoreCase))
-                    return randomSearchString.Substring(6).TrimStart();
-                if (randomSearchString.StartsWith("gifs", StringComparison.CurrentCultureIgnoreCase))
-                    return randomSearchString.Substring(4).TrimStart();
-                if (randomSearchString.StartsWith("gif", StringComparison.CurrentCultureIgnoreCase))
-                    return randomSearchString.Substring(3).TrimStart();
-                return randomSearchString;
-            }
-            return null;
         }
         [Command(nameof(QuietHours))]
         public async Task QuietHours([Remainder] string quietHoursString = null)
@@ -157,10 +147,6 @@ namespace TrendingGiphyBot.Modules
             else
                 await HelpMessageReplyAsync();
         }
-        static string InvalidConfigMessage(Time time, List<int> validValues) =>
-            $"When {nameof(Time)} is {time}, interval must be {string.Join(", ", validValues)}.";
-        static string InvalidConfigRangeMessage(SubJobConfig minConfig, SubJobConfig maxConfig) =>
-            $"Interval must be between {minConfig.Interval} {minConfig.Time} and {maxConfig.Interval} {maxConfig.Time}.";
         async Task GetJobConfig()
         {
             var config = await _Entities.GetJobConfigWithHourOffset(Context.Channel.Id, _GlobalConfig.Config.HourOffset);

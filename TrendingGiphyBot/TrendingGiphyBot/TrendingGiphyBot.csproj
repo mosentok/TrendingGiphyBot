@@ -383,7 +383,9 @@
     <Compile Include="Extensions\JobConfigExtensions.cs" />
     <Compile Include="Extensions\SocketUserMessageExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Helpers\ITrendHelper.cs" />
     <Compile Include="Helpers\MessageHelper.cs" />
+    <Compile Include="Helpers\TrendHelper.cs" />
     <Compile Include="Jobs\DeleteOldUrlCachesJob.cs" />
     <Compile Include="Jobs\DeleteOldUrlHistoriesJob.cs" />
     <Compile Include="Jobs\JobManager.cs" />
