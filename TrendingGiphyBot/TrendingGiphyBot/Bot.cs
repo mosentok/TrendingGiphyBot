@@ -62,12 +62,15 @@ namespace TrendingGiphyBot
         }
         async Task JoinedGuild(SocketGuild arg)
         {
-            await RemoveThisGuildsJobConfigs(arg);
-            if (arg.DefaultChannel != null)
-                await PostToDefaultChannel(arg);
-            else
-                await PostToOwner(arg);
-            await PostStats();
+            await _Logger.SwallowAsync(async () =>
+            {
+                await RemoveThisGuildsJobConfigs(arg);
+                if (arg.DefaultChannel != null)
+                    await PostToDefaultChannel(arg);
+                else
+                    await PostToOwner(arg);
+                await PostStats();
+            });
         }
         async Task PostToDefaultChannel(SocketGuild arg)
         {
@@ -98,14 +101,17 @@ namespace TrendingGiphyBot
         }
         async Task LeftGuild(SocketGuild arg)
         {
-            await RemoveThisGuildsJobConfigs(arg);
-            await PostStats();
+            await _Logger.SwallowAsync(async () =>
+            {
+                await RemoveThisGuildsJobConfigs(arg);
+                await PostStats();
+            });
         }
         async Task RemoveThisGuildsJobConfigs(SocketGuild arg)
         {
             using (var entities = _GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities())
             {
-                var textChannelIds = arg.TextChannels.Select(s => s.Id).Cast<decimal>();
+                var textChannelIds = arg.TextChannels.Select(s => Convert.ToDecimal(s.Id));
                 var toRemove = await entities.FindMatchingIds(textChannelIds);
                 foreach (var id in toRemove)
                     await entities.RemoveJobConfig(id);
