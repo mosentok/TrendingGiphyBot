@@ -3,7 +3,6 @@ using TrendingGiphyBot.Dals;
 
 namespace TrendingGiphyBot.Extensions
 {
-    //TODO something about the magic strings
     static class EmbedBuilderExtensions
     {
         internal static EmbedBuilder WithRandomConfigFields(this EmbedBuilder embedBuilder, JobConfig config)

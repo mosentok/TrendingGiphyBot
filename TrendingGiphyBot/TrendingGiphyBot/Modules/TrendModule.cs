@@ -137,18 +137,17 @@ namespace TrendingGiphyBot.Modules
         [Alias("Example")]
         public async Task Examples()
         {
-            var config = await _Entities.GetJobConfigWithHourOffset(Context.Channel.Id, _GlobalConfig.Config.HourOffset);
             var guild = await Context.Client.GetGuildAsync(Context.Guild.Id);
             var author = new EmbedAuthorBuilder()
                 .WithName($"Trending Giphy Bot Setup Examples")
                 .WithIconUrl(guild.IconUrl);
-            var field = new EmbedFieldBuilder()
+            var helpField = new EmbedFieldBuilder()
                 .WithName("Need More Help?")
-                .WithValue("Visit [GitHub](https://github.com/mosentok/TrendingGiphyBot#commands) for more info.");
+                .WithValue(_GlobalConfig.Config.ExamplesHelpFieldText);
             var embedBuilder = new EmbedBuilder()
                 .WithAuthor(author)
-                .WithDescription("```fix\n!trend every 10 minutes\n!trend random cats\n!trend quiethours 22 8\n!trend prefix ^```")
-                .AddField(field);
+                .WithDescription(_GlobalConfig.Config.ExamplesText)
+                .AddField(helpField);
             await TryReplyAsync(embedBuilder);
         }
         async Task GetJobConfig()
@@ -158,13 +157,16 @@ namespace TrendingGiphyBot.Modules
             var author = new EmbedAuthorBuilder()
                 .WithName($"Your Trending Giphy Bot Setup for Channel # {Context.Channel.Name}")
                 .WithIconUrl(guild.IconUrl);
+            var helpField = new EmbedFieldBuilder()
+                .WithName("Need Help?")
+                .WithValue(_GlobalConfig.Config.GetConfigHelpFieldText);
             var embedBuilder = new EmbedBuilder()
                 .WithAuthor(author)
                 .AddInlineField(nameof(config.Interval), config.Interval)
                 .AddInlineField(nameof(config.Time), config.Time.ToLower())
                 .WithRandomConfigFields(config)
                 .WithQuietHourFields(config, _GlobalConfig.Config.HourOffset)
-                .AddField("Need Help?", "Type `!trend examples` for some examples, or visit [GitHub](https://github.com/mosentok/TrendingGiphyBot#commands) for more info.");
+                .AddField(helpField);
             await TryReplyAsync(embedBuilder);
         }
         async Task NotConfiguredReplyAsync()
