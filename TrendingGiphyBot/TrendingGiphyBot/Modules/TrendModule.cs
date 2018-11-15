@@ -72,11 +72,8 @@ namespace TrendingGiphyBot.Modules
                     await TryReplyAsync(invalidConfigRangeMessage);
                     return;
                 case JobConfigState.Valid:
-                    using (var entities = _GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities())
-                    {
-                        await entities.UpdateInterval(Context.Channel.Id, interval, time);
-                        await GetJobConfig();
-                    }
+                    await _Entities.UpdateInterval(Context.Channel.Id, interval, time);
+                    await GetJobConfig();
                     return;
             }
         }
@@ -120,11 +117,10 @@ namespace TrendingGiphyBot.Modules
                     {
                         var split = quietHoursString.Split(_ArgsSplit, StringSplitOptions.RemoveEmptyEntries);
                         if (split.Length == 2 && short.TryParse(split[0], out var minHour) && short.TryParse(split[1], out var maxHour))
-                            using (var entities = _GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities())
-                            {
-                                await entities.UpdateQuietHoursWithHourOffset(Context.Channel.Id, minHour, maxHour, _GlobalConfig.Config.HourOffset);
-                                await GetJobConfig();
-                            }
+                        {
+                            await _Entities.UpdateQuietHoursWithHourOffset(Context.Channel.Id, minHour, maxHour, _GlobalConfig.Config.HourOffset);
+                            await GetJobConfig();
+                        }
                         else
                             await HelpMessageReplyAsync();
                     }
