@@ -8,18 +8,14 @@ namespace TrendingGiphyBot.Helpers
 {
     public class TrendHelper : ITrendHelper
     {
+        static readonly string[] _FluentWords = new[] {"gifs of", "gif of", "gifs", "gif" };
         public string CleanRandomSearchString(string randomSearchString)
         {
             if (!string.IsNullOrEmpty(randomSearchString))
             {
-                if (randomSearchString.StartsWith("gifs of", StringComparison.CurrentCultureIgnoreCase))
-                    return randomSearchString.Substring(7).TrimStart();
-                if (randomSearchString.StartsWith("gif of", StringComparison.CurrentCultureIgnoreCase))
-                    return randomSearchString.Substring(6).TrimStart();
-                if (randomSearchString.StartsWith("gifs", StringComparison.CurrentCultureIgnoreCase))
-                    return randomSearchString.Substring(4).TrimStart();
-                if (randomSearchString.StartsWith("gif", StringComparison.CurrentCultureIgnoreCase))
-                    return randomSearchString.Substring(3).TrimStart();
+                var match = _FluentWords.FirstOrDefault(s => randomSearchString.StartsWith(s, StringComparison.CurrentCultureIgnoreCase));
+                if (match != null)
+                    return randomSearchString.Substring(match.Length).TrimStart();
                 return randomSearchString;
             }
             return null;
