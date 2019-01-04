@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -20,6 +21,7 @@ namespace TrendingGiphyBot.Modules
         readonly IGlobalConfig _GlobalConfig;
         readonly TrendingGiphyBotEntities _Entities;
         readonly ITrendHelper _TrendHelper;
+        static readonly List<string> _WordsThatStopCommands = new List<string> { "Off", "Remove", "Stop", "Disable" };
         static readonly char[] _ArgsSplit = new[] { ' ' };
         public TrendModule(IServiceProvider services)
         {
@@ -39,7 +41,7 @@ namespace TrendingGiphyBot.Modules
                 await NotConfiguredReplyAsync();
         }
         [Command(nameof(Off))]
-        [Alias("Remove", "Stop")]
+        [Alias("Remove", "Stop", "Disable")]
         public async Task Off()
         {
             await _Entities.RemoveJobConfig(Context.Channel.Id);
@@ -82,7 +84,7 @@ namespace TrendingGiphyBot.Modules
         {
             var isConfigured = await _Entities.AnyJobConfig(Context.Channel.Id);
             if (isConfigured)
-                if (randomSearchString.Equals("off", StringComparison.CurrentCultureIgnoreCase))
+                if (_TrendHelper.IsWordThatStopsCommands(_WordsThatStopCommands, randomSearchString))
                 {
                     await _Entities.TurnOffRandom(Context.Channel.Id);
                     await GetJobConfig();
@@ -108,7 +110,7 @@ namespace TrendingGiphyBot.Modules
             var isConfigured = await _Entities.AnyJobConfig(Context.Channel.Id);
             if (isConfigured)
                 if (!string.IsNullOrWhiteSpace(quietHoursString))
-                    if (quietHoursString.Equals("off", StringComparison.CurrentCultureIgnoreCase))
+                    if (_TrendHelper.IsWordThatStopsCommands(_WordsThatStopCommands, quietHoursString))
                     {
                         await _Entities.TurnOffQuietHours(Context.Channel.Id);
                         await GetJobConfig();
@@ -126,6 +128,33 @@ namespace TrendingGiphyBot.Modules
                     }
                 else
                     await HelpMessageReplyAsync();
+            else
+                await NotConfiguredReplyAsync();
+        }
+        [Command(nameof(Prefix))]
+        public async Task Prefix(string prefix)
+        {
+            var isConfigured = await _Entities.AnyJobConfig(Context.Channel.Id);
+            if (isConfigured)
+                if (_TrendHelper.IsWordThatStopsCommands(_WordsThatStopCommands, prefix))
+                {
+                    await _Entities.SetPrefix(Context.Channel.Id, _GlobalConfig.Config.DefaultPrefix);
+                    await GetJobConfig();
+                }
+                else
+                {
+                    var isValid = !string.IsNullOrEmpty(prefix) && prefix.Length <= 4;
+                    if (isValid)
+                    {
+                        if (await _Entities.AnyChannelConfigs(Context.Channel.Id))
+                            await _Entities.SetPrefix(Context.Channel.Id, prefix);
+                        else
+                            await _Entities.InsertChannelConfig(Context.Channel.Id, prefix);
+                        await GetJobConfig();
+                    }
+                    else
+                        await TryReplyAsync("Prefix must be 1-4 characters long.");
+                }
             else
                 await NotConfiguredReplyAsync();
         }
@@ -167,8 +196,20 @@ namespace TrendingGiphyBot.Modules
         }
         async Task NotConfiguredReplyAsync()
         {
-            var notConfiguredEmbed = _GlobalConfig.BuildEmbedFromConfig(_GlobalConfig.Config.NotConfiguredMessage);
-            await TryReplyAsync(notConfiguredEmbed);
+            var config = await _Entities.GetJobConfigWithHourOffset(Context.Channel.Id, _GlobalConfig.Config.HourOffset);
+            var guild = await Context.Client.GetGuildAsync(Context.Guild.Id);
+            var author = new EmbedAuthorBuilder()
+                .WithName("Trending Giphy Bot Setup")
+                .WithIconUrl(guild.IconUrl);
+            var helpField = new EmbedFieldBuilder()
+                .WithName("Need Help?")
+                .WithValue(_GlobalConfig.Config.GetConfigHelpFieldText);
+            var embedBuilder = new EmbedBuilder()
+                .WithAuthor(author)
+                .WithRandomConfigFields(config)
+                .WithQuietHourFields(config, _GlobalConfig.Config.HourOffset)
+                .AddField(helpField);
+            await TryReplyAsync(embedBuilder);
         }
         async Task HelpMessageReplyAsync()
         {
