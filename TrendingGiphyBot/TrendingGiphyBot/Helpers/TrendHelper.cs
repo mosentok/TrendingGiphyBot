@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using TrendingGiphyBot.Configuration;
 using TrendingGiphyBot.Enums;
 
@@ -26,5 +27,6 @@ namespace TrendingGiphyBot.Helpers
         public bool IsValidRandomSearchString(string cleanedRandomSearchString, int randomSearchStringMaxLength) => string.IsNullOrWhiteSpace(cleanedRandomSearchString) || cleanedRandomSearchString.Length <= randomSearchStringMaxLength;
         public string InvalidConfigMessage(Time time, List<int> validValues) => $"When {nameof(Time)} is {time}, interval must be {string.Join(", ", validValues)}.";
         public string InvalidConfigRangeMessage(SubJobConfig minConfig, SubJobConfig maxConfig) => $"Interval must be between {minConfig.Interval} {minConfig.Time} and {maxConfig.Interval} {maxConfig.Time}.";
+        public bool IsWordThatStopsCommands(List<string> wordsThatStopCommands, string word) => wordsThatStopCommands.Any(s => s.Equals(word, StringComparison.CurrentCultureIgnoreCase));
     }
 }
