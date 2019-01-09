@@ -8,5 +8,7 @@ namespace TrendingGiphyBot.Configuration
         public string UrlStringFormat { get; set; }
         [JsonRequired]
         public string Token { get; set; }
+        [JsonRequired]
+        public string GuildCountPropertyName { get; set; }
     }
 }
