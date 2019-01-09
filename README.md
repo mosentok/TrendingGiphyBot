@@ -3,7 +3,7 @@ Stay up to date with the latest trending gifs, right inside Discord.
 
 &nbsp;|&nbsp;
 -|-
-<img src="https://discordapp.com/assets/fc0b01fe10a0b8c602fb0106d8189d9b.png" width="900px" />|<img src="https://media.giphy.com/media/3o6gbbuLW76jkt8vIc/giphy.gif" width="900px" />
+<img src="https://discordapp.com/assets/fc0b01fe10a0b8c602fb0106d8189d9b.png" width="900px" />|<img src="https://media1.giphy.com/media/3o6gbbuLW76jkt8vIc/giphy.gif" width="900px" />
 
 ## Table of Contents
 
