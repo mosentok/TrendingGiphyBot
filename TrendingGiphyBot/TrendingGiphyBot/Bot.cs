@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -131,12 +130,18 @@ namespace TrendingGiphyBot
         {
             await _Logger.SwallowAsync(async () =>
             {
-                var content = $"{{\"server_count\":{_GlobalConfig.DiscordClient.Guilds.Count}}}";
+                var content = $"{{\"{statPost.GuildCountPropertyName}\":{_GlobalConfig.DiscordClient.Guilds.Count}}}";
                 var requestUri = string.Format(statPost.UrlStringFormat, DiscordClient.CurrentUser.Id);
                 using (var stringContent = new StringContent(content, Encoding.UTF8, "application/json"))
                 {
-                    _HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(statPost.Token);
-                    await _HttpClient.PostAsync(requestUri, stringContent);
+                    _HttpClient.DefaultRequestHeaders.Clear();
+                    _HttpClient.DefaultRequestHeaders.Add("Authorization", statPost.Token);
+                    var response = await _HttpClient.PostAsync(requestUri, stringContent);
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        var message = await response.Content.ReadAsStringAsync();
+                        _Logger.Error(message);
+                    }
                 }
             });
         }
