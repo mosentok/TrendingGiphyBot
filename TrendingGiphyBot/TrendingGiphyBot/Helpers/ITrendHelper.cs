@@ -10,6 +10,6 @@ namespace TrendingGiphyBot.Helpers
         bool IsValidRandomSearchString(string cleanedRandomSearchString, int randomSearchStringMaxLength);
         string InvalidConfigMessage(Time time, List<int> validValues);
         string InvalidConfigRangeMessage(SubJobConfig minConfig, SubJobConfig maxConfig);
-        bool IsWordThatStopsCommands(List<string> wordsThatStopCommands, string word);
+        bool ShouldTurnCommandOff(string word);
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -21,7 +20,6 @@ namespace TrendingGiphyBot.Modules
         readonly IGlobalConfig _GlobalConfig;
         readonly TrendingGiphyBotEntities _Entities;
         readonly ITrendHelper _TrendHelper;
-        static readonly List<string> _WordsThatStopCommands = new List<string> { "Off", "Remove", "Stop", "Disable" };
         static readonly char[] _ArgsSplit = new[] { ' ' };
         public TrendModule(IServiceProvider services)
         {
@@ -84,7 +82,7 @@ namespace TrendingGiphyBot.Modules
         {
             var isConfigured = await _Entities.AnyJobConfig(Context.Channel.Id);
             if (isConfigured)
-                if (_TrendHelper.IsWordThatStopsCommands(_WordsThatStopCommands, randomSearchString))
+                if (_TrendHelper.ShouldTurnCommandOff(randomSearchString))
                 {
                     await _Entities.TurnOffRandom(Context.Channel.Id);
                     await GetJobConfig();
@@ -110,7 +108,7 @@ namespace TrendingGiphyBot.Modules
             var isConfigured = await _Entities.AnyJobConfig(Context.Channel.Id);
             if (isConfigured)
                 if (!string.IsNullOrWhiteSpace(quietHoursString))
-                    if (_TrendHelper.IsWordThatStopsCommands(_WordsThatStopCommands, quietHoursString))
+                    if (_TrendHelper.ShouldTurnCommandOff(quietHoursString))
                     {
                         await _Entities.TurnOffQuietHours(Context.Channel.Id);
                         await GetJobConfig();
@@ -136,7 +134,7 @@ namespace TrendingGiphyBot.Modules
         {
             var isConfigured = await _Entities.AnyJobConfig(Context.Channel.Id);
             if (isConfigured)
-                if (_TrendHelper.IsWordThatStopsCommands(_WordsThatStopCommands, prefix))
+                if (_TrendHelper.ShouldTurnCommandOff(prefix))
                 {
                     await _Entities.SetPrefix(Context.Channel.Id, _GlobalConfig.Config.DefaultPrefix);
                     await GetJobConfig();
