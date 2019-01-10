@@ -210,6 +210,12 @@ namespace TrendingGiphyBot.Dals
             await SaveChangesAsync();
         }
         static short ApplyHourOffset(short hour, short hourOffset) => (short)((hour + hourOffset) % 24);
-        static short UndoHourOffset(short hour, short hourOffset) => (short)((hour - hourOffset) % 24);
+        static short UndoHourOffset(short hour, short hourOffset)
+        {
+            var result = (hour - hourOffset) % 24;
+            if (result >= 0)
+                return (short)result;
+            return (short)(result + 24);
+        }
     }
 }

@@ -24,8 +24,8 @@ namespace TrendingGiphyBot.Extensions
             return embedBuilder.AddInlineField("Random Gif Filter", $"\"{config.RandomSearchString}\"");
         }
         internal static EmbedBuilder WithQuietHourFields(this EmbedBuilder embedBuilder, JobConfig jobConfig, short hourOffset) =>
-            embedBuilder.WithQuietHour("Start Quiet Hour", jobConfig.MinQuietHour, hourOffset)
-                .WithQuietHour("End Quiet Hour", jobConfig.MaxQuietHour, hourOffset);
+            embedBuilder.WithQuietHour("Start Hour", jobConfig.MaxQuietHour, hourOffset)
+                .WithQuietHour("End Hour", jobConfig.MinQuietHour, hourOffset);
         static EmbedBuilder WithQuietHour(this EmbedBuilder embedBuilder, string name, short? quietHour, short hourOffset)
         {
             if (quietHour.HasValue)
