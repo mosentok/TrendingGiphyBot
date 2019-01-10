@@ -164,7 +164,7 @@ namespace TrendingGiphyBot.Modules
         {
             var guild = await Context.Client.GetGuildAsync(Context.Guild.Id);
             var author = new EmbedAuthorBuilder()
-                .WithName($"Trending Giphy Bot Setup Examples")
+                .WithName($"Trending Giphy Bot Examples")
                 .WithIconUrl(guild.IconUrl);
             var helpField = new EmbedFieldBuilder()
                 .WithName("Need More Help?")
@@ -201,10 +201,11 @@ namespace TrendingGiphyBot.Modules
                 .WithName("Trending Giphy Bot Setup")
                 .WithIconUrl(guild.IconUrl);
             var helpField = new EmbedFieldBuilder()
-                .WithName("Need Help?")
-                .WithValue(_GlobalConfig.Config.GetConfigHelpFieldText);
+                .WithName("Need More Help?")
+                .WithValue(_GlobalConfig.Config.ExamplesHelpFieldText);
             var embedBuilder = new EmbedBuilder()
                 .WithAuthor(author)
+                .WithDescription(_GlobalConfig.Config.NotConfiguredMessageStart + _GlobalConfig.Config.ExamplesText)
                 .AddField(helpField);
             await TryReplyAsync(embedBuilder);
         }
