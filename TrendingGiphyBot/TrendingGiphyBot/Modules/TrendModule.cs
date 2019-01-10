@@ -196,7 +196,6 @@ namespace TrendingGiphyBot.Modules
         }
         async Task NotConfiguredReplyAsync()
         {
-            var config = await _Entities.GetJobConfigWithHourOffset(Context.Channel.Id, _GlobalConfig.Config.HourOffset);
             var guild = await Context.Client.GetGuildAsync(Context.Guild.Id);
             var author = new EmbedAuthorBuilder()
                 .WithName("Trending Giphy Bot Setup")
@@ -206,8 +205,6 @@ namespace TrendingGiphyBot.Modules
                 .WithValue(_GlobalConfig.Config.GetConfigHelpFieldText);
             var embedBuilder = new EmbedBuilder()
                 .WithAuthor(author)
-                .WithRandomConfigFields(config)
-                .WithQuietHourFields(config, _GlobalConfig.Config.HourOffset)
                 .AddField(helpField);
             await TryReplyAsync(embedBuilder);
         }
