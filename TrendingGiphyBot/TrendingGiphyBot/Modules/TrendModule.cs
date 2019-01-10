@@ -39,7 +39,6 @@ namespace TrendingGiphyBot.Modules
                 await ExamplesReplyAsync(true);
         }
         [Command(nameof(Off))]
-        [Alias("Remove", "Stop", "Disable")]
         public async Task Off()
         {
             await _Entities.RemoveJobConfig(Context.Channel.Id);
