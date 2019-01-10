@@ -102,23 +102,23 @@ namespace TrendingGiphyBot.Modules
             else
                 await ExamplesReplyAsync(true);
         }
-        [Command(nameof(QuietHours))]
-        public async Task QuietHours([Remainder] string quietHoursString = null)
+        [Command(nameof(Between))]
+        public async Task Between([Remainder] string trendBetweenString = null)
         {
             var isConfigured = await _Entities.AnyJobConfig(Context.Channel.Id);
             if (isConfigured)
-                if (!string.IsNullOrWhiteSpace(quietHoursString))
-                    if (_TrendHelper.ShouldTurnCommandOff(quietHoursString))
+                if (!string.IsNullOrWhiteSpace(trendBetweenString))
+                    if (_TrendHelper.ShouldTurnCommandOff(trendBetweenString))
                     {
                         await _Entities.TurnOffQuietHours(Context.Channel.Id);
                         await GetJobConfig();
                     }
                     else
                     {
-                        var split = quietHoursString.Split(_ArgsSplit, StringSplitOptions.RemoveEmptyEntries);
-                        if (split.Length == 2 && short.TryParse(split[0], out var minHour) && short.TryParse(split[1], out var maxHour))
+                        var split = trendBetweenString.Split(_ArgsSplit, StringSplitOptions.RemoveEmptyEntries);
+                        if (split.Length == 3 && short.TryParse(split[2], out var minQuietHour) && short.TryParse(split[0], out var maxQuietHour))
                         {
-                            await _Entities.UpdateQuietHoursWithHourOffset(Context.Channel.Id, minHour, maxHour, _GlobalConfig.Config.HourOffset);
+                            await _Entities.UpdateQuietHoursWithHourOffset(Context.Channel.Id, minQuietHour, maxQuietHour, _GlobalConfig.Config.HourOffset);
                             await GetJobConfig();
                         }
                         else
