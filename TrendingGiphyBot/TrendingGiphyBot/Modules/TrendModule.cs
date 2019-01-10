@@ -38,7 +38,7 @@ namespace TrendingGiphyBot.Modules
             if (isConfigured)
                 await GetJobConfig();
             else
-                await NotConfiguredReplyAsync();
+                await ExamplesReplyAsync(true);
         }
         [Command(nameof(Off))]
         [Alias("Remove", "Stop", "Disable")]
@@ -102,7 +102,7 @@ namespace TrendingGiphyBot.Modules
                         await TryReplyAsync($"Random search string must be at most {_GlobalConfig.Config.RandomSearchStringMaxLength} characters long.");
                 }
             else
-                await NotConfiguredReplyAsync();
+                await ExamplesReplyAsync(true);
         }
         [Command(nameof(QuietHours))]
         public async Task QuietHours([Remainder] string quietHoursString = null)
@@ -129,7 +129,7 @@ namespace TrendingGiphyBot.Modules
                 else
                     await HelpMessageReplyAsync();
             else
-                await NotConfiguredReplyAsync();
+                await ExamplesReplyAsync(true);
         }
         [Command(nameof(Prefix))]
         public async Task Prefix(string prefix)
@@ -156,24 +156,32 @@ namespace TrendingGiphyBot.Modules
                         await TryReplyAsync("Prefix must be 1-4 characters long.");
                 }
             else
-                await NotConfiguredReplyAsync();
+                await ExamplesReplyAsync(true);
         }
         [Command(nameof(Examples))]
         [Alias("Example")]
-        public async Task Examples()
+        public async Task Examples() => await ExamplesReplyAsync(false);
+        async Task ExamplesReplyAsync(bool includeNotConfiguredMessage)
         {
+            var description = DetermineExamplesDescription(includeNotConfiguredMessage);
             var guild = await Context.Client.GetGuildAsync(Context.Guild.Id);
             var author = new EmbedAuthorBuilder()
-                .WithName($"Trending Giphy Bot Examples")
+                .WithName("Trending Giphy Bot Examples")
                 .WithIconUrl(guild.IconUrl);
             var helpField = new EmbedFieldBuilder()
                 .WithName("Need More Help?")
                 .WithValue(_GlobalConfig.Config.ExamplesHelpFieldText);
             var embedBuilder = new EmbedBuilder()
                 .WithAuthor(author)
-                .WithDescription(_GlobalConfig.Config.ExamplesText)
+                .WithDescription(description)
                 .AddField(helpField);
             await TryReplyAsync(embedBuilder);
+        }
+        string DetermineExamplesDescription(bool includeNotConfiguredMessage)
+        {
+            if (includeNotConfiguredMessage)
+                return _GlobalConfig.Config.NotConfiguredMessageStart + _GlobalConfig.Config.ExamplesText;
+            return _GlobalConfig.Config.ExamplesText;
         }
         async Task GetJobConfig()
         {
@@ -191,21 +199,6 @@ namespace TrendingGiphyBot.Modules
                 .AddInlineField(nameof(config.Time), config.Time.ToLower())
                 .WithRandomConfigFields(config)
                 .WithQuietHourFields(config, _GlobalConfig.Config.HourOffset)
-                .AddField(helpField);
-            await TryReplyAsync(embedBuilder);
-        }
-        async Task NotConfiguredReplyAsync()
-        {
-            var guild = await Context.Client.GetGuildAsync(Context.Guild.Id);
-            var author = new EmbedAuthorBuilder()
-                .WithName("Trending Giphy Bot Setup")
-                .WithIconUrl(guild.IconUrl);
-            var helpField = new EmbedFieldBuilder()
-                .WithName("Need More Help?")
-                .WithValue(_GlobalConfig.Config.ExamplesHelpFieldText);
-            var embedBuilder = new EmbedBuilder()
-                .WithAuthor(author)
-                .WithDescription(_GlobalConfig.Config.NotConfiguredMessageStart + _GlobalConfig.Config.ExamplesText)
                 .AddField(helpField);
             await TryReplyAsync(embedBuilder);
         }
