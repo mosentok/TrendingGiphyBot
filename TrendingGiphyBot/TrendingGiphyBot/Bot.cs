@@ -147,7 +147,7 @@ namespace TrendingGiphyBot
         }
         async Task MessageReceived(SocketMessage messageParam)
         {
-            var isDmChannel = DiscordClient.DMChannels.Contains(messageParam.Channel);
+            var isDmChannel = messageParam.Channel is IDMChannel;
             if (!isDmChannel)
                 await _Logger.SwallowAsync(async () =>
                 {
