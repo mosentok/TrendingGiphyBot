@@ -29,7 +29,7 @@ namespace TrendingGiphyBot.Modules
             _TrendHelper = services.GetRequiredService<ITrendHelper>();
         }
         [Command(nameof(Get))]
-        [Alias(nameof(Get), "", "Config", "Setup", "Help")]
+        [Alias(nameof(Get), "", "Config", "Setup")]
         public async Task Get()
         {
             var isConfigured = await _Entities.AnyJobConfig(Context.Channel.Id);
@@ -162,7 +162,7 @@ namespace TrendingGiphyBot.Modules
                 await ExamplesReplyAsync(true);
         }
         [Command(nameof(Examples))]
-        [Alias("Example")]
+        [Alias("Example", "Help")]
         public async Task Examples() => await ExamplesReplyAsync(false);
         async Task ExamplesReplyAsync(bool includeNotConfiguredMessage)
         {
