@@ -177,7 +177,9 @@ namespace TrendingGiphyBot
         }
         async Task HandleError(ICommandContext context, IResult result)
         {
-            if (result.Error.HasValue && result.Error.Value != CommandError.UnknownCommand)
+            if (result.Error.HasValue &&
+                result.Error.Value != CommandError.UnknownCommand &&
+                result.Error.Value != CommandError.BadArgCount)
             {
                 if (result is ExecuteResult executeResult)
                     _Logger.Error(executeResult.Exception);
