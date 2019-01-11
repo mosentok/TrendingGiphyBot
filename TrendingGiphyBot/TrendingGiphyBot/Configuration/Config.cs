@@ -56,6 +56,7 @@ namespace TrendingGiphyBot.Configuration
         public EmbedConfig WelcomeMessageOwner { get; set; }
         [JsonRequired]
         public EmbedConfig HelpMessage { get; set; }
+        [JsonRequired]
         public List<StatPost> StatPosts { get; set; }
         [JsonRequired]
         public ushort IntervalOffsetSeconds { get; set; }
@@ -63,7 +64,22 @@ namespace TrendingGiphyBot.Configuration
         public List<string> UrlsToIgnore { get; set; }
         [JsonRequired]
         public List<string> HttpExceptionsToWarn { get; set; }
+        [JsonRequired]
         public string FailedReplyDisclaimer { get; set; }
+        [JsonRequired]
+        public string ExamplesHelpFieldText { get; set; }
+        [JsonRequired]
+        public string ExamplesText { get; set; }
+        [JsonRequired]
+        public string GetConfigHelpFieldText { get; set; }
+        [JsonRequired]
+        public string NotConfiguredMessageStart { get; set; }
+        [JsonRequired]
+        public string InvalidQuietHoursRangeMessage { get; set; }
+        [JsonRequired]
+        public string QuietHoursMustBeDifferentMessage { get; set; }
+        [JsonRequired]
+        public string DeprecatedCommandMessage { get; set; }
         internal JobConfigState DetermineJobConfigState(int interval, Time time)
         {
             var minSeconds = DetermineConfiggedSeconds(MinJobConfig);
