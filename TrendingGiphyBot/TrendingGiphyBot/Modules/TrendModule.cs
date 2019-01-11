@@ -117,15 +117,15 @@ namespace TrendingGiphyBot.Modules
                         var split = trendBetweenString.Split(_ArgsSplit, StringSplitOptions.RemoveEmptyEntries);
                         if (split.Length == 3 && short.TryParse(split[2], out var minQuietHour) && short.TryParse(split[0], out var maxQuietHour))
                             if (_TrendHelper.IsValidQuietHour(minQuietHour) && _TrendHelper.IsValidQuietHour(maxQuietHour))
-                                if (minQuietHour > maxQuietHour)
+                                if (minQuietHour != maxQuietHour)
                                 {
                                     await _Entities.UpdateQuietHoursWithHourOffset(Context.Channel.Id, minQuietHour, maxQuietHour, _GlobalConfig.Config.HourOffset);
                                     await GetJobConfig();
                                 }
                                 else
-                                    await TryReplyAsync(_GlobalConfig.Config.InvalidQuietHoursRangeMessage);
+                                    await TryReplyAsync(_GlobalConfig.Config.QuietHoursMustBeDifferentMessage);
                             else
-                                await TryReplyAsync(_GlobalConfig.Config.InvalidQuietHoursMessage);
+                                await TryReplyAsync(_GlobalConfig.Config.InvalidQuietHoursRangeMessage);
                         else
                             await HelpMessageReplyAsync();
                     }
