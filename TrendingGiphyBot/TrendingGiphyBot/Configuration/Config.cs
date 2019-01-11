@@ -76,9 +76,9 @@ namespace TrendingGiphyBot.Configuration
         [JsonRequired]
         public string NotConfiguredMessageStart { get; set; }
         [JsonRequired]
-        public string InvalidQuietHoursMessage { get; set; }
-        [JsonRequired]
         public string InvalidQuietHoursRangeMessage { get; set; }
+        [JsonRequired]
+        public string QuietHoursMustBeDifferentMessage { get; set; }
         internal JobConfigState DetermineJobConfigState(int interval, Time time)
         {
             var minSeconds = DetermineConfiggedSeconds(MinJobConfig);
