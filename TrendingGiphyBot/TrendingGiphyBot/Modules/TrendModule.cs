@@ -191,17 +191,16 @@ namespace TrendingGiphyBot.Modules
             var config = await _Entities.GetJobConfigWithHourOffset(Context.Channel.Id, _GlobalConfig.Config.HourOffset);
             var guild = await Context.Client.GetGuildAsync(Context.Guild.Id);
             var author = new EmbedAuthorBuilder()
-                .WithName($"Your Trending Giphy Bot Setup for Channel # {Context.Channel.Name}")
+                .WithName($"Setup for Channel # {Context.Channel.Name}")
                 .WithIconUrl(guild.IconUrl);
             var helpField = new EmbedFieldBuilder()
                 .WithName("Need Help?")
                 .WithValue(_GlobalConfig.Config.GetConfigHelpFieldText);
             var embedBuilder = new EmbedBuilder()
                 .WithAuthor(author)
-                .AddInlineField(nameof(config.Interval), config.Interval)
-                .AddInlineField(nameof(config.Time), config.Time.ToLower())
+                .WithHowOften(config)
                 .WithRandomConfigFields(config)
-                .WithQuietHourFields(config, _GlobalConfig.Config.HourOffset)
+                .WithQuietHourFields(config)
                 .AddField(helpField);
             await TryReplyAsync(embedBuilder);
         }

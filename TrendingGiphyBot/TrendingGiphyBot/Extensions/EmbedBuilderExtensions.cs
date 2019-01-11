@@ -5,32 +5,36 @@ namespace TrendingGiphyBot.Extensions
 {
     static class EmbedBuilderExtensions
     {
+        internal static EmbedBuilder WithHowOften(this EmbedBuilder embedBuilder, JobConfig config)
+        {
+            var every = $"```less\n{config.Interval} {config.Time.ToLower()}```";
+            return embedBuilder.AddInlineField("How Often?", every);
+        }
         internal static EmbedBuilder WithRandomConfigFields(this EmbedBuilder embedBuilder, JobConfig config)
         {
-            var fieldValue = DetermineRandomFieldValue(config.RandomIsOn);
-            return embedBuilder.AddInlineField("Random Gifs?", fieldValue)
-                .WithRandomSearchString(config);
+            var fieldValue = DetermineRandomFieldValue(config);
+            return embedBuilder.AddInlineField("Random Gifs?", $"```yaml\n{fieldValue}```");
         }
-        static string DetermineRandomFieldValue(bool randomIsOn)
+        static string DetermineRandomFieldValue(JobConfig config)
         {
-            if (randomIsOn)
+            if (config.RandomIsOn)
+            {
+                if (!string.IsNullOrEmpty(config.RandomSearchString))
+                    return $"yes, of \"{config.RandomSearchString}\"";
                 return "yes";
+            }
             return "no";
         }
-        static EmbedBuilder WithRandomSearchString(this EmbedBuilder embedBuilder, JobConfig config)
+        internal static EmbedBuilder WithQuietHourFields(this EmbedBuilder embedBuilder, JobConfig jobConfig)
         {
-            if (string.IsNullOrEmpty(config.RandomSearchString))
-                return embedBuilder.AddInlineField("Random Gif Filter", "none");
-            return embedBuilder.AddInlineField("Random Gif Filter", $"\"{config.RandomSearchString}\"");
+            var fieldValue = DetermineQuietHoursFieldValue(jobConfig);
+            return embedBuilder.AddInlineField("Trend When?", $"```fix\n{fieldValue}```");
         }
-        internal static EmbedBuilder WithQuietHourFields(this EmbedBuilder embedBuilder, JobConfig jobConfig, short hourOffset) =>
-            embedBuilder.WithQuietHour("Start Hour", jobConfig.MaxQuietHour, hourOffset)
-                .WithQuietHour("End Hour", jobConfig.MinQuietHour, hourOffset);
-        static EmbedBuilder WithQuietHour(this EmbedBuilder embedBuilder, string name, short? quietHour, short hourOffset)
+        static string DetermineQuietHoursFieldValue(JobConfig jobConfig)
         {
-            if (quietHour.HasValue)
-                return embedBuilder.AddInlineField(name, quietHour.Value);
-            return embedBuilder.AddInlineField(name, "none");
+            if (jobConfig.MinQuietHour.HasValue && jobConfig.MaxQuietHour.HasValue)
+                return $"between {jobConfig.MaxQuietHour.Value} and {jobConfig.MinQuietHour.Value}";
+            return "all the time";
         }
     }
 }
