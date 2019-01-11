@@ -12,6 +12,6 @@ namespace TrendingGiphyBot.Modules
         public MainModule(IServiceProvider services) : base(services, LogManager.GetCurrentClassLogger()){}
         [Command(nameof(Help))]
         [Alias(nameof(Help), "")]
-        public async Task Help() => await HelpMessageReplyAsync();
+        public async Task Help() => await SendDeprecatedCommandMessage();
     }
 }
