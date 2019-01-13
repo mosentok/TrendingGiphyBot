@@ -41,8 +41,6 @@ namespace TrendingGiphyBot.Configuration
         [JsonRequired]
         public ulong OwnerId { get; set; }
         [JsonRequired]
-        public SubJobConfig DefaultJobConfig { get; set; }
-        [JsonRequired]
         public SubJobConfig DeleteOldUrlHistoriesJobConfig { get; set; }
         [JsonRequired]
         public ushort UrlHistoriesMaxDaysOld { get; set; }
@@ -50,12 +48,6 @@ namespace TrendingGiphyBot.Configuration
         public SubJobConfig DeleteOldUrlCachesJobConfig { get; set; }
         [JsonRequired]
         public ushort UrlCachesMaxDaysOld { get; set; }
-        [JsonRequired]
-        public EmbedConfig WelcomeMessageDefault { get; set; }
-        [JsonRequired]
-        public EmbedConfig WelcomeMessageOwner { get; set; }
-        [JsonRequired]
-        public EmbedConfig HelpMessage { get; set; }
         [JsonRequired]
         public List<StatPost> StatPosts { get; set; }
         [JsonRequired]
@@ -76,6 +68,8 @@ namespace TrendingGiphyBot.Configuration
         public string NotConfiguredMessageStart { get; set; }
         [JsonRequired]
         public string InvalidQuietHoursRangeMessage { get; set; }
+        [JsonRequired]
+        public string InvalidQuietHoursInputFormat { get; set; }
         [JsonRequired]
         public string QuietHoursMustBeDifferentMessage { get; set; }
         [JsonRequired]

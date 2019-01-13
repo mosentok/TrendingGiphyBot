@@ -54,21 +54,6 @@ namespace TrendingGiphyBot.Configuration
             var validHoursAsMinutes = Config.ValidHours.Select(s => s * 60);
             AllValidMinutes = Config.ValidMinutes.Concat(validHoursAsMinutes).ToList();
         }
-        public EmbedBuilder BuildEmbedFromConfig(EmbedConfig embedConfig)
-        {
-            var embedBuilder = new EmbedBuilder()
-                .WithDescription(embedConfig.Description)
-                .WithImageUrl(embedConfig.ImageUrl);
-            if (embedConfig.Author != null)
-                embedBuilder.Author = new EmbedAuthorBuilder()
-                    .WithName(embedConfig.Author.Name)
-                    .WithUrl(embedConfig.Author.Url);
-            if (embedConfig.Field != null)
-                embedBuilder.Fields.Add(new EmbedFieldBuilder()
-                    .WithName(embedConfig.Field.Name)
-                    .WithValue(embedConfig.Field.Value));
-            return embedBuilder;
-        }
         public void Dispose()
         {
             DiscordClient?.LogoutAsync().Wait();

@@ -102,35 +102,32 @@ namespace TrendingGiphyBot.Modules
                 await ExamplesReplyAsync(true);
         }
         [Command(nameof(Between))]
-        public async Task Between([Remainder] string trendBetweenString = null)
+        public async Task Between([Remainder] string trendBetweenString)
         {
             var isConfigured = await _Entities.AnyJobConfig(Context.Channel.Id);
             if (isConfigured)
-                if (!string.IsNullOrWhiteSpace(trendBetweenString))
-                    if (_TrendHelper.ShouldTurnCommandOff(trendBetweenString))
-                    {
-                        await _Entities.TurnOffQuietHours(Context.Channel.Id);
-                        await GetJobConfig();
-                    }
-                    else
-                    {
-                        var split = trendBetweenString.Split(_ArgsSplit, StringSplitOptions.RemoveEmptyEntries);
-                        if (split.Length == 3 && short.TryParse(split[2], out var minQuietHour) && short.TryParse(split[0], out var maxQuietHour))
-                            if (_TrendHelper.IsValidQuietHour(minQuietHour) && _TrendHelper.IsValidQuietHour(maxQuietHour))
-                                if (minQuietHour != maxQuietHour)
-                                {
-                                    await _Entities.UpdateQuietHoursWithHourOffset(Context.Channel.Id, minQuietHour, maxQuietHour, _GlobalConfig.Config.HourOffset);
-                                    await GetJobConfig();
-                                }
-                                else
-                                    await TryReplyAsync(_GlobalConfig.Config.QuietHoursMustBeDifferentMessage);
-                            else
-                                await TryReplyAsync(_GlobalConfig.Config.InvalidQuietHoursRangeMessage);
-                        else
-                            await HelpMessageReplyAsync();
-                    }
+                if (_TrendHelper.ShouldTurnCommandOff(trendBetweenString))
+                {
+                    await _Entities.TurnOffQuietHours(Context.Channel.Id);
+                    await GetJobConfig();
+                }
                 else
-                    await HelpMessageReplyAsync();
+                {
+                    var split = trendBetweenString.Split(_ArgsSplit, StringSplitOptions.RemoveEmptyEntries);
+                    if (split.Length == 3 && short.TryParse(split[2], out var minQuietHour) && short.TryParse(split[0], out var maxQuietHour))
+                        if (_TrendHelper.IsValidQuietHour(minQuietHour) && _TrendHelper.IsValidQuietHour(maxQuietHour))
+                            if (minQuietHour != maxQuietHour)
+                            {
+                                await _Entities.UpdateQuietHoursWithHourOffset(Context.Channel.Id, minQuietHour, maxQuietHour, _GlobalConfig.Config.HourOffset);
+                                await GetJobConfig();
+                            }
+                            else
+                                await TryReplyAsync(_GlobalConfig.Config.QuietHoursMustBeDifferentMessage);
+                        else
+                            await TryReplyAsync(_GlobalConfig.Config.InvalidQuietHoursRangeMessage);
+                    else
+                        await TryReplyAsync(_GlobalConfig.Config.InvalidQuietHoursInputFormat);
+                }
             else
                 await ExamplesReplyAsync(true);
         }
@@ -203,11 +200,6 @@ namespace TrendingGiphyBot.Modules
                 .WithQuietHourFields(config)
                 .AddField(helpField);
             await TryReplyAsync(embedBuilder);
-        }
-        async Task HelpMessageReplyAsync()
-        {
-            var helpMessageEmbed = _GlobalConfig.BuildEmbedFromConfig(_GlobalConfig.Config.HelpMessage);
-            await TryReplyAsync(helpMessageEmbed);
         }
         async Task TryReplyAsync(string message) => await TryReplyAsync(message, null);
         async Task TryReplyAsync(EmbedBuilder embedBuilder) => await TryReplyAsync(string.Empty, embedBuilder);
