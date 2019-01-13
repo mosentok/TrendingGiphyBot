@@ -21,7 +21,6 @@ namespace TrendingGiphyBot.Configuration
         Rating Ratings { get; }
         Task Initialize();
         Task RefreshConfig();
-        EmbedBuilder BuildEmbedFromConfig(EmbedConfig embedConfig);
         MessageHelper MessageHelper { get; }
         List<int> AllValidMinutes { get; }
     }
