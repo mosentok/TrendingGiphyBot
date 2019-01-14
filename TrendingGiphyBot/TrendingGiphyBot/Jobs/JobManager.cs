@@ -17,10 +17,14 @@ namespace TrendingGiphyBot.Jobs
         {
             _Jobs.ForEach(s => s?.Dispose());
             _Jobs.Clear();
-            _Jobs.Add(new PostImageJob(_GlobalConfig));
-            _Jobs.Add(new RefreshImagesJob(_GlobalConfig, Config.RefreshImageJobConfig));
-            _Jobs.Add(new DeleteOldUrlCachesJob(_GlobalConfig, Config.DeleteOldUrlCachesJobConfig));
-            _Jobs.Add(new DeleteOldUrlHistoriesJob(_GlobalConfig, Config.DeleteOldUrlHistoriesJobConfig));
+            if (Config.PostImageJobConfig.IsEnabled)
+                _Jobs.Add(new PostImageJob(_GlobalConfig, Config.PostImageJobConfig));
+            if (Config.RefreshImageJobConfig.IsEnabled)
+                _Jobs.Add(new RefreshImagesJob(_GlobalConfig, Config.RefreshImageJobConfig));
+            if (Config.DeleteOldUrlCachesJobConfig.IsEnabled)
+                _Jobs.Add(new DeleteOldUrlCachesJob(_GlobalConfig, Config.DeleteOldUrlCachesJobConfig));
+            if (Config.DeleteOldUrlHistoriesJobConfig.IsEnabled)
+                _Jobs.Add(new DeleteOldUrlHistoriesJob(_GlobalConfig, Config.DeleteOldUrlHistoriesJobConfig));
             _Jobs.ForEach(s => s.StartTimerWithCloseInterval());
         }
         public void Dispose()

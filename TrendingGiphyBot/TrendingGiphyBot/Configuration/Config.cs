@@ -17,6 +17,8 @@ namespace TrendingGiphyBot.Configuration
         [JsonRequired]
         public string ConnectionString { get; set; }
         [JsonRequired]
+        public SubJobConfig PostImageJobConfig { get; set; }
+        [JsonRequired]
         public SubJobConfig RefreshImageJobConfig { get; set; }
         [JsonRequired]
         public SubJobConfig MinJobConfig { get; set; }
