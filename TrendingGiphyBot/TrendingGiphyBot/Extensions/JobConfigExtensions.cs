@@ -7,9 +7,8 @@ namespace TrendingGiphyBot.Extensions
 {
     static class JobConfigExtensions
     {
-        internal static bool IsInQuietHours(this JobConfig jobConfig)
+        internal static bool IsInQuietHours(this JobConfig jobConfig, int nowHour)
         {
-            var nowHour = DateTime.Now.Hour;
             if (jobConfig.MinQuietHour.HasValue && jobConfig.MaxQuietHour.HasValue)
             {
                 IEnumerable<int> quietHours;
@@ -20,7 +19,7 @@ namespace TrendingGiphyBot.Extensions
                 else
                 {
                     var minHours = Enumerable.Range(jobConfig.MinQuietHour.Value, 24 - jobConfig.MinQuietHour.Value);
-                    var maxHours = Enumerable.Range(0, jobConfig.MaxQuietHour.Value + 1);
+                    var maxHours = Enumerable.Range(0, jobConfig.MaxQuietHour.Value);
                     quietHours = minHours.Concat(maxHours);
                 }
                 return quietHours.Contains(nowHour);
