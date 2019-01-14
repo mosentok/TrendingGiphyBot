@@ -10,6 +10,7 @@ namespace TrendingGiphyBot.Configuration
         [JsonRequired]
         public Time Time { get; set; }
         public ushort IntervalOffsetSeconds { get; set; }
+        public bool IsEnabled { get; set; }
         public SubJobConfig() { }
         public SubJobConfig(int interval, Time time)
         {
