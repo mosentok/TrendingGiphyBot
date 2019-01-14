@@ -26,7 +26,8 @@ namespace TrendingGiphyBot.Jobs
                 using (var entities = GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities())
                 {
                     var jobConfigsToRun = await entities.GetJobConfigsToRun(currentValidMinutes);
-                    var jobConfigsNotInQuietHours = jobConfigsToRun.Where(s => !s.IsInQuietHours()).ToList();
+                    var nowHour = DateTime.Now.Hour - GlobalConfig.Config.HourOffset;
+                    var jobConfigsNotInQuietHours = jobConfigsToRun.Where(s => !s.IsInQuietHours(nowHour)).ToList();
                     var jobConfigsJustPostedTo = await PostChannelsNotInQuietHours(entities, jobConfigsNotInQuietHours, successes);
                     var remainingJobConfigs = jobConfigsNotInQuietHours.Except(jobConfigsJustPostedTo).Where(s => s.RandomIsOn).ToList();
                     var jobConfigsWithRandomStringOn = remainingJobConfigs.Where(s => !string.IsNullOrEmpty(s.RandomSearchString)).ToList();

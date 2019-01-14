@@ -40,12 +40,7 @@ namespace TrendingGiphyBot.Dals
         }
         internal async Task<JobConfig> GetJobConfigWithHourOffset(decimal id, short hourOffset)
         {
-            var match = await JobConfigs.SingleAsync(s => s.ChannelId == id);
-            if (match.MinQuietHour.HasValue)
-                match.MinQuietHour = UndoHourOffset(match.MinQuietHour.Value, hourOffset);
-            if (match.MaxQuietHour.HasValue)
-                match.MaxQuietHour = UndoHourOffset(match.MaxQuietHour.Value, hourOffset);
-            return match;
+            return await JobConfigs.SingleAsync(s => s.ChannelId == id);
         }
         internal async Task<bool> AnyJobConfig(decimal id)
         {
@@ -137,8 +132,8 @@ namespace TrendingGiphyBot.Dals
         internal async Task UpdateQuietHoursWithHourOffset(ulong channelId, short minHour, short maxHour, short hourOffset)
         {
             var match = await JobConfigs.SingleAsync(s => s.ChannelId == channelId);
-            match.MinQuietHour = ApplyHourOffset(minHour, hourOffset);
-            match.MaxQuietHour = ApplyHourOffset(maxHour, hourOffset);
+            match.MinQuietHour = minHour;
+            match.MaxQuietHour = maxHour;
             await SaveChangesAsync();
         }
         internal async Task TurnOffRandom(ulong channelId)
@@ -208,14 +203,6 @@ namespace TrendingGiphyBot.Dals
             var tooOld = UrlHistories.Where(s => s.Stamp < oldestDate);
             UrlHistories.RemoveRange(tooOld);
             await SaveChangesAsync();
-        }
-        static short ApplyHourOffset(short hour, short hourOffset) => (short)((hour + hourOffset) % 24);
-        static short UndoHourOffset(short hour, short hourOffset)
-        {
-            var result = (hour - hourOffset) % 24;
-            if (result >= 0)
-                return (short)result;
-            return (short)(result + 24);
         }
     }
 }
