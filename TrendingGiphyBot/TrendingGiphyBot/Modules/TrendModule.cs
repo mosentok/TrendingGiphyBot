@@ -118,7 +118,7 @@ namespace TrendingGiphyBot.Modules
                         if (_TrendHelper.IsValidQuietHour(minQuietHour) && _TrendHelper.IsValidQuietHour(maxQuietHour))
                             if (minQuietHour != maxQuietHour)
                             {
-                                await _Entities.UpdateQuietHoursWithHourOffset(Context.Channel.Id, minQuietHour, maxQuietHour, _GlobalConfig.Config.HourOffset);
+                                await _Entities.UpdateQuietHours(Context.Channel.Id, minQuietHour, maxQuietHour, _GlobalConfig.Config.HourOffset);
                                 await GetJobConfig();
                             }
                             else

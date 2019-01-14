@@ -34,10 +34,6 @@ namespace TrendingGiphyBot.Dals
             ChannelConfigs.Add(config);
             await SaveChangesAsync();
         }
-        internal async Task<JobConfig> GetJobConfig(decimal id)
-        {
-            return await JobConfigs.SingleOrDefaultAsync(s => s.ChannelId == id);
-        }
         internal async Task<JobConfig> GetJobConfigWithHourOffset(decimal id, short hourOffset)
         {
             return await JobConfigs.SingleAsync(s => s.ChannelId == id);
@@ -56,20 +52,6 @@ namespace TrendingGiphyBot.Dals
             return await (from jobConfig in JobConfigs
                           where curentValidMinutes.Contains(jobConfig.IntervalMinutes)
                           select jobConfig).ToListAsync();
-        }
-        internal async Task InsertJobConfig(JobConfig config)
-        {
-            config.IntervalMinutes = DetermineIntervalMinutes(config);
-            JobConfigs.Add(config);
-            await SaveChangesAsync();
-        }
-        internal async Task UpdateJobConfig(JobConfig config)
-        {
-            var match = await JobConfigs.SingleAsync(s => s.ChannelId == config.ChannelId);
-            match.Interval = config.Interval;
-            match.Time = config.Time;
-            match.IntervalMinutes = DetermineIntervalMinutes(config);
-            await SaveChangesAsync();
         }
         internal async Task UpdateInterval(ulong channelId, int interval, Time time)
         {
@@ -96,24 +78,11 @@ namespace TrendingGiphyBot.Dals
             }
             await SaveChangesAsync();
         }
-        static int DetermineIntervalMinutes(JobConfig config)
-        {
-            if (config.Time == _HourString || config.Time == _HoursString)
-                return config.Interval * 60;
-            return config.Interval;
-        }
         static int DetermineIntervalMinutes(int interval, string timeString)
         {
             if (timeString == _HourString || timeString == _HoursString)
                 return interval * 60;
             return interval;
-        }
-        internal async Task UpdateRandom(JobConfig config)
-        {
-            var match = await JobConfigs.SingleAsync(s => s.ChannelId == config.ChannelId);
-            match.RandomIsOn = config.RandomIsOn;
-            match.RandomSearchString = config.RandomSearchString;
-            await SaveChangesAsync();
         }
         internal async Task UpdateRandom(ulong channelId, bool randomIsOn, string randomSearchString)
         {
@@ -122,14 +91,7 @@ namespace TrendingGiphyBot.Dals
             match.RandomSearchString = randomSearchString;
             await SaveChangesAsync();
         }
-        internal async Task UpdateQuietHours(JobConfig config)
-        {
-            var match = await JobConfigs.SingleAsync(s => s.ChannelId == config.ChannelId);
-            match.MinQuietHour = config.MinQuietHour;
-            match.MaxQuietHour = config.MaxQuietHour;
-            await SaveChangesAsync();
-        }
-        internal async Task UpdateQuietHoursWithHourOffset(ulong channelId, short minHour, short maxHour, short hourOffset)
+        internal async Task UpdateQuietHours(ulong channelId, short minHour, short maxHour, short hourOffset)
         {
             var match = await JobConfigs.SingleAsync(s => s.ChannelId == channelId);
             match.MinQuietHour = minHour;
@@ -171,11 +133,6 @@ namespace TrendingGiphyBot.Dals
             var urlCaches = newUrls.Select(s => new UrlCache { Url = s });
             UrlCaches.AddRange(urlCaches);
             await SaveChangesAsync();
-        }
-        internal async Task<List<UrlCache>> GetLatestUrls()
-        {
-            var yesterday = DateTime.Now.AddDays(-1);
-            return await UrlCaches.Where(s => s.Stamp >= yesterday).ToListAsync();
         }
         internal async Task DeleteUrlCachesOlderThan(DateTime oldestDate)
         {
