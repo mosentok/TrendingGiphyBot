@@ -9,91 +9,70 @@ Stay up to date with the latest trending gifs, right inside Discord.
 
 - [What is Trending Giphy Bot?](https://github.com/mosentok/TrendingGiphyBot#what-is-trending-giphy-bot)
 - [Invite](https://github.com/mosentok/TrendingGiphyBot#invite)
+- [Quick Start](https://github.com/mosentok/TrendingGiphyBot#quick-start)
 - [Commands](https://github.com/mosentok/TrendingGiphyBot#commands)
-  - [Main Menu](https://github.com/mosentok/TrendingGiphyBot#main-menu)
-  - [JobConfig](https://github.com/mosentok/TrendingGiphyBot#jobconfig)
-  - [QuietHours](https://github.com/mosentok/TrendingGiphyBot#quiethours)
-  - [SetRandom](https://github.com/mosentok/TrendingGiphyBot#setrandom)
-  - [SetPrefix](https://github.com/mosentok/TrendingGiphyBot#setprefix)
-- [Shoutout to](https://github.com/mosentok/TrendingGiphyBot#shoutout-to)
+  - [!Trend](https://github.com/mosentok/TrendingGiphyBot#main-menu)
+  - [!Trend Every x Minutes](https://github.com/mosentok/TrendingGiphyBot#trend-every-x-minutes)
+  - [!Trend Random Cats](https://github.com/mosentok/TrendingGiphyBot#trend-random-cats)
+  - [!Trend Between 8 and 22](https://github.com/mosentok/TrendingGiphyBot#trend-between-8-and-22)
+  - [!Trend Prefix ^](https://github.com/mosentok/TrendingGiphyBot#trend-prefix)
+- [Special Thanks](https://github.com/mosentok/TrendingGiphyBot#special-thanks)
 
 ## What is Trending Giphy Bot?
 
-Trending Giphy Bot is a bot that posts trending gifs on its own. It's meant to just sit in your Discord server and post however often you want it to. It's a bot that you'll probably rarely interact with except initially setting it up and maybe tweaking it later.
+Trending Giphy Bot is a bot that posts trending gifs on its own. It's meant to just sit in your Discord server and post however often you want it to. It's a bot that you'll probably rarely interact with except setting it up and maybe tweaking it later.
 
 ## Invite
 
-Invite the bot [here](https://discordapp.com/oauth2/authorize?client_id=333392663061463040&scope=bot&permissions=2048)!
+Invite the bot [here](https://discordapp.com/oauth2/authorize?client_id=333392663061463040&scope=bot&permissions=2048)! Note that it needs the "Send Messages" permission. This is so that it can respond to your commands, and so that it can post gifs of course!
+
+## Quick Start
+
+Invite the bot, then go to a channel and type `!trend every 30 minutes`, then type `!trend between 8 and 22`. These two commands set the bot up to post gifs to that channel every 30 minutes, and to do it only between the hours of 8 and 22.
 
 ## Commands
 
-You can configure this bot in different channels on your server. Configuration is saved per channel.
+### !Trend
 
-You have complete control over how often it posts. Have fun with it!
+All of the bot's commands start with `!trend`. If you go ahead just type `!trend`, the bot will show you its setup for the channel you just typed in. If the bot's not setup in that channel, it'll give you some examples of the commands you can use to set it up.
 
-If it gets annoying or something, just dial it back a bit. ᴼʳ ᵐᵘᵗᵉ ᶦᵗ \\(⩹‿⩺)/
+### !Trend Every x Minutes
 
-### Main Menu
+This command tells the bot how often to post in the channel. Use this command like `!trend every 10 minutes` or `!trend every 2 hours`.
 
-If you're ever lost, type
+There are a range of acceptable times. You can do 10, 15, 20, or 30 for minutes, and you can do 1, 2, 3, 4, 6, 8, 12, or 24 for hours.
 
-```
-!tgb
-!TrendingGiphyBot
-@TrendingGiphyBot tgb
-```
+If you go to a channel and type `!trend every 10 minutes`, then every 10 minutes, the bot will post a gif to that channel.
 
-### JobConfig
+If you go to another channel and type `!trend every 2 hours`, then every 2 hours, the bot will post a gif to that channel, too.
 
-Configures the job timer.
+### !Trend Random Cats
 
-```
-!JobConfig Get
-!jobconfig set 30 minutes
-!JoBcOnFiG sEt 1 HoUr
-!jobconfig remove
-!jobconfig help (or just !jobconfig)
-```
+If you pick a fast time, like 10 or 15 minutes, there might not be new gifs yet. If you want, you can tell the bot to get a random gif when this happens. Use this command like `!trend random cats` or `!trend random minecraft` if you want a filter for the random gifs, or with no filter like `!trend random`.
 
-### QuietHours
+Remember, this option is really only useful for fast times like 10 or 15 minutes. If you set a chill pace like 2 hours, there will almost always be a new trending gif, so the bot won't try to find a random one for you.
 
-Sets a range of hours where the bot won't post, like late at night. Hours are 24-hours, 0 - 23, central standard time.
+For example, at 2:00PM the bot might find a trending gif for you, then another one at 2:10PM, but then maybe that's the last trending gif that's available for now, so then at 2:20PM, the bot won't find any new trending gifs for you. If you told it `!trend random cats`, then in this situation, at 2:20PM it will find you a random cat gif instead.
 
-```
-!QuietHours Get
-!quiethours set 1 9
-!QuIeThOuRs ReSeT
-!quiethours help (or just !quiethours)
-```
+### !Trend Between 8 and 22
 
-### SetRandom
+This command tells the bot to only post between certain hours of the day. Use this command like `!trend between 8 and 22`.
 
-Want the bot to post a random GIF if there's no new trending one?
+This option is here so that you can tell the bot not to post overnight, because posting overnight might send you a bunch of notifications, or fill your channel up so you can't see the last conversation you had yesterday.
 
-```
-!SetRandom On
-!setrandom on cats
-!SeTrAnDoM oFf
-!setrandom get
-!setrandom help (or just !setrandom)
-```
+The hours are 24 hour format, so you can use 0-23. The timezone is Central Standard Time (CST).
 
-### SetPrefix
+### !Trend Prefix ^
 
-Use this to set a custom prefix (default is !).
+This is an advanced command so that you can customize this bot's prefix, which is defaulted to `!`. Use it like `!trend prefix ^`. That would make `^` the new prefix, so you could then do `^trend every 10 minutes`.
 
-*If you forget your prefix, remember all commands can be invoked using @TrendingGiphyBot TheCommand.*
+Most likely best to just leave it as `!`.
 
-*For example, @TrendingGiphyBot setprefix reset*
+### !Trend Examples
 
-```
-!SetPrefix Get
-!setprefix set $^
-!SeTpReFiX rEsEt
-!setprefix help (or just !setprefix)
-```
+This command will show you some examples of the bot's commands. Use it as a quick reference if you don't want to come all the way back here.
 
-## Shoutout to
+## Special Thanks
 
 - [C#](https://docs.microsoft.com/en-us/dotnet/csharp/csharp)
 - [.NET](https://www.microsoft.com/net)
