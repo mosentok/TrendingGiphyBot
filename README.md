@@ -11,11 +11,11 @@ Stay up to date with the latest trending gifs, right inside Discord.
 - [Invite](https://github.com/mosentok/TrendingGiphyBot#invite)
 - [Quick Start](https://github.com/mosentok/TrendingGiphyBot#quick-start)
 - [Commands](https://github.com/mosentok/TrendingGiphyBot#commands)
-  - [!Trend](https://github.com/mosentok/TrendingGiphyBot#main-menu)
+  - [!Trend](https://github.com/mosentok/TrendingGiphyBot#trend)
   - [!Trend Every x Minutes](https://github.com/mosentok/TrendingGiphyBot#trend-every-x-minutes)
   - [!Trend Random Cats](https://github.com/mosentok/TrendingGiphyBot#trend-random-cats)
   - [!Trend Between 8 and 22](https://github.com/mosentok/TrendingGiphyBot#trend-between-8-and-22)
-  - [!Trend Prefix ^](https://github.com/mosentok/TrendingGiphyBot#trend-prefix)
+  - [!Trend Prefix ^](https://github.com/mosentok/TrendingGiphyBot#trend-prefix-^)
 - [Special Thanks](https://github.com/mosentok/TrendingGiphyBot#special-thanks)
 
 ## What is Trending Giphy Bot?
