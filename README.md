@@ -35,7 +35,7 @@ All of the bot's commands start with `!trend`. If you go ahead just type `!trend
 
 This command tells the bot how often to post in the channel. Use this command like `!trend every 10 minutes` or `!trend every 2 hours`.
 
-There are a range of acceptable times. You can do 10, 15, 20, or 30 for minutes, and you can do 1, 2, 3, 4, 6, 8, 12, or 24 for hours.
+There are many acceptable times that you can tell the bot how often to post. You can do 10, 15, 20, or 30 for minutes, and you can do 1, 2, 3, 4, 6, 8, 12, or 24 for hours.
 
 If you go to a channel and type `!trend every 10 minutes`, then every 10 minutes, the bot will post a gif to that channel.
 
