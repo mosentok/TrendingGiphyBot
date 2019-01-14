@@ -19,7 +19,7 @@ Get your gif fix! Surf the meme curve!
 
 Trending Giphy Bot finds trending gifs for you and posts them to your Discord at your own pace. Want all the gifs all the time? Tell it to post every 10 minutes! Got a Discord chat channel with slow conversations? Tell it to post a gif there every 2 hours to spice it up!
 
-Trending Giphy Bot does all the heavy lifting. Tell it how often you want gifs, and it will give them to you that often, easy as that!
+Trending Giphy Bot does all the heavy lifting. Tell it how often you want gifs, and it will give them to you that often, easy as that.
 
 ## Invite
 
