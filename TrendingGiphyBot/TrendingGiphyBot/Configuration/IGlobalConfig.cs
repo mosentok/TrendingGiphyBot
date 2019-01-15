@@ -1,10 +1,7 @@
 ﻿using Discord.WebSocket;
-using GiphyDotNet.Manager;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Discord;
-using GiphyDotNet.Model.Parameters;
 using TrendingGiphyBot.Dals;
 using TrendingGiphyBot.Helpers;
 using TrendingGiphyBot.Jobs;
@@ -15,10 +12,10 @@ namespace TrendingGiphyBot.Configuration
     {
         Config Config { get; }
         EntitiesFactory EntitiesFactory { get; }
-        Giphy GiphyClient { get; }
+        string GiphyRandomEndpoint { get; }
+        string GiphyTrendingEndpoint { get; }
         DiscordSocketClient DiscordClient { get; }
         JobManager JobManager { get; }
-        Rating Ratings { get; }
         Task Initialize();
         Task RefreshConfig();
         MessageHelper MessageHelper { get; }

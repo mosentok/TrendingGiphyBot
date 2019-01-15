@@ -6,15 +6,17 @@ using NLog;
 using System.Collections.Generic;
 using System.Linq;
 using Discord.Net;
-using GiphyDotNet.Model.Parameters;
 using Newtonsoft.Json;
 using TrendingGiphyBot.Configuration;
 using TrendingGiphyBot.Extensions;
+using System.Net.Http;
+using TrendingGiphyBot.Containers;
 
 namespace TrendingGiphyBot.Jobs
 {
     class PostImageJob : Job
     {
+        static readonly HttpClient _HttpClient = new HttpClient();
         internal PostImageJob(IGlobalConfig globalConfig, SubJobConfig subJobConfig) : base(globalConfig, LogManager.GetCurrentClassLogger(), subJobConfig) { }
         protected override async Task Run()
         {
@@ -69,8 +71,8 @@ namespace TrendingGiphyBot.Jobs
                 {
                     try
                     {
-                        var randomParameter = new RandomParameter { Rating = GlobalConfig.Ratings, Tag = jobConfig.RandomSearchString };
-                        var giphyRandomResult = await GlobalConfig.GiphyClient.RandomGif(randomParameter);
+                        var endpointWithTag = $"{GlobalConfig.GiphyRandomEndpoint}&tag={jobConfig.RandomSearchString}";
+                        var giphyRandomResult = await GetRandomResult(endpointWithTag);
                         await PostRandomGif(entities, jobConfig, giphyRandomResult.Data.Url, successes);
                     }
                     catch (JsonSerializationException jsEx)
@@ -80,12 +82,18 @@ namespace TrendingGiphyBot.Jobs
                     }
                 });
         }
+        static async Task<GiphyRandomResponse> GetRandomResult(string requestUri)
+        {
+            var response = await _HttpClient.GetAsync(requestUri);
+            var content = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<GiphyRandomResponse>(content);
+        }
         async Task PostChannelsWithRandomStringOff(TrendingGiphyBotEntities entities, List<JobConfig> jobConfigsWithRandomStringOff, List<UrlHistory> successes)
         {
             if (jobConfigsWithRandomStringOff.Any())
                 await Logger.SwallowAsync(async () =>
                 {
-                    var giphyRandomResult = await GlobalConfig.GiphyClient.RandomGif(new RandomParameter { Rating = GlobalConfig.Ratings });
+                    var giphyRandomResult = await GetRandomResult(GlobalConfig.GiphyRandomEndpoint);
                     foreach (var jobConfig in jobConfigsWithRandomStringOff)
                         await PostRandomGif(entities, jobConfig, giphyRandomResult.Data.Url, successes);
                 });
