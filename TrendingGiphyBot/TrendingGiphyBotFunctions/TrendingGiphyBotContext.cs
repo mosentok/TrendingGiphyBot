@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -32,15 +33,15 @@ namespace TrendingGiphyBotFunctions
         }
         public async Task<int> DeleteUrlCachesOlderThan(DateTime oldestDate)
         {
-            var tooOld = UrlCaches.Where(s => s.Stamp < oldestDate);
-            UrlCaches.RemoveRange(tooOld);
-            return await SaveChangesAsync();
+            var sql = "DELETE FROM UrlCache WHERE Stamp < @oldestDate";
+            var parameter = new SqlParameter("@oldestDate", oldestDate);
+            return await Database.ExecuteSqlCommandAsync(sql, parameter);
         }
         public async Task<int> DeleteUrlHistoriesOlderThan(DateTime oldestDate)
         {
-            var tooOld = UrlHistories.Where(s => s.Stamp < oldestDate);
-            UrlHistories.RemoveRange(tooOld);
-            return await SaveChangesAsync();
+            var sql = "DELETE FROM UrlHistory WHERE Stamp < @oldestDate";
+            var parameter = new SqlParameter("@oldestDate", oldestDate);
+            return await Database.ExecuteSqlCommandAsync(sql, parameter);
         }
         public async Task<int> InsertNewTrendingGifs(List<GifObject> gifObjects)
         {
