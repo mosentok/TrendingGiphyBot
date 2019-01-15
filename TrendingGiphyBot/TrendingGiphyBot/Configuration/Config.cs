@@ -13,8 +13,6 @@ namespace TrendingGiphyBot.Configuration
         [JsonRequired]
         public string DiscordToken { get; set; }
         [JsonRequired]
-        public string GiphyToken { get; set; }
-        [JsonRequired]
         public string ConnectionString { get; set; }
         [JsonRequired]
         public SubJobConfig PostImageJobConfig { get; set; }

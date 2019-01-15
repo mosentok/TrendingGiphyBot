@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using GiphyDotNet.Manager;
+﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 using System.Configuration;
 using TrendingGiphyBot.Dals;
@@ -8,8 +6,6 @@ using TrendingGiphyBot.Jobs;
 using Discord.WebSocket;
 using System.Linq;
 using System.Threading.Tasks;
-using Discord;
-using GiphyDotNet.Model.Parameters;
 using Microsoft.WindowsAzure.Storage;
 using NLog;
 using TrendingGiphyBot.Helpers;
@@ -20,18 +16,18 @@ namespace TrendingGiphyBot.Configuration
     {
         public Config Config { get; private set; }
         public EntitiesFactory EntitiesFactory { get; private set; }
-        public Giphy GiphyClient { get; private set; }
+        public string GiphyRandomEndpoint { get; set; }
+        public string GiphyTrendingEndpoint { get; set; }
         public DiscordSocketClient DiscordClient { get; private set; }
         public JobManager JobManager { get; private set; }
-        static readonly Rating _Ratings = Enum.GetValues(typeof(Rating)).OfType<Rating>().Where(s => s != Rating.R).Aggregate((a, b) => a | b);
-        public Rating Ratings => _Ratings;
         public MessageHelper MessageHelper { get; private set; }
         public List<int> AllValidMinutes { get; private set; }
         public async Task Initialize()
         {
             await SetConfig();
             EntitiesFactory = new EntitiesFactory(Config.ConnectionString);
-            GiphyClient = new Giphy(Config.GiphyToken);
+            GiphyRandomEndpoint = ConfigurationManager.AppSettings["giphyRandomEndpoint"];
+            GiphyTrendingEndpoint = ConfigurationManager.AppSettings["giphyTrendingEndpoint"];
             JobManager = new JobManager(this);
             var configgedLogSeverities = Config.LogSeverities.Aggregate((a, b) => a | b);
             DiscordClient = new DiscordSocketClient(new DiscordSocketConfig { LogLevel = configgedLogSeverities });
