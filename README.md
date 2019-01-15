@@ -15,7 +15,11 @@ Stay up to date with the latest trending gifs, right inside Discord.
 
 ## What is Trending Giphy Bot?
 
-Trending Giphy Bot is a bot that posts trending gifs on its own. It's meant to just sit in your Discord server and post however often you want it to. It's a bot that you'll probably rarely interact with except setting it up and maybe tweaking it later.
+Get your gif fix! Surf the meme curve!
+
+Trending Giphy Bot finds trending gifs for you and posts them to your Discord at your own pace. Want all the gifs all the time? Tell it to post every 10 minutes! Got a Discord chat channel with slow conversations? Tell it to post a gif there every 2 hours to spice it up!
+
+Trending Giphy Bot does all the heavy lifting. Tell it how often you want gifs, and it will give them to you that often, easy as that.
 
 ## Invite
 
