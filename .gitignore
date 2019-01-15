@@ -274,3 +274,5 @@ __pycache__/
 /TrendingGiphyBot/TrendingGiphyBot/NLog.config
 /TrendingGiphyBot/TrendingGiphyBot/Properties/webjob-publish-settings.json
 /TrendingGiphyBot/TrendingGiphyBot/NLog.xsd
+/TrendingGiphyBot/TrendingGiphyBotFunctions/local.settings.json
+/TrendingGiphyBot/TrendingGiphyBotFunctions/Properties/PublishProfiles/TrendingGiphyBotFunctions - Web Deploy.pubxml
