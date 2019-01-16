@@ -118,7 +118,7 @@ namespace TrendingGiphyBot.Modules
                         if (_TrendHelper.IsValidQuietHour(minQuietHour) && _TrendHelper.IsValidQuietHour(maxQuietHour))
                             if (minQuietHour != maxQuietHour)
                             {
-                                await _Entities.UpdateQuietHours(Context.Channel.Id, minQuietHour, maxQuietHour, _GlobalConfig.Config.HourOffset);
+                                await _Entities.UpdateQuietHours(Context.Channel.Id, minQuietHour, maxQuietHour);
                                 await GetJobConfig();
                             }
                             else
@@ -164,10 +164,9 @@ namespace TrendingGiphyBot.Modules
         async Task ExamplesReplyAsync(bool includeNotConfiguredMessage)
         {
             var description = DetermineExamplesDescription(includeNotConfiguredMessage);
-            var guild = await Context.Client.GetGuildAsync(Context.Guild.Id);
             var author = new EmbedAuthorBuilder()
                 .WithName("Trending Giphy Bot Examples")
-                .WithIconUrl(guild.IconUrl);
+                .WithIconUrl(Context.Guild.IconUrl);
             var helpField = new EmbedFieldBuilder()
                 .WithName("Need More Help?")
                 .WithValue(_GlobalConfig.Config.ExamplesHelpFieldText);
@@ -185,11 +184,10 @@ namespace TrendingGiphyBot.Modules
         }
         async Task GetJobConfig()
         {
-            var config = await _Entities.GetJobConfigWithHourOffset(Context.Channel.Id, _GlobalConfig.Config.HourOffset);
-            var guild = await Context.Client.GetGuildAsync(Context.Guild.Id);
+            var config = await _Entities.GetJobConfig(Context.Channel.Id);
             var author = new EmbedAuthorBuilder()
                 .WithName($"Setup for Channel # {Context.Channel.Name}")
-                .WithIconUrl(guild.IconUrl);
+                .WithIconUrl(Context.Guild.IconUrl);
             var helpField = new EmbedFieldBuilder()
                 .WithName("Need Help?")
                 .WithValue(_GlobalConfig.Config.GetConfigHelpFieldText);

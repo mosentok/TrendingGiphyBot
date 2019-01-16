@@ -34,7 +34,7 @@ namespace TrendingGiphyBot.Dals
             ChannelConfigs.Add(config);
             await SaveChangesAsync();
         }
-        internal async Task<JobConfig> GetJobConfigWithHourOffset(decimal id, short hourOffset)
+        internal async Task<JobConfig> GetJobConfig(decimal id)
         {
             return await JobConfigs.SingleAsync(s => s.ChannelId == id);
         }
@@ -91,7 +91,7 @@ namespace TrendingGiphyBot.Dals
             match.RandomSearchString = randomSearchString;
             await SaveChangesAsync();
         }
-        internal async Task UpdateQuietHours(ulong channelId, short minHour, short maxHour, short hourOffset)
+        internal async Task UpdateQuietHours(ulong channelId, short minHour, short maxHour)
         {
             var match = await JobConfigs.SingleAsync(s => s.ChannelId == channelId);
             match.MinQuietHour = minHour;
