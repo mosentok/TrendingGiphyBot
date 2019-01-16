@@ -1,4 +1,4 @@
-﻿namespace TrendingGiphyBotFunctions
+﻿namespace TrendingGiphyBotFunctions.Models
 {
     public class GifObject
     {

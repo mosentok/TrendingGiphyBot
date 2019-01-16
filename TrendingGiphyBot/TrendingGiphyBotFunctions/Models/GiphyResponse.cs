@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace TrendingGiphyBotFunctions
+namespace TrendingGiphyBotFunctions.Models
 {
     public class GiphyResponse
     {
