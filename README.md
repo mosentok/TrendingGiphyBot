@@ -80,6 +80,5 @@ This command will show you some examples of the bot's commands. Use it as a quic
 - [Discord](https://discordapp.com/)
 - [Discord.Net](https://github.com/RogueException/Discord.Net)
 - [Giphy](https://giphy.com)
-- [GiphyDotNet](https://github.com/drasticactions/GiphyDotNet)
 - [NLog](https://github.com/NLog/NLog)
 - [NLog.AzureStorage](https://github.com/nickheppleston/NLog.AzureStorage)
