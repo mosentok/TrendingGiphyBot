@@ -189,6 +189,7 @@ namespace TrendingGiphyBotFunctions.Models
                 Interval = jobConfig.Interval,
                 Time = jobConfig.Time,
                 RandomIsOn = jobConfig.RandomIsOn,
+                RandomSearchString = jobConfig.RandomSearchString,
                 MinQuietHour = jobConfig.MinQuietHour,
                 MaxQuietHour = jobConfig.MaxQuietHour,
             };
