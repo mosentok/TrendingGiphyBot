@@ -172,6 +172,7 @@ namespace TrendingGiphyBotFunctions.Models
             {
                 jobConfig = new JobConfig
                 {
+                    ChannelId = channelId,
                     Interval = jobConfigContainer.Interval,
                     Time = jobConfigContainer.Time,
                     IntervalMinutes = DetermineIntervalMinutes(jobConfigContainer),
