@@ -3,10 +3,9 @@ using System.Collections.Generic;
 
 namespace TrendingGiphyBotFunctions.Models
 {
-    public partial class UrlHistory
+    public partial class ChannelConfig
     {
         public decimal ChannelId { get; set; }
-        public string Url { get; set; }
-        public DateTime Stamp { get; set; }
+        public string Prefix { get; set; }
     }
 }

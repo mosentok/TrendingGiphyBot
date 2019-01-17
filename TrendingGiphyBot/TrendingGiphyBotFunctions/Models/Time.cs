@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace TrendingGiphyBotFunctions.Models
 {
@@ -11,6 +12,6 @@ namespace TrendingGiphyBotFunctions.Models
 
         public string Value { get; set; }
 
-        public virtual ICollection<JobConfig> JobConfig { get; set; }
+        public ICollection<JobConfig> JobConfig { get; set; }
     }
 }
