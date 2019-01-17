@@ -16,6 +16,7 @@ namespace TrendingGiphyBotFunctions
         [FunctionName(nameof(PostJobConfigFunction))]
         public static async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = "jobconfigs/{channelid:decimal}")] HttpRequest req, decimal channelId, ILogger log)
         {
+            log.LogInformation($"Channel {channelId} posting job config.");
             string content;
             using (var reader = new StreamReader(req.Body))
                 content = await reader.ReadToEndAsync();
@@ -24,6 +25,7 @@ namespace TrendingGiphyBotFunctions
             JobConfigContainer result;
             using (var context = new TrendingGiphyBotContext(connectionString))
                 result = await context.SetJobConfig(channelId, container);
+            log.LogInformation($"Channel {channelId} posted job config.");
             return new OkObjectResult(result);
         }
     }
