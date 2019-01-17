@@ -33,7 +33,7 @@ Invite the bot, then go to a channel and type `!trend every 30 minutes`, then ty
 
 ### !Trend
 
-All of the bot's commands start with `!trend`. If you go ahead just type `!trend`, the bot will show you its setup for the channel you just typed in. If the bot's not setup in that channel, it'll give you some examples of the commands you can use to set it up.
+All of the bot's commands start with `!trend`. If you go ahead and just type `!trend`, the bot will show you its setup for the channel you just typed in. If the bot's not setup in that channel, it'll give you some examples of the commands you can use to set it up.
 
 ### !Trend Every x Minutes
 
