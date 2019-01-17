@@ -1,21 +1,21 @@
 ﻿using Discord;
-using TrendingGiphyBot.Dals;
+using TrendingGiphyBot.Containers;
 
 namespace TrendingGiphyBot.Extensions
 {
     static class EmbedBuilderExtensions
     {
-        internal static EmbedBuilder WithHowOften(this EmbedBuilder embedBuilder, JobConfig config)
+        internal static EmbedBuilder WithHowOften(this EmbedBuilder embedBuilder, JobConfigContainer config)
         {
             var every = $"```less\n{config.Interval} {config.Time.ToLower()}```";
             return embedBuilder.AddInlineField("How Often?", every);
         }
-        internal static EmbedBuilder WithRandomConfigFields(this EmbedBuilder embedBuilder, JobConfig config)
+        internal static EmbedBuilder WithRandomConfigFields(this EmbedBuilder embedBuilder, JobConfigContainer config)
         {
             var fieldValue = DetermineRandomFieldValue(config);
             return embedBuilder.AddInlineField("Random Gifs?", $"```yaml\n{fieldValue}```");
         }
-        static string DetermineRandomFieldValue(JobConfig config)
+        static string DetermineRandomFieldValue(JobConfigContainer config)
         {
             if (config.RandomIsOn)
             {
@@ -25,12 +25,12 @@ namespace TrendingGiphyBot.Extensions
             }
             return "no";
         }
-        internal static EmbedBuilder WithQuietHourFields(this EmbedBuilder embedBuilder, JobConfig jobConfig)
+        internal static EmbedBuilder WithQuietHourFields(this EmbedBuilder embedBuilder, JobConfigContainer jobConfig)
         {
             var fieldValue = DetermineQuietHoursFieldValue(jobConfig);
             return embedBuilder.AddInlineField("Trend When?", $"```fix\n{fieldValue}```");
         }
-        static string DetermineQuietHoursFieldValue(JobConfig jobConfig)
+        static string DetermineQuietHoursFieldValue(JobConfigContainer jobConfig)
         {
             if (jobConfig.MinQuietHour.HasValue && jobConfig.MaxQuietHour.HasValue)
                 return $"between {jobConfig.MaxQuietHour.Value} and {jobConfig.MinQuietHour.Value}";

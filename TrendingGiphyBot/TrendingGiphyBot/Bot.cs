@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
@@ -31,9 +32,14 @@ namespace TrendingGiphyBot
         static readonly HttpClient _HttpClient = new HttpClient();
         internal async Task Run()
         {
+            var jobConfigEndpoint = ConfigurationManager.AppSettings["jobConfigEndpoint"];
+            var functionKeyHeaderName = ConfigurationManager.AppSettings["functionKeyHeaderName"];
+            var jobConfigFunctionKey = ConfigurationManager.AppSettings["jobConfigFunctionKey"];
+            var functionHelper = new FunctionHelper(functionKeyHeaderName, jobConfigFunctionKey, jobConfigEndpoint);
             _Services = new ServiceCollection()
                 .AddSingleton<IGlobalConfig, GlobalConfig>()
                 .AddSingleton<ITrendHelper, TrendHelper>()
+                .AddSingleton<IFunctionHelper>(functionHelper)
                 .BuildServiceProvider();
             _GlobalConfig = _Services.GetRequiredService<IGlobalConfig>();
             await _GlobalConfig.Initialize();

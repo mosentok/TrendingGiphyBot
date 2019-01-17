@@ -34,10 +34,6 @@ namespace TrendingGiphyBot.Dals
             ChannelConfigs.Add(config);
             await SaveChangesAsync();
         }
-        internal async Task<JobConfig> GetJobConfig(decimal id)
-        {
-            return await JobConfigs.SingleAsync(s => s.ChannelId == id);
-        }
         internal async Task<bool> AnyJobConfig(decimal id)
         {
             return await JobConfigs.AnyAsync(s => s.ChannelId == id);

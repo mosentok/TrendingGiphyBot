@@ -20,6 +20,7 @@ namespace TrendingGiphyBot.Modules
         readonly IGlobalConfig _GlobalConfig;
         readonly TrendingGiphyBotEntities _Entities;
         readonly ITrendHelper _TrendHelper;
+        readonly IFunctionHelper _FunctionHelper;
         static readonly char[] _ArgsSplit = new[] { ' ' };
         public TrendModule(IServiceProvider services)
         {
@@ -27,6 +28,7 @@ namespace TrendingGiphyBot.Modules
             _GlobalConfig = services.GetRequiredService<IGlobalConfig>();
             _Entities = _GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities();
             _TrendHelper = services.GetRequiredService<ITrendHelper>();
+            _FunctionHelper = services.GetRequiredService<IFunctionHelper>();
         }
         [Command(nameof(Get))]
         [Alias(nameof(Get), "", "Config", "Setup")]
@@ -184,20 +186,23 @@ namespace TrendingGiphyBot.Modules
         }
         async Task GetJobConfig()
         {
-            var config = await _Entities.GetJobConfig(Context.Channel.Id);
-            var author = new EmbedAuthorBuilder()
-                .WithName($"Setup for Channel # {Context.Channel.Name}")
-                .WithIconUrl(Context.Guild.IconUrl);
-            var helpField = new EmbedFieldBuilder()
-                .WithName("Need Help?")
-                .WithValue(_GlobalConfig.Config.GetConfigHelpFieldText);
-            var embedBuilder = new EmbedBuilder()
-                .WithAuthor(author)
-                .WithHowOften(config)
-                .WithRandomConfigFields(config)
-                .WithQuietHourFields(config)
-                .AddField(helpField);
-            await TryReplyAsync(embedBuilder);
+            var config = await _FunctionHelper.GetJobConfigAsync(Context.Channel.Id);
+            if (config != null)
+            {
+                var author = new EmbedAuthorBuilder()
+                    .WithName($"Setup for Channel # {Context.Channel.Name}")
+                    .WithIconUrl(Context.Guild.IconUrl);
+                var helpField = new EmbedFieldBuilder()
+                    .WithName("Need Help?")
+                    .WithValue(_GlobalConfig.Config.GetConfigHelpFieldText);
+                var embedBuilder = new EmbedBuilder()
+                    .WithAuthor(author)
+                    .WithHowOften(config)
+                    .WithRandomConfigFields(config)
+                    .WithQuietHourFields(config)
+                    .AddField(helpField);
+                await TryReplyAsync(embedBuilder);
+            }
         }
         async Task TryReplyAsync(string message) => await TryReplyAsync(message, null);
         async Task TryReplyAsync(EmbedBuilder embedBuilder) => await TryReplyAsync(string.Empty, embedBuilder);
