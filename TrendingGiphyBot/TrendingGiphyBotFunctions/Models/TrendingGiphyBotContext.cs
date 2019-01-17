@@ -25,6 +25,7 @@ namespace TrendingGiphyBotFunctions.Models
             _ConnectionString = connectionString;
         }
 
+        public virtual DbSet<ChannelConfig> ChannelConfig { get; set; }
         public virtual DbSet<JobConfig> JobConfigs { get; set; }
         public virtual DbSet<Time> Time { get; set; }
         public virtual DbSet<UrlCache> UrlCaches { get; set; }
@@ -40,22 +41,25 @@ namespace TrendingGiphyBotFunctions.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.HasAnnotation("ProductVersion", "2.2.1-servicing-10028");
             foreach (var entity in modelBuilder.Model.GetEntityTypes())
                 entity.Relational().TableName = entity.DisplayName();
-            modelBuilder.Entity<JobConfig>(entity =>
+            modelBuilder.Entity<ChannelConfig>(entity =>
             {
-                entity.HasKey(e => e.ChannelId)
-                    .HasName("PK_JobConfigs");
+                entity.HasKey(e => e.ChannelId);
 
-                entity.HasIndex(e => e.Time)
-                    .HasName("IX_FK_JobConfig_Time");
-
-                entity.Property(e => e.ChannelId).HasColumnType("decimal(20, 0)");
+                entity.Property(e => e.ChannelId).HasColumnType("numeric(20, 0)");
 
                 entity.Property(e => e.Prefix)
+                    .IsRequired()
                     .HasMaxLength(4)
                     .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<JobConfig>(entity =>
+            {
+                entity.HasKey(e => e.ChannelId);
+
+                entity.Property(e => e.ChannelId).HasColumnType("numeric(20, 0)");
 
                 entity.Property(e => e.RandomSearchString)
                     .HasMaxLength(32)
@@ -75,8 +79,7 @@ namespace TrendingGiphyBotFunctions.Models
 
             modelBuilder.Entity<Time>(entity =>
             {
-                entity.HasKey(e => e.Value)
-                    .HasName("PK_TimeRecords");
+                entity.HasKey(e => e.Value);
 
                 entity.Property(e => e.Value)
                     .HasMaxLength(16)
@@ -86,29 +89,34 @@ namespace TrendingGiphyBotFunctions.Models
 
             modelBuilder.Entity<UrlCache>(entity =>
             {
-                entity.HasKey(e => e.Url)
-                    .HasName("PK_UrlCaches");
+                entity.HasKey(e => e.Url);
 
                 entity.Property(e => e.Url)
                     .HasMaxLength(255)
                     .IsUnicode(false)
                     .ValueGeneratedNever();
 
-                entity.Property(e => e.Stamp).HasColumnType("datetime");
+                entity.Property(e => e.Stamp)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
             });
 
             modelBuilder.Entity<UrlHistory>(entity =>
             {
-                entity.HasKey(e => new { e.ChannelId, e.Url })
-                    .HasName("PK_UrlHistories");
+                entity.HasKey(e => new { e.ChannelId, e.Url });
 
-                entity.Property(e => e.ChannelId).HasColumnType("decimal(20, 0)");
+                entity.HasIndex(e => e.Stamp)
+                    .HasName("nci_wi_UrlHistory_7886CC02C4D996621453061A88A8026B");
+
+                entity.Property(e => e.ChannelId).HasColumnType("numeric(20, 0)");
 
                 entity.Property(e => e.Url)
                     .HasMaxLength(255)
                     .IsUnicode(false);
 
-                entity.Property(e => e.Stamp).HasColumnType("datetime");
+                entity.Property(e => e.Stamp)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
             });
         }
         public async Task<int> DeleteUrlCachesOlderThan(DateTime oldestDate)
