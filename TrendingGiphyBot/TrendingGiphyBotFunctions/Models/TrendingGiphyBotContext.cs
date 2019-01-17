@@ -153,5 +153,51 @@ namespace TrendingGiphyBotFunctions.Models
                 MaxQuietHour = s.MaxQuietHour,
             }).SingleOrDefaultAsync();
         }
+        public async Task<JobConfigContainer> SetJobConfig(decimal channelId, JobConfigContainer jobConfigContainer)
+        {
+            JobConfig jobConfig;
+            var match = await JobConfigs.SingleOrDefaultAsync(s => s.ChannelId == channelId);
+            if (match != null) //already exists, so mutate it
+            {
+                jobConfig = match;
+                match.Interval = jobConfigContainer.Interval;
+                match.Time = jobConfigContainer.Time;
+                match.IntervalMinutes = DetermineIntervalMinutes(jobConfigContainer);
+                match.RandomIsOn = jobConfigContainer.RandomIsOn;
+                match.RandomSearchString = jobConfigContainer.RandomSearchString;
+                match.MinQuietHour = jobConfigContainer.MinQuietHour;
+                match.MaxQuietHour = jobConfigContainer.MaxQuietHour;
+            }
+            else //new item
+            {
+                jobConfig = new JobConfig
+                {
+                    Interval = jobConfigContainer.Interval,
+                    Time = jobConfigContainer.Time,
+                    IntervalMinutes = DetermineIntervalMinutes(jobConfigContainer),
+                    RandomIsOn = jobConfigContainer.RandomIsOn,
+                    RandomSearchString = jobConfigContainer.RandomSearchString,
+                    MinQuietHour = jobConfigContainer.MinQuietHour,
+                    MaxQuietHour = jobConfigContainer.MaxQuietHour
+                };
+                JobConfigs.Add(jobConfig);
+            }
+            await SaveChangesAsync();
+            return new JobConfigContainer
+            {
+                ChannelId = jobConfig.ChannelId,
+                Interval = jobConfig.Interval,
+                Time = jobConfig.Time,
+                RandomIsOn = jobConfig.RandomIsOn,
+                MinQuietHour = jobConfig.MinQuietHour,
+                MaxQuietHour = jobConfig.MaxQuietHour,
+            };
+        }
+        static int DetermineIntervalMinutes(JobConfigContainer jobConfigContainer)
+        {
+            if (jobConfigContainer.Time == "Hour" || jobConfigContainer.Time == "Hours")
+                return jobConfigContainer.Interval * 60;
+            return jobConfigContainer.Interval;
+        }
     }
 }

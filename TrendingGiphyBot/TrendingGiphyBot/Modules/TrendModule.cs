@@ -6,6 +6,7 @@ using Discord.Net;
 using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using TrendingGiphyBot.Configuration;
+using TrendingGiphyBot.Containers;
 using TrendingGiphyBot.Dals;
 using TrendingGiphyBot.Enums;
 using TrendingGiphyBot.Extensions;
@@ -34,11 +35,8 @@ namespace TrendingGiphyBot.Modules
         [Alias(nameof(Get), "", "Config", "Setup")]
         public async Task Get()
         {
-            var isConfigured = await _Entities.AnyJobConfig(Context.Channel.Id);
-            if (isConfigured)
-                await GetJobConfig();
-            else
-                await ExamplesReplyAsync(true);
+            var jobConfig = await _FunctionHelper.GetJobConfigAsync(Context.Channel.Id);
+            await ReplyWithJobConfig(jobConfig);
         }
         [Command(nameof(Off))]
         public async Task Off()
@@ -73,10 +71,34 @@ namespace TrendingGiphyBot.Modules
                     await TryReplyAsync(invalidConfigRangeMessage);
                     return;
                 case JobConfigState.Valid:
-                    await _Entities.UpdateInterval(Context.Channel.Id, interval, time);
-                    await GetJobConfig();
+                    var container = await SetJobConfig(interval, time);
+                    await ReplyWithJobConfig(container);
                     return;
             }
+        }
+        async Task<JobConfigContainer> SetJobConfig(int interval, Time time)
+        {
+            JobConfigContainer container;
+            var match = await _FunctionHelper.GetJobConfigAsync(Context.Channel.Id);
+            if (match != null)
+                container = new JobConfigContainer
+                {
+                    ChannelId = Context.Channel.Id,
+                    Interval = interval,
+                    Time = time.ToString(),
+                    RandomIsOn = match.RandomIsOn,
+                    RandomSearchString = match.RandomSearchString,
+                    MinQuietHour = match.MinQuietHour,
+                    MaxQuietHour = match.MaxQuietHour
+                };
+            else
+                container = new JobConfigContainer
+                {
+                    ChannelId = Context.Channel.Id,
+                    Interval = interval,
+                    Time = time.ToString()
+                };
+            return await _FunctionHelper.SetJobConfigAsync(Context.Channel.Id, container);
         }
         [Command("Random")]
         public async Task TrendRandom([Remainder] string randomSearchString = null)
@@ -187,6 +209,10 @@ namespace TrendingGiphyBot.Modules
         async Task GetJobConfig()
         {
             var config = await _FunctionHelper.GetJobConfigAsync(Context.Channel.Id);
+            await ReplyWithJobConfig(config);
+        }
+        async Task ReplyWithJobConfig(JobConfigContainer config)
+        {
             if (config != null)
             {
                 var author = new EmbedAuthorBuilder()
@@ -203,6 +229,8 @@ namespace TrendingGiphyBot.Modules
                     .AddField(helpField);
                 await TryReplyAsync(embedBuilder);
             }
+            else
+                await ExamplesReplyAsync(true);
         }
         async Task TryReplyAsync(string message) => await TryReplyAsync(message, null);
         async Task TryReplyAsync(EmbedBuilder embedBuilder) => await TryReplyAsync(string.Empty, embedBuilder);

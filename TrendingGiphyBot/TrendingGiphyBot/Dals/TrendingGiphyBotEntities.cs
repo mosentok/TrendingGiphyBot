@@ -4,15 +4,12 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
-using TrendingGiphyBot.Enums;
 
 namespace TrendingGiphyBot.Dals
 {
     public partial class TrendingGiphyBotEntities
     {
         static readonly ILogger _Logger = LogManager.GetCurrentClassLogger();
-        static readonly string _HourString = Time.Hour.ToString();
-        static readonly string _HoursString = Time.Hours.ToString();
         public TrendingGiphyBotEntities(string nameOrConnectionString) : base(nameOrConnectionString) { }
         internal async Task<bool> AnyChannelConfigs(ulong channelId)
         {
@@ -48,37 +45,6 @@ namespace TrendingGiphyBot.Dals
             return await (from jobConfig in JobConfigs
                           where curentValidMinutes.Contains(jobConfig.IntervalMinutes)
                           select jobConfig).ToListAsync();
-        }
-        internal async Task UpdateInterval(ulong channelId, int interval, Time time)
-        {
-            var timeString = time.ToString();
-            var intervalMinutes = DetermineIntervalMinutes(interval, timeString);
-            var any = await AnyJobConfig(channelId);
-            if (any)
-            {
-                var match = await JobConfigs.SingleAsync(s => s.ChannelId == channelId);
-                match.Interval = interval;
-                match.Time = timeString;
-                match.IntervalMinutes = intervalMinutes;
-            }
-            else
-            {
-                var config = new JobConfig
-                {
-                    ChannelId = channelId,
-                    Interval = interval,
-                    Time = timeString,
-                    IntervalMinutes = intervalMinutes
-                };
-                JobConfigs.Add(config);
-            }
-            await SaveChangesAsync();
-        }
-        static int DetermineIntervalMinutes(int interval, string timeString)
-        {
-            if (timeString == _HourString || timeString == _HoursString)
-                return interval * 60;
-            return interval;
         }
         internal async Task UpdateRandom(ulong channelId, bool randomIsOn, string randomSearchString)
         {

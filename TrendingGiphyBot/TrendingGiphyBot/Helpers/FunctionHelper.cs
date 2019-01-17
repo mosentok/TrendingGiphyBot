@@ -20,7 +20,20 @@ namespace TrendingGiphyBot.Helpers
         }
         public async Task<JobConfigContainer> GetJobConfigAsync(decimal channelId)
         {
-            var response = await _HttpClient.GetAsync($"{_JobConfigEndpoint}/{channelId}");
+            var requestUri = $"{_JobConfigEndpoint}/{channelId}";
+            var response = await _HttpClient.GetAsync(requestUri);
+            return await ProcessResponse(channelId, response);
+        }
+        public async Task<JobConfigContainer> SetJobConfigAsync(decimal channelId, JobConfigContainer jobConfigContainer)
+        {
+            var requestUri = $"{_JobConfigEndpoint}/{channelId}";
+            var serialized = JsonConvert.SerializeObject(jobConfigContainer);
+            var content = new StringContent(serialized);
+            var response = await _HttpClient.PostAsync(requestUri, content);
+            return await ProcessResponse(channelId, response);
+        }
+        static async Task<JobConfigContainer> ProcessResponse(decimal channelId, HttpResponseMessage response)
+        {
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
