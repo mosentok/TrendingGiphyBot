@@ -33,9 +33,10 @@ namespace TrendingGiphyBot
         internal async Task Run()
         {
             var jobConfigEndpoint = ConfigurationManager.AppSettings["jobConfigEndpoint"];
-            var functionKeyHeaderName = ConfigurationManager.AppSettings["functionKeyHeaderName"];
-            var jobConfigFunctionKey = ConfigurationManager.AppSettings["jobConfigFunctionKey"];
-            var functionHelper = new FunctionHelper(functionKeyHeaderName, jobConfigFunctionKey, jobConfigEndpoint);
+            var functionsKeyHeaderName = ConfigurationManager.AppSettings["functionsKeyHeaderName"];
+            var getJobConfigFunctionKey = ConfigurationManager.AppSettings["getJobConfigFunctionKey"];
+            var postJobConfigFunctionKey = ConfigurationManager.AppSettings["postJobConfigFunctionKey"];
+            var functionHelper = new FunctionHelper(jobConfigEndpoint, functionsKeyHeaderName, getJobConfigFunctionKey, postJobConfigFunctionKey);
             _Services = new ServiceCollection()
                 .AddSingleton<IGlobalConfig, GlobalConfig>()
                 .AddSingleton<ITrendHelper, TrendHelper>()
