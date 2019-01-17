@@ -141,5 +141,17 @@ namespace TrendingGiphyBotFunctions.Models
             await UrlCaches.AddRangeAsync(newUrlCaches);
             return await SaveChangesAsync();
         }
+        public async Task<JobConfigContainer> GetJobConfig(decimal id)
+        {
+            return await JobConfigs.Where(s => s.ChannelId == id).Select(s => new JobConfigContainer
+            {
+                ChannelId = s.ChannelId,
+                Interval = s.Interval,
+                Time = s.Time,
+                RandomIsOn = s.RandomIsOn,
+                MinQuietHour = s.MinQuietHour,
+                MaxQuietHour = s.MaxQuietHour,
+            }).SingleOrDefaultAsync();
+        }
     }
 }
