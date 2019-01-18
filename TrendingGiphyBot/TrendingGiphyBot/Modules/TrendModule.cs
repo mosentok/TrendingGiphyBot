@@ -9,6 +9,7 @@ using TrendingGiphyBot.Configuration;
 using TrendingGiphyBot.Containers;
 using TrendingGiphyBot.Dals;
 using TrendingGiphyBot.Enums;
+using TrendingGiphyBot.Exceptions;
 using TrendingGiphyBot.Extensions;
 using TrendingGiphyBot.Helpers;
 
@@ -48,37 +49,37 @@ namespace TrendingGiphyBot.Modules
         public async Task Every(int interval, Time time)
         {
             var state = _GlobalConfig.Config.DetermineJobConfigState(interval, time);
+            await ProcessJobConfigRequest(state, interval, time);
+        }
+        Task ProcessJobConfigRequest(JobConfigState state, int interval, Time time)
+        {
             switch (state)
             {
                 case JobConfigState.InvalidHours:
                     var invalidHoursMessage = _TrendHelper.InvalidConfigMessage(time, _GlobalConfig.Config.ValidHours);
-                    await TryReplyAsync(invalidHoursMessage);
-                    return;
+                    return TryReplyAsync(invalidHoursMessage);
                 case JobConfigState.InvalidMinutes:
                     var invalidMinutesMessage = _TrendHelper.InvalidConfigMessage(time, _GlobalConfig.Config.ValidMinutes);
-                    await TryReplyAsync(invalidMinutesMessage);
-                    return;
+                    return TryReplyAsync(invalidMinutesMessage);
                 case JobConfigState.InvalidSeconds:
                     var invalidConfigMessage = _TrendHelper.InvalidConfigMessage(time, _GlobalConfig.Config.ValidSeconds);
-                    await TryReplyAsync(invalidConfigMessage);
-                    return;
+                    return TryReplyAsync(invalidConfigMessage);
                 case JobConfigState.InvalidTime:
-                    await TryReplyAsync($"{time} is an invalid {nameof(Time)}.");
-                    return;
+                    return TryReplyAsync($"{time.ToString()} is an invalid {nameof(Time)}.");
                 case JobConfigState.IntervalTooSmall:
                 case JobConfigState.IntervallTooBig:
                     var invalidConfigRangeMessage = _TrendHelper.InvalidConfigRangeMessage(_GlobalConfig.Config.MinJobConfig, _GlobalConfig.Config.MaxJobConfig);
-                    await TryReplyAsync(invalidConfigRangeMessage);
-                    return;
+                    return TryReplyAsync(invalidConfigRangeMessage);
                 case JobConfigState.Valid:
-                    var match = await _FunctionHelper.GetJobConfigAsync(Context.Channel.Id);
-                    await SetJobConfig(match, interval, time);
-                    return;
+                    return SetJobConfig(interval, time);
+                default:
+                    throw new UnexpectedTimeException(time);
             }
         }
-        async Task SetJobConfig(JobConfigContainer match, int interval, Time time)
+        async Task SetJobConfig(int interval, Time time)
         {
             JobConfigContainer container;
+            var match = await _FunctionHelper.GetJobConfigAsync(Context.Channel.Id);
             if (match != null)
                 container = new JobConfigContainer(match, interval, time.ToString());
             else
