@@ -6,8 +6,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using TrendingGiphyBotFunctions.Models;
 using Microsoft.AspNetCore.Mvc;
-using System.IO;
-using Newtonsoft.Json;
+using TrendingGiphyBotFunctions.Extensions;
 
 namespace TrendingGiphyBotFunctions
 {
@@ -17,10 +16,7 @@ namespace TrendingGiphyBotFunctions
         public static async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = "jobconfigs/{channelid:decimal}")] HttpRequest req, decimal channelId, ILogger log)
         {
             log.LogInformation($"Channel {channelId} posting job config.");
-            string content;
-            using (var reader = new StreamReader(req.Body))
-                content = await reader.ReadToEndAsync();
-            var container = JsonConvert.DeserializeObject<JobConfigContainer>(content);
+            var container = await req.Body.ReadToEndAsync<JobConfigContainer>();
             var connectionString = Environment.GetEnvironmentVariable("ConnectionString");
             JobConfigContainer result;
             using (var context = new TrendingGiphyBotContext(connectionString))
