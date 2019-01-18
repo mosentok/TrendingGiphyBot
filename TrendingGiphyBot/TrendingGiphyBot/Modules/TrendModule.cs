@@ -84,7 +84,7 @@ namespace TrendingGiphyBot.Modules
                 container = new JobConfigContainer(match, interval, time.ToString());
             else
                 container = new JobConfigContainer(Context.Channel.Id, interval, time.ToString());
-            var result = await _FunctionHelper.SetJobConfigAsync(Context.Channel.Id, container);
+            var result = await _FunctionHelper.PostJobConfigAsync(Context.Channel.Id, container);
             await ReplyWithJobConfig(result);
         }
         [Command("Random")]
@@ -109,7 +109,7 @@ namespace TrendingGiphyBot.Modules
         async Task SetRandom(JobConfigContainer match, bool randomIsOn, string randomSearchString)
         {
             var container = new JobConfigContainer(match, randomIsOn, randomSearchString);
-            var result = await _FunctionHelper.SetJobConfigAsync(Context.Channel.Id, container);
+            var result = await _FunctionHelper.PostJobConfigAsync(Context.Channel.Id, container);
             await ReplyWithJobConfig(result);
         }
         [Command(nameof(Between))]
@@ -137,35 +137,30 @@ namespace TrendingGiphyBot.Modules
         async Task SetBetween(JobConfigContainer match, short? minQuietHour, short? maxQuietHour)
         {
             var container = new JobConfigContainer(match, minQuietHour, maxQuietHour);
-            var result = await _FunctionHelper.SetJobConfigAsync(Context.Channel.Id, container);
+            var result = await _FunctionHelper.PostJobConfigAsync(Context.Channel.Id, container);
             await ReplyWithJobConfig(result);
         }
         [Command(nameof(Prefix))]
         public async Task Prefix(string prefix)
         {
-            var isConfigured = await _Entities.AnyJobConfig(Context.Channel.Id);
-            if (isConfigured)
-                if (_TrendHelper.ShouldTurnCommandOff(prefix))
-                {
-                    await _Entities.SetPrefix(Context.Channel.Id, _GlobalConfig.Config.DefaultPrefix);
-                    await GetJobConfig();
-                }
-                else
-                {
-                    var isValid = !string.IsNullOrEmpty(prefix) && prefix.Length <= 4;
-                    if (isValid)
-                    {
-                        if (await _Entities.AnyChannelConfigs(Context.Channel.Id))
-                            await _Entities.SetPrefix(Context.Channel.Id, prefix);
-                        else
-                            await _Entities.InsertChannelConfig(Context.Channel.Id, prefix);
-                        await GetJobConfig();
-                    }
-                    else
-                        await TryReplyAsync("Prefix must be 1-4 characters long.");
-                }
-            else
-                await ExamplesReplyAsync(true);
+            await ProcessPrefixRequest(prefix);
+        }
+        Task ProcessPrefixRequest(string prefix)
+        {
+            var match = _FunctionHelper.GetJobConfigAsync(Context.Channel.Id);
+            if (match == null)
+                return ExamplesReplyAsync(true);
+            if (string.IsNullOrEmpty(prefix) || prefix.Length > 4)
+                return TryReplyAsync("Prefix must be 1-4 characters long.");
+            var newPrefix = DetermineNewPrefix(prefix);
+            return _FunctionHelper.PostPrefixAsync(Context.Channel.Id, newPrefix)
+                .ContinueWith(t => TryReplyAsync($"New prefix: {t.Result}"));
+        }
+        string DetermineNewPrefix(string prefix)
+        {
+            if (_TrendHelper.ShouldTurnCommandOff(prefix))
+                return _GlobalConfig.Config.DefaultPrefix;
+            return prefix;
         }
         [Command(nameof(Examples))]
         [Alias("Example", "Help")]
@@ -190,11 +185,6 @@ namespace TrendingGiphyBot.Modules
             if (includeNotConfiguredMessage)
                 return _GlobalConfig.Config.NotConfiguredMessageStart + _GlobalConfig.Config.ExamplesText;
             return _GlobalConfig.Config.ExamplesText;
-        }
-        async Task GetJobConfig()
-        {
-            var config = await _FunctionHelper.GetJobConfigAsync(Context.Channel.Id);
-            await ReplyWithJobConfig(config);
         }
         async Task ReplyWithJobConfig(JobConfigContainer config)
         {

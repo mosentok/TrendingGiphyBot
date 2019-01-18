@@ -30,17 +30,19 @@ namespace TrendingGiphyBot
         DiscordSocketClient DiscordClient => _GlobalConfig.DiscordClient;
         List<string> _ModuleNames;
         static readonly HttpClient _HttpClient = new HttpClient();
+        IFunctionHelper _FunctionHelper;
         internal async Task Run()
         {
             var jobConfigEndpoint = ConfigurationManager.AppSettings["jobConfigEndpoint"];
+            var prefixEndpoint = ConfigurationManager.AppSettings["prefixEndpoint"];
             var functionsKeyHeaderName = ConfigurationManager.AppSettings["functionsKeyHeaderName"];
             var getJobConfigFunctionKey = ConfigurationManager.AppSettings["getJobConfigFunctionKey"];
             var postJobConfigFunctionKey = ConfigurationManager.AppSettings["postJobConfigFunctionKey"];
-            var functionHelper = new FunctionHelper(jobConfigEndpoint, functionsKeyHeaderName, getJobConfigFunctionKey, postJobConfigFunctionKey);
+            _FunctionHelper = new FunctionHelper(jobConfigEndpoint, prefixEndpoint, functionsKeyHeaderName, getJobConfigFunctionKey, postJobConfigFunctionKey);
             _Services = new ServiceCollection()
                 .AddSingleton<IGlobalConfig, GlobalConfig>()
                 .AddSingleton<ITrendHelper, TrendHelper>()
-                .AddSingleton<IFunctionHelper>(functionHelper)
+                .AddSingleton(_FunctionHelper)
                 .BuildServiceProvider();
             _GlobalConfig = _Services.GetRequiredService<IGlobalConfig>();
             await _GlobalConfig.Initialize();
@@ -127,9 +129,9 @@ namespace TrendingGiphyBot
                 {
                     if (messageParam.IsRecognizedModule(_ModuleNames) &&
                         !messageParam.Author.IsBot &&
-                        messageParam is SocketUserMessage message)
+                        messageParam is IUserMessage message)
                     {
-                        var prefix = await DeterminePrefix(message);
+                        var prefix = await DeterminePrefix(messageParam.Channel.Id);
                         var argPos = 0;
                         if (message.HasStringPrefix(prefix, ref argPos) ||
                             message.HasMentionPrefix(DiscordClient.CurrentUser, ref argPos))
@@ -142,11 +144,11 @@ namespace TrendingGiphyBot
                     }
                 });
         }
-        async Task<string> DeterminePrefix(SocketUserMessage message)
+        async Task<string> DeterminePrefix(decimal channelId)
         {
-            using (var entites = _GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities())
-                if (await entites.AnyChannelConfigs(message.Channel.Id))
-                    return await entites.GetPrefix(message.Channel.Id);
+            var prefix = await _FunctionHelper.GetPrefixAsync(channelId);
+            if (!string.IsNullOrEmpty(prefix))
+                return prefix;
             return _GlobalConfig.Config.DefaultPrefix;
         }
         async Task HandleError(ICommandContext context, IResult result)
