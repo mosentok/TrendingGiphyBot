@@ -11,26 +11,6 @@ namespace TrendingGiphyBot.Dals
     {
         static readonly ILogger _Logger = LogManager.GetCurrentClassLogger();
         public TrendingGiphyBotEntities(string nameOrConnectionString) : base(nameOrConnectionString) { }
-        internal async Task<bool> AnyChannelConfigs(ulong channelId)
-        {
-            return await ChannelConfigs.AnyAsync(s => s.ChannelId == channelId);
-        }
-        internal async Task<string> GetPrefix(ulong channelId)
-        {
-            return await ChannelConfigs.Where(s => s.ChannelId == channelId).Select(s => s.Prefix).SingleOrDefaultAsync();
-        }
-        internal async Task SetPrefix(ulong channelId, string prefix)
-        {
-            var config = await ChannelConfigs.SingleAsync(s => s.ChannelId == channelId);
-            config.Prefix = prefix;
-            await SaveChangesAsync();
-        }
-        internal async Task InsertChannelConfig(ulong channelId, string prefix)
-        {
-            var config = new ChannelConfig { ChannelId = channelId, Prefix = prefix };
-            ChannelConfigs.Add(config);
-            await SaveChangesAsync();
-        }
         internal async Task<bool> AnyJobConfig(decimal id)
         {
             return await JobConfigs.AnyAsync(s => s.ChannelId == id);

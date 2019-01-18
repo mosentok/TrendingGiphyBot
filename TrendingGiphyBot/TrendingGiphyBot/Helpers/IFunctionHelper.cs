@@ -6,6 +6,8 @@ namespace TrendingGiphyBot.Helpers
     interface IFunctionHelper
     {
         Task<JobConfigContainer> GetJobConfigAsync(decimal channelId);
-        Task<JobConfigContainer> SetJobConfigAsync(decimal channelId, JobConfigContainer jobConfigContainer);
+        Task<JobConfigContainer> PostJobConfigAsync(decimal channelId, JobConfigContainer jobConfigContainer);
+        Task<string> GetPrefixAsync(decimal channelId);
+        Task<string> PostPrefixAsync(decimal channelId, string prefix);
     }
 }
