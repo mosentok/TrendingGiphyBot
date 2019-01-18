@@ -25,7 +25,7 @@ namespace TrendingGiphyBotFunctions.Models
             _ConnectionString = connectionString;
         }
 
-        public virtual DbSet<ChannelConfig> ChannelConfig { get; set; }
+        public virtual DbSet<ChannelConfig> ChannelConfigs { get; set; }
         public virtual DbSet<JobConfig> JobConfigs { get; set; }
         public virtual DbSet<Time> Time { get; set; }
         public virtual DbSet<UrlCache> UrlCaches { get; set; }
@@ -195,6 +195,27 @@ namespace TrendingGiphyBotFunctions.Models
                 MinQuietHour = jobConfig.MinQuietHour,
                 MaxQuietHour = jobConfig.MaxQuietHour,
             };
+        }
+        public async Task<string> GetPrefix(decimal channelId)
+        {
+            return await ChannelConfigs.Where(s => s.ChannelId == channelId).Select(s => s.Prefix).SingleOrDefaultAsync();
+        }
+        public async Task<string> SetPrefix(decimal channelId, string prefix)
+        {
+            ChannelConfig channelConfig;
+            var match = await ChannelConfigs.SingleOrDefaultAsync(s => s.ChannelId == channelId);
+            if (match != null)
+            {
+                channelConfig = match;
+                match.Prefix = prefix;
+            }
+            else
+            {
+                channelConfig = new ChannelConfig { ChannelId = channelId, Prefix = prefix };
+                ChannelConfigs.Add(channelConfig);
+            }
+            await SaveChangesAsync();
+            return channelConfig.Prefix;
         }
         static int DetermineIntervalMinutes(JobConfigContainer jobConfigContainer)
         {
