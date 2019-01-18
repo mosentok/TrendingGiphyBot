@@ -71,89 +71,73 @@ namespace TrendingGiphyBot.Modules
                     await TryReplyAsync(invalidConfigRangeMessage);
                     return;
                 case JobConfigState.Valid:
-                    var container = await SetJobConfig(interval, time);
-                    await ReplyWithJobConfig(container);
+                    var match = await _FunctionHelper.GetJobConfigAsync(Context.Channel.Id);
+                    await SetJobConfig(match, interval, time);
                     return;
             }
         }
-        async Task<JobConfigContainer> SetJobConfig(int interval, Time time)
+        async Task SetJobConfig(JobConfigContainer match, int interval, Time time)
         {
             JobConfigContainer container;
-            var match = await _FunctionHelper.GetJobConfigAsync(Context.Channel.Id);
             if (match != null)
-                container = new JobConfigContainer
-                {
-                    ChannelId = Context.Channel.Id,
-                    Interval = interval,
-                    Time = time.ToString(),
-                    RandomIsOn = match.RandomIsOn,
-                    RandomSearchString = match.RandomSearchString,
-                    MinQuietHour = match.MinQuietHour,
-                    MaxQuietHour = match.MaxQuietHour
-                };
+                container = new JobConfigContainer(match, interval, time.ToString());
             else
-                container = new JobConfigContainer
-                {
-                    ChannelId = Context.Channel.Id,
-                    Interval = interval,
-                    Time = time.ToString()
-                };
-            return await _FunctionHelper.SetJobConfigAsync(Context.Channel.Id, container);
+                container = new JobConfigContainer(Context.Channel.Id, interval, time.ToString());
+            var result = await _FunctionHelper.SetJobConfigAsync(Context.Channel.Id, container);
+            await ReplyWithJobConfig(result);
         }
         [Command("Random")]
         public async Task TrendRandom([Remainder] string randomSearchString = null)
         {
-            var isConfigured = await _Entities.AnyJobConfig(Context.Channel.Id);
-            if (isConfigured)
-                if (_TrendHelper.ShouldTurnCommandOff(randomSearchString))
-                {
-                    await _Entities.TurnOffRandom(Context.Channel.Id);
-                    await GetJobConfig();
-                }
-                else
-                {
-                    var cleanedRandomSearchString = _TrendHelper.CleanRandomSearchString(randomSearchString);
-                    var isValidRandomSearchString = _TrendHelper.IsValidRandomSearchString(cleanedRandomSearchString, _GlobalConfig.Config.RandomSearchStringMaxLength);
-                    if (isValidRandomSearchString)
-                    {
-                        await _Entities.UpdateRandom(Context.Channel.Id, true, cleanedRandomSearchString);
-                        await GetJobConfig();
-                    }
-                    else
-                        await TryReplyAsync($"Random search string must be at most {_GlobalConfig.Config.RandomSearchStringMaxLength} characters long.");
-                }
-            else
-                await ExamplesReplyAsync(true);
+            var match = await _FunctionHelper.GetJobConfigAsync(Context.Channel.Id);
+            await ProcessRandomRequest(randomSearchString, match);
+        }
+        Task ProcessRandomRequest(string randomSearchString, JobConfigContainer match)
+        {
+            if (match == null)
+                return ExamplesReplyAsync(true);
+            var cleanedRandomSearchString = _TrendHelper.CleanRandomSearchString(randomSearchString);
+            var isValidRandomSearchString = _TrendHelper.IsValidRandomSearchString(cleanedRandomSearchString, _GlobalConfig.Config.RandomSearchStringMaxLength);
+            if (!isValidRandomSearchString)
+                return TryReplyAsync($"Random search string must be at most {_GlobalConfig.Config.RandomSearchStringMaxLength} characters long.");
+            var shouldTurnCommandOff = _TrendHelper.ShouldTurnCommandOff(randomSearchString);
+            if (shouldTurnCommandOff)
+                return SetRandom(match, false, null);
+            return SetRandom(match, true, cleanedRandomSearchString);
+        }
+        async Task SetRandom(JobConfigContainer match, bool randomIsOn, string randomSearchString)
+        {
+            var container = new JobConfigContainer(match, randomIsOn, randomSearchString);
+            var result = await _FunctionHelper.SetJobConfigAsync(Context.Channel.Id, container);
+            await ReplyWithJobConfig(result);
         }
         [Command(nameof(Between))]
         public async Task Between([Remainder] string trendBetweenString)
         {
-            var isConfigured = await _Entities.AnyJobConfig(Context.Channel.Id);
-            if (isConfigured)
-                if (_TrendHelper.ShouldTurnCommandOff(trendBetweenString))
-                {
-                    await _Entities.TurnOffQuietHours(Context.Channel.Id);
-                    await GetJobConfig();
-                }
-                else
-                {
-                    var split = trendBetweenString.Split(_ArgsSplit, StringSplitOptions.RemoveEmptyEntries);
-                    if (split.Length == 3 && short.TryParse(split[2], out var minQuietHour) && short.TryParse(split[0], out var maxQuietHour))
-                        if (_TrendHelper.IsValidQuietHour(minQuietHour) && _TrendHelper.IsValidQuietHour(maxQuietHour))
-                            if (minQuietHour != maxQuietHour)
-                            {
-                                await _Entities.UpdateQuietHours(Context.Channel.Id, minQuietHour, maxQuietHour);
-                                await GetJobConfig();
-                            }
-                            else
-                                await TryReplyAsync(_GlobalConfig.Config.QuietHoursMustBeDifferentMessage);
-                        else
-                            await TryReplyAsync(_GlobalConfig.Config.InvalidQuietHoursRangeMessage);
-                    else
-                        await TryReplyAsync(_GlobalConfig.Config.InvalidQuietHoursInputFormat);
-                }
-            else
-                await ExamplesReplyAsync(true);
+            var match = await _FunctionHelper.GetJobConfigAsync(Context.Channel.Id);
+            await ProcessBetweenRequest(trendBetweenString, match);
+        }
+        Task ProcessBetweenRequest(string trendBetweenString, JobConfigContainer match)
+        {
+            if (match == null)
+                return ExamplesReplyAsync(true);
+            var shouldTurnCommandOff = _TrendHelper.ShouldTurnCommandOff(trendBetweenString);
+            if (shouldTurnCommandOff)
+                return SetBetween(match, null, null);
+            var split = trendBetweenString.Split(_ArgsSplit, StringSplitOptions.RemoveEmptyEntries);
+            if (split.Length != 3)
+                return TryReplyAsync(_GlobalConfig.Config.InvalidQuietHoursInputFormat);
+            var minInRange = _TrendHelper.IsInRange(split[2], out var minQuietHour);
+            var maxInRange = _TrendHelper.IsInRange(split[0], out var maxQuietHour);
+            if (!(minInRange && maxInRange) || minQuietHour == maxQuietHour)
+                return TryReplyAsync(_GlobalConfig.Config.InvalidQuietHoursRangeMessage);
+            return SetBetween(match, minQuietHour, maxQuietHour);
+        }
+        async Task SetBetween(JobConfigContainer match, short? minQuietHour, short? maxQuietHour)
+        {
+            var container = new JobConfigContainer(match, minQuietHour, maxQuietHour);
+            var result = await _FunctionHelper.SetJobConfigAsync(Context.Channel.Id, container);
+            await ReplyWithJobConfig(result);
         }
         [Command(nameof(Prefix))]
         public async Task Prefix(string prefix)

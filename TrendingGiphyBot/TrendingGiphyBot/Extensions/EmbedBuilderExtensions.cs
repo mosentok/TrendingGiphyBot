@@ -33,7 +33,7 @@ namespace TrendingGiphyBot.Extensions
         static string DetermineQuietHoursFieldValue(JobConfigContainer jobConfig)
         {
             if (jobConfig.MinQuietHour.HasValue && jobConfig.MaxQuietHour.HasValue)
-                return $"between {jobConfig.MaxQuietHour.Value} and {jobConfig.MinQuietHour.Value}";
+                return $"between {jobConfig.MaxQuietHour.Value} and {jobConfig.MinQuietHour.Value} o'clock";
             return "all the time";
         }
     }
