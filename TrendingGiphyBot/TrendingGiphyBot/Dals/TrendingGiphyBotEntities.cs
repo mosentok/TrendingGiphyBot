@@ -46,34 +46,6 @@ namespace TrendingGiphyBot.Dals
                           where curentValidMinutes.Contains(jobConfig.IntervalMinutes)
                           select jobConfig).ToListAsync();
         }
-        internal async Task UpdateRandom(ulong channelId, bool randomIsOn, string randomSearchString)
-        {
-            var match = await JobConfigs.SingleAsync(s => s.ChannelId == channelId);
-            match.RandomIsOn = randomIsOn;
-            match.RandomSearchString = randomSearchString;
-            await SaveChangesAsync();
-        }
-        internal async Task UpdateQuietHours(ulong channelId, short minHour, short maxHour)
-        {
-            var match = await JobConfigs.SingleAsync(s => s.ChannelId == channelId);
-            match.MinQuietHour = minHour;
-            match.MaxQuietHour = maxHour;
-            await SaveChangesAsync();
-        }
-        internal async Task TurnOffRandom(ulong channelId)
-        {
-            var match = await JobConfigs.SingleAsync(s => s.ChannelId == channelId);
-            match.RandomIsOn = false;
-            match.RandomSearchString = null;
-            await SaveChangesAsync();
-        }
-        internal async Task TurnOffQuietHours(ulong channelId)
-        {
-            var match = await JobConfigs.SingleAsync(s => s.ChannelId == channelId);
-            match.MinQuietHour = null;
-            match.MaxQuietHour = null;
-            await SaveChangesAsync();
-        }
         internal async Task RemoveJobConfig(decimal channelId)
         {
             var matches = JobConfigs.Where(s => s.ChannelId == channelId);
