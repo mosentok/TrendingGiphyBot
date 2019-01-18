@@ -149,6 +149,7 @@ namespace TrendingGiphyBotFunctions.Models
                 Interval = s.Interval,
                 Time = s.Time,
                 RandomIsOn = s.RandomIsOn,
+                RandomSearchString = s.RandomSearchString,
                 MinQuietHour = s.MinQuietHour,
                 MaxQuietHour = s.MaxQuietHour,
             }).SingleOrDefaultAsync();
