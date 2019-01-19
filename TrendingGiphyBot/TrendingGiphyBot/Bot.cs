@@ -38,7 +38,9 @@ namespace TrendingGiphyBot
             var functionsKeyHeaderName = ConfigurationManager.AppSettings["functionsKeyHeaderName"];
             var getJobConfigFunctionKey = ConfigurationManager.AppSettings["getJobConfigFunctionKey"];
             var postJobConfigFunctionKey = ConfigurationManager.AppSettings["postJobConfigFunctionKey"];
-            _FunctionHelper = new FunctionHelper(jobConfigEndpoint, prefixEndpoint, functionsKeyHeaderName, getJobConfigFunctionKey, postJobConfigFunctionKey);
+            var getPrefixFunctionKey = ConfigurationManager.AppSettings["getPrefixFunctionKey"];
+            var postPrefixFunctionKey = ConfigurationManager.AppSettings["postPrefixFunctionKey"];
+            _FunctionHelper = new FunctionHelper(jobConfigEndpoint, prefixEndpoint, functionsKeyHeaderName, getJobConfigFunctionKey, postJobConfigFunctionKey, getPrefixFunctionKey, postPrefixFunctionKey);
             _Services = new ServiceCollection()
                 .AddSingleton<IGlobalConfig, GlobalConfig>()
                 .AddSingleton<ITrendHelper, TrendHelper>()

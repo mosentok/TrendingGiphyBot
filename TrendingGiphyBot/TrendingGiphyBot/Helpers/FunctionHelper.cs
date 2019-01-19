@@ -10,23 +10,29 @@ namespace TrendingGiphyBot.Helpers
 {
     public class FunctionHelper : IFunctionHelper, IDisposable
     {
-        readonly HttpClient _GetClient;
-        readonly HttpClient _PostClient;
+        readonly HttpClient _GetJobConfigClient;
+        readonly HttpClient _PostJobConfigClient;
+        readonly HttpClient _GetPrefixClient;
+        readonly HttpClient _PostPrefixClient;
         readonly string _JobConfigEndpoint;
         readonly string _PrefixEndpoint;
-        public FunctionHelper(string jobConfigEndpoint, string prefixEndpoint, string functionsKeyHeaderName, string getJobConfigFunctionKey, string postJobConfigFunctionKey)
+        public FunctionHelper(string jobConfigEndpoint, string prefixEndpoint, string functionsKeyHeaderName, string getJobConfigFunctionKey, string postJobConfigFunctionKey, string getPrefixFunctionKey, string postPrefixFunctionKey)
         {
-            _GetClient = new HttpClient();
-            _GetClient.DefaultRequestHeaders.Add(functionsKeyHeaderName, getJobConfigFunctionKey);
-            _PostClient = new HttpClient();
-            _PostClient.DefaultRequestHeaders.Add(functionsKeyHeaderName, postJobConfigFunctionKey);
+            _GetJobConfigClient = new HttpClient();
+            _GetJobConfigClient.DefaultRequestHeaders.Add(functionsKeyHeaderName, getJobConfigFunctionKey);
+            _PostJobConfigClient = new HttpClient();
+            _PostJobConfigClient.DefaultRequestHeaders.Add(functionsKeyHeaderName, postJobConfigFunctionKey);
+            _GetPrefixClient = new HttpClient();
+            _GetPrefixClient.DefaultRequestHeaders.Add(functionsKeyHeaderName, getPrefixFunctionKey);
+            _PostPrefixClient = new HttpClient();
+            _PostPrefixClient.DefaultRequestHeaders.Add(functionsKeyHeaderName, postPrefixFunctionKey);
             _JobConfigEndpoint = jobConfigEndpoint;
             _PrefixEndpoint = prefixEndpoint;
         }
         public async Task<JobConfigContainer> GetJobConfigAsync(decimal channelId)
         {
             var requestUri = $"{_JobConfigEndpoint}/{channelId}";
-            var response = await _GetClient.GetAsync(requestUri);
+            var response = await _GetJobConfigClient.GetAsync(requestUri);
             return await ProcessContainerResponse(channelId, response);
         }
         public async Task<JobConfigContainer> PostJobConfigAsync(decimal channelId, JobConfigContainer jobConfigContainer)
@@ -34,20 +40,20 @@ namespace TrendingGiphyBot.Helpers
             var requestUri = $"{_JobConfigEndpoint}/{channelId}";
             var serialized = JsonConvert.SerializeObject(jobConfigContainer);
             var content = new StringContent(serialized);
-            var response = await _PostClient.PostAsync(requestUri, content);
+            var response = await _PostJobConfigClient.PostAsync(requestUri, content);
             return await ProcessContainerResponse(channelId, response);
         }
         public async Task<string> GetPrefixAsync(decimal channelId)
         {
             var requestUri = $"{_PrefixEndpoint}/{channelId}";
-            var response = await _GetClient.GetAsync(requestUri);
+            var response = await _GetPrefixClient.GetAsync(requestUri);
             return await ProcessStringResponse(channelId, response);
         }
         public async Task<string> PostPrefixAsync(decimal channelId, string prefix)
         {
             var requestUri = $"{_PrefixEndpoint}/{channelId}";
             var content = new StringContent(prefix);
-            var response = await _GetClient.PostAsync(requestUri, content);
+            var response = await _PostPrefixClient.PostAsync(requestUri, content);
             return await ProcessStringResponse(channelId, response);
         }
         static async Task<string> ProcessStringResponse(decimal channelId, HttpResponseMessage response)
@@ -71,8 +77,10 @@ namespace TrendingGiphyBot.Helpers
         }
         public void Dispose()
         {
-            _GetClient?.Dispose();
-            _PostClient?.Dispose();
+            _GetJobConfigClient?.Dispose();
+            _PostJobConfigClient?.Dispose();
+            _GetPrefixClient?.Dispose();
+            _PostPrefixClient?.Dispose();
         }
     }
 }
