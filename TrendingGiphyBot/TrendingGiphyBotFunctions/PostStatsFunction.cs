@@ -16,17 +16,18 @@ namespace TrendingGiphyBotFunctions
     {
         static readonly HttpClient _HttpClient = new HttpClient();
         [FunctionName(nameof(PostStatsFunction))]
-        public static async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req, ILogger log)
+        public static async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = "postStats/{botid:ulong}")] HttpRequest req, ulong botId, ILogger log)
         {
             log.LogInformation("Posting stats.");
             var statPostsSerialized = Environment.GetEnvironmentVariable("StatPostsSerialized");
             var statPosts = JsonConvert.DeserializeObject<StatPost[]>(statPostsSerialized);
-            var freshStat = await req.Body.ReadToEndAsync<FreshStat>();
+            var guildCountString = await req.Body.ReadToEndAsync();
+            var guildCount = int.Parse(guildCountString);
             foreach (var statPost in statPosts)
                 try
                 {
-                    var content = $"{{\"{statPost.GuildCountPropertyName}\":{freshStat.GuildCount}}}";
-                    var requestUri = string.Format(statPost.UrlStringFormat, freshStat.BotId);
+                    var content = $"{{\"{statPost.GuildCountPropertyName}\":{guildCount}}}";
+                    var requestUri = string.Format(statPost.UrlStringFormat, botId);
                     var response = await _HttpClient.PostStringWithHeaderAsync(requestUri, content, "Authorization", statPost.Token);
                     if (!response.IsSuccessStatusCode)
                     {
