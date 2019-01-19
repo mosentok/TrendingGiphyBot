@@ -15,10 +15,12 @@ namespace TrendingGiphyBot.Helpers
         static readonly HttpClient _HttpClient = new HttpClient();
         static readonly string _JobConfigEndpoint = ConfigurationManager.AppSettings["jobConfigEndpoint"];
         static readonly string _PrefixEndpoint = ConfigurationManager.AppSettings["prefixEndpoint"];
+        static readonly string _PostStatsEndpoint = ConfigurationManager.AppSettings["postStatsEndpoint"];
         static readonly string _FunctionsKeyHeaderName = ConfigurationManager.AppSettings["functionsKeyHeaderName"];
         static readonly string _GetJobConfigFunctionKey = ConfigurationManager.AppSettings["getJobConfigFunctionKey"];
         static readonly string _PostJobConfigFunctionKey = ConfigurationManager.AppSettings["postJobConfigFunctionKey"];
         static readonly string _DeleteJobConfigFunctionKey = ConfigurationManager.AppSettings["deleteJobConfigFunctionKey"];
+        static readonly string _PostStatsFunctionKey = ConfigurationManager.AppSettings["postStatsFunctionKey"];
         static readonly string _GetPrefixFunctionKey = ConfigurationManager.AppSettings["getPrefixFunctionKey"];
         static readonly string _PostPrefixFunctionKey = ConfigurationManager.AppSettings["postPrefixFunctionKey"];
         public async Task<JobConfigContainer> GetJobConfigAsync(decimal channelId)
@@ -48,6 +50,13 @@ namespace TrendingGiphyBot.Helpers
             if (response.StatusCode == HttpStatusCode.NotFound)
                 return null;
             throw new FunctionHelperException($"Error with job config for channel '{channelId}'. Status code '{response.StatusCode.ToString()}'. Reason phrase '{response.ReasonPhrase}'.");
+        }
+        public async Task PostStatsAsync(ulong botId, int guildCount)
+        {
+            var requestUri = $"{_PostStatsEndpoint}/{botId}";
+            var response = await _HttpClient.PostStringWithHeaderAsync(requestUri, guildCount.ToString(), _FunctionsKeyHeaderName, _PostStatsFunctionKey);
+            if (!response.IsSuccessStatusCode)
+                throw new FunctionHelperException($"Error posting stats for bot '{botId}'. Status code '{response.StatusCode.ToString()}'. Reason phrase '{response.ReasonPhrase}'.");
         }
         public async Task<string> GetPrefixAsync(decimal channelId)
         {
