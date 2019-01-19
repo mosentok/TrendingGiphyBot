@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -121,15 +120,11 @@ namespace TrendingGiphyBotFunctions.Models
         }
         public async Task<int> DeleteUrlCachesOlderThan(DateTime oldestDate)
         {
-            var sql = "DELETE FROM UrlCache WHERE Stamp < @oldestDate";
-            var parameter = new SqlParameter("@oldestDate", oldestDate);
-            return await Database.ExecuteSqlCommandAsync(sql, parameter);
+            return await Database.ExecuteSqlCommandAsync($"DELETE FROM UrlCache WHERE Stamp < {oldestDate}");
         }
         public async Task<int> DeleteUrlHistoriesOlderThan(DateTime oldestDate)
         {
-            var sql = "DELETE FROM UrlHistory WHERE Stamp < @oldestDate";
-            var parameter = new SqlParameter("@oldestDate", oldestDate);
-            return await Database.ExecuteSqlCommandAsync(sql, parameter);
+            return await Database.ExecuteSqlCommandAsync($"DELETE FROM UrlHistory WHERE Stamp < {oldestDate}");
         }
         public async Task<int> InsertNewTrendingGifs(List<GifObject> gifObjects)
         {
@@ -195,6 +190,10 @@ namespace TrendingGiphyBotFunctions.Models
                 MinQuietHour = jobConfig.MinQuietHour,
                 MaxQuietHour = jobConfig.MaxQuietHour,
             };
+        }
+        public async Task DeleteJobConfig(decimal channelId)
+        {
+            await Database.ExecuteSqlCommandAsync($"DELETE FROM JobConfig WHERE ChannelId = {channelId}");
         }
         public async Task<string> GetPrefix(decimal channelId)
         {
