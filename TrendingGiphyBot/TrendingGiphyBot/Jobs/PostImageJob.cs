@@ -11,13 +11,18 @@ using TrendingGiphyBot.Configuration;
 using TrendingGiphyBot.Extensions;
 using System.Net.Http;
 using TrendingGiphyBot.Containers;
+using TrendingGiphyBot.Helpers;
 
 namespace TrendingGiphyBot.Jobs
 {
     class PostImageJob : Job
     {
         static readonly HttpClient _HttpClient = new HttpClient();
-        internal PostImageJob(IGlobalConfig globalConfig, SubJobConfig subJobConfig) : base(globalConfig, LogManager.GetCurrentClassLogger(), subJobConfig) { }
+        readonly IFunctionHelper _FunctionHelper;
+        internal PostImageJob(IGlobalConfig globalConfig, IFunctionHelper functionHelper, SubJobConfig subJobConfig) : base(globalConfig, LogManager.GetCurrentClassLogger(), subJobConfig)
+        {
+            _FunctionHelper = functionHelper;
+        }
         protected override async Task Run()
         {
             var currentValidMinutes = DetermineCurrentValidMinutes();
@@ -77,8 +82,7 @@ namespace TrendingGiphyBot.Jobs
                     }
                     catch (JsonSerializationException jsEx)
                     {
-                        Logger.Error(jsEx);
-                        await Logger.SwallowAsync(entities.BlankRandomConfig(jobConfig.ChannelId));
+                        Logger.Error(jsEx, "Note that the exception handler used to remove the random search string, but no longer does. The hope is that now that the GIF object structure is simpler, whatever used to cause the exception is gone.");
                     }
                 });
         }
@@ -115,7 +119,7 @@ namespace TrendingGiphyBot.Jobs
             catch (HttpException httpException) when (GlobalConfig.Config.HttpExceptionsToWarn.Contains(httpException.Message))
             {
                 Logger.Warn(httpException.Message);
-                await Logger.SwallowAsync(entities.RemoveJobConfig(channelId));
+                await Logger.SwallowAsync(_FunctionHelper.DeleteJobConfigAsync(channelId));
             }
             catch (Exception ex)
             {

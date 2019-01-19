@@ -4,126 +4,18 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
-using TrendingGiphyBot.Enums;
 
 namespace TrendingGiphyBot.Dals
 {
     public partial class TrendingGiphyBotEntities
     {
         static readonly ILogger _Logger = LogManager.GetCurrentClassLogger();
-        static readonly string _HourString = Time.Hour.ToString();
-        static readonly string _HoursString = Time.Hours.ToString();
         public TrendingGiphyBotEntities(string nameOrConnectionString) : base(nameOrConnectionString) { }
-        internal async Task<bool> AnyChannelConfigs(ulong channelId)
-        {
-            return await ChannelConfigs.AnyAsync(s => s.ChannelId == channelId);
-        }
-        internal async Task<string> GetPrefix(ulong channelId)
-        {
-            return await ChannelConfigs.Where(s => s.ChannelId == channelId).Select(s => s.Prefix).SingleOrDefaultAsync();
-        }
-        internal async Task SetPrefix(ulong channelId, string prefix)
-        {
-            var config = await ChannelConfigs.SingleAsync(s => s.ChannelId == channelId);
-            config.Prefix = prefix;
-            await SaveChangesAsync();
-        }
-        internal async Task InsertChannelConfig(ulong channelId, string prefix)
-        {
-            var config = new ChannelConfig { ChannelId = channelId, Prefix = prefix };
-            ChannelConfigs.Add(config);
-            await SaveChangesAsync();
-        }
-        internal async Task<JobConfig> GetJobConfigWithHourOffset(decimal id, short hourOffset)
-        {
-            return await JobConfigs.SingleAsync(s => s.ChannelId == id);
-        }
-        internal async Task<bool> AnyJobConfig(decimal id)
-        {
-            return await JobConfigs.AnyAsync(s => s.ChannelId == id);
-        }
-        internal async Task<List<decimal>> FindMatchingIds(IEnumerable<decimal> ids)
-        {
-            var jobConfigIds = JobConfigs.Select(s => s.ChannelId);
-            return await jobConfigIds.Intersect(ids).ToListAsync();
-        }
         internal async Task<List<JobConfig>> GetJobConfigsToRun(List<int> curentValidMinutes)
         {
             return await (from jobConfig in JobConfigs
                           where curentValidMinutes.Contains(jobConfig.IntervalMinutes)
                           select jobConfig).ToListAsync();
-        }
-        internal async Task UpdateInterval(ulong channelId, int interval, Time time)
-        {
-            var timeString = time.ToString();
-            var intervalMinutes = DetermineIntervalMinutes(interval, timeString);
-            var any = await AnyJobConfig(channelId);
-            if (any)
-            {
-                var match = await JobConfigs.SingleAsync(s => s.ChannelId == channelId);
-                match.Interval = interval;
-                match.Time = timeString;
-                match.IntervalMinutes = intervalMinutes;
-            }
-            else
-            {
-                var config = new JobConfig
-                {
-                    ChannelId = channelId,
-                    Interval = interval,
-                    Time = timeString,
-                    IntervalMinutes = intervalMinutes
-                };
-                JobConfigs.Add(config);
-            }
-            await SaveChangesAsync();
-        }
-        static int DetermineIntervalMinutes(int interval, string timeString)
-        {
-            if (timeString == _HourString || timeString == _HoursString)
-                return interval * 60;
-            return interval;
-        }
-        internal async Task UpdateRandom(ulong channelId, bool randomIsOn, string randomSearchString)
-        {
-            var match = await JobConfigs.SingleAsync(s => s.ChannelId == channelId);
-            match.RandomIsOn = randomIsOn;
-            match.RandomSearchString = randomSearchString;
-            await SaveChangesAsync();
-        }
-        internal async Task UpdateQuietHours(ulong channelId, short minHour, short maxHour, short hourOffset)
-        {
-            var match = await JobConfigs.SingleAsync(s => s.ChannelId == channelId);
-            match.MinQuietHour = minHour;
-            match.MaxQuietHour = maxHour;
-            await SaveChangesAsync();
-        }
-        internal async Task TurnOffRandom(ulong channelId)
-        {
-            var match = await JobConfigs.SingleAsync(s => s.ChannelId == channelId);
-            match.RandomIsOn = false;
-            match.RandomSearchString = null;
-            await SaveChangesAsync();
-        }
-        internal async Task TurnOffQuietHours(ulong channelId)
-        {
-            var match = await JobConfigs.SingleAsync(s => s.ChannelId == channelId);
-            match.MinQuietHour = null;
-            match.MaxQuietHour = null;
-            await SaveChangesAsync();
-        }
-        internal async Task RemoveJobConfig(decimal channelId)
-        {
-            var matches = JobConfigs.Where(s => s.ChannelId == channelId);
-            JobConfigs.RemoveRange(matches);
-            await SaveChangesAsync();
-        }
-        public async Task BlankRandomConfig(decimal channelId)
-        {
-            var match = await JobConfigs.SingleAsync(s => s.ChannelId == channelId);
-            match.RandomIsOn = false;
-            match.RandomSearchString = null;
-            await SaveChangesAsync();
         }
         internal async Task InsertUrlCaches(List<string> urls)
         {

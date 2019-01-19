@@ -22,13 +22,13 @@ namespace TrendingGiphyBot.Configuration
         public JobManager JobManager { get; private set; }
         public MessageHelper MessageHelper { get; private set; }
         public List<int> AllValidMinutes { get; private set; }
-        public async Task Initialize()
+        public async Task Initialize(IFunctionHelper functionHelper)
         {
             await SetConfig();
             EntitiesFactory = new EntitiesFactory(Config.ConnectionString);
             GiphyRandomEndpoint = ConfigurationManager.AppSettings["giphyRandomEndpoint"];
             GiphyTrendingEndpoint = ConfigurationManager.AppSettings["giphyTrendingEndpoint"];
-            JobManager = new JobManager(this);
+            JobManager = new JobManager(this, functionHelper);
             var configgedLogSeverities = Config.LogSeverities.Aggregate((a, b) => a | b);
             DiscordClient = new DiscordSocketClient(new DiscordSocketConfig { LogLevel = configgedLogSeverities });
         }

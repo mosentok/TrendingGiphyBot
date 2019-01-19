@@ -8,7 +8,7 @@ namespace TrendingGiphyBot.Helpers
     {
         string CleanRandomSearchString(string randomSearchString);
         bool IsValidRandomSearchString(string cleanedRandomSearchString, int randomSearchStringMaxLength);
-        bool IsValidQuietHour(short quietHour);
+        bool IsInRange(string quietHourString, out short quietHour);
         string InvalidConfigMessage(Time time, List<int> validValues);
         string InvalidConfigRangeMessage(SubJobConfig minConfig, SubJobConfig maxConfig);
         bool ShouldTurnCommandOff(string word);

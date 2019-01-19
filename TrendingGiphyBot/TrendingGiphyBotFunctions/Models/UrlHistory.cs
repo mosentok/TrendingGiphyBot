@@ -1,9 +1,9 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
 
-namespace TrendingGiphyBotFunctions
+namespace TrendingGiphyBotFunctions.Models
 {
-    public class UrlHistory
+    public partial class UrlHistory
     {
         public decimal ChannelId { get; set; }
         public string Url { get; set; }
