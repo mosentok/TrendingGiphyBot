@@ -15,7 +15,7 @@ namespace TrendingGiphyBot.Extensions
         public static Task<HttpResponseMessage> PostStringWithHeaderAsync(this HttpClient httpClient, string requestUri, string contentToSend, string headerName, string headerValue)
         {
             var content = new StringContent(contentToSend);
-            var request = new HttpRequestMessage(HttpMethod.Get, requestUri) { Content = content };
+            var request = new HttpRequestMessage(HttpMethod.Post, requestUri) { Content = content };
             request.Headers.Add(headerName, headerValue);
             return httpClient.SendAsync(request);
         }
@@ -23,7 +23,7 @@ namespace TrendingGiphyBot.Extensions
         {
             var serialized = JsonConvert.SerializeObject(contentToSend);
             var content = new StringContent(serialized);
-            var request = new HttpRequestMessage(HttpMethod.Get, requestUri) { Content = content };
+            var request = new HttpRequestMessage(HttpMethod.Post, requestUri) { Content = content };
             request.Headers.Add(headerName, headerValue);
             return httpClient.SendAsync(request);
         }
