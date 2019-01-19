@@ -29,14 +29,17 @@ namespace TrendingGiphyBot
         DiscordSocketClient DiscordClient => _GlobalConfig.DiscordClient;
         List<string> _ModuleNames;
         static readonly HttpClient _HttpClient = new HttpClient();
+        IFunctionHelper _FunctionHelper;
         internal async Task Run()
         {
+            _FunctionHelper = new FunctionHelper();
             _Services = new ServiceCollection()
                 .AddSingleton<IGlobalConfig, GlobalConfig>()
                 .AddSingleton<ITrendHelper, TrendHelper>()
+                .AddSingleton(_FunctionHelper)
                 .BuildServiceProvider();
             _GlobalConfig = _Services.GetRequiredService<IGlobalConfig>();
-            await _GlobalConfig.Initialize();
+            await _GlobalConfig.Initialize(_FunctionHelper);
             DiscordClient.Log += Log;
             DiscordClient.Ready += Ready;
             await DiscordClient.LoginAsync(TokenType.Bot, _GlobalConfig.Config.DiscordToken);
@@ -74,17 +77,9 @@ namespace TrendingGiphyBot
         {
             await _Logger.SwallowAsync(async () =>
             {
-                using (var entities = _GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities())
-                {
-                    var textChannelIds = arg.TextChannels.Select(s => Convert.ToDecimal(s.Id));
-                    var toRemove = await entities.FindMatchingIds(textChannelIds);
-                    foreach (var id in toRemove)
-                        await entities.RemoveJobConfig(id);
-                    if (await entities.AnyJobConfig(arg.Id))
-                        await entities.RemoveJobConfig(arg.Id);
-                    if (arg.DefaultChannel != null && await entities.AnyJobConfig(arg.DefaultChannel.Id))
-                        await entities.RemoveJobConfig(arg.DefaultChannel.Id);
-                }
+                var textChannelIds = arg.TextChannels.Select(s => Convert.ToDecimal(s.Id));
+                foreach (var id in textChannelIds)
+                    await _FunctionHelper.DeleteJobConfigAsync(id);
             });
         }
         async Task PostStats()
@@ -120,9 +115,9 @@ namespace TrendingGiphyBot
                 {
                     if (messageParam.IsRecognizedModule(_ModuleNames) &&
                         !messageParam.Author.IsBot &&
-                        messageParam is SocketUserMessage message)
+                        messageParam is IUserMessage message)
                     {
-                        var prefix = await DeterminePrefix(message);
+                        var prefix = await DeterminePrefix(messageParam.Channel.Id);
                         var argPos = 0;
                         if (message.HasStringPrefix(prefix, ref argPos) ||
                             message.HasMentionPrefix(DiscordClient.CurrentUser, ref argPos))
@@ -135,11 +130,11 @@ namespace TrendingGiphyBot
                     }
                 });
         }
-        async Task<string> DeterminePrefix(SocketUserMessage message)
+        async Task<string> DeterminePrefix(decimal channelId)
         {
-            using (var entites = _GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities())
-                if (await entites.AnyChannelConfigs(message.Channel.Id))
-                    return await entites.GetPrefix(message.Channel.Id);
+            var prefix = await _FunctionHelper.GetPrefixAsync(channelId);
+            if (!string.IsNullOrEmpty(prefix))
+                return prefix;
             return _GlobalConfig.Config.DefaultPrefix;
         }
         async Task HandleError(ICommandContext context, IResult result)

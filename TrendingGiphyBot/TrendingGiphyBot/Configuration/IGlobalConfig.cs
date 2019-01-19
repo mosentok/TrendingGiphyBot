@@ -16,7 +16,7 @@ namespace TrendingGiphyBot.Configuration
         string GiphyTrendingEndpoint { get; }
         DiscordSocketClient DiscordClient { get; }
         JobManager JobManager { get; }
-        Task Initialize();
+        Task Initialize(IFunctionHelper functionHelper);
         Task RefreshConfig();
         MessageHelper MessageHelper { get; }
         List<int> AllValidMinutes { get; }

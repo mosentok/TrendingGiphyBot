@@ -348,6 +348,7 @@
     <Compile Include="Dals\JobConfig.cs">
       <DependentUpon>TrendingGiphyBotDatabase.tt</DependentUpon>
     </Compile>
+    <Compile Include="Containers\JobConfigContainer.cs" />
     <Compile Include="Dals\SqlAzureConfiguration.cs" />
     <Compile Include="Dals\TimeRecord.cs">
       <DependentUpon>TrendingGiphyBotDatabase.tt</DependentUpon>
@@ -375,13 +376,17 @@
       <DependentUpon>TrendingGiphyBotDatabase.tt</DependentUpon>
     </Compile>
     <Compile Include="Enums\JobConfigState.cs" />
+    <Compile Include="Exceptions\FunctionHelperException.cs" />
     <Compile Include="Exceptions\UnexpectedLogSeverityException.cs" />
     <Compile Include="Exceptions\UnexpectedTimeException.cs" />
     <Compile Include="Extensions\DecimalExtensions.cs" />
     <Compile Include="Extensions\EmbedBuilderExtensions.cs" />
+    <Compile Include="Extensions\HttpClientExtensions.cs" />
     <Compile Include="Extensions\JobConfigExtensions.cs" />
     <Compile Include="Extensions\SocketUserMessageExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Helpers\FunctionHelper.cs" />
+    <Compile Include="Helpers\IFunctionHelper.cs" />
     <Compile Include="Helpers\ITrendHelper.cs" />
     <Compile Include="Helpers\MessageHelper.cs" />
     <Compile Include="Helpers\TrendHelper.cs" />
