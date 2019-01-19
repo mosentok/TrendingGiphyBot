@@ -12,8 +12,9 @@ namespace TrendingGiphyBot.Helpers
 {
     public class FunctionHelper : IFunctionHelper, IDisposable
     {
-        static readonly HttpClient _JobConfigClient = new HttpClient { BaseAddress = new Uri(ConfigurationManager.AppSettings["jobConfigEndpoint"]) };
-        static readonly HttpClient _PrefixClient = new HttpClient { BaseAddress = new Uri(ConfigurationManager.AppSettings["prefixEndpoint"]) };
+        static readonly HttpClient _HttpClient = new HttpClient();
+        static readonly string _JobConfigEndpoint = ConfigurationManager.AppSettings["jobConfigEndpoint"];
+        static readonly string _PrefixEndpoint = ConfigurationManager.AppSettings["prefixEndpoint"];
         static readonly string _FunctionsKeyHeaderName = ConfigurationManager.AppSettings["functionsKeyHeaderName"];
         static readonly string _GetJobConfigFunctionKey = ConfigurationManager.AppSettings["getJobConfigFunctionKey"];
         static readonly string _PostJobConfigFunctionKey = ConfigurationManager.AppSettings["postJobConfigFunctionKey"];
@@ -22,17 +23,20 @@ namespace TrendingGiphyBot.Helpers
         static readonly string _PostPrefixFunctionKey = ConfigurationManager.AppSettings["postPrefixFunctionKey"];
         public async Task<JobConfigContainer> GetJobConfigAsync(decimal channelId)
         {
-            var response = await _JobConfigClient.GetWithHeaderAsync($"/{channelId}", _FunctionsKeyHeaderName, _GetJobConfigFunctionKey);
+            var requestUri = $"{_JobConfigEndpoint}/{channelId}";
+            var response = await _HttpClient.GetWithHeaderAsync(requestUri, _FunctionsKeyHeaderName, _GetJobConfigFunctionKey);
             return await ProcessJobConfigResponse(channelId, response);
         }
         public async Task<JobConfigContainer> PostJobConfigAsync(decimal channelId, JobConfigContainer jobConfigContainer)
         {
-            var response = await _JobConfigClient.PostObjectWithHeaderAsync($"/{channelId}", jobConfigContainer, _FunctionsKeyHeaderName, _PostJobConfigFunctionKey);
+            var requestUri = $"{_JobConfigEndpoint}/{channelId}";
+            var response = await _HttpClient.PostObjectWithHeaderAsync(requestUri, jobConfigContainer, _FunctionsKeyHeaderName, _PostJobConfigFunctionKey);
             return await ProcessJobConfigResponse(channelId, response);
         }
         public async Task DeleteJobConfigAsync(decimal channelId)
         {
-            await _JobConfigClient.DeleteWithHeaderAsync($"/{channelId}", _FunctionsKeyHeaderName, _DeleteJobConfigFunctionKey);
+            var requestUri = $"{_JobConfigEndpoint}/{channelId}";
+            await _HttpClient.DeleteWithHeaderAsync(requestUri, _FunctionsKeyHeaderName, _DeleteJobConfigFunctionKey);
         }
         static async Task<JobConfigContainer> ProcessJobConfigResponse(decimal channelId, HttpResponseMessage response)
         {
@@ -47,12 +51,14 @@ namespace TrendingGiphyBot.Helpers
         }
         public async Task<string> GetPrefixAsync(decimal channelId)
         {
-            var response = await _PrefixClient.GetWithHeaderAsync($"/{channelId}", _FunctionsKeyHeaderName, _GetPrefixFunctionKey);
+            var requestUri = $"{_PrefixEndpoint}/{channelId}";
+            var response = await _HttpClient.GetWithHeaderAsync(requestUri, _FunctionsKeyHeaderName, _GetPrefixFunctionKey);
             return await ProcessPrefixResponse(channelId, response);
         }
         public async Task<string> PostPrefixAsync(decimal channelId, string prefix)
         {
-            var response = await _PrefixClient.PostStringWithHeaderAsync($"/{channelId}", prefix, _FunctionsKeyHeaderName, _PostPrefixFunctionKey);
+            var requestUri = $"{_PrefixEndpoint}/{channelId}";
+            var response = await _HttpClient.PostStringWithHeaderAsync(requestUri, prefix, _FunctionsKeyHeaderName, _PostPrefixFunctionKey);
             return await ProcessPrefixResponse(channelId, response);
         }
         static async Task<string> ProcessPrefixResponse(decimal channelId, HttpResponseMessage response)
@@ -65,8 +71,7 @@ namespace TrendingGiphyBot.Helpers
         }
         public void Dispose()
         {
-            _JobConfigClient?.Dispose();
-            _PrefixClient?.Dispose();
+            _HttpClient?.Dispose();
         }
     }
 }
