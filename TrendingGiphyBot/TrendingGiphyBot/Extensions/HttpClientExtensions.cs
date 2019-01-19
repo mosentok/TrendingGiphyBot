@@ -1,19 +1,37 @@
-﻿using System;
+﻿using Newtonsoft.Json;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace TrendingGiphyBot.Extensions
 {
     public static class HttpClientExtensions
     {
-        public static HttpClient WithBaseAddress(this HttpClient httpClient, string baseAddress)
+        public static Task<HttpResponseMessage> GetWithHeaderAsync(this HttpClient httpClient, string requestUri, string headerName, string headerValue)
         {
-            httpClient.BaseAddress = new Uri(baseAddress);
-            return httpClient;
+            var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
+            request.Headers.Add(headerName, headerValue);
+            return httpClient.SendAsync(request);
         }
-        public static HttpClient WithDefaultRequestHeader(this HttpClient httpClient, string name, string value)
+        public static Task<HttpResponseMessage> PostWithHeaderAsync(this HttpClient httpClient, string requestUri, string contentToSend, string headerName, string headerValue)
         {
-            httpClient.DefaultRequestHeaders.Add(name, value);
-            return httpClient;
+            var content = new StringContent(contentToSend);
+            var request = new HttpRequestMessage(HttpMethod.Get, requestUri) { Content = content };
+            request.Headers.Add(headerName, headerValue);
+            return httpClient.SendAsync(request);
+        }
+        public static Task<HttpResponseMessage> PostWithHeaderAsync<T>(this HttpClient httpClient, string requestUri, T contentToSend, string headerName, string headerValue) where T : class
+        {
+            var serialized = JsonConvert.SerializeObject(contentToSend);
+            var content = new StringContent(serialized);
+            var request = new HttpRequestMessage(HttpMethod.Get, requestUri) { Content = content };
+            request.Headers.Add(headerName, headerValue);
+            return httpClient.SendAsync(request);
+        }
+        public static Task<HttpResponseMessage> DeleteWithHeaderAsync(this HttpClient httpClient, string requestUri, string headerName, string headerValue)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Delete, requestUri);
+            request.Headers.Add(headerName, headerValue);
+            return httpClient.SendAsync(request);
         }
     }
 }
