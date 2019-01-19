@@ -33,6 +33,7 @@ namespace TrendingGiphyBot
         IFunctionHelper _FunctionHelper;
         internal async Task Run()
         {
+            //TODO move all of this into ctor itself?
             var jobConfigEndpoint = ConfigurationManager.AppSettings["jobConfigEndpoint"];
             var prefixEndpoint = ConfigurationManager.AppSettings["prefixEndpoint"];
             var functionsKeyHeaderName = ConfigurationManager.AppSettings["functionsKeyHeaderName"];
@@ -40,14 +41,15 @@ namespace TrendingGiphyBot
             var postJobConfigFunctionKey = ConfigurationManager.AppSettings["postJobConfigFunctionKey"];
             var getPrefixFunctionKey = ConfigurationManager.AppSettings["getPrefixFunctionKey"];
             var postPrefixFunctionKey = ConfigurationManager.AppSettings["postPrefixFunctionKey"];
-            _FunctionHelper = new FunctionHelper(jobConfigEndpoint, prefixEndpoint, functionsKeyHeaderName, getJobConfigFunctionKey, postJobConfigFunctionKey, getPrefixFunctionKey, postPrefixFunctionKey);
+            var deleteJobConfigFunctionKey = ConfigurationManager.AppSettings["deleteJobConfigFunctionKey"];
+            _FunctionHelper = new FunctionHelper(jobConfigEndpoint, prefixEndpoint, functionsKeyHeaderName, getJobConfigFunctionKey, postJobConfigFunctionKey, getPrefixFunctionKey, postPrefixFunctionKey, deleteJobConfigFunctionKey);
             _Services = new ServiceCollection()
                 .AddSingleton<IGlobalConfig, GlobalConfig>()
                 .AddSingleton<ITrendHelper, TrendHelper>()
                 .AddSingleton(_FunctionHelper)
                 .BuildServiceProvider();
             _GlobalConfig = _Services.GetRequiredService<IGlobalConfig>();
-            await _GlobalConfig.Initialize();
+            await _GlobalConfig.Initialize(_FunctionHelper);
             DiscordClient.Log += Log;
             DiscordClient.Ready += Ready;
             await DiscordClient.LoginAsync(TokenType.Bot, _GlobalConfig.Config.DiscordToken);
@@ -85,17 +87,9 @@ namespace TrendingGiphyBot
         {
             await _Logger.SwallowAsync(async () =>
             {
-                using (var entities = _GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities())
-                {
-                    var textChannelIds = arg.TextChannels.Select(s => Convert.ToDecimal(s.Id));
-                    var toRemove = await entities.FindMatchingIds(textChannelIds);
-                    foreach (var id in toRemove)
-                        await entities.RemoveJobConfig(id);
-                    if (await entities.AnyJobConfig(arg.Id))
-                        await entities.RemoveJobConfig(arg.Id);
-                    if (arg.DefaultChannel != null && await entities.AnyJobConfig(arg.DefaultChannel.Id))
-                        await entities.RemoveJobConfig(arg.DefaultChannel.Id);
-                }
+                var textChannelIds = arg.TextChannels.Select(s => Convert.ToDecimal(s.Id));
+                foreach (var id in textChannelIds)
+                    await _FunctionHelper.DeleteJobConfigAsync(id);
             });
         }
         async Task PostStats()

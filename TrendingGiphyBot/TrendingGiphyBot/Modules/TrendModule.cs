@@ -7,7 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using TrendingGiphyBot.Configuration;
 using TrendingGiphyBot.Containers;
-using TrendingGiphyBot.Dals;
 using TrendingGiphyBot.Enums;
 using TrendingGiphyBot.Exceptions;
 using TrendingGiphyBot.Extensions;
@@ -16,11 +15,10 @@ using TrendingGiphyBot.Helpers;
 namespace TrendingGiphyBot.Modules
 {
     [Group("Trend")]
-    public class TrendModule : ModuleBase, IDisposable
+    public class TrendModule : ModuleBase
     {
         readonly ILogger _Logger;
         readonly IGlobalConfig _GlobalConfig;
-        readonly TrendingGiphyBotEntities _Entities;
         readonly ITrendHelper _TrendHelper;
         readonly IFunctionHelper _FunctionHelper;
         static readonly char[] _ArgsSplit = new[] { ' ' };
@@ -28,7 +26,6 @@ namespace TrendingGiphyBot.Modules
         {
             _Logger = LogManager.GetCurrentClassLogger();
             _GlobalConfig = services.GetRequiredService<IGlobalConfig>();
-            _Entities = _GlobalConfig.EntitiesFactory.GetNewTrendingGiphyBotEntities();
             _TrendHelper = services.GetRequiredService<ITrendHelper>();
             _FunctionHelper = services.GetRequiredService<IFunctionHelper>();
         }
@@ -42,7 +39,7 @@ namespace TrendingGiphyBot.Modules
         [Command(nameof(Off))]
         public async Task Off()
         {
-            await _Entities.RemoveJobConfig(Context.Channel.Id);
+            await _FunctionHelper.DeleteJobConfigAsync(Context.Channel.Id);
             await TryReplyAsync("Done.");
         }
         [Command(nameof(Every))]
@@ -223,9 +220,5 @@ namespace TrendingGiphyBot.Modules
         }
         protected override void BeforeExecute(CommandInfo command) => _Logger.Trace($"Calling {command.Name}.");
         protected override void AfterExecute(CommandInfo command) => _Logger.Trace($"{command.Name} done.");
-        public void Dispose()
-        {
-            _Entities?.Dispose();
-        }
     }
 }
