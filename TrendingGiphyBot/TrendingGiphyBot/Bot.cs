@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
@@ -33,16 +32,7 @@ namespace TrendingGiphyBot
         IFunctionHelper _FunctionHelper;
         internal async Task Run()
         {
-            //TODO move all of this into ctor itself?
-            var jobConfigEndpoint = ConfigurationManager.AppSettings["jobConfigEndpoint"];
-            var prefixEndpoint = ConfigurationManager.AppSettings["prefixEndpoint"];
-            var functionsKeyHeaderName = ConfigurationManager.AppSettings["functionsKeyHeaderName"];
-            var getJobConfigFunctionKey = ConfigurationManager.AppSettings["getJobConfigFunctionKey"];
-            var postJobConfigFunctionKey = ConfigurationManager.AppSettings["postJobConfigFunctionKey"];
-            var getPrefixFunctionKey = ConfigurationManager.AppSettings["getPrefixFunctionKey"];
-            var postPrefixFunctionKey = ConfigurationManager.AppSettings["postPrefixFunctionKey"];
-            var deleteJobConfigFunctionKey = ConfigurationManager.AppSettings["deleteJobConfigFunctionKey"];
-            _FunctionHelper = new FunctionHelper(jobConfigEndpoint, prefixEndpoint, functionsKeyHeaderName, getJobConfigFunctionKey, postJobConfigFunctionKey, getPrefixFunctionKey, postPrefixFunctionKey, deleteJobConfigFunctionKey);
+            _FunctionHelper = new FunctionHelper();
             _Services = new ServiceCollection()
                 .AddSingleton<IGlobalConfig, GlobalConfig>()
                 .AddSingleton<ITrendHelper, TrendHelper>()

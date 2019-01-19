@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Configuration;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -11,53 +12,36 @@ namespace TrendingGiphyBot.Helpers
 {
     public class FunctionHelper : IFunctionHelper, IDisposable
     {
-        //TODO this is ridiculous. need to refactor and set headers per request, and reuse the same client with the same base address.
-        readonly HttpClient _GetJobConfigClient;
-        readonly HttpClient _PostJobConfigClient;
-        readonly HttpClient _DeleteJobConfigClient;
-        readonly HttpClient _GetPrefixClient;
-        readonly HttpClient _PostPrefixClient;
-        readonly string _JobConfigEndpoint;
-        readonly string _PrefixEndpoint;
-        public FunctionHelper(string jobConfigEndpoint, string prefixEndpoint, string functionsKeyHeaderName, string getJobConfigFunctionKey, string postJobConfigFunctionKey, string getPrefixFunctionKey, string postPrefixFunctionKey, string deleteJobConfigFunctionKey)
-        {
-            _GetJobConfigClient = new HttpClient().WithDefaultRequestHeader(functionsKeyHeaderName, getJobConfigFunctionKey);
-            _PostJobConfigClient = new HttpClient().WithDefaultRequestHeader(functionsKeyHeaderName, postJobConfigFunctionKey);
-            _DeleteJobConfigClient = new HttpClient().WithBaseAddress(jobConfigEndpoint).WithDefaultRequestHeader(functionsKeyHeaderName, deleteJobConfigFunctionKey);
-            _GetPrefixClient = new HttpClient().WithDefaultRequestHeader(functionsKeyHeaderName, getPrefixFunctionKey);
-            _PostPrefixClient = new HttpClient().WithDefaultRequestHeader(functionsKeyHeaderName, postPrefixFunctionKey);
-            _JobConfigEndpoint = jobConfigEndpoint;
-            _PrefixEndpoint = prefixEndpoint;
-        }
+        static readonly HttpClient _JobConfigClient = new HttpClient { BaseAddress = new Uri(ConfigurationManager.AppSettings["jobConfigEndpoint"]) };
+        static readonly HttpClient _PrefixClient = new HttpClient { BaseAddress = new Uri(ConfigurationManager.AppSettings["prefixEndpoint"]) };
+        static readonly string _FunctionsKeyHeaderName = ConfigurationManager.AppSettings["functionsKeyHeaderName"];
+        static readonly string _GetJobConfigFunctionKey = ConfigurationManager.AppSettings["getJobConfigFunctionKey"];
+        static readonly string _PostJobConfigFunctionKey = ConfigurationManager.AppSettings["postJobConfigFunctionKey"];
+        static readonly string _DeleteJobConfigFunctionKey = ConfigurationManager.AppSettings["deleteJobConfigFunctionKey"];
+        static readonly string _GetPrefixFunctionKey = ConfigurationManager.AppSettings["getPrefixFunctionKey"];
+        static readonly string _PostPrefixFunctionKey = ConfigurationManager.AppSettings["postPrefixFunctionKey"];
         public async Task<JobConfigContainer> GetJobConfigAsync(decimal channelId)
         {
-            var requestUri = $"{_JobConfigEndpoint}/{channelId}";
-            var response = await _GetJobConfigClient.GetAsync(requestUri);
+            var response = await _JobConfigClient.GetWithHeaderAsync($"/{channelId}", _FunctionsKeyHeaderName, _GetJobConfigFunctionKey);
             return await ProcessContainerResponse(channelId, response);
         }
         public async Task<JobConfigContainer> PostJobConfigAsync(decimal channelId, JobConfigContainer jobConfigContainer)
         {
-            var requestUri = $"{_JobConfigEndpoint}/{channelId}";
-            var serialized = JsonConvert.SerializeObject(jobConfigContainer);
-            var content = new StringContent(serialized);
-            var response = await _PostJobConfigClient.PostAsync(requestUri, content);
+            var response = await _JobConfigClient.PostWithHeaderAsync($"/{channelId}", jobConfigContainer, _FunctionsKeyHeaderName, _PostJobConfigFunctionKey);
             return await ProcessContainerResponse(channelId, response);
         }
         public async Task DeleteJobConfigAsync(decimal channelId)
         {
-            await _DeleteJobConfigClient.DeleteAsync($"/{channelId}");
+            await _JobConfigClient.DeleteWithHeaderAsync($"/{channelId}", _FunctionsKeyHeaderName, _DeleteJobConfigFunctionKey);
         }
         public async Task<string> GetPrefixAsync(decimal channelId)
         {
-            var requestUri = $"{_PrefixEndpoint}/{channelId}";
-            var response = await _GetPrefixClient.GetAsync(requestUri);
+            var response = await _PrefixClient.GetWithHeaderAsync($"/{channelId}", _FunctionsKeyHeaderName, _GetPrefixFunctionKey);
             return await ProcessStringResponse(channelId, response);
         }
         public async Task<string> PostPrefixAsync(decimal channelId, string prefix)
         {
-            var requestUri = $"{_PrefixEndpoint}/{channelId}";
-            var content = new StringContent(prefix);
-            var response = await _PostPrefixClient.PostAsync(requestUri, content);
+            var response = await _PrefixClient.PostWithHeaderAsync($"/{channelId}", prefix, _FunctionsKeyHeaderName, _PostPrefixFunctionKey);
             return await ProcessStringResponse(channelId, response);
         }
         static async Task<string> ProcessStringResponse(decimal channelId, HttpResponseMessage response)
@@ -81,10 +65,8 @@ namespace TrendingGiphyBot.Helpers
         }
         public void Dispose()
         {
-            _GetJobConfigClient?.Dispose();
-            _PostJobConfigClient?.Dispose();
-            _GetPrefixClient?.Dispose();
-            _PostPrefixClient?.Dispose();
+            _JobConfigClient?.Dispose();
+            _PrefixClient?.Dispose();
         }
     }
 }
