@@ -5,27 +5,27 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using TrendingGiphyBot.Containers;
 using TrendingGiphyBot.Exceptions;
+using TrendingGiphyBot.Extensions;
 
 namespace TrendingGiphyBot.Helpers
 {
     public class FunctionHelper : IFunctionHelper, IDisposable
     {
+        //TODO this is ridiculous. need to refactor and set headers per request, and reuse the same client with the same base address.
         readonly HttpClient _GetJobConfigClient;
         readonly HttpClient _PostJobConfigClient;
+        readonly HttpClient _DeleteJobConfigClient;
         readonly HttpClient _GetPrefixClient;
         readonly HttpClient _PostPrefixClient;
         readonly string _JobConfigEndpoint;
         readonly string _PrefixEndpoint;
-        public FunctionHelper(string jobConfigEndpoint, string prefixEndpoint, string functionsKeyHeaderName, string getJobConfigFunctionKey, string postJobConfigFunctionKey, string getPrefixFunctionKey, string postPrefixFunctionKey)
+        public FunctionHelper(string jobConfigEndpoint, string prefixEndpoint, string functionsKeyHeaderName, string getJobConfigFunctionKey, string postJobConfigFunctionKey, string getPrefixFunctionKey, string postPrefixFunctionKey, string deleteJobConfigFunctionKey)
         {
-            _GetJobConfigClient = new HttpClient();
-            _GetJobConfigClient.DefaultRequestHeaders.Add(functionsKeyHeaderName, getJobConfigFunctionKey);
-            _PostJobConfigClient = new HttpClient();
-            _PostJobConfigClient.DefaultRequestHeaders.Add(functionsKeyHeaderName, postJobConfigFunctionKey);
-            _GetPrefixClient = new HttpClient();
-            _GetPrefixClient.DefaultRequestHeaders.Add(functionsKeyHeaderName, getPrefixFunctionKey);
-            _PostPrefixClient = new HttpClient();
-            _PostPrefixClient.DefaultRequestHeaders.Add(functionsKeyHeaderName, postPrefixFunctionKey);
+            _GetJobConfigClient = new HttpClient().WithDefaultRequestHeader(functionsKeyHeaderName, getJobConfigFunctionKey);
+            _PostJobConfigClient = new HttpClient().WithDefaultRequestHeader(functionsKeyHeaderName, postJobConfigFunctionKey);
+            _DeleteJobConfigClient = new HttpClient().WithBaseAddress(jobConfigEndpoint).WithDefaultRequestHeader(functionsKeyHeaderName, deleteJobConfigFunctionKey);
+            _GetPrefixClient = new HttpClient().WithDefaultRequestHeader(functionsKeyHeaderName, getPrefixFunctionKey);
+            _PostPrefixClient = new HttpClient().WithDefaultRequestHeader(functionsKeyHeaderName, postPrefixFunctionKey);
             _JobConfigEndpoint = jobConfigEndpoint;
             _PrefixEndpoint = prefixEndpoint;
         }
@@ -42,6 +42,10 @@ namespace TrendingGiphyBot.Helpers
             var content = new StringContent(serialized);
             var response = await _PostJobConfigClient.PostAsync(requestUri, content);
             return await ProcessContainerResponse(channelId, response);
+        }
+        public async Task DeleteJobConfigAsync(decimal channelId)
+        {
+            await _DeleteJobConfigClient.DeleteAsync($"/{channelId}");
         }
         public async Task<string> GetPrefixAsync(decimal channelId)
         {

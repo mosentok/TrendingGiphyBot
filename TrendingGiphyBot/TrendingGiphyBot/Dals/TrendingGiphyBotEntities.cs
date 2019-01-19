@@ -11,33 +11,11 @@ namespace TrendingGiphyBot.Dals
     {
         static readonly ILogger _Logger = LogManager.GetCurrentClassLogger();
         public TrendingGiphyBotEntities(string nameOrConnectionString) : base(nameOrConnectionString) { }
-        internal async Task<bool> AnyJobConfig(decimal id)
-        {
-            return await JobConfigs.AnyAsync(s => s.ChannelId == id);
-        }
-        internal async Task<List<decimal>> FindMatchingIds(IEnumerable<decimal> ids)
-        {
-            var jobConfigIds = JobConfigs.Select(s => s.ChannelId);
-            return await jobConfigIds.Intersect(ids).ToListAsync();
-        }
         internal async Task<List<JobConfig>> GetJobConfigsToRun(List<int> curentValidMinutes)
         {
             return await (from jobConfig in JobConfigs
                           where curentValidMinutes.Contains(jobConfig.IntervalMinutes)
                           select jobConfig).ToListAsync();
-        }
-        internal async Task RemoveJobConfig(decimal channelId)
-        {
-            var matches = JobConfigs.Where(s => s.ChannelId == channelId);
-            JobConfigs.RemoveRange(matches);
-            await SaveChangesAsync();
-        }
-        public async Task BlankRandomConfig(decimal channelId)
-        {
-            var match = await JobConfigs.SingleAsync(s => s.ChannelId == channelId);
-            match.RandomIsOn = false;
-            match.RandomSearchString = null;
-            await SaveChangesAsync();
         }
         internal async Task InsertUrlCaches(List<string> urls)
         {
