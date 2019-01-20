@@ -133,7 +133,7 @@ namespace TrendingGiphyBotFunctions.Models
                                      select gifObject;
             var newGifObjects = gifObjects.Except(existingGifObjects);
             var newUrlCaches = newGifObjects.Select(s => new UrlCache { Url = s.Url, Stamp = DateTime.Now });
-            await UrlCaches.AddRangeAsync(newUrlCaches);
+            UrlCaches.AddRange(newUrlCaches);
             return await SaveChangesAsync();
         }
         public async Task<JobConfigContainer> GetJobConfig(decimal id)
