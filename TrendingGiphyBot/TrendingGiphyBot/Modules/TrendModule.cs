@@ -218,7 +218,5 @@ namespace TrendingGiphyBot.Modules
                 await _GlobalConfig.MessageHelper.SendMessageToUser(Context, message, embedBuilder);
             }
         }
-        protected override void BeforeExecute(CommandInfo command) => _Logger.Trace($"Calling {command.Name}.");
-        protected override void AfterExecute(CommandInfo command) => _Logger.Trace($"{command.Name} done.");
     }
 }
