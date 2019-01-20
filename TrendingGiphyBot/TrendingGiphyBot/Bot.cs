@@ -53,7 +53,6 @@ namespace TrendingGiphyBot
             DiscordClient.MessageReceived += MessageReceived;
             _GlobalConfig.JobManager.Ready();
             await DiscordClient.SetGameAsync(_GlobalConfig.Config.PlayingGame);
-            await PostStats();
             DiscordClient.JoinedGuild += JoinedGuild;
             DiscordClient.LeftGuild += LeftGuild;
             DiscordClient.Ready -= Ready;
@@ -66,12 +65,12 @@ namespace TrendingGiphyBot
         }
         async Task JoinedGuild(SocketGuild arg)
         {
-            await PostStats();
+            await _FunctionHelper.PostStatsAsync(DiscordClient.CurrentUser.Id, DiscordClient.Guilds.Count);
         }
         async Task LeftGuild(SocketGuild arg)
         {
             await RemoveThisGuildsJobConfigs(arg);
-            await PostStats();
+            await _FunctionHelper.PostStatsAsync(DiscordClient.CurrentUser.Id, DiscordClient.Guilds.Count);
         }
         async Task RemoveThisGuildsJobConfigs(SocketGuild arg)
         {
@@ -80,31 +79,6 @@ namespace TrendingGiphyBot
                 var textChannelIds = arg.TextChannels.Select(s => Convert.ToDecimal(s.Id));
                 foreach (var id in textChannelIds)
                     await _FunctionHelper.DeleteJobConfigAsync(id);
-            });
-        }
-        async Task PostStats()
-        {
-            if (_GlobalConfig.Config.StatPosts != null)
-                foreach (var statPost in _GlobalConfig.Config.StatPosts)
-                    await PostStat(statPost);
-        }
-        async Task PostStat(StatPost statPost)
-        {
-            await _Logger.SwallowAsync(async () =>
-            {
-                var content = $"{{\"{statPost.GuildCountPropertyName}\":{_GlobalConfig.DiscordClient.Guilds.Count}}}";
-                var requestUri = string.Format(statPost.UrlStringFormat, DiscordClient.CurrentUser.Id);
-                using (var stringContent = new StringContent(content, Encoding.UTF8, "application/json"))
-                {
-                    _HttpClient.DefaultRequestHeaders.Clear();
-                    _HttpClient.DefaultRequestHeaders.Add("Authorization", statPost.Token);
-                    var response = await _HttpClient.PostAsync(requestUri, stringContent);
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        var message = await response.Content.ReadAsStringAsync();
-                        _Logger.Error(message);
-                    }
-                }
             });
         }
         async Task MessageReceived(SocketMessage messageParam)

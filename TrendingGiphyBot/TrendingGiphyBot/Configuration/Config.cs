@@ -49,8 +49,6 @@ namespace TrendingGiphyBot.Configuration
         [JsonRequired]
         public ushort UrlCachesMaxDaysOld { get; set; }
         [JsonRequired]
-        public List<StatPost> StatPosts { get; set; }
-        [JsonRequired]
         public ushort IntervalOffsetSeconds { get; set; }
         [JsonRequired]
         public List<string> UrlsToIgnore { get; set; }
