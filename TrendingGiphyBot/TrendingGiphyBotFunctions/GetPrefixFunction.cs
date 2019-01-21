@@ -15,7 +15,7 @@ namespace TrendingGiphyBotFunctions
         public static async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "get", Route = "prefix/{channelid:decimal}")] HttpRequest req, decimal channelId, ILogger log)
         {
             log.LogInformation($"Channel {channelId} getting prefix.");
-            var connectionString = Environment.GetEnvironmentVariable("ConnectionString");
+            var connectionString = Environment.GetEnvironmentVariable("TrendingGiphyBotConnectionString");
             string prefix;
             using (var context = new TrendingGiphyBotContext(connectionString))
                 prefix = await context.GetPrefix(channelId);

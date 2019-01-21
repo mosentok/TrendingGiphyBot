@@ -15,7 +15,7 @@ namespace TrendingGiphyBotFunctions
         public static async Task Run([TimerTrigger("%RefreshImagesFunctionCron%")]TimerInfo myTimer, ILogger log)
         {
             var trendingEndpoint = Environment.GetEnvironmentVariable("GiphyTrendingEndpoint");
-            var connectionString = Environment.GetEnvironmentVariable("ConnectionString");
+            var connectionString = Environment.GetEnvironmentVariable("TrendingGiphyBotConnectionString");
             var response = await _HttpClient.GetAsync(trendingEndpoint);
             var content = await response.Content.ReadAsStringAsync();
             var giphyResponse = JsonConvert.DeserializeObject<GiphyResponse>(content);
