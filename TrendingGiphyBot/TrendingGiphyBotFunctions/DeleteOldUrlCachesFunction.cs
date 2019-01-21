@@ -13,7 +13,7 @@ namespace TrendingGiphyBotFunctions
         {
             var urlCachesMaxDaysOld = int.Parse(Environment.GetEnvironmentVariable("UrlCachesMaxDaysOld"));
             var oldestDate = DateTime.Now.AddDays(-urlCachesMaxDaysOld);
-            var connectionString = Environment.GetEnvironmentVariable("ConnectionString");
+            var connectionString = Environment.GetEnvironmentVariable("TrendingGiphyBotConnectionString");
             int count;
             using (var context = new TrendingGiphyBotContext(connectionString))
                 count = await context.DeleteUrlCachesOlderThan(oldestDate);

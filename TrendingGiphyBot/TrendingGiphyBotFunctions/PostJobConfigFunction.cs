@@ -17,7 +17,7 @@ namespace TrendingGiphyBotFunctions
         {
             log.LogInformation($"Channel {channelId} posting job config.");
             var container = await req.Body.ReadToEndAsync<JobConfigContainer>();
-            var connectionString = Environment.GetEnvironmentVariable("ConnectionString");
+            var connectionString = Environment.GetEnvironmentVariable("TrendingGiphyBotConnectionString");
             JobConfigContainer result;
             using (var context = new TrendingGiphyBotContext(connectionString))
                 result = await context.SetJobConfig(channelId, container);

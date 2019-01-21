@@ -15,7 +15,7 @@ namespace TrendingGiphyBotFunctions
         public static async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "delete", Route = "jobconfigs/{channelid:decimal}")] HttpRequest req, decimal channelId, ILogger log)
         {
             log.LogInformation($"Channel {channelId} deleting job config.");
-            var connectionString = Environment.GetEnvironmentVariable("ConnectionString");
+            var connectionString = Environment.GetEnvironmentVariable("TrendingGiphyBotConnectionString");
             using (var context = new TrendingGiphyBotContext(connectionString))
                 await context.DeleteJobConfig(channelId);
             log.LogInformation($"Channel {channelId} deleted job config.");

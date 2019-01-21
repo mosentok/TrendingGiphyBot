@@ -17,7 +17,7 @@ namespace TrendingGiphyBotFunctions
         {
             log.LogInformation($"Channel {channelId} posting prefix.");
             var prefix = await req.Body.ReadToEndAsync();
-            var connectionString = Environment.GetEnvironmentVariable("ConnectionString");
+            var connectionString = Environment.GetEnvironmentVariable("TrendingGiphyBotConnectionString");
             string result;
             using (var context = new TrendingGiphyBotContext(connectionString))
                 result = await context.SetPrefix(channelId, prefix);
