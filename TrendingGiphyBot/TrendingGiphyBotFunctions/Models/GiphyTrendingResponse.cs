@@ -2,7 +2,7 @@
 
 namespace TrendingGiphyBotFunctions.Models
 {
-    public class GiphyResponse
+    public class GiphyTrendingResponse
     {
         public List<GifObject> Data { get; set; }
     }

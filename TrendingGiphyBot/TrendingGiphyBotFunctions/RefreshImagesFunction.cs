@@ -8,6 +8,7 @@ using TrendingGiphyBotFunctions.Models;
 
 namespace TrendingGiphyBotFunctions
 {
+    //TODO rename this to Gifs
     public static class RefreshImagesFunction
     {
         static readonly HttpClient _HttpClient = new HttpClient();
@@ -15,10 +16,10 @@ namespace TrendingGiphyBotFunctions
         public static async Task Run([TimerTrigger("%RefreshImagesFunctionCron%")]TimerInfo myTimer, ILogger log)
         {
             var trendingEndpoint = Environment.GetEnvironmentVariable("GiphyTrendingEndpoint");
-            var connectionString = Environment.GetEnvironmentVariable("TrendingGiphyBotConnectionString");
             var response = await _HttpClient.GetAsync(trendingEndpoint);
             var content = await response.Content.ReadAsStringAsync();
-            var giphyResponse = JsonConvert.DeserializeObject<GiphyResponse>(content);
+            var giphyResponse = JsonConvert.DeserializeObject<GiphyTrendingResponse>(content);
+            var connectionString = Environment.GetEnvironmentVariable("TrendingGiphyBotConnectionString");
             int count;
             using (var context = new TrendingGiphyBotContext(connectionString))
                 count = await context.InsertNewTrendingGifs(giphyResponse.Data);

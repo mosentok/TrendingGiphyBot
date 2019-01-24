@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -126,6 +128,43 @@ namespace TrendingGiphyBotFunctions.Models
         {
             return await Database.ExecuteSqlCommandAsync($"DELETE FROM UrlHistory WHERE Stamp < {oldestDate}");
         }
+        public async Task<int> DeleteUrlHistories(List<UrlHistoryContainer> historyContainers)
+        {
+            var histories = historyContainers.Select(s => new UrlHistory { ChannelId = s.ChannelId, Url = s.Url }).ToList();
+            UrlHistories.AttachRange(histories);
+            UrlHistories.RemoveRange(histories);
+            return await SaveChangesAsync();
+        }
+        public async Task<int> DeleteJobConfigs(IEnumerable<decimal> channelIds)
+        {
+            var jobConfigs = channelIds.Select(s => new JobConfig { ChannelId = s }).ToList();
+            JobConfigs.AttachRange(jobConfigs);
+            JobConfigs.RemoveRange(jobConfigs);
+            return await SaveChangesAsync();
+        }
+        public async Task<List<UrlHistoryContainer>> InsertUrlHistories(List<UrlHistoryContainer> containers)
+        {
+            var toInsert = (from container in containers
+                            join history in UrlHistories on container.ChannelId equals history.ChannelId into histories
+                            where !histories.Any(s => s.Url == container.Url)
+                            select container).ToList();
+            using (var table = new DataTable())
+            using (var bulkCopy = new SqlBulkCopy(_ConnectionString))
+            {
+                table.Columns.Add(nameof(UrlHistory.ChannelId));
+                table.Columns.Add(nameof(UrlHistory.Url));
+                foreach (var container in toInsert)
+                {
+                    var row = table.NewRow();
+                    row[nameof(UrlHistory.ChannelId)] = container.ChannelId;
+                    row[nameof(UrlHistory.Url)] = container.Url;
+                    table.Rows.Add(row);
+                }
+                bulkCopy.DestinationTableName = nameof(UrlHistory);
+                await bulkCopy.WriteToServerAsync(table);
+            }
+            return toInsert;
+        }
         public async Task<int> InsertNewTrendingGifs(List<GifObject> gifObjects)
         {
             var existingGifObjects = from gifObject in gifObjects
@@ -215,6 +254,27 @@ namespace TrendingGiphyBotFunctions.Models
             }
             await SaveChangesAsync();
             return channelConfig.Prefix;
+        }
+        public async Task<List<PendingContainer>> GetJobConfigsToRun(int nowHour, List<int> currentValidMinutes)
+        {
+            var latestUrls = UrlCaches.Select(s => s.Url);
+            return await (from jobConfig in JobConfigs
+                          let minPostingHour = jobConfig.MaxQuietHour
+                          let maxPostingHour = jobConfig.MinQuietHour
+                          where currentValidMinutes.Contains(jobConfig.IntervalMinutes) && //where config's interval minutes are valid, and...
+                            (minPostingHour == null || maxPostingHour == null || //either no limit on posting, or there are posting hour limits to check.
+                            (minPostingHour < maxPostingHour && nowHour >= minPostingHour && nowHour < maxPostingHour) || //if the range spans inside a single day, then now hour must be between min and max, else...
+                            (minPostingHour > maxPostingHour && (nowHour >= minPostingHour || nowHour < maxPostingHour))) //if the range spans across two days, then now hour must be between overnight hours
+                          join urlHistory in UrlHistories on jobConfig.ChannelId equals urlHistory.ChannelId into histories
+                          let firstUnseenUrl = latestUrls.Except(histories.Select(s => s.Url)).FirstOrDefault()
+                          where (!string.IsNullOrEmpty(firstUnseenUrl) || //where either we found a fresh gif from the cache, or...
+                            jobConfig.RandomIsOn) //random is on, so they'll want a random gif instead
+                          select new PendingContainer
+                          {
+                              ChannelId = jobConfig.ChannelId,
+                              FirstUnseenUrl = firstUnseenUrl,
+                              RandomSearchString = jobConfig.RandomSearchString
+                          }).ToListAsync();
         }
         static int DetermineIntervalMinutes(JobConfigContainer jobConfigContainer)
         {
