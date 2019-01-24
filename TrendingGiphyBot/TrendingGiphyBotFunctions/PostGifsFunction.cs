@@ -71,6 +71,7 @@ namespace TrendingGiphyBotFunctions
         }
         async Task<List<PendingContainer>> GetContainers()
         {
+            _Log.LogInformation("Getting job configs.");
             var hourOffsetString = Environment.GetEnvironmentVariable("HourOffset");
             var hourOffset = int.Parse(hourOffsetString);
             var now = DateTime.Now.AddHours(-hourOffset);
@@ -86,10 +87,13 @@ namespace TrendingGiphyBotFunctions
             else
                 totalMinutes = now.Hour * 60 + now.Minute;
             var currentValidMinutes = allValidMinutes.Where(s => totalMinutes % s == 0).ToList();
-            return await _Context.GetJobConfigsToRun(now.Hour, currentValidMinutes);
+            var containers = await _Context.GetJobConfigsToRun(now.Hour, currentValidMinutes);
+            _Log.LogInformation($"Got {containers.Count} containers.");
+            return containers;
         }
         async Task<List<UrlHistoryContainer>> BuildHistoryContainers(List<PendingContainer> containers)
         {
+            _Log.LogInformation($"Building {containers.Count} histories.");
             var giphyRandomEndpoint = Environment.GetEnvironmentVariable("GiphyRandomEndpoint");
             var randomGif = await _GiphyHelper.GetRandomGif(giphyRandomEndpoint);
             var histories = new List<UrlHistoryContainer>();
@@ -103,6 +107,7 @@ namespace TrendingGiphyBotFunctions
                 }
                 else
                     histories.Add(new UrlHistoryContainer(container.ChannelId, randomGif.Data.Url, false));
+            _Log.LogInformation($"Built {histories.Count} histories.");
             return histories;
         }
         async Task DeleteErrorHistories(List<UrlHistoryContainer> errors)

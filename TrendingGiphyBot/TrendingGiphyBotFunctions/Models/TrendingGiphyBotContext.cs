@@ -144,10 +144,13 @@ namespace TrendingGiphyBotFunctions.Models
         }
         public async Task<List<UrlHistoryContainer>> InsertUrlHistories(List<UrlHistoryContainer> containers)
         {
-            var toInsert = (from container in containers
-                            join history in UrlHistories on container.ChannelId equals history.ChannelId into histories
-                            where !histories.Any(s => s.Url == container.Url)
-                            select container).ToList();
+            var trendingGifs = containers.Where(s => s.IsTrending).ToList();
+            var randomGifs = containers.Except(trendingGifs);
+            var randomGifsNotInHistory = (from randomGif in randomGifs
+                                          join history in UrlHistories on randomGif.ChannelId equals history.ChannelId into histories
+                                          where !histories.Select(s => s.Url).Contains(randomGif.Url)
+                                          select randomGif).ToList();
+            var toInsert = trendingGifs.Concat(randomGifsNotInHistory).ToList();
             using (var table = new DataTable())
             using (var bulkCopy = new SqlBulkCopy(_ConnectionString))
             {
