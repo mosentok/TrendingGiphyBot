@@ -11,21 +11,12 @@ namespace TrendingGiphyBotModel
 {
     public partial class TrendingGiphyBotContext : DbContext
     {
-        readonly string _ConnectionString;
-        public TrendingGiphyBotContext()
-        {
-        }
-
-        public TrendingGiphyBotContext(DbContextOptions<TrendingGiphyBotContext> options)
-            : base(options)
-        {
-        }
-        //TODO remove this
-        public TrendingGiphyBotContext(string connectionString)
-        {
-            _ConnectionString = connectionString;
-        }
-
+        public TrendingGiphyBotContext() { }
+        public TrendingGiphyBotContext(DbContextOptions<TrendingGiphyBotContext> options) : base(options) { }
+        public TrendingGiphyBotContext(string connectionString) : this(new DbContextOptionsBuilder<TrendingGiphyBotContext>()
+            .UseSqlServer(connectionString)
+            .UseLazyLoadingProxies().Options)
+        { }
         public virtual DbSet<JobConfig> JobConfigs { get; set; }
         public virtual DbSet<UrlCache> UrlCaches { get; set; }
         public virtual DbSet<UrlHistory> UrlHistories { get; set; }
@@ -65,8 +56,9 @@ namespace TrendingGiphyBotModel
                                           where !histories.Select(s => s.Url).Contains(randomGif.Url)
                                           select randomGif).ToList();
             var toInsert = trendingGifs.Concat(randomGifsNotInHistory).ToList();
+            var connectionString = Database.GetDbConnection().ConnectionString;
             using (var table = new DataTable())
-            using (var bulkCopy = new SqlBulkCopy(_ConnectionString))
+            using (var bulkCopy = new SqlBulkCopy(connectionString))
             {
                 table.Columns.Add(nameof(UrlHistory.ChannelId));
                 table.Columns.Add(nameof(UrlHistory.Url));
