@@ -85,10 +85,10 @@ namespace TrendingGiphyBotModel
         public async Task<int> InsertNewTrendingGifs(List<GifObject> gifObjects)
         {
             var existingGifObjects = from gifObject in gifObjects
-                                     join urlCache in UrlCaches on gifObject.Url equals urlCache.Url
+                                     join urlCache in UrlCaches on gifObject.Id equals urlCache.Id
                                      select gifObject;
             var newGifObjects = gifObjects.Except(existingGifObjects);
-            var newUrlCaches = newGifObjects.Select(s => new UrlCache { Url = s.Url, Stamp = DateTime.Now });
+            var newUrlCaches = newGifObjects.Select(s => new UrlCache { Id = s.Id, Url = s.Url });
             UrlCaches.AddRange(newUrlCaches);
             return await SaveChangesAsync();
         }
@@ -117,7 +117,8 @@ namespace TrendingGiphyBotModel
                 match.RandomSearchString = jobConfigContainer.RandomSearchString;
                 match.MinQuietHour = jobConfigContainer.MinQuietHour;
                 match.MaxQuietHour = jobConfigContainer.MaxQuietHour;
-                match.Prefix = jobConfigContainer.Prefix;
+                //TODO uncomment this
+                //match.Prefix = jobConfigContainer.Prefix;
             }
             else //new item
             {
@@ -130,7 +131,8 @@ namespace TrendingGiphyBotModel
                     RandomSearchString = jobConfigContainer.RandomSearchString,
                     MinQuietHour = jobConfigContainer.MinQuietHour,
                     MaxQuietHour = jobConfigContainer.MaxQuietHour,
-                    Prefix = jobConfigContainer.Prefix
+                    //TODO uncomment this
+                    //Prefix = jobConfigContainer.Prefix
                 };
                 JobConfigs.Add(jobConfig);
             }
@@ -143,6 +145,8 @@ namespace TrendingGiphyBotModel
                 RandomSearchString = jobConfig.RandomSearchString,
                 MinQuietHour = jobConfig.MinQuietHour,
                 MaxQuietHour = jobConfig.MaxQuietHour,
+                //TODO uncomment this
+                //Prefix = jobConfig.Prefix
             };
         }
         public async Task DeleteJobConfig(decimal channelId)
