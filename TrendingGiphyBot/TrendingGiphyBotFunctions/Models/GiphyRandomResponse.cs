@@ -1,4 +1,6 @@
-﻿namespace TrendingGiphyBotFunctions.Models
+﻿using TrendingGiphyBotModel;
+
+namespace TrendingGiphyBotFunctions.Models
 {
     public class GiphyRandomResponse
     {

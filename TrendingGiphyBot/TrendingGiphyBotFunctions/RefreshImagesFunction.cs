@@ -5,6 +5,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using TrendingGiphyBotFunctions.Models;
+using TrendingGiphyBotModel;
 
 namespace TrendingGiphyBotFunctions
 {

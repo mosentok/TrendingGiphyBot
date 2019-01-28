@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
-using TrendingGiphyBotFunctions.Models;
+using TrendingGiphyBotModel;
 
 namespace TrendingGiphyBotFunctions
 {

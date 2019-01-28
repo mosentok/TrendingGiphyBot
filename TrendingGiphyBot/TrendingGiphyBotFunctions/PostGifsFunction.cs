@@ -9,6 +9,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using TrendingGiphyBotFunctions.Helpers;
 using TrendingGiphyBotFunctions.Models;
+using TrendingGiphyBotModel;
 
 namespace TrendingGiphyBotFunctions
 {

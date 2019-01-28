@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using TrendingGiphyBotModel;
 
 namespace TrendingGiphyBotFunctions.Models
 {

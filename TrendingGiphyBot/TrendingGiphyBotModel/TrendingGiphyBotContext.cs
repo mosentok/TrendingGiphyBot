@@ -29,7 +29,6 @@ namespace TrendingGiphyBotModel
         public virtual DbSet<JobConfig> JobConfigs { get; set; }
         public virtual DbSet<UrlCache> UrlCaches { get; set; }
         public virtual DbSet<UrlHistory> UrlHistories { get; set; }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             foreach (var entity in modelBuilder.Model.GetEntityTypes())
@@ -170,6 +169,20 @@ namespace TrendingGiphyBotModel
                               FirstUnseenUrl = firstUnseenUrl,
                               RandomSearchString = jobConfig.RandomSearchString
                           }).ToListAsync();
+        }
+        public async Task<string> GetPrefix(decimal channelId)
+        {
+            return await JobConfigs.Where(s => s.ChannelId == channelId).Select(s => s.Prefix).SingleOrDefaultAsync();
+        }
+        public async Task<string> SetPrefix(decimal channelId, string prefix)
+        {
+            var jobConfig = await JobConfigs.Where(s => s.ChannelId == channelId).SingleOrDefaultAsync();
+            if (jobConfig != null)
+            {
+                jobConfig.Prefix = prefix;
+                await SaveChangesAsync();
+            }
+            return prefix;
         }
         static int? DetermineIntervalMinutes(JobConfigContainer jobConfigContainer)
         {
