@@ -86,7 +86,7 @@ namespace TrendingGiphyBotModel
         }
         public async Task<JobConfigContainer> GetJobConfig(decimal id)
         {
-            return await JobConfigs.Where(s => s.ChannelId == id).Select(s => new JobConfigContainer
+            var jobConfig = await JobConfigs.Where(s => s.ChannelId == id).Select(s => new JobConfigContainer
             {
                 ChannelId = s.ChannelId,
                 Interval = s.Interval,
@@ -95,6 +95,9 @@ namespace TrendingGiphyBotModel
                 MinQuietHour = s.MinQuietHour,
                 MaxQuietHour = s.MaxQuietHour,
             }).SingleOrDefaultAsync();
+            if (jobConfig != null)
+                return jobConfig;
+            return new JobConfigContainer { ChannelId = id };
         }
         public async Task<JobConfigContainer> SetJobConfig(decimal channelId, JobConfigContainer jobConfigContainer)
         {

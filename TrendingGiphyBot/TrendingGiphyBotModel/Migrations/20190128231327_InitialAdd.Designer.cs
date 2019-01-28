@@ -10,7 +10,7 @@ using TrendingGiphyBotModel;
 namespace TrendingGiphyBotModel.Migrations
 {
     [DbContext(typeof(TrendingGiphyBotContext))]
-    [Migration("20190128191739_InitialAdd")]
+    [Migration("20190128231327_InitialAdd")]
     partial class InitialAdd
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -23,7 +23,8 @@ namespace TrendingGiphyBotModel.Migrations
 
             modelBuilder.Entity("TrendingGiphyBotModel.JobConfig", b =>
                 {
-                    b.Property<decimal>("ChannelId");
+                    b.Property<decimal>("ChannelId")
+                        .HasColumnType("decimal(20,0)");
 
                     b.Property<int?>("Interval");
 
@@ -64,7 +65,8 @@ namespace TrendingGiphyBotModel.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<decimal>("ChannelId");
+                    b.Property<decimal>("ChannelId")
+                        .HasColumnType("decimal(20,0)");
 
                     b.Property<DateTime>("Stamp");
 

@@ -12,7 +12,7 @@ namespace TrendingGiphyBotModel.Migrations
                 name: "JobConfig",
                 columns: table => new
                 {
-                    ChannelId = table.Column<decimal>(nullable: false),
+                    ChannelId = table.Column<decimal>(type: "decimal(20,0)", nullable: false),
                     Interval = table.Column<int>(nullable: true),
                     Time = table.Column<string>(nullable: true),
                     RandomSearchString = table.Column<string>(nullable: true),
@@ -45,7 +45,7 @@ namespace TrendingGiphyBotModel.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    ChannelId = table.Column<decimal>(nullable: false),
+                    ChannelId = table.Column<decimal>(type: "decimal(20,0)", nullable: false),
                     Url = table.Column<string>(nullable: true),
                     Stamp = table.Column<DateTime>(nullable: false)
                 },
