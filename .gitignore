@@ -276,3 +276,4 @@ __pycache__/
 /TrendingGiphyBot/TrendingGiphyBot/NLog.xsd
 /TrendingGiphyBot/TrendingGiphyBotFunctions/local.settings.json
 /TrendingGiphyBot/TrendingGiphyBotFunctions/Properties/PublishProfiles/TrendingGiphyBotFunctions - Web Deploy.pubxml
+/TrendingGiphyBot/TrendingGiphyBotModel/appsettings.json

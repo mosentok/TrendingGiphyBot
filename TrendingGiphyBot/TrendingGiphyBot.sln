@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrendingGiphyBot", "Trendin
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrendingGiphyBotFunctions", "TrendingGiphyBotFunctions\TrendingGiphyBotFunctions.csproj", "{4BE7F8A4-346A-42FF-87A5-1A9DCAE2BABA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrendingGiphyBotModel", "TrendingGiphyBotModel\TrendingGiphyBotModel.csproj", "{FE72F045-A677-4C49-9932-546A321D4283}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{4BE7F8A4-346A-42FF-87A5-1A9DCAE2BABA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4BE7F8A4-346A-42FF-87A5-1A9DCAE2BABA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4BE7F8A4-346A-42FF-87A5-1A9DCAE2BABA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE72F045-A677-4C49-9932-546A321D4283}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE72F045-A677-4C49-9932-546A321D4283}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE72F045-A677-4C49-9932-546A321D4283}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE72F045-A677-4C49-9932-546A321D4283}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
