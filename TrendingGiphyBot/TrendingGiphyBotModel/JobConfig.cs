@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TrendingGiphyBotModel
 {
     public class JobConfig
     {
         [Key]
+        [Column(TypeName = "decimal(20,0)")]
         public decimal ChannelId { get; set; }
         public int? Interval { get; set; }
         public string Time { get; set; }
