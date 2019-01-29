@@ -100,14 +100,14 @@ namespace TrendingGiphyBotFunctions
             var histories = new List<UrlHistoryContainer>();
             foreach (var container in containers)
                 if (!string.IsNullOrEmpty(container.FirstUnseenUrl))
-                    histories.Add(new UrlHistoryContainer(container.ChannelId, container.FirstUnseenUrl, true));
+                    histories.Add(new UrlHistoryContainer(container.ChannelId, container.FirstUnseenGifId, container.FirstUnseenUrl, true));
                 else if (!string.IsNullOrEmpty(container.RandomSearchString))
                 {
                     var randomTagGif = await _GiphyHelper.GetRandomGif(giphyRandomEndpoint, container.RandomSearchString);
-                    histories.Add(new UrlHistoryContainer(container.ChannelId, randomTagGif.Data.Url, false));
+                    histories.Add(new UrlHistoryContainer(container.ChannelId, container.FirstUnseenGifId, randomTagGif.Data.Url, false));
                 }
                 else
-                    histories.Add(new UrlHistoryContainer(container.ChannelId, randomGif.Data.Url, false));
+                    histories.Add(new UrlHistoryContainer(container.ChannelId, container.FirstUnseenGifId, randomGif.Data.Url, false));
             _Log.LogInformation($"Built {histories.Count} histories.");
             return histories;
         }
