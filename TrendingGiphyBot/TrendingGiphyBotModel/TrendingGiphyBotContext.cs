@@ -183,7 +183,10 @@ namespace TrendingGiphyBotModel
             var jobConfig = await JobConfigs.Where(s => s.ChannelId == channelId).SingleOrDefaultAsync();
             if (jobConfig != null)
             {
-                jobConfig.Prefix = prefix;
+                if (!string.IsNullOrEmpty(prefix))
+                    jobConfig.Prefix = prefix;
+                else
+                    jobConfig.Prefix = null;
                 await SaveChangesAsync();
             }
             return prefix;
