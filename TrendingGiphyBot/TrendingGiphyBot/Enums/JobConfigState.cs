@@ -3,7 +3,6 @@
     enum JobConfigState
     {
         Valid,
-        InvalidSeconds,
         InvalidMinutes,
         InvalidHours,
         InvalidTime,

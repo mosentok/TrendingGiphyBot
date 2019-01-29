@@ -3,17 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
-using Discord.Net;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using TrendingGiphyBot.Configuration;
-using TrendingGiphyBot.Containers;
-using TrendingGiphyBot.Dals;
 using TrendingGiphyBot.Exceptions;
 using TrendingGiphyBot.Extensions;
 using TrendingGiphyBot.Helpers;
@@ -51,7 +47,6 @@ namespace TrendingGiphyBot
             await _Commands.AddModulesAsync(Assembly.GetEntryAssembly());
             DetermineModuleNames();
             DiscordClient.MessageReceived += MessageReceived;
-            _GlobalConfig.JobManager.Ready();
             await DiscordClient.SetGameAsync(_GlobalConfig.Config.PlayingGame);
             DiscordClient.JoinedGuild += JoinedGuild;
             DiscordClient.LeftGuild += LeftGuild;
@@ -98,8 +93,12 @@ namespace TrendingGiphyBot
                         {
                             var context = new CommandContext(DiscordClient, message);
                             var result = await _Commands.ExecuteAsync(context, argPos, _Services);
-                            if (!result.IsSuccess)
-                                await HandleError(context, result);
+                            if (!result.IsSuccess &&
+                                result.Error.HasValue &&
+                                result.Error.Value != CommandError.UnknownCommand &&
+                                result.Error.Value != CommandError.BadArgCount &&
+                                result is ExecuteResult executeResult)
+                                _Logger.Error(executeResult.Exception);
                         }
                     }
                 });
@@ -110,46 +109,6 @@ namespace TrendingGiphyBot
             if (!string.IsNullOrEmpty(prefix))
                 return prefix;
             return _GlobalConfig.Config.DefaultPrefix;
-        }
-        async Task HandleError(ICommandContext context, IResult result)
-        {
-            if (result.Error.HasValue &&
-                result.Error.Value != CommandError.UnknownCommand &&
-                result.Error.Value != CommandError.BadArgCount)
-            {
-                if (result is ExecuteResult executeResult)
-                    _Logger.Error(executeResult.Exception);
-                var errorResult = DetermineErrorResult(result);
-                var embedBuilder = await BuildErrorEmbedBuilder(context, errorResult);
-                var message = string.Empty;
-                try
-                {
-                    await context.Channel.SendMessageAsync(message, embed: embedBuilder);
-                }
-                catch (HttpException httpException) when (_GlobalConfig.Config.HttpExceptionsToWarn.Contains(httpException.Message))
-                {
-                    _Logger.Warn(httpException.Message);
-                    await _GlobalConfig.MessageHelper.SendMessageToUser(context, message, embedBuilder);
-                }
-            }
-        }
-        static ErrorResult DetermineErrorResult(IResult result)
-        {
-            if (result.Error.HasValue && result.Error.Value == CommandError.Exception)
-                return new ErrorResult(CommandError.Exception, "An unexpected error occurred.", false);
-            return new ErrorResult(result);
-        }
-        static async Task<EmbedBuilder> BuildErrorEmbedBuilder(ICommandContext context, ErrorResult errorResult)
-        {
-            var avatarUrl = (await context.Client.GetGuildAsync(context.Guild.Id)).IconUrl;
-            var author = new EmbedAuthorBuilder()
-                .WithName(nameof(JobConfig))
-                .WithIconUrl(avatarUrl);
-            return new EmbedBuilder()
-                .WithAuthor(author)
-                .AddInlineField(nameof(errorResult.Error), errorResult.Error)
-                .AddInlineField(nameof(errorResult.ErrorReason), errorResult.ErrorReason)
-                .AddInlineField(nameof(errorResult.IsSuccess), errorResult.IsSuccess);
         }
         Task Log(LogMessage logMessage)
         {
