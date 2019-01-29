@@ -38,8 +38,7 @@ namespace TrendingGiphyBotModel
                 throw new ArgumentException($"{nameof(connectionString)} is null or empty.", nameof(connectionString));
             var optionsBuilder = new DbContextOptionsBuilder<TContext>();
             Console.WriteLine($"MyDesignTimeDbContextFactory.Create(string): Connection string: {connectionString}");
-            optionsBuilder.UseSqlServer(connectionString);
-            optionsBuilder.UseLazyLoadingProxies();
+            optionsBuilder.UseSqlServer(connectionString, s => s.CommandTimeout((int)TimeSpan.FromMinutes(10).TotalSeconds));
             DbContextOptions<TContext> options = optionsBuilder.Options;
             return CreateNewInstance(options);
         }
