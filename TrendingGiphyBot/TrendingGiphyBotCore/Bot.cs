@@ -25,6 +25,8 @@ namespace TrendingGiphyBotCore
         DiscordSocketClient _DiscordClient;
         List<string> _ModuleNames;
         IFunctionHelper _FunctionHelper;
+        TaskCompletionSource<bool> _LoggedInSource;
+        TaskCompletionSource<bool> _ReadySource;
         public async Task Run()
         {
             _Config = new ConfigurationBuilder()
@@ -43,22 +45,42 @@ namespace TrendingGiphyBotCore
                 .BuildServiceProvider();
             _Logger = _Services.GetService<ILogger<Bot>>();
             _DiscordClient.Log += Log;
-            _DiscordClient.Ready += Ready;
-            var token = _Config["DiscordToken"];
-            //TODO use task completion source?
-            await _DiscordClient.LoginAsync(TokenType.Bot, token);
-            await _DiscordClient.StartAsync();
-        }
-        async Task Ready()
-        {
+            await LogInAsync();
+            await StartAsync();
             _Commands = new CommandService();
             await _Commands.AddModulesAsync(Assembly.GetEntryAssembly(), _Services);
             DetermineModuleNames();
             _DiscordClient.MessageReceived += MessageReceived;
-            await _DiscordClient.SetGameAsync(_Config["PlayingGame"]);
             _DiscordClient.JoinedGuild += JoinedGuild;
             _DiscordClient.LeftGuild += LeftGuild;
+            await _DiscordClient.SetGameAsync(_Config["PlayingGame"]);
+        }
+        async Task LogInAsync()
+        {
+            _LoggedInSource = new TaskCompletionSource<bool>();
+            _DiscordClient.LoggedIn += LoggedIn;
+            var token = _Config["DiscordToken"];
+            await _DiscordClient.LoginAsync(TokenType.Bot, token);
+            await _LoggedInSource.Task;
+            _DiscordClient.LoggedIn -= LoggedIn;
+        }
+        Task LoggedIn()
+        {
+            _LoggedInSource.SetResult(true);
+            return Task.CompletedTask;
+        }
+        async Task StartAsync()
+        {
+            _ReadySource = new TaskCompletionSource<bool>();
+            _DiscordClient.Ready += Ready;
+            await _DiscordClient.StartAsync();
+            await _ReadySource.Task;
             _DiscordClient.Ready -= Ready;
+        }
+        Task Ready()
+        {
+            _ReadySource.SetResult(true);
+            return Task.CompletedTask;
         }
         void DetermineModuleNames()
         {

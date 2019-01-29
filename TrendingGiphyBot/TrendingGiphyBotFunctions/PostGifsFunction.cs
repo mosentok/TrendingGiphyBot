@@ -19,23 +19,21 @@ namespace TrendingGiphyBotFunctions
         public static async Task Run([TimerTrigger("%PostGifsFunctionCron%")]TimerInfo myTimer, ILogger log)
         {
             var connectionString = Environment.GetEnvironmentVariable("TrendingGiphyBotConnectionString");
-            using (var postGifsFunction = new PostGifsFunction(new TrendingGiphyBotContext(connectionString), new GiphyHelper(), new DiscordRestClient(), new TaskCompletionSource<bool>(), new TaskCompletionSource<bool>(), log))
+            using (var postGifsFunction = new PostGifsFunction(new TrendingGiphyBotContext(connectionString), new GiphyHelper(), new DiscordRestClient(), log))
                 await postGifsFunction.RunAsync();
         }
         readonly TrendingGiphyBotContext _Context;
         readonly GiphyHelper _GiphyHelper;
         readonly DiscordRestClient _DiscordClient;
-        readonly TaskCompletionSource<bool> _LoggedInSource;
-        readonly TaskCompletionSource<bool> _LoggedOutSource;
         readonly ILogger _Log;
-        public PostGifsFunction(TrendingGiphyBotContext Context, GiphyHelper GiphyHelper, DiscordRestClient Client, TaskCompletionSource<bool> LoggedInSource, TaskCompletionSource<bool> LoggedOutSource, ILogger Log)
+        TaskCompletionSource<bool> _LoggedInSource;
+        TaskCompletionSource<bool> _LoggedOutSource;
+        public PostGifsFunction(TrendingGiphyBotContext context, GiphyHelper giphyHelper, DiscordRestClient client, ILogger log)
         {
-            _Context = Context;
-            _GiphyHelper = GiphyHelper;
-            _DiscordClient = Client;
-            _LoggedInSource = LoggedInSource;
-            _LoggedOutSource = LoggedOutSource;
-            _Log = Log;
+            _Context = context;
+            _GiphyHelper = giphyHelper;
+            _DiscordClient = client;
+            _Log = log;
         }
         public async Task RunAsync()
         {
@@ -52,18 +50,30 @@ namespace TrendingGiphyBotFunctions
         }
         async Task LogInAsync()
         {
+            _LoggedInSource = new TaskCompletionSource<bool>();
             _DiscordClient.LoggedIn += LoggedIn;
             var token = Environment.GetEnvironmentVariable("BotToken");
             await _DiscordClient.LoginAsync(TokenType.Bot, token);
             await _LoggedInSource.Task;
             _DiscordClient.LoggedIn -= LoggedIn;
         }
+        Task LoggedIn()
+        {
+            _LoggedInSource.SetResult(true);
+            return Task.CompletedTask;
+        }
         async Task LogOutAsync()
         {
+            _LoggedOutSource = new TaskCompletionSource<bool>();
             _DiscordClient.LoggedOut += LoggedOut;
             await _DiscordClient.LogoutAsync();
             await _LoggedOutSource.Task;
             _DiscordClient.LoggedOut -= LoggedOut;
+        }
+        Task LoggedOut()
+        {
+            _LoggedOutSource.SetResult(true);
+            return Task.CompletedTask;
         }
         async Task<List<UrlHistoryContainer>> InsertHistories(List<UrlHistoryContainer> historyContainers)
         {
@@ -71,11 +81,6 @@ namespace TrendingGiphyBotFunctions
             var inserted = await _Context.InsertUrlHistories(historyContainers);
             _Log.LogInformation($"Inserted {inserted.Count} histories.");
             return inserted;
-        }
-        Task LoggedIn()
-        {
-            _LoggedInSource.SetResult(true);
-            return Task.CompletedTask;
         }
         async Task<List<PendingContainer>> GetContainers()
         {
@@ -168,11 +173,6 @@ namespace TrendingGiphyBotFunctions
             var totalCount = historyContainers.Count - errors.Count - channelsToDelete.Count;
             _Log.LogInformation($"Posted {totalCount} gifs.");
             return new GifPostingResult(errors, channelsToDelete);
-        }
-        Task LoggedOut()
-        {
-            _LoggedOutSource.SetResult(true);
-            return Task.CompletedTask;
         }
         public void Dispose()
         {
