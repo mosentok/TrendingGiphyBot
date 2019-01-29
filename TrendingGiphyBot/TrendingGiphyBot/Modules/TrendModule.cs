@@ -58,9 +58,6 @@ namespace TrendingGiphyBot.Modules
                 case JobConfigState.InvalidMinutes:
                     var invalidMinutesMessage = _TrendHelper.InvalidConfigMessage(time, _GlobalConfig.Config.ValidMinutes);
                     return TryReplyAsync(invalidMinutesMessage);
-                case JobConfigState.InvalidSeconds:
-                    var invalidConfigMessage = _TrendHelper.InvalidConfigMessage(time, _GlobalConfig.Config.ValidSeconds);
-                    return TryReplyAsync(invalidConfigMessage);
                 case JobConfigState.InvalidTime:
                     return TryReplyAsync($"{time.ToString()} is an invalid {nameof(Time)}.");
                 case JobConfigState.IntervalTooSmall:
@@ -154,7 +151,6 @@ namespace TrendingGiphyBot.Modules
         public async Task Examples() => await ExamplesReplyAsync();
         async Task ExamplesReplyAsync()
         {
-            var description = _GlobalConfig.Config.ExamplesText;
             var author = new EmbedAuthorBuilder()
                 .WithName("Trending Giphy Bot Examples")
                 .WithIconUrl(Context.Guild.IconUrl);
@@ -163,7 +159,7 @@ namespace TrendingGiphyBot.Modules
                 .WithValue(_GlobalConfig.Config.ExamplesHelpFieldText);
             var embedBuilder = new EmbedBuilder()
                 .WithAuthor(author)
-                .WithDescription(description)
+                .WithDescription(_GlobalConfig.Config.ExamplesText)
                 .AddField(helpField);
             await TryReplyAsync(embedBuilder);
         }
@@ -194,7 +190,6 @@ namespace TrendingGiphyBot.Modules
             catch (HttpException httpException) when (_GlobalConfig.Config.HttpExceptionsToWarn.Contains(httpException.Message))
             {
                 _Logger.Warn(httpException.Message);
-                await _GlobalConfig.MessageHelper.SendMessageToUser(Context, message, embedBuilder);
             }
         }
     }

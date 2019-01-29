@@ -50,7 +50,6 @@ namespace TrendingGiphyBot.Modules
             catch (HttpException httpException) when (_GlobalConfig.Config.HttpExceptionsToWarn.Contains(httpException.Message))
             {
                 _Logger.Warn(httpException.Message);
-                await _GlobalConfig.MessageHelper.SendMessageToUser(Context, message, null);
             }
         }
         static string DetermineGame(string[] words)

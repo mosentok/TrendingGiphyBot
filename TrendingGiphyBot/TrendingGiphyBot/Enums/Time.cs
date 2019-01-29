@@ -5,8 +5,6 @@
         Hours,
         Hour,
         Minutes,
-        Minute,
-        Seconds,
-        Second
+        Minute
     }
 }
