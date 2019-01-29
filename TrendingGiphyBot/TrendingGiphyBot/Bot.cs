@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
 using Discord;
@@ -24,7 +23,6 @@ namespace TrendingGiphyBot
         IGlobalConfig _GlobalConfig;
         DiscordSocketClient DiscordClient => _GlobalConfig.DiscordClient;
         List<string> _ModuleNames;
-        static readonly HttpClient _HttpClient = new HttpClient();
         IFunctionHelper _FunctionHelper;
         internal async Task Run()
         {
@@ -141,7 +139,6 @@ namespace TrendingGiphyBot
         public void Dispose()
         {
             _GlobalConfig?.Dispose();
-            _HttpClient?.Dispose();
         }
     }
 }
