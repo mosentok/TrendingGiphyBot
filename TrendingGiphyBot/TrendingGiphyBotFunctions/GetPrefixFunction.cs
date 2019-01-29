@@ -19,13 +19,8 @@ namespace TrendingGiphyBotFunctions
             string prefix;
             using (var context = new TrendingGiphyBotContext(connectionString))
                 prefix = await context.GetPrefix(channelId);
-            if (prefix != null)
-            {
-                log.LogInformation($"Channel {channelId} got prefix.");
-                return new OkObjectResult(prefix);
-            }
-            log.LogInformation($"Channel {channelId} prefix not found.");
-            return new NotFoundResult();
+            log.LogInformation($"Channel {channelId} got prefix.");
+            return new OkObjectResult(prefix);
         }
     }
 }
