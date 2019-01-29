@@ -26,7 +26,7 @@ namespace TrendingGiphyBotCore.Helpers
             var success = short.TryParse(quietHourString, out quietHour);
             return success && 0 <= quietHour && quietHour <= 23;
         }
-        public string InvalidConfigMessage(Time time, List<int> validValues) => $"When {nameof(Time)} is {time}, interval must be {string.Join(", ", validValues)}.";
+        public string InvalidConfigMessage(Time time, List<short> validValues) => $"When {nameof(Time)} is {time}, interval must be {string.Join(", ", validValues)}.";
         public string InvalidConfigRangeMessage(SubJobConfig minConfig, SubJobConfig maxConfig) => $"Interval must be between {minConfig.Interval} {minConfig.Time} and {maxConfig.Interval} {maxConfig.Time}.";
         public bool ShouldTurnCommandOff(string word) => "Off".Equals(word, StringComparison.CurrentCultureIgnoreCase);
     }

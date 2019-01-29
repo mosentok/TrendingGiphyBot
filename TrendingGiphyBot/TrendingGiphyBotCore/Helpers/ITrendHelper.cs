@@ -9,7 +9,7 @@ namespace TrendingGiphyBotCore.Helpers
         string CleanRandomSearchString(string randomSearchString);
         bool IsValidRandomSearchString(string cleanedRandomSearchString, int randomSearchStringMaxLength);
         bool IsInRange(string quietHourString, out short quietHour);
-        string InvalidConfigMessage(Time time, List<int> validValues);
+        string InvalidConfigMessage(Time time, List<short> validValues);
         string InvalidConfigRangeMessage(SubJobConfig minConfig, SubJobConfig maxConfig);
         bool ShouldTurnCommandOff(string word);
     }
