@@ -24,8 +24,8 @@ namespace TrendingGiphyBotCore.Modules
         readonly ITrendHelper _TrendHelper;
         readonly IFunctionHelper _FunctionHelper;
         readonly IConfiguration _Config;
-        readonly List<int> _ValidMinutes;
-        readonly List<int> _ValidHours;
+        readonly List<short> _ValidMinutes;
+        readonly List<short> _ValidHours;
         readonly SubJobConfig _MinJobConfig;
         readonly SubJobConfig _MaxJobConfig;
         static readonly char[] _ArgsSplit = new[] { ' ' };
@@ -36,13 +36,13 @@ namespace TrendingGiphyBotCore.Modules
             _FunctionHelper = services.GetRequiredService<IFunctionHelper>();
             _Config = services.GetService<IConfiguration>();
             var validMinutesString = _Config["ValidMinutes"];
-            _ValidMinutes = validMinutesString.Split(',').Select(int.Parse).ToList();
+            _ValidMinutes = validMinutesString.Split(',').Select(short.Parse).ToList();
             var validHoursString = _Config["ValidHours"];
-            _ValidHours = validHoursString.Split(',').Select(int.Parse).ToList();
-            var minInterval = _Config.GetValue<int>("MinInterval");
+            _ValidHours = validHoursString.Split(',').Select(short.Parse).ToList();
+            var minInterval = _Config.GetValue<short>("MinInterval");
             var minTime = _Config.GetValue<Time>("MinTime");
             _MinJobConfig = new SubJobConfig(minInterval, minTime);
-            var maxInterval = _Config.GetValue<int>("MaxInterval");
+            var maxInterval = _Config.GetValue<short>("MaxInterval");
             var maxTime = _Config.GetValue<Time>("MaxTime");
             _MaxJobConfig = new SubJobConfig(maxInterval, maxTime);
         }
@@ -60,12 +60,12 @@ namespace TrendingGiphyBotCore.Modules
             await TryReplyAsync("Done.");
         }
         [Command(nameof(Every))]
-        public async Task Every(int interval, Time time)
+        public async Task Every(short interval, Time time)
         {
             var state = DetermineJobConfigState(interval, time);
             await ProcessJobConfigRequest(state, interval, time);
         }
-        Task ProcessJobConfigRequest(JobConfigState state, int interval, Time time)
+        Task ProcessJobConfigRequest(JobConfigState state, short interval, Time time)
         {
             switch (state)
             {
@@ -87,7 +87,7 @@ namespace TrendingGiphyBotCore.Modules
                     throw new UnexpectedTimeException(time);
             }
         }
-        async Task SetJobConfig(int interval, Time time)
+        async Task SetJobConfig(short interval, Time time)
         {
             var match = await _FunctionHelper.GetJobConfigAsync(Context.Channel.Id);
             var container = new JobConfigContainer(match, interval, time.ToString());
@@ -216,7 +216,7 @@ namespace TrendingGiphyBotCore.Modules
                 _Logger.LogWarning(httpException.Message);
             }
         }
-        JobConfigState DetermineJobConfigState(int interval, Time time)
+        JobConfigState DetermineJobConfigState(short interval, Time time)
         {
             var minTimeSpan = AsTimeSpan(_MinJobConfig);
             var maxTimeSpan = AsTimeSpan(_MaxJobConfig);
@@ -229,7 +229,7 @@ namespace TrendingGiphyBotCore.Modules
             }
             return JobConfigState.IntervalTooSmall;
         }
-        JobConfigState DetermineTimeState(int interval, Time time)
+        JobConfigState DetermineTimeState(short interval, Time time)
         {
             switch (time)
             {
@@ -248,7 +248,7 @@ namespace TrendingGiphyBotCore.Modules
             }
         }
         static TimeSpan AsTimeSpan(SubJobConfig config) => AsTimeSpan(config.Interval, config.Time);
-        static TimeSpan AsTimeSpan(int interval, Time time)
+        static TimeSpan AsTimeSpan(short interval, Time time)
         {
             switch (time)
             {
