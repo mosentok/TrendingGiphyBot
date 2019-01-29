@@ -63,8 +63,6 @@ namespace TrendingGiphyBot.Configuration
         [JsonRequired]
         public string GetConfigHelpFieldText { get; set; }
         [JsonRequired]
-        public string NotConfiguredMessageStart { get; set; }
-        [JsonRequired]
         public string InvalidQuietHoursRangeMessage { get; set; }
         [JsonRequired]
         public string InvalidQuietHoursInputFormat { get; set; }

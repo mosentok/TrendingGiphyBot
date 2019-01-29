@@ -19,13 +19,8 @@ namespace TrendingGiphyBotFunctions
             JobConfigContainer container;
             using (var context = new TrendingGiphyBotContext(connectionString))
                 container = await context.GetJobConfig(channelId);
-            if (container != null)
-            {
-                log.LogInformation($"Channel {channelId} got job config.");
-                return new OkObjectResult(container);
-            }
-            log.LogInformation($"Channel {channelId} job config not found.");
-            return new NotFoundResult();
+            log.LogInformation($"Channel {channelId} got job config.");
+            return new OkObjectResult(container);
         }
     }
 }

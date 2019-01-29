@@ -47,8 +47,6 @@ namespace TrendingGiphyBot.Helpers
                 var content = await response.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<JobConfigContainer>(content);
             }
-            if (response.StatusCode == HttpStatusCode.NotFound)
-                return null;
             throw new FunctionHelperException($"Error with job config for channel '{channelId}'. Status code '{response.StatusCode.ToString()}'. Reason phrase '{response.ReasonPhrase}'.");
         }
         public async Task PostStatsAsync(ulong botId, int guildCount)
@@ -74,8 +72,6 @@ namespace TrendingGiphyBot.Helpers
         {
             if (response.IsSuccessStatusCode)
                 return await response.Content.ReadAsStringAsync();
-            if (response.StatusCode == HttpStatusCode.NotFound)
-                return null;
             throw new FunctionHelperException($"Error with prefix for channel '{channelId}'. Status code '{response.StatusCode.ToString()}'. Reason phrase '{response.ReasonPhrase}'.");
         }
         public void Dispose()

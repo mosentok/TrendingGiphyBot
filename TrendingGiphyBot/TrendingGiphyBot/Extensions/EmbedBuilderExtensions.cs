@@ -7,8 +7,12 @@ namespace TrendingGiphyBot.Extensions
     {
         internal static EmbedBuilder WithHowOften(this EmbedBuilder embedBuilder, JobConfigContainer config)
         {
-            var every = $"```less\n{config.Interval} {config.Time.ToLower()}```";
-            return embedBuilder.AddInlineField("How Often?", every);
+            if (config.Interval.HasValue && !string.IsNullOrEmpty(config.Time))
+            {
+                var every = $"```less\n{config.Interval} {config.Time.ToLower()}```";
+                return embedBuilder.AddInlineField("How Often?", every);
+            }
+            return embedBuilder.AddInlineField("How Often?", "```less\nnever```");
         }
         internal static EmbedBuilder WithRandomConfigFields(this EmbedBuilder embedBuilder, JobConfigContainer config)
         {
@@ -17,12 +21,8 @@ namespace TrendingGiphyBot.Extensions
         }
         static string DetermineRandomFieldValue(JobConfigContainer config)
         {
-            if (config.RandomIsOn)
-            {
-                if (!string.IsNullOrEmpty(config.RandomSearchString))
-                    return $"yes, of \"{config.RandomSearchString}\"";
-                return "yes";
-            }
+            if (!string.IsNullOrEmpty(config.RandomSearchString))
+                return $"yes, of \"{config.RandomSearchString}\"";
             return "no";
         }
         internal static EmbedBuilder WithQuietHourFields(this EmbedBuilder embedBuilder, JobConfigContainer jobConfig)

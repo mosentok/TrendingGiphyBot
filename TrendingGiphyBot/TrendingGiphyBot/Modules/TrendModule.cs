@@ -75,12 +75,8 @@ namespace TrendingGiphyBot.Modules
         }
         async Task SetJobConfig(int interval, Time time)
         {
-            JobConfigContainer container;
             var match = await _FunctionHelper.GetJobConfigAsync(Context.Channel.Id);
-            if (match != null)
-                container = new JobConfigContainer(match, interval, time.ToString());
-            else
-                container = new JobConfigContainer(Context.Channel.Id, interval, time.ToString());
+            var container = new JobConfigContainer(match, interval, time.ToString());
             var result = await _FunctionHelper.PostJobConfigAsync(Context.Channel.Id, container);
             await ReplyWithJobConfig(result);
         }
@@ -92,20 +88,18 @@ namespace TrendingGiphyBot.Modules
         }
         Task ProcessRandomRequest(string randomSearchString, JobConfigContainer match)
         {
-            if (match == null)
-                return ExamplesReplyAsync(true);
             var cleanedRandomSearchString = _TrendHelper.CleanRandomSearchString(randomSearchString);
             var isValidRandomSearchString = _TrendHelper.IsValidRandomSearchString(cleanedRandomSearchString, _GlobalConfig.Config.RandomSearchStringMaxLength);
             if (!isValidRandomSearchString)
                 return TryReplyAsync($"Random search string must be at most {_GlobalConfig.Config.RandomSearchStringMaxLength} characters long.");
             var shouldTurnCommandOff = _TrendHelper.ShouldTurnCommandOff(randomSearchString);
             if (shouldTurnCommandOff)
-                return SetRandom(match, false, null);
-            return SetRandom(match, true, cleanedRandomSearchString);
+                return SetRandom(match, null);
+            return SetRandom(match, cleanedRandomSearchString);
         }
-        async Task SetRandom(JobConfigContainer match, bool randomIsOn, string randomSearchString)
+        async Task SetRandom(JobConfigContainer match, string randomSearchString)
         {
-            var container = new JobConfigContainer(match, randomIsOn, randomSearchString);
+            var container = new JobConfigContainer(match, randomSearchString);
             var result = await _FunctionHelper.PostJobConfigAsync(Context.Channel.Id, container);
             await ReplyWithJobConfig(result);
         }
@@ -117,8 +111,6 @@ namespace TrendingGiphyBot.Modules
         }
         Task ProcessBetweenRequest(string trendBetweenString, JobConfigContainer match)
         {
-            if (match == null)
-                return ExamplesReplyAsync(true);
             var shouldTurnCommandOff = _TrendHelper.ShouldTurnCommandOff(trendBetweenString);
             if (shouldTurnCommandOff)
                 return SetBetween(match, null, null);
@@ -144,14 +136,12 @@ namespace TrendingGiphyBot.Modules
         }
         Task ProcessPrefixRequest(string prefix)
         {
-            var match = _FunctionHelper.GetJobConfigAsync(Context.Channel.Id);
-            if (match == null)
-                return ExamplesReplyAsync(true);
             if (string.IsNullOrEmpty(prefix) || prefix.Length > 4)
                 return TryReplyAsync("Prefix must be 1-4 characters long.");
             var newPrefix = DetermineNewPrefix(prefix);
             return _FunctionHelper.PostPrefixAsync(Context.Channel.Id, newPrefix)
-                .ContinueWith(t => TryReplyAsync($"New prefix: {t.Result}"));
+                .ContinueWith(t => TryReplyAsync($"New prefix: {t.Result}"))
+                .Unwrap();
         }
         string DetermineNewPrefix(string prefix)
         {
@@ -161,10 +151,10 @@ namespace TrendingGiphyBot.Modules
         }
         [Command(nameof(Examples))]
         [Alias("Example", "Help")]
-        public async Task Examples() => await ExamplesReplyAsync(false);
-        async Task ExamplesReplyAsync(bool includeNotConfiguredMessage)
+        public async Task Examples() => await ExamplesReplyAsync();
+        async Task ExamplesReplyAsync()
         {
-            var description = DetermineExamplesDescription(includeNotConfiguredMessage);
+            var description = _GlobalConfig.Config.ExamplesText;
             var author = new EmbedAuthorBuilder()
                 .WithName("Trending Giphy Bot Examples")
                 .WithIconUrl(Context.Guild.IconUrl);
@@ -177,32 +167,21 @@ namespace TrendingGiphyBot.Modules
                 .AddField(helpField);
             await TryReplyAsync(embedBuilder);
         }
-        string DetermineExamplesDescription(bool includeNotConfiguredMessage)
-        {
-            if (includeNotConfiguredMessage)
-                return _GlobalConfig.Config.NotConfiguredMessageStart + _GlobalConfig.Config.ExamplesText;
-            return _GlobalConfig.Config.ExamplesText;
-        }
         async Task ReplyWithJobConfig(JobConfigContainer config)
         {
-            if (config != null)
-            {
-                var author = new EmbedAuthorBuilder()
-                    .WithName($"Setup for Channel # {Context.Channel.Name}")
-                    .WithIconUrl(Context.Guild.IconUrl);
-                var helpField = new EmbedFieldBuilder()
-                    .WithName("Need Help?")
-                    .WithValue(_GlobalConfig.Config.GetConfigHelpFieldText);
-                var embedBuilder = new EmbedBuilder()
-                    .WithAuthor(author)
-                    .WithHowOften(config)
-                    .WithRandomConfigFields(config)
-                    .WithQuietHourFields(config)
-                    .AddField(helpField);
-                await TryReplyAsync(embedBuilder);
-            }
-            else
-                await ExamplesReplyAsync(true);
+            var author = new EmbedAuthorBuilder()
+                .WithName($"Setup for Channel # {Context.Channel.Name}")
+                .WithIconUrl(Context.Guild.IconUrl);
+            var helpField = new EmbedFieldBuilder()
+                .WithName("Need Help?")
+                .WithValue(_GlobalConfig.Config.GetConfigHelpFieldText);
+            var embedBuilder = new EmbedBuilder()
+                .WithAuthor(author)
+                .WithHowOften(config)
+                .WithRandomConfigFields(config)
+                .WithQuietHourFields(config)
+                .AddField(helpField);
+            await TryReplyAsync(embedBuilder);
         }
         async Task TryReplyAsync(string message) => await TryReplyAsync(message, null);
         async Task TryReplyAsync(EmbedBuilder embedBuilder) => await TryReplyAsync(string.Empty, embedBuilder);
