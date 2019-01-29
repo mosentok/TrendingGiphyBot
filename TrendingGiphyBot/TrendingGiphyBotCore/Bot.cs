@@ -68,12 +68,15 @@ namespace TrendingGiphyBotCore
         }
         async Task JoinedGuild(SocketGuild arg)
         {
-            await _FunctionHelper.PostStatsAsync(_DiscordClient.CurrentUser.Id, _DiscordClient.Guilds.Count);
+            await _Logger.SwallowAsync(_FunctionHelper.PostStatsAsync(_DiscordClient.CurrentUser.Id, _DiscordClient.Guilds.Count));
         }
         async Task LeftGuild(SocketGuild arg)
         {
-            await RemoveThisGuildsJobConfigs(arg);
-            await _FunctionHelper.PostStatsAsync(_DiscordClient.CurrentUser.Id, _DiscordClient.Guilds.Count);
+            await _Logger.SwallowAsync(async () =>
+            {
+                await RemoveThisGuildsJobConfigs(arg);
+                await _FunctionHelper.PostStatsAsync(_DiscordClient.CurrentUser.Id, _DiscordClient.Guilds.Count);
+            });
         }
         async Task RemoveThisGuildsJobConfigs(SocketGuild arg)
         {
@@ -84,26 +87,29 @@ namespace TrendingGiphyBotCore
         async Task MessageReceived(SocketMessage messageParam)
         {
             var isDmChannel = messageParam.Channel is IDMChannel;
-            if (!isDmChannel &&
-                messageParam.IsRecognizedModule(_ModuleNames) &&
-                !messageParam.Author.IsBot &&
-                messageParam is IUserMessage message)
-            {
-                var prefix = await DeterminePrefix(messageParam.Channel.Id);
-                var argPos = 0;
-                if (message.HasStringPrefix(prefix, ref argPos) ||
-                    message.HasMentionPrefix(_DiscordClient.CurrentUser, ref argPos))
+            if (!isDmChannel)
+                await _Logger.SwallowAsync(async () =>
                 {
-                    var context = new CommandContext(_DiscordClient, message);
-                    var result = await _Commands.ExecuteAsync(context, argPos, _Services);
-                    if (!result.IsSuccess &&
-                        result.Error.HasValue &&
-                        result.Error.Value != CommandError.UnknownCommand &&
-                        result.Error.Value != CommandError.BadArgCount &&
-                        result is ExecuteResult executeResult)
-                        _Logger.LogError(executeResult.Exception, $"Error processing message content '{message.Content}'.");
-                }
-            }
+                    if (messageParam.IsRecognizedModule(_ModuleNames) &&
+                        !messageParam.Author.IsBot &&
+                        messageParam is IUserMessage message)
+                    {
+                        var prefix = await DeterminePrefix(messageParam.Channel.Id);
+                        var argPos = 0;
+                        if (message.HasStringPrefix(prefix, ref argPos) ||
+                            message.HasMentionPrefix(_DiscordClient.CurrentUser, ref argPos))
+                        {
+                            var context = new CommandContext(_DiscordClient, message);
+                            var result = await _Commands.ExecuteAsync(context, argPos, _Services);
+                            if (!result.IsSuccess &&
+                                result.Error.HasValue &&
+                                result.Error.Value != CommandError.UnknownCommand &&
+                                result.Error.Value != CommandError.BadArgCount &&
+                                result is ExecuteResult executeResult)
+                                _Logger.LogError(executeResult.Exception, $"Error processing message content '{message.Content}'.");
+                        }
+                    }
+                });
         }
         async Task<string> DeterminePrefix(decimal channelId)
         {
