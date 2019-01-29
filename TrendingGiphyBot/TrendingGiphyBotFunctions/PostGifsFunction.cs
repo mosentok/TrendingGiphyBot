@@ -39,11 +39,7 @@ namespace TrendingGiphyBotFunctions
         }
         public async Task RunAsync()
         {
-            var connectionString = Environment.GetEnvironmentVariable("TrendingGiphyBotConnectionString");
-            _DiscordClient.LoggedIn += LoggedIn;
-            var token = Environment.GetEnvironmentVariable("BotToken");
-            await _DiscordClient.LoginAsync(TokenType.Bot, token);
-            await _LoggedInSource.Task;
+            await LogInAsync();
             var pendingContainers = await GetContainers();
             var historyContainers = await BuildHistoryContainers(pendingContainers);
             var insertedContainers = await InsertHistories(historyContainers);
@@ -52,10 +48,21 @@ namespace TrendingGiphyBotFunctions
                 await DeleteErrorHistories(gifPostingResult.Errors);
             if (gifPostingResult.ChannelsToDelete.Any())
                 await DeleteJobConfigs(gifPostingResult.ChannelsToDelete);
+            await LogOutAsync();
+        }
+        async Task LogInAsync()
+        {
+            _DiscordClient.LoggedIn += LoggedIn;
+            var token = Environment.GetEnvironmentVariable("BotToken");
+            await _DiscordClient.LoginAsync(TokenType.Bot, token);
+            await _LoggedInSource.Task;
+            _DiscordClient.LoggedIn -= LoggedIn;
+        }
+        async Task LogOutAsync()
+        {
             _DiscordClient.LoggedOut += LoggedOut;
             await _DiscordClient.LogoutAsync();
             await _LoggedOutSource.Task;
-            _DiscordClient.LoggedIn -= LoggedIn;
             _DiscordClient.LoggedOut -= LoggedOut;
         }
         async Task<List<UrlHistoryContainer>> InsertHistories(List<UrlHistoryContainer> historyContainers)
@@ -146,6 +153,7 @@ namespace TrendingGiphyBotFunctions
                     else
                         channelsToDelete.Add(historyContainer);
                 }
+                //TODO move these to config
                 catch (HttpException httpException) when (httpException.Message.EndsWith("Missing Access") ||
                                                           httpException.Message.EndsWith("Missing Permissions"))
                 {
