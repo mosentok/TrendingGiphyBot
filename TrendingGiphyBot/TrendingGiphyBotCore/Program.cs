@@ -6,12 +6,11 @@ namespace TrendingGiphyBotCore
     {
         public static async Task Main()
         {
-            while (true)
-                using (var bot = new Bot())
-                {
-                    await bot.Run();
-                    await Task.Delay(-1);
-                }
+            using (var bot = new Bot())
+            {
+                await bot.Run();
+                await Task.Delay(-1);
+            }
         }
     }
 }
