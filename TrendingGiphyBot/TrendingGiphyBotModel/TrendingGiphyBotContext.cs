@@ -60,13 +60,18 @@ namespace TrendingGiphyBotModel
             using (var table = new DataTable())
             using (var bulkCopy = new SqlBulkCopy(connectionString))
             {
+                table.Columns.Add(nameof(UrlHistory.Id));
                 table.Columns.Add(nameof(UrlHistory.ChannelId));
+                table.Columns.Add(nameof(UrlHistory.GifId));
                 table.Columns.Add(nameof(UrlHistory.Url));
+                table.Columns.Add(nameof(UrlHistory.Stamp));
                 foreach (var container in toInsert)
                 {
                     var row = table.NewRow();
                     row[nameof(UrlHistory.ChannelId)] = container.ChannelId;
+                    row[nameof(UrlHistory.GifId)] = container.GifId;
                     row[nameof(UrlHistory.Url)] = container.Url;
+                    row[nameof(UrlHistory.Stamp)] = DateTime.Now;
                     table.Rows.Add(row);
                 }
                 bulkCopy.DestinationTableName = nameof(UrlHistory);
@@ -80,7 +85,7 @@ namespace TrendingGiphyBotModel
                                      join urlCache in UrlCaches on gifObject.Id equals urlCache.Id
                                      select gifObject;
             var newGifObjects = gifObjects.Except(existingGifObjects);
-            var newUrlCaches = newGifObjects.Select(s => new UrlCache { Id = s.Id, Url = s.Url });
+            var newUrlCaches = newGifObjects.Select(s => new UrlCache { Id = s.Id, Url = s.Url, Stamp = DateTime.Now });
             UrlCaches.AddRange(newUrlCaches);
             return await SaveChangesAsync();
         }
@@ -150,7 +155,6 @@ namespace TrendingGiphyBotModel
         }
         public async Task<List<PendingContainer>> GetJobConfigsToRun(int nowHour, List<int> currentValidMinutes)
         {
-            var latestUrls = UrlCaches.Select(s => s.Url);
             return await (from jobConfig in JobConfigs
                           let minPostingHour = jobConfig.MaxQuietHour
                           let maxPostingHour = jobConfig.MinQuietHour
@@ -158,14 +162,15 @@ namespace TrendingGiphyBotModel
                             (minPostingHour == null || maxPostingHour == null || //either no limit on posting, or there are posting hour limits to check.
                             (minPostingHour < maxPostingHour && nowHour >= minPostingHour && nowHour < maxPostingHour) || //if the range spans inside a single day, then now hour must be between min and max, else...
                             (minPostingHour > maxPostingHour && (nowHour >= minPostingHour || nowHour < maxPostingHour))) //if the range spans across two days, then now hour must be between overnight hours
-                          join urlHistory in UrlHistories on jobConfig.ChannelId equals urlHistory.ChannelId into histories
-                          let firstUnseenUrl = latestUrls.Except(histories.Select(s => s.Url)).FirstOrDefault()
-                          where (!string.IsNullOrEmpty(firstUnseenUrl) || //where either we found a fresh gif from the cache, or...
-                            !string.IsNullOrEmpty(jobConfig.RandomSearchString)) //random is on, so they'll want a random gif instead
+                          let alreadySeenGifIds = jobConfig.UrlHistories.Select(s => s.GifId)
+                          let firstUnseenUrlCache = UrlCaches.Where(s => !alreadySeenGifIds.Contains(s.Id)).FirstOrDefault()
+                          where firstUnseenUrlCache != null || //where either we found a fresh gif from the cache, or...
+                            !string.IsNullOrEmpty(jobConfig.RandomSearchString) //random is on, so they'll want a random gif instead
                           select new PendingContainer
                           {
                               ChannelId = jobConfig.ChannelId,
-                              FirstUnseenUrl = firstUnseenUrl,
+                              FirstUnseenGifId = firstUnseenUrlCache.Id,
+                              FirstUnseenUrl = firstUnseenUrlCache.Url,
                               RandomSearchString = jobConfig.RandomSearchString
                           }).ToListAsync();
         }

@@ -66,6 +66,8 @@ namespace TrendingGiphyBotModel.Migrations
                     b.Property<decimal>("ChannelId")
                         .HasColumnType("decimal(20,0)");
 
+                    b.Property<string>("GifId");
+
                     b.Property<DateTime>("Stamp");
 
                     b.Property<string>("Url");

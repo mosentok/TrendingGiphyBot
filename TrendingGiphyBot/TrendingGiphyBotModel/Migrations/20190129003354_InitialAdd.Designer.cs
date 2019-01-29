@@ -10,7 +10,7 @@ using TrendingGiphyBotModel;
 namespace TrendingGiphyBotModel.Migrations
 {
     [DbContext(typeof(TrendingGiphyBotContext))]
-    [Migration("20190128231327_InitialAdd")]
+    [Migration("20190129003354_InitialAdd")]
     partial class InitialAdd
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -67,6 +67,8 @@ namespace TrendingGiphyBotModel.Migrations
 
                     b.Property<decimal>("ChannelId")
                         .HasColumnType("decimal(20,0)");
+
+                    b.Property<string>("GifId");
 
                     b.Property<DateTime>("Stamp");
 
