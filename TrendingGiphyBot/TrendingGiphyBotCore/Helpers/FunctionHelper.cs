@@ -54,12 +54,10 @@ namespace TrendingGiphyBotCore.Helpers
         }
         static async Task<JobConfigContainer> ProcessJobConfigResponse(decimal channelId, HttpResponseMessage response)
         {
-            if (response.IsSuccessStatusCode)
-            {
-                var content = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<JobConfigContainer>(content);
-            }
-            throw new FunctionHelperException($"Error with job config for channel '{channelId}'. Status code '{response.StatusCode.ToString()}'. Reason phrase '{response.ReasonPhrase}'.");
+            if (!response.IsSuccessStatusCode)
+                throw new FunctionHelperException($"Error with job config for channel '{channelId}'. Status code '{response.StatusCode.ToString()}'. Reason phrase '{response.ReasonPhrase}'.");
+            var content = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<JobConfigContainer>(content);
         }
         public async Task PostStatsAsync(ulong botId, int guildCount)
         {

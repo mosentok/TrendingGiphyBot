@@ -35,7 +35,7 @@ namespace TrendingGiphyBotCore
                 .AddJsonFile("appsettings.json")
                 .AddEnvironmentVariables()
                 .Build();
-            _ListenToOnlyTheseChannels = _Config.GetSection("ListenToOnlyTheseChannels").Get<List<ulong>>();
+            _ListenToOnlyTheseChannels = _Config.Get<List<ulong>>("ListenToOnlyTheseChannels");
             _FunctionHelper = new FunctionHelper(_Config);
             _DiscordClient = new DiscordSocketClient();
             _Services = new ServiceCollection()
