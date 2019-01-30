@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -35,10 +34,10 @@ namespace TrendingGiphyBotCore.Modules
             _TrendHelper = services.GetRequiredService<ITrendHelper>();
             _FunctionHelper = services.GetRequiredService<IFunctionHelper>();
             _Config = services.GetService<IConfiguration>();
-            _ValidMinutes = _Config.GetSection("ValidMinutes").Get<List<short>>();
-            _ValidHours = _Config.GetSection("ValidHours").Get<List<short>>();
-            _MinJobConfig = _Config.GetSection("MinJobConfig").Get<SubJobConfig>();
-            _MaxJobConfig = _Config.GetSection("MaxJobConfig").Get<SubJobConfig>();
+            _ValidMinutes = _Config.Get<List<short>>("ValidMinutes");
+            _ValidHours = _Config.Get<List<short>>("ValidHours");
+            _MinJobConfig = _Config.Get<SubJobConfig>("MinJobConfig");
+            _MaxJobConfig = _Config.Get<SubJobConfig>("MaxJobConfig");
         }
         [Command(nameof(Get))]
         [Alias(nameof(Get), "", "Config", "Setup")]
