@@ -49,13 +49,8 @@ namespace TrendingGiphyBotModel
         }
         public async Task<List<UrlHistoryContainer>> InsertUrlHistories(List<UrlHistoryContainer> containers)
         {
-            var trendingGifs = containers.Where(s => s.IsTrending).ToList();
-            var randomGifs = containers.Except(trendingGifs);
-            var randomGifsNotInHistory = (from randomGif in randomGifs
-                                          join history in UrlHistories on randomGif.ChannelId equals history.ChannelId into histories
-                                          where !histories.Select(s => s.Url).Contains(randomGif.Url)
-                                          select randomGif).ToList();
-            var toInsert = trendingGifs.Concat(randomGifsNotInHistory).ToList();
+            //need to make sure none of the random gifs we retrieved are already in the database
+            var toInsert = RemoveDuplicateHistories(containers);
             var connectionString = Database.GetDbConnection().ConnectionString;
             using (var table = new DataTable())
             using (var bulkCopy = new SqlBulkCopy(connectionString))
@@ -78,6 +73,16 @@ namespace TrendingGiphyBotModel
                 await bulkCopy.WriteToServerAsync(table);
             }
             return toInsert;
+        }
+        List<UrlHistoryContainer> RemoveDuplicateHistories(List<UrlHistoryContainer> containers)
+        {
+            var trendingGifs = containers.Where(s => s.IsTrending).ToList();
+            var randomGifs = containers.Except(trendingGifs);
+            var randomGifsNotInHistory = (from randomGif in randomGifs
+                                          join history in UrlHistories on randomGif.ChannelId equals history.ChannelId into histories
+                                          where !histories.Select(s => s.Url).Contains(randomGif.Url)
+                                          select randomGif).ToList();
+            return trendingGifs.Concat(randomGifsNotInHistory).ToList();
         }
         public async Task<int> InsertNewTrendingGifs(List<GifObject> gifObjects)
         {
