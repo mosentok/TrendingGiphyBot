@@ -186,15 +186,14 @@ namespace TrendingGiphyBotModel
         public async Task<string> SetPrefix(decimal channelId, string prefix)
         {
             var jobConfig = await JobConfigs.Where(s => s.ChannelId == channelId).SingleOrDefaultAsync();
-            if (jobConfig != null)
-            {
-                if (!string.IsNullOrEmpty(prefix))
-                    jobConfig.Prefix = prefix;
-                else
-                    jobConfig.Prefix = null;
-                await SaveChangesAsync();
-            }
-            return prefix;
+            if (jobConfig == null)
+                return null;
+            if (!string.IsNullOrEmpty(prefix))
+                jobConfig.Prefix = prefix;
+            else
+                jobConfig.Prefix = null;
+            await SaveChangesAsync();
+            return jobConfig.Prefix;
         }
         static int? DetermineIntervalMinutes(JobConfigContainer jobConfigContainer)
         {
