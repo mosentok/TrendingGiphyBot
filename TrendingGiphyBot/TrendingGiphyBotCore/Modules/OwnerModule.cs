@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord.Commands;
 using Discord.Net;
@@ -6,6 +8,7 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using TrendingGiphyBotCore.Extensions;
 
 namespace TrendingGiphyBotCore.Modules
 {
@@ -33,13 +36,12 @@ namespace TrendingGiphyBotCore.Modules
         }
         async Task TryReplyAsync(string message)
         {
+            var warningResponses = _Config.Get<List<string>>("WarningResponses");
             try
             {
                 await ReplyAsync(message);
             }
-            //TODO move these to config
-            catch (HttpException httpException) when (httpException.Message.EndsWith("Missing Access") ||
-                                                      httpException.Message.EndsWith("Missing Permissions"))
+            catch (HttpException httpException) when (warningResponses.Any(httpException.Message.EndsWith))
             {
                 _Logger.LogWarning(httpException.Message);
             }

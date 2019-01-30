@@ -89,9 +89,9 @@ namespace TrendingGiphyBotFunctions
             var hourOffset = int.Parse(hourOffsetString);
             var now = DateTime.Now.AddHours(-hourOffset);
             var validMinutesString = Environment.GetEnvironmentVariable("ValidMinutes");
-            var validMinutes = validMinutesString.Split(',').Select(int.Parse);
+            var validMinutes = validMinutesString.Split(',', options: StringSplitOptions.RemoveEmptyEntries).Select(int.Parse);
             var validHoursString = Environment.GetEnvironmentVariable("ValidHours");
-            var validHours = validHoursString.Split(',').Select(int.Parse);
+            var validHours = validHoursString.Split(',', options: StringSplitOptions.RemoveEmptyEntries).Select(int.Parse);
             var validHoursAsMinutes = validHours.Select(s => s * 60);
             var allValidMinutes = validMinutes.Concat(validHoursAsMinutes);
             int totalMinutes;
@@ -141,6 +141,7 @@ namespace TrendingGiphyBotFunctions
             _Log.LogInformation($"Posting {historyContainers.Count} gifs.");
             var errors = new List<UrlHistoryContainer>();
             var channelsToDelete = new List<UrlHistoryContainer>();
+            var warningResponses = Environment.GetEnvironmentVariable("WarningResponses").Split(',', options: StringSplitOptions.RemoveEmptyEntries);
             foreach (var historyContainer in historyContainers)
                 try
                 {
@@ -158,9 +159,7 @@ namespace TrendingGiphyBotFunctions
                     else
                         channelsToDelete.Add(historyContainer);
                 }
-                //TODO move these to config
-                catch (HttpException httpException) when (httpException.Message.EndsWith("Missing Access") ||
-                                                          httpException.Message.EndsWith("Missing Permissions"))
+                catch (HttpException httpException) when (warningResponses.Any(httpException.Message.EndsWith))
                 {
                     _Log.LogError(httpException, $"Error posting to channel '{historyContainer.ChannelId}' gif '{historyContainer.Url}'.");
                     channelsToDelete.Add(historyContainer);
