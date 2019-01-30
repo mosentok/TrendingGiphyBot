@@ -27,6 +27,7 @@ namespace TrendingGiphyBotCore
         IFunctionHelper _FunctionHelper;
         TaskCompletionSource<bool> _LoggedInSource;
         TaskCompletionSource<bool> _ReadySource;
+        List<ulong> _ListenToOnlyTheseChannels;
         public async Task Run()
         {
             _Config = new ConfigurationBuilder()
@@ -34,6 +35,7 @@ namespace TrendingGiphyBotCore
                 .AddJsonFile("appsettings.json")
                 .AddEnvironmentVariables()
                 .Build();
+            _ListenToOnlyTheseChannels = _Config.GetSection("ListenToOnlyTheseChannels").Get<List<ulong>>();
             _FunctionHelper = new FunctionHelper(_Config);
             _DiscordClient = new DiscordSocketClient();
             _Services = new ServiceCollection()
@@ -108,30 +110,33 @@ namespace TrendingGiphyBotCore
         }
         async Task MessageReceived(SocketMessage messageParam)
         {
+            if (_ListenToOnlyTheseChannels.Any() && !_ListenToOnlyTheseChannels.Contains(messageParam.Channel.Id))
+                return;
             var isDmChannel = messageParam.Channel is IDMChannel;
-            if (!isDmChannel)
-                await _Logger.SwallowAsync(async () =>
+            if (isDmChannel)
+                return;
+            await _Logger.SwallowAsync(async () =>
+            {
+                if (messageParam.IsRecognizedModule(_ModuleNames) &&
+                    !messageParam.Author.IsBot &&
+                    messageParam is IUserMessage message)
                 {
-                    if (messageParam.IsRecognizedModule(_ModuleNames) &&
-                        !messageParam.Author.IsBot &&
-                        messageParam is IUserMessage message)
+                    var prefix = await DeterminePrefix(messageParam.Channel.Id);
+                    var argPos = 0;
+                    if (message.HasStringPrefix(prefix, ref argPos) ||
+                        message.HasMentionPrefix(_DiscordClient.CurrentUser, ref argPos))
                     {
-                        var prefix = await DeterminePrefix(messageParam.Channel.Id);
-                        var argPos = 0;
-                        if (message.HasStringPrefix(prefix, ref argPos) ||
-                            message.HasMentionPrefix(_DiscordClient.CurrentUser, ref argPos))
-                        {
-                            var context = new CommandContext(_DiscordClient, message);
-                            var result = await _Commands.ExecuteAsync(context, argPos, _Services);
-                            if (!result.IsSuccess &&
-                                result.Error.HasValue &&
-                                result.Error.Value != CommandError.UnknownCommand &&
-                                result.Error.Value != CommandError.BadArgCount &&
-                                result is ExecuteResult executeResult)
-                                _Logger.LogError(executeResult.Exception, $"Error processing message content '{message.Content}'.");
-                        }
+                        var context = new CommandContext(_DiscordClient, message);
+                        var result = await _Commands.ExecuteAsync(context, argPos, _Services);
+                        if (!result.IsSuccess &&
+                            result.Error.HasValue &&
+                            result.Error.Value != CommandError.UnknownCommand &&
+                            result.Error.Value != CommandError.BadArgCount &&
+                            result is ExecuteResult executeResult)
+                            _Logger.LogError(executeResult.Exception, $"Error processing message content '{message.Content}'.");
                     }
-                });
+                }
+            });
         }
         async Task<string> DeterminePrefix(decimal channelId)
         {

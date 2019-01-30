@@ -31,20 +31,14 @@ namespace TrendingGiphyBotCore.Modules
         static readonly char[] _ArgsSplit = new[] { ' ' };
         public TrendModule(IServiceProvider services)
         {
-            _Logger = services.GetService<ILogger<TrendModule>>();
+            _Logger = services.GetService<ILogger<TrendModule>>();  
             _TrendHelper = services.GetRequiredService<ITrendHelper>();
             _FunctionHelper = services.GetRequiredService<IFunctionHelper>();
             _Config = services.GetService<IConfiguration>();
-            var validMinutesString = _Config["ValidMinutes"];
-            _ValidMinutes = validMinutesString.Split(',').Select(short.Parse).ToList();
-            var validHoursString = _Config["ValidHours"];
-            _ValidHours = validHoursString.Split(',').Select(short.Parse).ToList();
-            var minInterval = _Config.GetValue<short>("MinInterval");
-            var minTime = _Config.GetValue<Time>("MinTime");
-            _MinJobConfig = new SubJobConfig(minInterval, minTime);
-            var maxInterval = _Config.GetValue<short>("MaxInterval");
-            var maxTime = _Config.GetValue<Time>("MaxTime");
-            _MaxJobConfig = new SubJobConfig(maxInterval, maxTime);
+            _ValidMinutes = _Config.GetSection("ValidMinutes").Get<List<short>>();
+            _ValidHours = _Config.GetSection("ValidHours").Get<List<short>>();
+            _MinJobConfig = _Config.GetSection("MinJobConfig").Get<SubJobConfig>();
+            _MaxJobConfig = _Config.GetSection("MaxJobConfig").Get<SubJobConfig>();
         }
         [Command(nameof(Get))]
         [Alias(nameof(Get), "", "Config", "Setup")]
