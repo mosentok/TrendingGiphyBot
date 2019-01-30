@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -17,11 +19,11 @@ namespace TrendingGiphyBotCore.Modules
     [Group("Trend")]
     public class TrendModule : ModuleBase
     {
+        static readonly char[] _ArgsSplit = new[] { ' ' };
         readonly ILogger _Logger;
         readonly ITrendHelper _TrendHelper;
         readonly IFunctionHelper _FunctionHelper;
         readonly IConfiguration _Config;
-        static readonly char[] _ArgsSplit = new[] { ' ' };
         public TrendModule(IServiceProvider services)
         {
             _Logger = services.GetService<ILogger<TrendModule>>();  
@@ -188,13 +190,12 @@ namespace TrendingGiphyBotCore.Modules
         async Task TryReplyAsync(EmbedBuilder embedBuilder) => await TryReplyAsync(string.Empty, embedBuilder);
         async Task TryReplyAsync(string message, EmbedBuilder embedBuilder)
         {
+            var warningResponses = _Config.Get<List<string>>("WarningResponses");
             try
             {
                 await ReplyAsync(message, embed: embedBuilder.Build());
             }
-            //TODO move these to config
-            catch (HttpException httpException) when (httpException.Message.EndsWith("Missing Access") ||
-                                                      httpException.Message.EndsWith("Missing Permissions"))
+            catch (HttpException httpException) when (warningResponses.Any(httpException.Message.EndsWith))
             {
                 _Logger.LogWarning(httpException.Message);
             }
