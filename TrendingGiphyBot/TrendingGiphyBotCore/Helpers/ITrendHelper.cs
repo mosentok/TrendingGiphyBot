@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using TrendingGiphyBotCore.Configuration;
-using TrendingGiphyBotCore.Enums;
+﻿using TrendingGiphyBotCore.Enums;
 
 namespace TrendingGiphyBotCore.Helpers
 {
@@ -9,8 +7,10 @@ namespace TrendingGiphyBotCore.Helpers
         string CleanRandomSearchString(string randomSearchString);
         bool IsValidRandomSearchString(string cleanedRandomSearchString, int randomSearchStringMaxLength);
         bool IsInRange(string quietHourString, out short quietHour);
-        string InvalidConfigMessage(Time time, List<short> validValues);
-        string InvalidConfigRangeMessage(SubJobConfig minConfig, SubJobConfig maxConfig);
+        string InvalidConfigRangeMessage();
         bool ShouldTurnCommandOff(string word);
+        JobConfigState DetermineJobConfigState(short interval, Time time);
+        string InvalidHoursConfigMessage(Time time);
+        string InvalidMinutesConfigMessage(Time time);
     }
 }
