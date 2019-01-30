@@ -12,7 +12,6 @@ namespace TrendingGiphyBotCore.Helpers
     public class FunctionHelper : IFunctionHelper, IDisposable
     {
         static readonly HttpClient _HttpClient = new HttpClient();
-        readonly IConfiguration _Config;
         readonly string _JobConfigEndpoint;
         readonly string _PrefixEndpoint;
         readonly string _PostStatsEndpoint;
@@ -25,17 +24,16 @@ namespace TrendingGiphyBotCore.Helpers
         readonly string _PostPrefixFunctionKey;
         public FunctionHelper(IConfiguration config)
         {
-            _Config = config;
-            _JobConfigEndpoint = _Config["jobConfigEndpoint"];
-            _PrefixEndpoint = _Config["prefixEndpoint"];
-            _PostStatsEndpoint = _Config["postStatsEndpoint"];
-            _FunctionsKeyHeaderName = _Config["functionsKeyHeaderName"];
-            _GetJobConfigFunctionKey = _Config["getJobConfigFunctionKey"];
-            _PostJobConfigFunctionKey = _Config["postJobConfigFunctionKey"];
-            _DeleteJobConfigFunctionKey = _Config["deleteJobConfigFunctionKey"];
-            _PostStatsFunctionKey = _Config["postStatsFunctionKey"];
-            _GetPrefixFunctionKey = _Config["getPrefixFunctionKey"];
-            _PostPrefixFunctionKey = _Config["postPrefixFunctionKey"];
+            _JobConfigEndpoint = config["jobConfigEndpoint"];
+            _PrefixEndpoint = config["prefixEndpoint"];
+            _PostStatsEndpoint = config["postStatsEndpoint"];
+            _FunctionsKeyHeaderName = config["functionsKeyHeaderName"];
+            _GetJobConfigFunctionKey = config["getJobConfigFunctionKey"];
+            _PostJobConfigFunctionKey = config["postJobConfigFunctionKey"];
+            _DeleteJobConfigFunctionKey = config["deleteJobConfigFunctionKey"];
+            _PostStatsFunctionKey = config["postStatsFunctionKey"];
+            _GetPrefixFunctionKey = config["getPrefixFunctionKey"];
+            _PostPrefixFunctionKey = config["postPrefixFunctionKey"];
         }
         public async Task<JobConfigContainer> GetJobConfigAsync(decimal channelId)
         {
