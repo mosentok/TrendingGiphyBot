@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -7,7 +6,6 @@ using Discord.Net;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using TrendingGiphyBotCore.Configuration;
 using TrendingGiphyBotCore.Enums;
 using TrendingGiphyBotCore.Exceptions;
 using TrendingGiphyBotCore.Extensions;
@@ -23,10 +21,6 @@ namespace TrendingGiphyBotCore.Modules
         readonly ITrendHelper _TrendHelper;
         readonly IFunctionHelper _FunctionHelper;
         readonly IConfiguration _Config;
-        readonly List<short> _ValidMinutes;
-        readonly List<short> _ValidHours;
-        readonly SubJobConfig _MinJobConfig;
-        readonly SubJobConfig _MaxJobConfig;
         static readonly char[] _ArgsSplit = new[] { ' ' };
         public TrendModule(IServiceProvider services)
         {
@@ -34,10 +28,6 @@ namespace TrendingGiphyBotCore.Modules
             _TrendHelper = services.GetRequiredService<ITrendHelper>();
             _FunctionHelper = services.GetRequiredService<IFunctionHelper>();
             _Config = services.GetService<IConfiguration>();
-            _ValidMinutes = _Config.Get<List<short>>("ValidMinutes");
-            _ValidHours = _Config.Get<List<short>>("ValidHours");
-            _MinJobConfig = _Config.Get<SubJobConfig>("MinJobConfig");
-            _MaxJobConfig = _Config.Get<SubJobConfig>("MaxJobConfig");
         }
         [Command(nameof(Get))]
         [Alias(nameof(Get), "", "Config", "Setup")]
@@ -55,7 +45,7 @@ namespace TrendingGiphyBotCore.Modules
         [Command(nameof(Every))]
         public async Task Every(short interval, Time time)
         {
-            var state = DetermineJobConfigState(interval, time);
+            var state = _TrendHelper.DetermineJobConfigState(interval, time);
             await ProcessJobConfigRequest(state, interval, time);
         }
         Task ProcessJobConfigRequest(JobConfigState state, short interval, Time time)
@@ -63,16 +53,16 @@ namespace TrendingGiphyBotCore.Modules
             switch (state)
             {
                 case JobConfigState.InvalidHours:
-                    var invalidHoursMessage = _TrendHelper.InvalidConfigMessage(time, _ValidHours);
+                    var invalidHoursMessage = _TrendHelper.InvalidHoursConfigMessage(time);
                     return TryReplyAsync(invalidHoursMessage);
                 case JobConfigState.InvalidMinutes:
-                    var invalidMinutesMessage = _TrendHelper.InvalidConfigMessage(time, _ValidMinutes);
+                    var invalidMinutesMessage = _TrendHelper.InvalidMinutesConfigMessage(time);
                     return TryReplyAsync(invalidMinutesMessage);
                 case JobConfigState.InvalidTime:
                     return TryReplyAsync($"{time.ToString()} is an invalid {nameof(Time)}.");
                 case JobConfigState.IntervalTooSmall:
                 case JobConfigState.IntervallTooBig:
-                    var invalidConfigRangeMessage = _TrendHelper.InvalidConfigRangeMessage(_MinJobConfig, _MaxJobConfig);
+                    var invalidConfigRangeMessage = _TrendHelper.InvalidConfigRangeMessage();
                     return TryReplyAsync(invalidConfigRangeMessage);
                 case JobConfigState.Valid:
                     return SetJobConfig(interval, time);
@@ -207,52 +197,6 @@ namespace TrendingGiphyBotCore.Modules
                                                       httpException.Message.EndsWith("Missing Permissions"))
             {
                 _Logger.LogWarning(httpException.Message);
-            }
-        }
-        JobConfigState DetermineJobConfigState(short interval, Time time)
-        {
-            var minTimeSpan = AsTimeSpan(_MinJobConfig);
-            var maxTimeSpan = AsTimeSpan(_MaxJobConfig);
-            var desiredTimeSpan = AsTimeSpan(interval, time);
-            if (desiredTimeSpan >= minTimeSpan)
-            {
-                if (desiredTimeSpan <= maxTimeSpan)
-                    return DetermineTimeState(interval, time);
-                return JobConfigState.IntervallTooBig;
-            }
-            return JobConfigState.IntervalTooSmall;
-        }
-        JobConfigState DetermineTimeState(short interval, Time time)
-        {
-            switch (time)
-            {
-                case Time.Hour:
-                case Time.Hours:
-                    if (_ValidHours.Contains(interval))
-                        return JobConfigState.Valid;
-                    return JobConfigState.InvalidHours;
-                case Time.Minute:
-                case Time.Minutes:
-                    if (_ValidMinutes.Contains(interval))
-                        return JobConfigState.Valid;
-                    return JobConfigState.InvalidMinutes;
-                default:
-                    return JobConfigState.InvalidTime;
-            }
-        }
-        static TimeSpan AsTimeSpan(SubJobConfig config) => AsTimeSpan(config.Interval, config.Time);
-        static TimeSpan AsTimeSpan(short interval, Time time)
-        {
-            switch (time)
-            {
-                case Time.Hour:
-                case Time.Hours:
-                    return TimeSpan.FromHours(interval);
-                case Time.Minute:
-                case Time.Minutes:
-                    return TimeSpan.FromMinutes(interval);
-                default:
-                    throw new UnexpectedTimeException(time);
             }
         }
     }

@@ -38,9 +38,10 @@ namespace TrendingGiphyBotCore
             _ListenToOnlyTheseChannels = _Config.Get<List<ulong>>("ListenToOnlyTheseChannels");
             _FunctionHelper = new FunctionHelper(_Config);
             _DiscordClient = new DiscordSocketClient();
+            var trendHelper = new TrendHelper(_Config);
             _Services = new ServiceCollection()
                 .AddSingleton(_DiscordClient)
-                .AddSingleton<ITrendHelper, TrendHelper>()
+                .AddSingleton<ITrendHelper>(trendHelper)
                 .AddSingleton(_FunctionHelper)
                 .AddSingleton(_Config)
                 .AddLogging(s => s.AddConsole())
