@@ -80,7 +80,7 @@ namespace TrendingGiphyBotCore.Modules
             await ReplyWithJobConfig(result);
         }
         [Command("Random")]
-        public async Task TrendRandom([Remainder] string randomSearchString = null)
+        public async Task TrendRandom([Remainder] string randomSearchString)
         {
             var match = await _FunctionHelper.GetJobConfigAsync(Context.Channel.Id);
             await ProcessRandomRequest(randomSearchString, match);
@@ -193,7 +193,7 @@ namespace TrendingGiphyBotCore.Modules
             var warningResponses = _Config.Get<List<string>>("WarningResponses");
             try
             {
-                await ReplyAsync(message, embed: embedBuilder.Build());
+                await ReplyAsync(message, embed: embedBuilder?.Build());
             }
             catch (HttpException httpException) when (warningResponses.Any(httpException.Message.EndsWith))
             {

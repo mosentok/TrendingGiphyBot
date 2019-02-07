@@ -24,16 +24,16 @@ namespace TrendingGiphyBotCore.Helpers
         readonly string _PostPrefixFunctionKey;
         public FunctionHelper(IConfiguration config)
         {
-            _JobConfigEndpoint = config["jobConfigEndpoint"];
-            _PrefixEndpoint = config["prefixEndpoint"];
-            _PostStatsEndpoint = config["postStatsEndpoint"];
-            _FunctionsKeyHeaderName = config["functionsKeyHeaderName"];
-            _GetJobConfigFunctionKey = config["getJobConfigFunctionKey"];
-            _PostJobConfigFunctionKey = config["postJobConfigFunctionKey"];
-            _DeleteJobConfigFunctionKey = config["deleteJobConfigFunctionKey"];
-            _PostStatsFunctionKey = config["postStatsFunctionKey"];
-            _GetPrefixFunctionKey = config["getPrefixFunctionKey"];
-            _PostPrefixFunctionKey = config["postPrefixFunctionKey"];
+            _JobConfigEndpoint = config["JobConfigEndpoint"];
+            _PrefixEndpoint = config["PrefixEndpoint"];
+            _PostStatsEndpoint = config["PostStatsEndpoint"];
+            _FunctionsKeyHeaderName = config["FunctionsKeyHeaderName"];
+            _GetJobConfigFunctionKey = config["GetJobConfigFunctionKey"];
+            _PostJobConfigFunctionKey = config["PostJobConfigFunctionKey"];
+            _DeleteJobConfigFunctionKey = config["DeleteJobConfigFunctionKey"];
+            _PostStatsFunctionKey = config["PostStatsFunctionKey"];
+            _GetPrefixFunctionKey = config["GetPrefixFunctionKey"];
+            _PostPrefixFunctionKey = config["PostPrefixFunctionKey"];
         }
         public async Task<JobConfigContainer> GetJobConfigAsync(decimal channelId)
         {
