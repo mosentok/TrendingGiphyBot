@@ -13,8 +13,9 @@ namespace TrendingGiphyBotModel
     {
         public TrendingGiphyBotContext() { }
         public TrendingGiphyBotContext(DbContextOptions<TrendingGiphyBotContext> options) : base(options) { }
+        //TODO remove hardcoded command timeout
         public TrendingGiphyBotContext(string connectionString) : this(new DbContextOptionsBuilder<TrendingGiphyBotContext>()
-            .UseSqlServer(connectionString)
+            .UseSqlServer(connectionString, options => options.CommandTimeout((int)TimeSpan.FromMinutes(10).TotalSeconds))
             .UseLazyLoadingProxies().Options)
         { }
         public virtual DbSet<JobConfig> JobConfigs { get; set; }
@@ -47,13 +48,48 @@ namespace TrendingGiphyBotModel
             JobConfigs.RemoveRange(jobConfigs);
             return await SaveChangesAsync();
         }
+        //TODO remove this when migrator is removed
+        public async Task<List<JobConfig>> InsertJobConfigs(List<JobConfig> toInsert)
+        {
+            //need to make sure none of the random gifs we retrieved are already in the database
+            var connectionString = Database.GetDbConnection().ConnectionString;
+            using (var table = new DataTable())
+            using (var bulkCopy = new SqlBulkCopy(connectionString))
+            {
+                table.Columns.Add(nameof(JobConfig.ChannelId));
+                table.Columns.Add(nameof(JobConfig.Interval));
+                table.Columns.Add(nameof(JobConfig.Time));
+                table.Columns.Add(nameof(JobConfig.RandomSearchString));
+                table.Columns.Add(nameof(JobConfig.MinQuietHour));
+                table.Columns.Add(nameof(JobConfig.MaxQuietHour));
+                table.Columns.Add(nameof(JobConfig.IntervalMinutes));
+                table.Columns.Add(nameof(JobConfig.Prefix));
+                foreach (var container in toInsert)
+                {
+                    var row = table.NewRow();
+                    row[nameof(JobConfig.ChannelId)] = container.ChannelId;
+                    row[nameof(JobConfig.Interval)] = container.Interval;
+                    row[nameof(JobConfig.Time)] = container.Time;
+                    row[nameof(JobConfig.RandomSearchString)] = container.RandomSearchString;
+                    row[nameof(JobConfig.MinQuietHour)] = container.MinQuietHour;
+                    row[nameof(JobConfig.MaxQuietHour)] = container.MaxQuietHour;
+                    row[nameof(JobConfig.IntervalMinutes)] = container.IntervalMinutes;
+                    row[nameof(JobConfig.Prefix)] = container.Prefix;
+                    table.Rows.Add(row);
+                }
+                bulkCopy.DestinationTableName = nameof(JobConfig);
+                await bulkCopy.WriteToServerAsync(table);
+            }
+            return toInsert;
+        }
         public async Task<List<UrlHistoryContainer>> InsertUrlHistories(List<UrlHistoryContainer> containers)
         {
             //need to make sure none of the random gifs we retrieved are already in the database
             var toInsert = RemoveDuplicateHistories(containers);
             var connectionString = Database.GetDbConnection().ConnectionString;
             using (var table = new DataTable())
-            using (var bulkCopy = new SqlBulkCopy(connectionString))
+            //TODO remove hardcoded command timeout
+            using (var bulkCopy = new SqlBulkCopy(connectionString) { BulkCopyTimeout = 600 })
             {
                 table.Columns.Add(nameof(UrlHistory.Id));
                 table.Columns.Add(nameof(UrlHistory.ChannelId));

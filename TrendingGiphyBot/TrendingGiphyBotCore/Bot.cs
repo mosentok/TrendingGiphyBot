@@ -111,7 +111,7 @@ namespace TrendingGiphyBotCore
         }
         async Task MessageReceived(SocketMessage messageParam)
         {
-            if (_ListenToOnlyTheseChannels.Any() && !_ListenToOnlyTheseChannels.Contains(messageParam.Channel.Id))
+            if (_ListenToOnlyTheseChannels != null && !_ListenToOnlyTheseChannels.Contains(messageParam.Channel.Id))
                 return;
             var isDmChannel = messageParam.Channel is IDMChannel;
             if (isDmChannel)
