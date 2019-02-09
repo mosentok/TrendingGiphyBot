@@ -216,8 +216,7 @@ namespace TrendingGiphyBotModel
                           select new PendingContainer
                           {
                               ChannelId = jobConfig.ChannelId,
-                              FirstUnseenGifId = firstUnseenUrlCache.Id,
-                              FirstUnseenUrl = firstUnseenUrlCache.Url,
+                              FirstUnseenUrlCache = firstUnseenUrlCache,
                               RandomSearchString = jobConfig.RandomSearchString
                           }).ToListAsync();
         }
