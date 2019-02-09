@@ -25,6 +25,8 @@ namespace TrendingGiphyBotModel
         {
             foreach (var entity in modelBuilder.Model.GetEntityTypes())
                 entity.Relational().TableName = entity.DisplayName();
+            modelBuilder.Entity<UrlHistory>()
+                .HasIndex(s => s.GifId);
         }
         public async Task<int> DeleteUrlCachesOlderThan(DateTime oldestDate)
         {
