@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrendingGiphyBotFunctions",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrendingGiphyBotModel", "TrendingGiphyBotModel\TrendingGiphyBotModel.csproj", "{FE72F045-A677-4C49-9932-546A321D4283}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrendingGiphyBotCore", "TrendingGiphyBotCore\TrendingGiphyBotCore.csproj", "{35E9211B-6355-4CC5-9AD1-6BD132B3A650}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrendingGiphyBotCore", "TrendingGiphyBotCore\TrendingGiphyBotCore.csproj", "{35E9211B-6355-4CC5-9AD1-6BD132B3A650}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrendingGiphyBotMigrator", "TrendingGiphyBotMigrator\TrendingGiphyBotMigrator.csproj", "{974C0A6F-EE0B-4C4A-80E4-75715AD5CBE6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{35E9211B-6355-4CC5-9AD1-6BD132B3A650}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{35E9211B-6355-4CC5-9AD1-6BD132B3A650}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{35E9211B-6355-4CC5-9AD1-6BD132B3A650}.Release|Any CPU.Build.0 = Release|Any CPU
+		{974C0A6F-EE0B-4C4A-80E4-75715AD5CBE6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{974C0A6F-EE0B-4C4A-80E4-75715AD5CBE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{974C0A6F-EE0B-4C4A-80E4-75715AD5CBE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{974C0A6F-EE0B-4C4A-80E4-75715AD5CBE6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
