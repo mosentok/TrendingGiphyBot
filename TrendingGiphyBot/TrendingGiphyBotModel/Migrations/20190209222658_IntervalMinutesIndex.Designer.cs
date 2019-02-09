@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TrendingGiphyBotModel;
 
 namespace TrendingGiphyBotModel.Migrations
 {
     [DbContext(typeof(TrendingGiphyBotContext))]
-    partial class TrendingGiphyBotContextModelSnapshot : ModelSnapshot
+    [Migration("20190209222658_IntervalMinutesIndex")]
+    partial class IntervalMinutesIndex
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -86,8 +88,6 @@ namespace TrendingGiphyBotModel.Migrations
                     b.HasIndex("ChannelId");
 
                     b.HasIndex("GifId");
-
-                    b.HasIndex("Stamp");
 
                     b.ToTable("UrlHistory");
                 });
