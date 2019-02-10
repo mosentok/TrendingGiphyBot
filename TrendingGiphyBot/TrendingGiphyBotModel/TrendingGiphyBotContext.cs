@@ -171,23 +171,28 @@ namespace TrendingGiphyBotModel
         }
         public async Task<List<PendingContainer>> GetJobConfigsToRun(int nowHour, List<int> currentValidMinutes)
         {
-            return await (from jobConfig in JobConfigs
-                          let minPostingHour = jobConfig.MaxQuietHour
-                          let maxPostingHour = jobConfig.MinQuietHour
-                          where jobConfig.IntervalMinutes.HasValue && currentValidMinutes.Contains(jobConfig.IntervalMinutes.Value) && //where config's interval minutes are valid, and...
-                            (minPostingHour == null || maxPostingHour == null || //either no limit on posting, or there are posting hour limits to check.
-                            (minPostingHour < maxPostingHour && nowHour >= minPostingHour && nowHour < maxPostingHour) || //if the range spans inside a single day, then now hour must be between min and max, else...
-                            (minPostingHour > maxPostingHour && (nowHour >= minPostingHour || nowHour < maxPostingHour))) //if the range spans across two days, then now hour must be between overnight hours
-                          let alreadySeenGifIds = jobConfig.UrlHistories.Select(s => s.GifId)
-                          let firstUnseenUrlCache = UrlCaches.Where(s => !alreadySeenGifIds.Contains(s.Id)).FirstOrDefault()
-                          where firstUnseenUrlCache != null || //where either we found a fresh gif from the cache, or...
-                            !string.IsNullOrEmpty(jobConfig.RandomSearchString) //random is on, so they'll want a random gif instead
-                          select new PendingContainer
-                          {
-                              ChannelId = jobConfig.ChannelId,
-                              FirstUnseenUrlCache = firstUnseenUrlCache,
-                              RandomSearchString = jobConfig.RandomSearchString
-                          }).ToListAsync();
+            var urlCaches = await UrlCaches.ToListAsync();
+            var containers = await (from jobConfig in JobConfigs
+                                    where jobConfig.IntervalMinutes.HasValue && currentValidMinutes.Contains(jobConfig.IntervalMinutes.Value) && //where config's interval minutes are valid, and...
+                                      (jobConfig.MaxQuietHour == null || jobConfig.MinQuietHour == null || //either no limit on posting, or there are posting hour limits to check.
+                                      (jobConfig.MaxQuietHour < jobConfig.MinQuietHour && nowHour >= jobConfig.MaxQuietHour && nowHour < jobConfig.MinQuietHour) || //if the range spans inside a single day, then now hour must be between min and max, else...
+                                      (jobConfig.MaxQuietHour > jobConfig.MinQuietHour && (nowHour >= jobConfig.MaxQuietHour || nowHour < jobConfig.MinQuietHour))) //if the range spans across two days, then now hour must be between overnight hours
+                                    select new
+                                    {
+                                        ChannelId = jobConfig.ChannelId,
+                                        RandomSearchString = jobConfig.RandomSearchString,
+                                        HistoryGifIds = (from history in jobConfig.UrlHistories
+                                                         select history.GifId).ToList()
+                                    }).ToListAsync();
+            return (from container in containers
+                    select new PendingContainer
+                    {
+                        ChannelId = container.ChannelId,
+                        RandomSearchString = container.RandomSearchString,
+                        FirstUnseenUrlCache = (from urlCache in urlCaches
+                                               where !container.HistoryGifIds.Contains(urlCache.Id)
+                                               select urlCache).FirstOrDefault()
+                    }).ToList();
         }
         public async Task<string> GetPrefix(decimal channelId)
         {
