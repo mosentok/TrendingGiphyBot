@@ -118,8 +118,6 @@ namespace TrendingGiphyBotFunctions
                     var randomTagGif = await _GiphyHelper.GetRandomGif(giphyRandomEndpoint, container.RandomSearchString);
                     histories.Add(new UrlHistoryContainer(container.ChannelId, randomTagGif.Data.Id, randomTagGif.Data.Url, false));
                 }
-                else
-                    histories.Add(new UrlHistoryContainer(container.ChannelId, randomGif.Data.Id, randomGif.Data.Url, false));
             _Log.LogInformation($"Built {histories.Count} histories.");
             return histories;
         }
