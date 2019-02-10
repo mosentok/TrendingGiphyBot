@@ -52,7 +52,8 @@ namespace TrendingGiphyBotModel
             var jobConfigs = channelIds.Select(s => new JobConfig { ChannelId = s }).ToList();
             JobConfigs.AttachRange(jobConfigs);
             JobConfigs.RemoveRange(jobConfigs);
-            return await SaveChangesAsync();
+            await SaveChangesAsync();
+            return jobConfigs.Count;
         }
         //TODO remove this when migrator is removed
         public async Task<List<JobConfig>> InsertJobConfigs(List<JobConfig> toInsert)
