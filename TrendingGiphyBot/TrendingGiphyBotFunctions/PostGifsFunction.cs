@@ -108,7 +108,6 @@ namespace TrendingGiphyBotFunctions
         {
             _Log.LogInformation($"Building {containers.Count} histories.");
             var giphyRandomEndpoint = Environment.GetEnvironmentVariable("GiphyRandomEndpoint");
-            var randomGif = await _GiphyHelper.GetRandomGif(giphyRandomEndpoint);
             var histories = new List<UrlHistoryContainer>();
             foreach (var container in containers)
                 if (container.FirstUnseenUrlCache != null)
