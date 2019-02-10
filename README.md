@@ -73,12 +73,9 @@ This command will show you some examples of the bot's commands. Use it as a quic
 
 ## Special Thanks
 
-- [C#](https://docs.microsoft.com/en-us/dotnet/csharp/csharp)
-- [.NET](https://www.microsoft.com/net)
-- [Visual Studio](https://www.visualstudio.com/)
-- [Azure](https://azure.microsoft.com/en-us/)
-- [Discord](https://discordapp.com/)
+- [.NET](https://dotnet.microsoft.com)
+- [Azure](https://azure.microsoft.com/en-us)
+- [Visual Studio](https://www.visualstudio.com)
+- [Discord](https://discordapp.com)
 - [Discord.Net](https://github.com/RogueException/Discord.Net)
 - [Giphy](https://giphy.com)
-- [NLog](https://github.com/NLog/NLog)
-- [NLog.AzureStorage](https://github.com/nickheppleston/NLog.AzureStorage)
