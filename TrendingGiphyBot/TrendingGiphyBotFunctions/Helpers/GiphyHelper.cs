@@ -9,10 +9,10 @@ namespace TrendingGiphyBotFunctions.Helpers
     public class GiphyHelper : IDisposable
     {
         readonly HttpClient _HttpClient = new HttpClient();
-        public Task<GiphyRandomResponse> GetRandomGif(string giphyRandomEndpoint, string tag) => GetRandomGif($"{giphyRandomEndpoint}&tag={tag}");
-        public async Task<GiphyRandomResponse> GetRandomGif(string giphyRandomEndpoint)
+        public async Task<GiphyRandomResponse> GetRandomGif(string giphyRandomEndpoint, string tag)
         {
-            var response = await _HttpClient.GetStringAsync(giphyRandomEndpoint);
+            var combined = $"{giphyRandomEndpoint}&tag={tag}";
+            var response = await _HttpClient.GetStringAsync(combined);
             return JsonConvert.DeserializeObject<GiphyRandomResponse>(response);
         }
         public void Dispose()
