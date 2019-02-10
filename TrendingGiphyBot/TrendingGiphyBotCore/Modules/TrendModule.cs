@@ -162,7 +162,10 @@ namespace TrendingGiphyBotCore.Modules
             var helpField = new EmbedFieldBuilder()
                 .WithName("Need More Help?")
                 .WithValue(helpFieldText);
-            var examplesDescription = _Config["ExamplesText"];
+            var examplesConfig = _Config["ExamplesText"];
+            var newlineDelimiter = _Config["NewLineDelimiter"];
+            //azure does not support new lines in app settings, so we have to do it in code
+            var examplesDescription = examplesConfig.Replace(newlineDelimiter, "\n");
             var embedBuilder = new EmbedBuilder()
                 .WithAuthor(author)
                 .WithDescription(examplesDescription)
