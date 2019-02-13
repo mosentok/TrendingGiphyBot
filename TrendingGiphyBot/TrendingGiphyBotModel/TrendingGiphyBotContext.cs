@@ -171,7 +171,7 @@ namespace TrendingGiphyBotModel
         }
         public async Task<List<PendingContainer>> GetJobConfigsToRun(int nowHour, List<int> currentValidMinutes)
         {
-            var urlCaches = await UrlCaches.ToListAsync();
+            var urlCaches = await UrlCaches.AsNoTracking().ToListAsync();
             var containers = await (from jobConfig in JobConfigs
                                     where jobConfig.IntervalMinutes.HasValue && currentValidMinutes.Contains(jobConfig.IntervalMinutes.Value) && //where config's interval minutes are valid, and...
                                       (jobConfig.MaxQuietHour == null || jobConfig.MinQuietHour == null || //either no limit on posting, or there are posting hour limits to check.
@@ -183,7 +183,7 @@ namespace TrendingGiphyBotModel
                                         RandomSearchString = jobConfig.RandomSearchString,
                                         HistoryGifIds = (from history in jobConfig.UrlHistories
                                                          select history.GifId).ToList()
-                                    }).ToListAsync();
+                                    }).AsNoTracking().ToListAsync();
             return (from container in containers
                     select new PendingContainer
                     {
