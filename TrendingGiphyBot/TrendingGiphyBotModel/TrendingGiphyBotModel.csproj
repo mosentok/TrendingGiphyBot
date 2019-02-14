@@ -6,6 +6,8 @@
 
   <ItemGroup>
     <Compile Remove="Migrations\20190128224737_IncreaseIdSize.cs" />
+    <Compile Remove="Migrations\20190214212259_ChannelIdIndexIncludeGifId.cs" />
+    <Compile Remove="Migrations\20190214212354_ChannelIdIndexIncludeGifId.cs" />
   </ItemGroup>
 
   <ItemGroup>

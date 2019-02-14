@@ -31,6 +31,9 @@ namespace TrendingGiphyBotModel
                 .HasIndex(s => s.GifId);
             modelBuilder.Entity<UrlHistory>()
                 .HasIndex(s => s.Stamp);
+            modelBuilder.Entity<UrlHistory>()
+                .ForSqlServerHasIndex(s => s.ChannelId)
+                .ForSqlServerInclude(s => s.GifId);
         }
         public async Task<int> DeleteUrlCachesOlderThan(DateTime oldestDate)
         {
