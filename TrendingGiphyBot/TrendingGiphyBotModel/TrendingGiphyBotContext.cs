@@ -115,6 +115,7 @@ namespace TrendingGiphyBotModel
                 RandomSearchString = s.RandomSearchString,
                 MinQuietHour = s.MinQuietHour,
                 MaxQuietHour = s.MaxQuietHour,
+                Prefix = s.Prefix
             }).SingleOrDefaultAsync();
             if (jobConfig != null)
                 return jobConfig;
@@ -133,8 +134,7 @@ namespace TrendingGiphyBotModel
                 match.RandomSearchString = jobConfigContainer.RandomSearchString;
                 match.MinQuietHour = jobConfigContainer.MinQuietHour;
                 match.MaxQuietHour = jobConfigContainer.MaxQuietHour;
-                //TODO uncomment this
-                //match.Prefix = jobConfigContainer.Prefix;
+                match.Prefix = jobConfigContainer.Prefix;
             }
             else //new item
             {
@@ -147,8 +147,7 @@ namespace TrendingGiphyBotModel
                     RandomSearchString = jobConfigContainer.RandomSearchString,
                     MinQuietHour = jobConfigContainer.MinQuietHour,
                     MaxQuietHour = jobConfigContainer.MaxQuietHour,
-                    //TODO uncomment this
-                    //Prefix = jobConfigContainer.Prefix
+                    Prefix = jobConfigContainer.Prefix
                 };
                 JobConfigs.Add(jobConfig);
             }
@@ -161,8 +160,7 @@ namespace TrendingGiphyBotModel
                 RandomSearchString = jobConfig.RandomSearchString,
                 MinQuietHour = jobConfig.MinQuietHour,
                 MaxQuietHour = jobConfig.MaxQuietHour,
-                //TODO uncomment this
-                //Prefix = jobConfig.Prefix
+                Prefix = jobConfig.Prefix
             };
         }
         public async Task DeleteJobConfig(decimal channelId)
@@ -194,21 +192,11 @@ namespace TrendingGiphyBotModel
                                                select urlCache).FirstOrDefault()
                     }).ToList();
         }
-        public async Task<string> GetPrefix(decimal channelId)
+        public async Task<Dictionary<decimal, string>> GetPrefixDictionary()
         {
-            return await JobConfigs.Where(s => s.ChannelId == channelId).Select(s => s.Prefix).SingleOrDefaultAsync();
-        }
-        public async Task<string> SetPrefix(decimal channelId, string prefix)
-        {
-            var jobConfig = await JobConfigs.Where(s => s.ChannelId == channelId).SingleOrDefaultAsync();
-            if (jobConfig == null)
-                return null;
-            if (!string.IsNullOrEmpty(prefix))
-                jobConfig.Prefix = prefix;
-            else
-                jobConfig.Prefix = null;
-            await SaveChangesAsync();
-            return jobConfig.Prefix;
+            return await (from jobConfig in JobConfigs
+                          where !string.IsNullOrEmpty(jobConfig.Prefix)
+                          select jobConfig).ToDictionaryAsync(s => s.ChannelId, s => s.Prefix);
         }
         static int? DetermineIntervalMinutes(JobConfigContainer jobConfigContainer)
         {

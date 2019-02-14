@@ -11,6 +11,7 @@ namespace TrendingGiphyBotCore.Helpers
 {
     public class TrendHelper : ITrendHelper
     {
+        public event Action<decimal, string> PrefixUpdated;
         static readonly string[] _FluentWords = new[] {"gifs of", "gif of", "gifs", "gif" };
         readonly List<short> _ValidMinutes;
         readonly List<short> _ValidHours;
@@ -90,6 +91,10 @@ namespace TrendingGiphyBotCore.Helpers
                 default:
                     throw new UnexpectedTimeException(time);
             }
+        }
+        public void OnPrefixUpdated(decimal channelId, string prefix)
+        {
+            PrefixUpdated?.Invoke(channelId, prefix);
         }
     }
 }

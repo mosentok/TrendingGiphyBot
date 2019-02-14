@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using TrendingGiphyBotCore.Exceptions;
@@ -13,27 +14,25 @@ namespace TrendingGiphyBotCore.Helpers
     {
         static readonly HttpClient _HttpClient = new HttpClient();
         readonly string _JobConfigEndpoint;
-        readonly string _PrefixEndpoint;
         readonly string _PostStatsEndpoint;
+        readonly string _GetPrefixDictionaryEndpoint;
         readonly string _FunctionsKeyHeaderName;
         readonly string _GetJobConfigFunctionKey;
         readonly string _PostJobConfigFunctionKey;
         readonly string _DeleteJobConfigFunctionKey;
         readonly string _PostStatsFunctionKey;
-        readonly string _GetPrefixFunctionKey;
-        readonly string _PostPrefixFunctionKey;
+        readonly string _GetPrefixDictionaryFunctionKey;
         public FunctionHelper(IConfiguration config)
         {
             _JobConfigEndpoint = config["JobConfigEndpoint"];
-            _PrefixEndpoint = config["PrefixEndpoint"];
             _PostStatsEndpoint = config["PostStatsEndpoint"];
+            _GetPrefixDictionaryEndpoint = config["GetPrefixDictionaryEndpoint"];
             _FunctionsKeyHeaderName = config["FunctionsKeyHeaderName"];
             _GetJobConfigFunctionKey = config["GetJobConfigFunctionKey"];
             _PostJobConfigFunctionKey = config["PostJobConfigFunctionKey"];
             _DeleteJobConfigFunctionKey = config["DeleteJobConfigFunctionKey"];
             _PostStatsFunctionKey = config["PostStatsFunctionKey"];
-            _GetPrefixFunctionKey = config["GetPrefixFunctionKey"];
-            _PostPrefixFunctionKey = config["PostPrefixFunctionKey"];
+            _GetPrefixDictionaryFunctionKey = config["GetPrefixDictionaryFunctionKey"];
         }
         public async Task<JobConfigContainer> GetJobConfigAsync(decimal channelId)
         {
@@ -66,23 +65,13 @@ namespace TrendingGiphyBotCore.Helpers
             if (!response.IsSuccessStatusCode)
                 throw new FunctionHelperException($"Error posting stats for bot '{botId}'. Status code '{response.StatusCode.ToString()}'. Reason phrase '{response.ReasonPhrase}'.");
         }
-        public async Task<string> GetPrefixAsync(decimal channelId)
+        public async Task<Dictionary<decimal, string>> GetPrefixDictionaryAsync()
         {
-            var requestUri = $"{_PrefixEndpoint}/{channelId}";
-            var response = await _HttpClient.GetWithHeaderAsync(requestUri, _FunctionsKeyHeaderName, _GetPrefixFunctionKey);
-            return await ProcessPrefixResponse(channelId, response);
-        }
-        public async Task<string> PostPrefixAsync(decimal channelId, string prefix)
-        {
-            var requestUri = $"{_PrefixEndpoint}/{channelId}";
-            var response = await _HttpClient.PostStringWithHeaderAsync(requestUri, prefix, _FunctionsKeyHeaderName, _PostPrefixFunctionKey);
-            return await ProcessPrefixResponse(channelId, response);
-        }
-        static async Task<string> ProcessPrefixResponse(decimal channelId, HttpResponseMessage response)
-        {
-            if (response.IsSuccessStatusCode)
-                return await response.Content.ReadAsStringAsync();
-            throw new FunctionHelperException($"Error with prefix for channel '{channelId}'. Status code '{response.StatusCode.ToString()}'. Reason phrase '{response.ReasonPhrase}'.");
+            var response = await _HttpClient.GetWithHeaderAsync(_GetPrefixDictionaryEndpoint, _FunctionsKeyHeaderName, _GetPrefixDictionaryFunctionKey);
+            if (!response.IsSuccessStatusCode)
+                throw new FunctionHelperException($"Error getting prefix dictionary. Status code '{response.StatusCode.ToString()}'. Reason phrase '{response.ReasonPhrase}'.");
+            var content = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<Dictionary<decimal, string>>(content);
         }
         public void Dispose()
         {
