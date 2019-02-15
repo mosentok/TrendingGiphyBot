@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using TrendingGiphyBotModel.Extensions;
 
 namespace TrendingGiphyBotModel
 {
@@ -110,21 +111,25 @@ namespace TrendingGiphyBotModel
         }
         public async Task<JobConfigContainer> GetJobConfig(decimal id)
         {
-            var jobConfig = await JobConfigs.Where(s => s.ChannelId == id).Select(s => new JobConfigContainer
-            {
-                ChannelId = s.ChannelId,
-                Interval = s.Interval,
-                Time = s.Time,
-                RandomSearchString = s.RandomSearchString,
-                MinQuietHour = s.MinQuietHour,
-                MaxQuietHour = s.MaxQuietHour,
-            }).SingleOrDefaultAsync();
-            if (jobConfig != null)
-                return jobConfig;
+            var match = await (from jobConfig in JobConfigs
+                               where jobConfig.ChannelId == id
+                               select new JobConfigContainer
+                               {
+                                   ChannelId = jobConfig.ChannelId,
+                                   Interval = jobConfig.Interval,
+                                   Time = jobConfig.Time,
+                                   RandomSearchString = jobConfig.RandomSearchString,
+                                   MinQuietHour = jobConfig.MinQuietHour,
+                                   MaxQuietHour = jobConfig.MaxQuietHour,
+                                   Filters = jobConfig.GifFilters.Select(t => t.Filter).ToList()
+                               }).SingleOrDefaultAsync();
+            if (match != null)
+                return match;
             return new JobConfigContainer { ChannelId = id };
         }
         public async Task<JobConfigContainer> SetJobConfig(decimal channelId, JobConfigContainer jobConfigContainer)
         {
+            var gifFilters = jobConfigContainer.Filters.Select(s => new GifFilter { ChannelId = channelId, Filter = s }).ToList();
             JobConfig jobConfig;
             var match = await JobConfigs.SingleOrDefaultAsync(s => s.ChannelId == channelId);
             if (match != null) //already exists, so mutate it
@@ -138,6 +143,7 @@ namespace TrendingGiphyBotModel
                 match.MaxQuietHour = jobConfigContainer.MaxQuietHour;
                 //TODO uncomment this
                 //match.Prefix = jobConfigContainer.Prefix;
+                match.GifFilters = gifFilters;
             }
             else //new item
             {
@@ -152,6 +158,7 @@ namespace TrendingGiphyBotModel
                     MaxQuietHour = jobConfigContainer.MaxQuietHour,
                     //TODO uncomment this
                     //Prefix = jobConfigContainer.Prefix
+                    GifFilters = gifFilters
                 };
                 JobConfigs.Add(jobConfig);
             }
@@ -166,6 +173,7 @@ namespace TrendingGiphyBotModel
                 MaxQuietHour = jobConfig.MaxQuietHour,
                 //TODO uncomment this
                 //Prefix = jobConfig.Prefix
+                Filters = jobConfig.GifFilters.Select(s => s.Filter).ToList()
             };
         }
         public async Task DeleteJobConfig(decimal channelId)
@@ -185,7 +193,9 @@ namespace TrendingGiphyBotModel
                                         ChannelId = jobConfig.ChannelId,
                                         RandomSearchString = jobConfig.RandomSearchString,
                                         HistoryGifIds = (from history in jobConfig.UrlHistories
-                                                         select history.GifId).ToList()
+                                                         select history.GifId).ToList(),
+                                        Filters = (from filter in jobConfig.GifFilters
+                                                   select filter.Filter).ToList()
                                     }).AsNoTracking().ToListAsync();
             return (from container in containers
                     select new PendingContainer
@@ -193,7 +203,8 @@ namespace TrendingGiphyBotModel
                         ChannelId = container.ChannelId,
                         RandomSearchString = container.RandomSearchString,
                         FirstUnseenUrlCache = (from urlCache in urlCaches
-                                               where !container.HistoryGifIds.Contains(urlCache.Id)
+                                               where !urlCache.Url.ContainsAnyFilter(container.Filters) &&
+                                                     !container.HistoryGifIds.Contains(urlCache.Id)
                                                select urlCache).FirstOrDefault()
                     }).ToList();
         }

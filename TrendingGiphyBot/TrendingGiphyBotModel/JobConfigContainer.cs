@@ -1,4 +1,6 @@
-﻿namespace TrendingGiphyBotModel
+﻿using System.Collections.Generic;
+
+namespace TrendingGiphyBotModel
 {
     public class JobConfigContainer
     {
@@ -9,6 +11,7 @@
         public short? MinQuietHour { get; set; }
         public short? MaxQuietHour { get; set; }
         public string Prefix { get; set; }
+        public List<string> Filters { get; set; }
         public JobConfigContainer() { }
         public JobConfigContainer(decimal channelId, short? interval, string time)
         {
@@ -24,6 +27,7 @@
             RandomSearchString = basedOn.RandomSearchString;
             MinQuietHour = basedOn.MinQuietHour;
             MaxQuietHour = basedOn.MaxQuietHour;
+            //TODO prefix
         }
         public JobConfigContainer(JobConfigContainer basedOn, string randomSearchString)
         {
@@ -33,6 +37,7 @@
             RandomSearchString = randomSearchString;
             MinQuietHour = basedOn.MinQuietHour;
             MaxQuietHour = basedOn.MaxQuietHour;
+            //TODO prefix
         }
         public JobConfigContainer(JobConfigContainer basedOn, short? minQuietHour, short? maxQuietHour)
         {
@@ -42,6 +47,18 @@
             RandomSearchString = basedOn.RandomSearchString;
             MinQuietHour = minQuietHour;
             MaxQuietHour = maxQuietHour;
+            //TODO prefix
+        }
+        public JobConfigContainer(JobConfigContainer basedOn, List<string> filters)
+        {
+            ChannelId = basedOn.ChannelId;
+            Interval = basedOn.Interval;
+            Time = basedOn.Time;
+            RandomSearchString = basedOn.RandomSearchString;
+            MinQuietHour = basedOn.MinQuietHour;
+            MaxQuietHour = basedOn.MaxQuietHour;
+            //TODO prefix
+            Filters = filters;
         }
     }
 }

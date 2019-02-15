@@ -150,10 +150,18 @@ namespace TrendingGiphyBotCore.Modules
                 return _Config["DefaultPrefix"];
             return prefix;
         }
+        [Command(nameof(Filter))]
+        public async Task Filter([Remainder] string filter)
+        {
+            var match = await _FunctionHelper.GetJobConfigAsync(Context.Channel.Id);
+            var filters = match.Filters.Append(filter).Distinct().ToList();
+            var container = new JobConfigContainer(match, filters);
+            var result = await _FunctionHelper.PostJobConfigAsync(Context.Channel.Id, container);
+            await ReplyWithJobConfig(result);
+        }
         [Command(nameof(Examples))]
         [Alias("Example", "Help")]
-        public async Task Examples() => await ExamplesReplyAsync();
-        async Task ExamplesReplyAsync()
+        public async Task Examples()
         {
             var author = new EmbedAuthorBuilder()
                 .WithName("Trending Giphy Bot Examples")

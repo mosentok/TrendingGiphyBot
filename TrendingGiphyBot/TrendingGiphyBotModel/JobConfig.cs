@@ -20,5 +20,6 @@ namespace TrendingGiphyBotModel
         [Column(TypeName = "varchar(4)")]
         public string Prefix { get; set; }
         public virtual ICollection<UrlHistory> UrlHistories { get; set; }
+        public virtual ICollection<GifFilter> GifFilters { get; set; }
     }
 }
