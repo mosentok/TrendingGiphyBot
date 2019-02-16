@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Timers;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
@@ -18,6 +19,7 @@ namespace TrendingGiphyBotCore
 {
     public class Bot : IDisposable
     {
+        static readonly Random _Random = new Random();
         ILogger _Logger;
         IConfiguration _Config;
         CommandService _Commands;
@@ -28,6 +30,8 @@ namespace TrendingGiphyBotCore
         TaskCompletionSource<bool> _LoggedInSource;
         TaskCompletionSource<bool> _ReadySource;
         List<ulong> _ListenToOnlyTheseChannels;
+        List<string> _GamesToPlay;
+        Timer _GameTimer;
         public async Task Run()
         {
             _Config = new ConfigurationBuilder()
@@ -36,6 +40,10 @@ namespace TrendingGiphyBotCore
                 .AddEnvironmentVariables()
                 .Build();
             _ListenToOnlyTheseChannels = _Config.Get<List<ulong>>("ListenToOnlyTheseChannels");
+            _GamesToPlay = _Config.Get<List<string>>("GamesToPlay");
+            var gameTimerIntervalSeconds = _Config.Get<int>("GameTimerIntervalSeconds");
+            _GameTimer = new Timer(gameTimerIntervalSeconds);
+            _GameTimer.Elapsed += GameTimer_Elapsed;
             _FunctionHelper = new FunctionHelper(_Config);
             _DiscordClient = new DiscordSocketClient();
             var trendHelper = new TrendHelper(_Config);
@@ -57,6 +65,12 @@ namespace TrendingGiphyBotCore
             _DiscordClient.JoinedGuild += JoinedGuild;
             _DiscordClient.LeftGuild += LeftGuild;
             await _DiscordClient.SetGameAsync(_Config["PlayingGame"]);
+        }
+        async void GameTimer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            var randomIndex = _Random.Next(_GamesToPlay.Count);
+            var newGame = _GamesToPlay[randomIndex];
+            await _DiscordClient.SetGameAsync(newGame);
         }
         async Task LogInAsync()
         {
@@ -179,6 +193,7 @@ namespace TrendingGiphyBotCore
             //TODO use task completion source?
             _DiscordClient?.LogoutAsync()?.Wait();
             _DiscordClient?.Dispose();
+            _GameTimer?.Dispose();
         }
     }
 }
