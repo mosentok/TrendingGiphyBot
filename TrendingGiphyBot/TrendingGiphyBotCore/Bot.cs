@@ -64,7 +64,6 @@ namespace TrendingGiphyBotCore
             _DiscordClient.MessageReceived += MessageReceived;
             _DiscordClient.JoinedGuild += JoinedGuild;
             _DiscordClient.LeftGuild += LeftGuild;
-            await _DiscordClient.SetGameAsync(_Config["PlayingGame"]);
         }
         async void GameTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
