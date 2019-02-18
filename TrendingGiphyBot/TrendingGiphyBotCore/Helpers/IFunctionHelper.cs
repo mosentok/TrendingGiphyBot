@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using TrendingGiphyBotModel;
 
 namespace TrendingGiphyBotCore.Helpers
@@ -9,7 +10,6 @@ namespace TrendingGiphyBotCore.Helpers
         Task<JobConfigContainer> PostJobConfigAsync(decimal channelId, JobConfigContainer jobConfigContainer);
         Task DeleteJobConfigAsync(decimal channelId);
         Task PostStatsAsync(ulong botId, int guildCount);
-        Task<string> GetPrefixAsync(decimal channelId);
-        Task<string> PostPrefixAsync(decimal channelId, string prefix);
+        Task<Dictionary<decimal, string>> GetPrefixDictionaryAsync();
     }
 }

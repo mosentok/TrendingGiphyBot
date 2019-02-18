@@ -1,4 +1,5 @@
-﻿using TrendingGiphyBotCore.Enums;
+﻿using System.Threading.Tasks;
+using TrendingGiphyBotCore.Enums;
 
 namespace TrendingGiphyBotCore.Helpers
 {
@@ -12,5 +13,6 @@ namespace TrendingGiphyBotCore.Helpers
         JobConfigState DetermineJobConfigState(short interval, Time time);
         string InvalidHoursConfigMessage(Time time);
         string InvalidMinutesConfigMessage(Time time);
+        void OnPrefixUpdated(decimal channelId, string prefix);
     }
 }
