@@ -15,7 +15,7 @@ namespace TrendingGiphyBotCore.Helpers
         static readonly HttpClient _HttpClient = new HttpClient();
         readonly string _JobConfigEndpoint;
         readonly string _PostStatsEndpoint;
-        readonly string _GetPrefixDictionaryEndpoint;
+        readonly string _PrefixDictionaryEndpoint;
         readonly string _FunctionsKeyHeaderName;
         readonly string _GetJobConfigFunctionKey;
         readonly string _PostJobConfigFunctionKey;
@@ -26,7 +26,7 @@ namespace TrendingGiphyBotCore.Helpers
         {
             _JobConfigEndpoint = config["JobConfigEndpoint"];
             _PostStatsEndpoint = config["PostStatsEndpoint"];
-            _GetPrefixDictionaryEndpoint = config["GetPrefixDictionaryEndpoint"];
+            _PrefixDictionaryEndpoint = config["PrefixDictionaryEndpoint"];
             _FunctionsKeyHeaderName = config["FunctionsKeyHeaderName"];
             _GetJobConfigFunctionKey = config["GetJobConfigFunctionKey"];
             _PostJobConfigFunctionKey = config["PostJobConfigFunctionKey"];
@@ -67,9 +67,9 @@ namespace TrendingGiphyBotCore.Helpers
         }
         public async Task<Dictionary<decimal, string>> GetPrefixDictionaryAsync()
         {
-            var response = await _HttpClient.GetWithHeaderAsync(_GetPrefixDictionaryEndpoint, _FunctionsKeyHeaderName, _GetPrefixDictionaryFunctionKey);
+            var response = await _HttpClient.GetWithHeaderAsync(_PrefixDictionaryEndpoint, _FunctionsKeyHeaderName, _GetPrefixDictionaryFunctionKey);
             if (!response.IsSuccessStatusCode)
-                throw new FunctionHelperException($"Error getting prefix dictionary. Status code '{response.StatusCode.ToString()}'. Reason phrase '{response.ReasonPhrase}'.");
+                throw new FunctionHelperException($"Error getting prefix dictionary. Status code '{response.StatusCode}'. Reason phrase '{response.ReasonPhrase}'.");
             var content = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<Dictionary<decimal, string>>(content);
         }
