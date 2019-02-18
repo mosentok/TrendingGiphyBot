@@ -41,12 +41,34 @@ namespace TrendingGiphyBotFunctions
             var pendingContainers = await GetContainers();
             var historyContainers = await BuildHistoryContainers(pendingContainers);
             var insertedContainers = await InsertHistories(historyContainers);
-            var gifPostingResult = await PostGifs(insertedContainers);
-            if (gifPostingResult.Errors.Any())
-                await DeleteErrorHistories(gifPostingResult.Errors);
+            var channelResult = await BuildChannelContainers(insertedContainers);
+            var gifPostingResult = await PostGifs(channelResult.ChannelContainers);
+            var allHistoryErrors = channelResult.Errors.Concat(gifPostingResult.Errors).ToList();
+            if (allHistoryErrors.Any())
+                await DeleteErrorHistories(allHistoryErrors);
             if (gifPostingResult.ChannelsToDelete.Any())
                 await DeleteJobConfigs(gifPostingResult.ChannelsToDelete);
             await LogOutAsync();
+        }
+        async Task<ChannelResult> BuildChannelContainers(List<UrlHistoryContainer> insertedContainers)
+        {
+            _Log.LogInformation($"Getting {insertedContainers.Count} channels.");
+            var channelContainers = new List<ChannelContainer>();
+            var errors = new List<UrlHistoryContainer>();
+            foreach (var insertedContainer in insertedContainers)
+                try
+                {
+                    var channelId = Convert.ToUInt64(insertedContainer.ChannelId);
+                    var channel = await _DiscordClient.GetChannelAsync(channelId) as IMessageChannel;
+                    channelContainers.Add(new ChannelContainer(channel, insertedContainer));
+                }
+                catch (Exception ex)
+                {
+                    _Log.LogError(ex, $"Error getting channel '{insertedContainer.ChannelId}'.");
+                    errors.Add(insertedContainer);
+                }
+            _Log.LogInformation($"Got {channelContainers.Count} channels.");
+            return new ChannelResult(channelContainers, errors);
         }
         async Task LogInAsync()
         {
@@ -143,40 +165,38 @@ namespace TrendingGiphyBotFunctions
             var deletedCount = await _Context.DeleteJobConfigs(channelIds);
             _Log.LogError($"Deleted {deletedCount} job configs.");
         }
-        async Task<GifPostingResult> PostGifs(List<UrlHistoryContainer> historyContainers)
+        async Task<GifPostingResult> PostGifs(List<ChannelContainer> channelContainers)
         {
-            _Log.LogInformation($"Posting {historyContainers.Count} gifs.");
+            _Log.LogInformation($"Posting {channelContainers.Count} gifs.");
             var errors = new List<UrlHistoryContainer>();
             var channelsToDelete = new List<UrlHistoryContainer>();
             var warningResponses = Environment.GetEnvironmentVariable("WarningResponses").Split(',', options: StringSplitOptions.RemoveEmptyEntries);
-            foreach (var historyContainer in historyContainers)
+            foreach (var channelContainer in channelContainers)
                 try
                 {
-                    var channelId = Convert.ToUInt64(historyContainer.ChannelId);
-                    var channel = await _DiscordClient.GetChannelAsync(channelId) as IMessageChannel;
-                    if (channel != null)
+                    if (channelContainer.Channel != null)
                     {
                         string message;
-                        if (historyContainer.IsTrending)
-                            message = $"*Trending!* {historyContainer.Url}";
+                        if (channelContainer.HistoryContainer.IsTrending)
+                            message = $"*Trending!* {channelContainer.HistoryContainer.Url}";
                         else
-                            message = historyContainer.Url;
-                        await channel.SendMessageAsync(message);
+                            message = channelContainer.HistoryContainer.Url;
+                        await channelContainer.Channel.SendMessageAsync(message);
                     }
                     else
-                        channelsToDelete.Add(historyContainer);
+                        channelsToDelete.Add(channelContainer.HistoryContainer);
                 }
                 catch (HttpException httpException) when (warningResponses.Any(httpException.Message.EndsWith))
                 {
-                    _Log.LogError(httpException, $"Error posting to channel '{historyContainer.ChannelId}' gif '{historyContainer.Url}'.");
-                    channelsToDelete.Add(historyContainer);
+                    _Log.LogError(httpException, $"Error posting to channel '{channelContainer.HistoryContainer.ChannelId}' gif '{channelContainer.HistoryContainer.Url}'.");
+                    channelsToDelete.Add(channelContainer.HistoryContainer);
                 }
                 catch (Exception ex)
                 {
-                    _Log.LogError(ex, $"Error posting to channel '{historyContainer.ChannelId}' gif '{historyContainer.Url}'.");
-                    errors.Add(historyContainer);
+                    _Log.LogError(ex, $"Error posting to channel '{channelContainer.HistoryContainer.ChannelId}' gif '{channelContainer.HistoryContainer.Url}'.");
+                    errors.Add(channelContainer.HistoryContainer);
                 }
-            var totalCount = historyContainers.Count - errors.Count - channelsToDelete.Count;
+            var totalCount = channelContainers.Count - errors.Count - channelsToDelete.Count;
             _Log.LogInformation($"Posted {totalCount} gifs.");
             return new GifPostingResult(errors, channelsToDelete);
         }
