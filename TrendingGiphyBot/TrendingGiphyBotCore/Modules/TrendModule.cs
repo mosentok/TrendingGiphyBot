@@ -144,7 +144,7 @@ namespace TrendingGiphyBotCore.Modules
             var newPrefix = DetermineNewPrefix(prefix);
             match.Prefix = newPrefix;
             return _FunctionHelper.PostJobConfigAsync(Context.Channel.Id, match)
-                .ContinueWith(t => TryReplyAsync($"New prefix: {t.Result}"))
+                .ContinueWith(t => TryReplyAsync($"New prefix: {t.Result.Prefix}"))
                 .Unwrap();
         }
         string DetermineNewPrefix(string prefix)
