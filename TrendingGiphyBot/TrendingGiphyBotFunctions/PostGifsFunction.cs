@@ -82,7 +82,7 @@ namespace TrendingGiphyBotFunctions
             _Log.LogInformation($"Inserted {inserted.Count} histories.");
             return inserted;
         }
-        async Task<List<PendingContainer>> GetContainers()
+        async Task<List<PendingJobConfig>> GetContainers()
         {
             _Log.LogInformation("Getting job configs.");
             var hourOffsetString = Environment.GetEnvironmentVariable("HourOffset");
@@ -104,19 +104,29 @@ namespace TrendingGiphyBotFunctions
             _Log.LogInformation($"Got {containers.Count} containers.");
             return containers;
         }
-        async Task<List<UrlHistoryContainer>> BuildHistoryContainers(List<PendingContainer> containers)
+        async Task<List<UrlHistoryContainer>> BuildHistoryContainers(List<PendingJobConfig> containers)
         {
             _Log.LogInformation($"Building {containers.Count} histories.");
+            var urlCaches = await _Context.GetUrlCachesAsync();
             var giphyRandomEndpoint = Environment.GetEnvironmentVariable("GiphyRandomEndpoint");
             var histories = new List<UrlHistoryContainer>();
             foreach (var container in containers)
-                if (container.FirstUnseenUrlCache != null)
-                    histories.Add(new UrlHistoryContainer(container.ChannelId, container.FirstUnseenUrlCache.Id, container.FirstUnseenUrlCache.Url, true));
+            {
+                var firstUnseenUrlCache = (from urlCache in urlCaches
+                                           //find caches where there are no histories with their gif IDs
+                                           where !container.Histories.Any(s => s.GifId == urlCache.Id)
+                                           select urlCache).FirstOrDefault();
+                if (firstUnseenUrlCache != null)
+                    histories.Add(new UrlHistoryContainer(container.ChannelId, firstUnseenUrlCache.Id, firstUnseenUrlCache.Url, true));
                 else if (!string.IsNullOrEmpty(container.RandomSearchString))
                 {
+                    //TODO add a retry loop or something so that we can get/check more than 1 random gif for the channel
                     var randomTagGif = await _GiphyHelper.GetRandomGif(giphyRandomEndpoint, container.RandomSearchString);
-                    histories.Add(new UrlHistoryContainer(container.ChannelId, randomTagGif.Data.Id, randomTagGif.Data.Url, false));
+                    //if there are no histories with this random gif's ID
+                    if (!container.Histories.Any(s => s.GifId == randomTagGif.Data.Id))
+                        histories.Add(new UrlHistoryContainer(container.ChannelId, randomTagGif.Data.Id, randomTagGif.Data.Url, false));
                 }
+            }
             _Log.LogInformation($"Built {histories.Count} histories.");
             return histories;
         }

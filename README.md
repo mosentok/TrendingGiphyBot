@@ -47,7 +47,7 @@ If you go to another channel and type `!trend every 2 hours`, then every 2 hours
 
 ### !Trend Random Cats
 
-If you pick a fast time, like 10 or 15 minutes, there might not be new gifs yet. If you want, you can tell the bot to get a random gif when this happens. Use this command like `!trend random cats` or `!trend random apex legends`.
+If you pick a fast time, like 10 or 15 minutes, there might not be new gifs yet. If you want, you can tell the bot to get a random gif when this happens. Use this command like `!trend random cats` or `!trend random legend of zelda`.
 
 Remember, this option is really only useful for fast times like 10 or 15 minutes. If you set a chill pace like 2 hours, there will almost always be a new trending gif, so the bot won't try to find a random one for you.
 
