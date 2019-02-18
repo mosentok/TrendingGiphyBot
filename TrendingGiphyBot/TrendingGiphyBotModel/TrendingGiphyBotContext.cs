@@ -61,8 +61,6 @@ namespace TrendingGiphyBotModel
         }
         public async Task<List<UrlHistoryContainer>> InsertUrlHistories(List<UrlHistoryContainer> containers)
         {
-            //need to make sure none of the random gifs we retrieved are already in the database
-            var toInsert = RemoveDuplicateHistories(containers);
             var connectionString = Database.GetDbConnection().ConnectionString;
             using (var table = new DataTable())
             //TODO remove hardcoded command timeout
@@ -73,7 +71,7 @@ namespace TrendingGiphyBotModel
                 table.Columns.Add(nameof(UrlHistory.GifId));
                 table.Columns.Add(nameof(UrlHistory.Url));
                 table.Columns.Add(nameof(UrlHistory.Stamp));
-                foreach (var container in toInsert)
+                foreach (var container in containers)
                 {
                     var row = table.NewRow();
                     row[nameof(UrlHistory.ChannelId)] = container.ChannelId;
@@ -85,18 +83,7 @@ namespace TrendingGiphyBotModel
                 bulkCopy.DestinationTableName = nameof(UrlHistory);
                 await bulkCopy.WriteToServerAsync(table);
             }
-            return toInsert;
-        }
-        List<UrlHistoryContainer> RemoveDuplicateHistories(List<UrlHistoryContainer> containers)
-        {
-            //TODO speed this up
-            var trendingGifs = containers.Where(s => s.IsTrending).ToList();
-            var randomGifs = containers.Except(trendingGifs);
-            var randomGifsNotInHistory = (from randomGif in randomGifs
-                                          join history in UrlHistories on randomGif.ChannelId equals history.ChannelId into histories
-                                          where !histories.Select(s => s.Url).Contains(randomGif.Url)
-                                          select randomGif).ToList();
-            return trendingGifs.Concat(randomGifsNotInHistory).ToList();
+            return containers;
         }
         public async Task<int> InsertNewTrendingGifs(List<GifObject> gifObjects)
         {
@@ -172,30 +159,27 @@ namespace TrendingGiphyBotModel
         {
             await Database.ExecuteSqlCommandAsync($"DELETE FROM JobConfig WHERE ChannelId = {channelId}");
         }
-        public async Task<List<PendingContainer>> GetJobConfigsToRun(int nowHour, List<int> currentValidMinutes)
+        public async Task<List<PendingJobConfig>> GetJobConfigsToRun(int nowHour, List<int> currentValidMinutes)
         {
-            var urlCaches = await UrlCaches.AsNoTracking().ToListAsync();
-            var containers = await (from jobConfig in JobConfigs
-                                    where jobConfig.IntervalMinutes.HasValue && currentValidMinutes.Contains(jobConfig.IntervalMinutes.Value) && //where config's interval minutes are valid, and...
-                                      (jobConfig.MaxQuietHour == null || jobConfig.MinQuietHour == null || //either no limit on posting, or there are posting hour limits to check.
-                                      (jobConfig.MaxQuietHour < jobConfig.MinQuietHour && nowHour >= jobConfig.MaxQuietHour && nowHour < jobConfig.MinQuietHour) || //if the range spans inside a single day, then now hour must be between min and max, else...
-                                      (jobConfig.MaxQuietHour > jobConfig.MinQuietHour && (nowHour >= jobConfig.MaxQuietHour || nowHour < jobConfig.MinQuietHour))) //if the range spans across two days, then now hour must be between overnight hours
-                                    select new
-                                    {
-                                        ChannelId = jobConfig.ChannelId,
-                                        RandomSearchString = jobConfig.RandomSearchString,
-                                        HistoryGifIds = (from history in jobConfig.UrlHistories
-                                                         select history.GifId).ToList()
-                                    }).AsNoTracking().ToListAsync();
-            return (from container in containers
-                    select new PendingContainer
-                    {
-                        ChannelId = container.ChannelId,
-                        RandomSearchString = container.RandomSearchString,
-                        FirstUnseenUrlCache = (from urlCache in urlCaches
-                                               where !container.HistoryGifIds.Contains(urlCache.Id)
-                                               select urlCache).FirstOrDefault()
-                    }).ToList();
+            return await (from jobConfig in JobConfigs
+                          where jobConfig.IntervalMinutes.HasValue && currentValidMinutes.Contains(jobConfig.IntervalMinutes.Value) && //where config's interval minutes are valid, and...
+                               (jobConfig.MaxQuietHour == null || jobConfig.MinQuietHour == null || //either no limit on posting, or there are posting hour limits to check.
+                               (jobConfig.MaxQuietHour < jobConfig.MinQuietHour && nowHour >= jobConfig.MaxQuietHour && nowHour < jobConfig.MinQuietHour) || //if the range spans inside a single day, then now hour must be between min and max, else...
+                               (jobConfig.MaxQuietHour > jobConfig.MinQuietHour && (nowHour >= jobConfig.MaxQuietHour || nowHour < jobConfig.MinQuietHour))) //if the range spans across two days, then now hour must be between overnight hours
+                          select new PendingJobConfig
+                          {
+                              ChannelId = jobConfig.ChannelId,
+                              RandomSearchString = jobConfig.RandomSearchString,
+                              Histories = (from history in jobConfig.UrlHistories
+                                           select new PendingHistory
+                                           {
+                                               GifId = history.GifId
+                                           }).ToList()
+                          }).AsNoTracking().ToListAsync();
+        }
+        public async Task<List<UrlCache>> GetUrlCachesAsync()
+        {
+            return await UrlCaches.AsNoTracking().ToListAsync();
         }
         public async Task<string> GetPrefix(decimal channelId)
         {
