@@ -133,14 +133,17 @@ namespace TrendingGiphyBotCore.Modules
         [Command(nameof(Prefix))]
         public async Task Prefix(string prefix)
         {
-            await ProcessPrefixRequest(prefix);
+            var match = await _FunctionHelper.GetJobConfigAsync(Context.Channel.Id);
+            await ProcessPrefixRequest(prefix, match);
+            _TrendHelper.OnPrefixUpdated(match.ChannelId, prefix);
         }
-        Task ProcessPrefixRequest(string prefix)
+        Task ProcessPrefixRequest(string prefix, JobConfigContainer match)
         {
             if (string.IsNullOrEmpty(prefix) || prefix.Length > 4)
                 return TryReplyAsync("Prefix must be 1-4 characters long.");
             var newPrefix = DetermineNewPrefix(prefix);
-            return _FunctionHelper.PostPrefixAsync(Context.Channel.Id, newPrefix)
+            match.Prefix = newPrefix;
+            return _FunctionHelper.PostJobConfigAsync(Context.Channel.Id, match)
                 .ContinueWith(t => TryReplyAsync($"New prefix: {t.Result}"))
                 .Unwrap();
         }

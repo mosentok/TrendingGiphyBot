@@ -28,6 +28,7 @@ namespace TrendingGiphyBotCore
         TaskCompletionSource<bool> _LoggedInSource;
         TaskCompletionSource<bool> _ReadySource;
         List<ulong> _ListenToOnlyTheseChannels;
+        Dictionary<decimal, string> _PrefixDictionary;
         public async Task Run()
         {
             _Config = new ConfigurationBuilder()
@@ -39,6 +40,7 @@ namespace TrendingGiphyBotCore
             _FunctionHelper = new FunctionHelper(_Config);
             _DiscordClient = new DiscordSocketClient();
             var trendHelper = new TrendHelper(_Config);
+            trendHelper.PrefixUpdated += TrendHelper_PrefixUpdated;
             _Services = new ServiceCollection()
                 .AddSingleton(_DiscordClient)
                 .AddSingleton<ITrendHelper>(trendHelper)
@@ -57,6 +59,11 @@ namespace TrendingGiphyBotCore
             _DiscordClient.JoinedGuild += JoinedGuild;
             _DiscordClient.LeftGuild += LeftGuild;
             await _DiscordClient.SetGameAsync(_Config["PlayingGame"]);
+            _PrefixDictionary = await _FunctionHelper.GetPrefixDictionaryAsync();
+        }
+        void TrendHelper_PrefixUpdated(decimal channelId, string prefix)
+        {
+            _PrefixDictionary[channelId] = prefix;
         }
         async Task LogInAsync()
         {
@@ -122,7 +129,7 @@ namespace TrendingGiphyBotCore
                     !messageParam.Author.IsBot &&
                     messageParam is IUserMessage message)
                 {
-                    var prefix = await DeterminePrefix(messageParam.Channel.Id);
+                    var prefix = DeterminePrefix(messageParam.Channel.Id);
                     var argPos = 0;
                     if (message.HasStringPrefix(prefix, ref argPos) ||
                         message.HasMentionPrefix(_DiscordClient.CurrentUser, ref argPos))
@@ -139,10 +146,10 @@ namespace TrendingGiphyBotCore
                 }
             });
         }
-        async Task<string> DeterminePrefix(decimal channelId)
+        string DeterminePrefix(decimal channelId)
         {
-            var prefix = await _FunctionHelper.GetPrefixAsync(channelId);
-            if (!string.IsNullOrEmpty(prefix))
+            var found = _PrefixDictionary.TryGetValue(channelId, out var prefix);
+            if (found)
                 return prefix;
             return _Config["DefaultPrefix"];
         }
