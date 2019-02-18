@@ -96,7 +96,7 @@ namespace TrendingGiphyBotCore
         {
             var moduleNames = _Commands.Modules.Select(s => s.Name);
             var aliases = _Commands.Modules.SelectMany(s => s.Aliases);
-            _ModuleNames = moduleNames.Concat(aliases).Distinct().ToList();
+            _ModuleNames = moduleNames.Concat(aliases).Distinct().Where(s => !string.IsNullOrEmpty(s)).ToList();
         }
         async Task JoinedGuild(SocketGuild arg)
         {
