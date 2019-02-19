@@ -9,12 +9,11 @@ using TrendingGiphyBotModel;
 
 namespace TrendingGiphyBotFunctions
 {
-    //TODO rename this to Gifs
-    public static class RefreshImagesFunction
+    public static class RefreshGifsFunction
     {
         static readonly HttpClient _HttpClient = new HttpClient();
-        [FunctionName(nameof(RefreshImagesFunction))]
-        public static async Task Run([TimerTrigger("%RefreshImagesFunctionCron%")]TimerInfo myTimer, ILogger log)
+        [FunctionName(nameof(RefreshGifsFunction))]
+        public static async Task Run([TimerTrigger("%RefreshGifsFunctionCron%")]TimerInfo myTimer, ILogger log)
         {
             var trendingEndpoint = Environment.GetEnvironmentVariable("GiphyTrendingEndpoint");
             var response = await _HttpClient.GetAsync(trendingEndpoint);
