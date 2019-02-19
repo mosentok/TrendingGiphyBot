@@ -11,6 +11,7 @@ namespace TrendingGiphyBotFunctions.Extensions
             using (var request = new HttpRequestMessage(HttpMethod.Post, requestUri) { Content = content })
             {
                 request.Headers.Add(headerName, headerValue);
+                request.Headers.Add("Content-Type", "application/json");
                 return await httpClient.SendAsync(request);
             }
         }
