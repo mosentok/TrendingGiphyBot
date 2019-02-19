@@ -23,7 +23,7 @@ Trending Giphy Bot does all the heavy lifting. Tell it how often you want gifs, 
 
 ## Invite
 
-Invite the bot [here](https://discordapp.com/oauth2/authorize?client_id=333392663061463040&scope=bot&permissions=2048)! Note that it needs the "Send Messages" permission. This is so that it can respond to your commands, and so that it can post gifs of course!
+Invite the bot [here](https://discordapp.com/oauth2/authorize?client_id=333392663061463040&scope=bot)!
 
 ## Quick Start
 
