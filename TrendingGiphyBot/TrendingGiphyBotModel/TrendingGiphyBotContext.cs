@@ -45,11 +45,16 @@ namespace TrendingGiphyBotModel
         }
         public async Task<int> DeleteUrlHistories(List<UrlHistoryContainer> historyContainers)
         {
-            //TODO this doesn't work because we need to either search on the ID that bulk copy created, or manually search by channel ID and gif ID
-            var histories = historyContainers.Select(s => new UrlHistory { ChannelId = s.ChannelId, Url = s.Url }).ToList();
-            UrlHistories.AttachRange(histories);
-            UrlHistories.RemoveRange(histories);
-            return await SaveChangesAsync();
+            var historiesToDelete = await (from urlHistory in UrlHistories
+                                           //where there are any containers matching the channel ID and gif ID
+                                           where (from container in historyContainers
+                                                  where urlHistory.ChannelId == container.ChannelId &&
+                                                        urlHistory.GifId == container.GifId
+                                                  select container).Any()
+                                           select urlHistory).ToListAsync();
+            UrlHistories.RemoveRange(historiesToDelete);
+            await SaveChangesAsync();
+            return historiesToDelete.Count;
         }
         public async Task<int> DeleteJobConfigs(IEnumerable<decimal> channelIds)
         {
