@@ -1,4 +1,5 @@
 ﻿using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace TrendingGiphyBotFunctions.Extensions
@@ -7,11 +8,10 @@ namespace TrendingGiphyBotFunctions.Extensions
     {
         public static async Task<HttpResponseMessage> PostStringWithHeaderAsync(this HttpClient httpClient, string requestUri, string contentToSend, string headerName, string headerValue)
         {
-            using (var content = new StringContent(contentToSend))
+            using (var content = new StringContent(contentToSend, Encoding.UTF8, "application/json"))
             using (var request = new HttpRequestMessage(HttpMethod.Post, requestUri) { Content = content })
             {
                 request.Headers.Add(headerName, headerValue);
-                request.Headers.Add("Content-Type", "application/json");
                 return await httpClient.SendAsync(request);
             }
         }
