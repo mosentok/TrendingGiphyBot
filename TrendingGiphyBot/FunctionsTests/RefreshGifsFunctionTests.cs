@@ -36,9 +36,9 @@ namespace FunctionsTests
             _Context.Setup(s => s.InsertNewTrendingGifs(trendingResponse.Data)).ReturnsAsync(count);
             var task = _RefreshGifsFunction.RunAsync(trendingEndpoint);
             await task;
-            Assert.That(task.IsFaulted, Is.False);
             _GiphyHelper.VerifyAll();
             _Context.VerifyAll();
+            Assert.That(task.IsFaulted, Is.False);
         }
     }
 }

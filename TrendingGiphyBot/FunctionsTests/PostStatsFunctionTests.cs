@@ -36,8 +36,8 @@ namespace FunctionsTests
             var statPosts = new List<StatPost> { statPost };
             _StatHelper.Setup(s => s.PostStatAsync(requestUri, content, "bot token")).Returns(Task.CompletedTask);
             var result = await _PostStatsFunction.RunAsync(guildCount, botId, statPosts);
-            Assert.That(result, Is.TypeOf<NoContentResult>());
             _StatHelper.VerifyAll();
+            Assert.That(result, Is.TypeOf<NoContentResult>());
         }
         [Test]
         public async Task RunAsync_StatPostException()
@@ -50,8 +50,8 @@ namespace FunctionsTests
             var statPosts = new List<StatPost> { statPost };
             _StatHelper.Setup(s => s.PostStatAsync(requestUri, content, "bot token")).ThrowsAsync(new StatPostException());
             var result = await _PostStatsFunction.RunAsync(guildCount, botId, statPosts);
-            Assert.That(result, Is.TypeOf<NoContentResult>());
             _StatHelper.VerifyAll();
+            Assert.That(result, Is.TypeOf<NoContentResult>());
         }
         [Test]
         public void RunAsync_OtherException()
