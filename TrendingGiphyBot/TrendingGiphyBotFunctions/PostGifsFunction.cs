@@ -2,9 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Discord;
 using Discord.Net;
-using Discord.Rest;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using TrendingGiphyBotFunctions.Helpers;
@@ -13,31 +11,34 @@ using TrendingGiphyBotModel;
 
 namespace TrendingGiphyBotFunctions
 {
-    public class PostGifsFunction : IDisposable
+    public class PostGifsFunction
     {
         [FunctionName(nameof(PostGifsFunction))]
         public static async Task Run([TimerTrigger("%PostGifsFunctionCron%")]TimerInfo myTimer, ILogger log)
         {
             var connectionString = Environment.GetEnvironmentVariable("TrendingGiphyBotConnectionString");
-            using (var postGifsFunction = new PostGifsFunction(new TrendingGiphyBotContext(connectionString), new GiphyHelper(), new DiscordRestClient(), log))
+            using (var context = new TrendingGiphyBotContext(connectionString))
+            using (var giphyHelper = new GiphyHelper())
+            using (var discordHelper = new DiscordHelper())
+            {
+                var postGifsFunction = new PostGifsFunction(context, giphyHelper, discordHelper, log);
                 await postGifsFunction.RunAsync();
+            }
         }
-        readonly TrendingGiphyBotContext _Context;
-        readonly GiphyHelper _GiphyHelper;
-        readonly DiscordRestClient _DiscordClient;
+        readonly ITrendingGiphyBotContext _Context;
+        readonly IGiphyHelper _GiphyHelper;
+        readonly IDiscordHelper _DiscordClient;
         readonly ILogger _Log;
-        TaskCompletionSource<bool> _LoggedInSource;
-        TaskCompletionSource<bool> _LoggedOutSource;
-        public PostGifsFunction(TrendingGiphyBotContext context, GiphyHelper giphyHelper, DiscordRestClient client, ILogger log)
+        public PostGifsFunction(ITrendingGiphyBotContext context, IGiphyHelper giphyHelper, IDiscordHelper discordHelper, ILogger log)
         {
             _Context = context;
             _GiphyHelper = giphyHelper;
-            _DiscordClient = client;
+            _DiscordClient = discordHelper;
             _Log = log;
         }
         public async Task RunAsync()
         {
-            await LogInAsync();
+            await _DiscordClient.LogInAsync();
             var pendingContainers = await GetContainers();
             var historyContainers = await BuildHistoryContainers(pendingContainers);
             var insertedContainers = await InsertHistories(historyContainers);
@@ -48,7 +49,7 @@ namespace TrendingGiphyBotFunctions
                 await DeleteErrorHistories(allHistoryErrors);
             if (gifPostingResult.ChannelsToDelete.Any())
                 await DeleteJobConfigs(gifPostingResult.ChannelsToDelete);
-            await LogOutAsync();
+            await _DiscordClient.LogOutAsync();
         }
         async Task<ChannelResult> BuildChannelContainers(List<UrlHistoryContainer> insertedContainers)
         {
@@ -59,7 +60,7 @@ namespace TrendingGiphyBotFunctions
                 try
                 {
                     var channelId = Convert.ToUInt64(insertedContainer.ChannelId);
-                    var channel = await _DiscordClient.GetChannelAsync(channelId) as IMessageChannel;
+                    var channel = await _DiscordClient.GetChannelAsync(channelId);
                     channelContainers.Add(new ChannelContainer(channel, insertedContainer));
                 }
                 catch (Exception ex)
@@ -69,33 +70,6 @@ namespace TrendingGiphyBotFunctions
                 }
             _Log.LogInformation($"Got {channelContainers.Count} channels.");
             return new ChannelResult(channelContainers, errors);
-        }
-        async Task LogInAsync()
-        {
-            _LoggedInSource = new TaskCompletionSource<bool>();
-            _DiscordClient.LoggedIn += LoggedIn;
-            var token = Environment.GetEnvironmentVariable("BotToken");
-            await _DiscordClient.LoginAsync(TokenType.Bot, token);
-            await _LoggedInSource.Task;
-            _DiscordClient.LoggedIn -= LoggedIn;
-        }
-        Task LoggedIn()
-        {
-            _LoggedInSource.SetResult(true);
-            return Task.CompletedTask;
-        }
-        async Task LogOutAsync()
-        {
-            _LoggedOutSource = new TaskCompletionSource<bool>();
-            _DiscordClient.LoggedOut += LoggedOut;
-            await _DiscordClient.LogoutAsync();
-            await _LoggedOutSource.Task;
-            _DiscordClient.LoggedOut -= LoggedOut;
-        }
-        Task LoggedOut()
-        {
-            _LoggedOutSource.SetResult(true);
-            return Task.CompletedTask;
         }
         async Task<List<UrlHistoryContainer>> InsertHistories(List<UrlHistoryContainer> historyContainers)
         {
@@ -135,7 +109,7 @@ namespace TrendingGiphyBotFunctions
             foreach (var container in containers)
             {
                 var firstUnseenUrlCache = (from urlCache in urlCaches
-                                           //find caches where there are no histories with their gif IDs
+                                               //find caches where there are no histories with their gif IDs
                                            where !container.Histories.Any(s => s.GifId == urlCache.Id)
                                            select urlCache).FirstOrDefault();
                 if (firstUnseenUrlCache != null)
@@ -199,12 +173,6 @@ namespace TrendingGiphyBotFunctions
             var totalCount = channelContainers.Count - errors.Count - channelsToDelete.Count;
             _Log.LogInformation($"Posted {totalCount} gifs.");
             return new GifPostingResult(errors, channelsToDelete);
-        }
-        public void Dispose()
-        {
-            _DiscordClient?.Dispose();
-            _Context?.Dispose();
-            _GiphyHelper?.Dispose();
         }
     }
 }
