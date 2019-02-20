@@ -15,8 +15,11 @@ namespace TrendingGiphyBotFunctions
         public static async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "get", Route = "jobconfigs/{channelid:decimal}")] HttpRequest req, decimal channelId, ILogger log)
         {
             var connectionString = Environment.GetEnvironmentVariable("TrendingGiphyBotConnectionString");
-            var getJobConfigFunction = new GetJobConfigFunction(log, new TrendingGiphyBotContext(connectionString));
-            return await getJobConfigFunction.RunAsync(channelId);
+            using (var context = new TrendingGiphyBotContext(connectionString))
+            {
+                var getJobConfigFunction = new GetJobConfigFunction(log, context);
+                return await getJobConfigFunction.RunAsync(channelId);
+            }
         }
         readonly ILogger _Log;
         readonly ITrendingGiphyBotContext _Context;

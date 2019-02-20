@@ -20,12 +20,15 @@ namespace TrendingGiphyBotFunctions
         //TODO change route to just "stats"
         public static async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = "poststats/{botid:long}")] HttpRequest req, long botId, ILogger log)
         {
-            var postStatsFunction = new PostStatsFunction(log, new StatHelper());
             var guildCountString = await req.Body.ReadToEndAsync();
             var guildCount = int.Parse(guildCountString);
             var statPostsSerialized = Environment.GetEnvironmentVariable("StatPostsSerialized");
             var statPosts = JsonConvert.DeserializeObject<List<StatPost>>(statPostsSerialized);
-            return await postStatsFunction.RunAsync(guildCount, botId, statPosts);
+            using (var statHelper = new StatHelper())
+            {
+                var postStatsFunction = new PostStatsFunction(log, statHelper);
+                return await postStatsFunction.RunAsync(guildCount, botId, statPosts);
+            }
         }
         readonly ILogger _Log;
         readonly IStatHelper _StatHelper;
