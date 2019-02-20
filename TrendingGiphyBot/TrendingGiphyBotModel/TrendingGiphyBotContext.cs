@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace TrendingGiphyBotModel
 {
-    public partial class TrendingGiphyBotContext : DbContext
+    public partial class TrendingGiphyBotContext : DbContext, ITrendingGiphyBotContext
     {
         public TrendingGiphyBotContext() { }
         public TrendingGiphyBotContext(DbContextOptions<TrendingGiphyBotContext> options) : base(options) { }
