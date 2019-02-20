@@ -9,16 +9,27 @@ using TrendingGiphyBotModel;
 
 namespace TrendingGiphyBotFunctions
 {
-    public static class DeleteJobConfigFunction
+    public class DeleteJobConfigFunction
     {
         [FunctionName(nameof(DeleteJobConfigFunction))]
         public static async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "delete", Route = "jobconfigs/{channelid:decimal}")] HttpRequest req, decimal channelId, ILogger log)
         {
-            log.LogInformation($"Channel {channelId} deleting job config.");
             var connectionString = Environment.GetEnvironmentVariable("TrendingGiphyBotConnectionString");
-            using (var context = new TrendingGiphyBotContext(connectionString))
-                await context.DeleteJobConfig(channelId);
-            log.LogInformation($"Channel {channelId} deleted job config.");
+            var deleteJobConfigFunction = new DeleteJobConfigFunction(log, new TrendingGiphyBotContext(connectionString));
+            return await deleteJobConfigFunction.RunAsync(channelId);
+        }
+        readonly ILogger _Log;
+        readonly ITrendingGiphyBotContext _Context;
+        public DeleteJobConfigFunction(ILogger log, ITrendingGiphyBotContext context)
+        {
+            _Log = log;
+            _Context = context;
+        }
+        public async Task<IActionResult> RunAsync(decimal channelId)
+        {
+            _Log.LogInformation($"Channel {channelId} deleting job config.");
+            await _Context.DeleteJobConfig(channelId);
+            _Log.LogInformation($"Channel {channelId} deleted job config.");
             return new NoContentResult();
         }
     }
