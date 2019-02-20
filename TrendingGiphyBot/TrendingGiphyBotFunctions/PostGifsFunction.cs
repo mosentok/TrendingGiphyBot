@@ -17,9 +17,10 @@ namespace TrendingGiphyBotFunctions
         public static async Task Run([TimerTrigger("%PostGifsFunctionCron%")]TimerInfo myTimer, ILogger log)
         {
             var connectionString = Environment.GetEnvironmentVariable("TrendingGiphyBotConnectionString");
+            var botToken = Environment.GetEnvironmentVariable("BotToken");
             using (var context = new TrendingGiphyBotContext(connectionString))
             using (var giphyHelper = new GiphyHelper())
-            using (var discordHelper = new DiscordHelper())
+            using (var discordHelper = new DiscordHelper(botToken))
             {
                 var postGifsFunction = new PostGifsFunction(context, giphyHelper, discordHelper, log);
                 await postGifsFunction.RunAsync();
