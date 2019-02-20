@@ -6,41 +6,49 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using System.Net.Http;
 using TrendingGiphyBotFunctions.Models;
 using TrendingGiphyBotFunctions.Extensions;
+using TrendingGiphyBotFunctions.Helpers;
+using System.Collections.Generic;
+using TrendingGiphyBotFunctions.Exceptions;
 
 namespace TrendingGiphyBotFunctions
 {
-    public static class PostStatsFunction
+    public class PostStatsFunction
     {
-        static readonly HttpClient _HttpClient = new HttpClient();
         [FunctionName(nameof(PostStatsFunction))]
         //TODO change route to just "stats"
         public static async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = "poststats/{botid:long}")] HttpRequest req, long botId, ILogger log)
         {
-            log.LogInformation("Posting stats.");
-            var statPostsSerialized = Environment.GetEnvironmentVariable("StatPostsSerialized");
-            var statPosts = JsonConvert.DeserializeObject<StatPost[]>(statPostsSerialized);
+            var postStatsFunction = new PostStatsFunction(log, new StatHelper());
             var guildCountString = await req.Body.ReadToEndAsync();
             var guildCount = int.Parse(guildCountString);
+            var statPostsSerialized = Environment.GetEnvironmentVariable("StatPostsSerialized");
+            var statPosts = JsonConvert.DeserializeObject<List<StatPost>>(statPostsSerialized);
+            return await postStatsFunction.RunAsync(guildCount, botId, statPosts);
+        }
+        readonly ILogger _Log;
+        readonly IStatHelper _StatHelper;
+        public PostStatsFunction(ILogger log, IStatHelper statHelper)
+        {
+            _Log = log;
+            _StatHelper = statHelper;
+        }
+        public async Task<IActionResult> RunAsync(int guildCount, long botId, List<StatPost> statPosts)
+        {
+            _Log.LogInformation("Posting stats.");
             foreach (var statPost in statPosts)
                 try
                 {
-                    var content = $"{{\"{statPost.GuildCountPropertyName}\":{guildCount}}}";
                     var requestUri = string.Format(statPost.UrlStringFormat, botId);
-                    var response = await _HttpClient.PostStringWithHeaderAsync(requestUri, content, "Authorization", statPost.Token);
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        var message = await response.Content.ReadAsStringAsync();
-                        log.LogError($"Error posting stats. Request uri '{requestUri}'. Status code '{response.StatusCode.ToString()}'. Reason phrase '{response.ReasonPhrase}'. Content '{message}'.");
-                    }
+                    var content = $"{{\"{statPost.GuildCountPropertyName}\":{guildCount}}}";
+                    await _StatHelper.PostStatAsync(requestUri, content, statPost.Token);
                 }
-                catch (Exception ex)
+                catch (StatPostException ex)
                 {
-                    log.LogError(ex.ToString());
+                    _Log.LogError(ex.ToString());
                 }
-            log.LogInformation("Posted stats.");
+            _Log.LogInformation("Posted stats.");
             return new NoContentResult();
         }
     }
