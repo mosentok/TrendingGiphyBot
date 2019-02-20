@@ -6,7 +6,7 @@ using TrendingGiphyBotFunctions.Models;
 
 namespace TrendingGiphyBotFunctions.Helpers
 {
-    public class GiphyHelper : IDisposable
+    public class GiphyHelper : IGiphyHelper, IDisposable
     {
         readonly HttpClient _HttpClient = new HttpClient();
         public async Task<GiphyTrendingResponse> GetTrendingGifsAsync(string giphyTrendingEndpoint)
