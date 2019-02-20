@@ -143,7 +143,7 @@ namespace TrendingGiphyBotFunctions
                 else if (!string.IsNullOrEmpty(container.RandomSearchString))
                 {
                     //TODO add a retry loop or something so that we can get/check more than 1 random gif for the channel
-                    var randomTagGif = await _GiphyHelper.GetRandomGif(giphyRandomEndpoint, container.RandomSearchString);
+                    var randomTagGif = await _GiphyHelper.GetRandomGifAsync(giphyRandomEndpoint, container.RandomSearchString);
                     //if there are no histories with this random gif's ID
                     if (!container.Histories.Any(s => s.GifId == randomTagGif.Data.Id))
                         histories.Add(new UrlHistoryContainer(container.ChannelId, randomTagGif.Data.Id, randomTagGif.Data.Url, false));

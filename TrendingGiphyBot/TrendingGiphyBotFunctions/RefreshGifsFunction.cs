@@ -1,9 +1,8 @@
 using System;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+using TrendingGiphyBotFunctions.Helpers;
 using TrendingGiphyBotFunctions.Models;
 using TrendingGiphyBotModel;
 
@@ -11,14 +10,13 @@ namespace TrendingGiphyBotFunctions
 {
     public static class RefreshGifsFunction
     {
-        static readonly HttpClient _HttpClient = new HttpClient();
         [FunctionName(nameof(RefreshGifsFunction))]
         public static async Task Run([TimerTrigger("%RefreshGifsFunctionCron%")]TimerInfo myTimer, ILogger log)
         {
             var trendingEndpoint = Environment.GetEnvironmentVariable("GiphyTrendingEndpoint");
-            var response = await _HttpClient.GetAsync(trendingEndpoint);
-            var content = await response.Content.ReadAsStringAsync();
-            var giphyResponse = JsonConvert.DeserializeObject<GiphyTrendingResponse>(content);
+            GiphyTrendingResponse giphyResponse;
+            using (var giphyHelper = new GiphyHelper())
+                giphyResponse = await giphyHelper.GetTrendingGifsAsync(trendingEndpoint);
             var connectionString = Environment.GetEnvironmentVariable("TrendingGiphyBotConnectionString");
             int count;
             using (var context = new TrendingGiphyBotContext(connectionString))
