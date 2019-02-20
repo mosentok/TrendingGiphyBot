@@ -13,9 +13,13 @@ namespace TrendingGiphyBotFunctions
         public static async Task Run([TimerTrigger("%RefreshGifsFunctionCron%")]TimerInfo myTimer, ILogger log)
         {
             var connectionString = Environment.GetEnvironmentVariable("TrendingGiphyBotConnectionString");
-            var refreshGifsFunction = new RefreshGifsFunction(log, new GiphyHelper(), new TrendingGiphyBotContext(connectionString));
             var trendingEndpoint = Environment.GetEnvironmentVariable("GiphyTrendingEndpoint");
-            await refreshGifsFunction.RunAsync(trendingEndpoint);
+            using (var giphyHelper = new GiphyHelper())
+            using (var context = new TrendingGiphyBotContext(connectionString))
+            {
+                var refreshGifsFunction = new RefreshGifsFunction(log, giphyHelper, context);
+                await refreshGifsFunction.RunAsync(trendingEndpoint);
+            }
         }
         readonly ILogger _Log;
         readonly IGiphyHelper _GiphyHelper;

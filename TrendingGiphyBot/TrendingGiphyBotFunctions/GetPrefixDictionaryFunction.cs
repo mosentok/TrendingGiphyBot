@@ -15,8 +15,11 @@ namespace TrendingGiphyBotFunctions
         public static async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "get", Route = "prefixDictionary")] HttpRequest req, ILogger log)
         {
             var connectionString = Environment.GetEnvironmentVariable("TrendingGiphyBotConnectionString");
-            var getPrefixDictionaryFunction = new GetPrefixDictionaryFunction(log, new TrendingGiphyBotContext(connectionString));
-            return await getPrefixDictionaryFunction.RunAsync();
+            using (var context = new TrendingGiphyBotContext(connectionString))
+            {
+                var getPrefixDictionaryFunction = new GetPrefixDictionaryFunction(log, context);
+                return await getPrefixDictionaryFunction.RunAsync();
+            }
         }
         readonly ILogger _Log;
         readonly ITrendingGiphyBotContext _Context;
