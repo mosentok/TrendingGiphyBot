@@ -34,7 +34,9 @@ namespace FunctionsTests
             const int count = 123;
             _GiphyHelper.Setup(s => s.GetTrendingGifsAsync(trendingEndpoint)).ReturnsAsync(trendingResponse);
             _Context.Setup(s => s.InsertNewTrendingGifs(trendingResponse.Data)).ReturnsAsync(count);
-            await _RefreshGifsFunction.RunAsync(trendingEndpoint);
+            var task = _RefreshGifsFunction.RunAsync(trendingEndpoint);
+            await task;
+            Assert.That(task.IsFaulted, Is.False);
             _GiphyHelper.VerifyAll();
             _Context.VerifyAll();
         }
