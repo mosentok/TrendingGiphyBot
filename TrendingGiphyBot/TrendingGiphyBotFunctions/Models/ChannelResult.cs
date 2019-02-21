@@ -7,7 +7,6 @@ namespace TrendingGiphyBotFunctions.Models
     {
         public List<ChannelContainer> ChannelContainers { get; set; }
         public List<UrlHistoryContainer> Errors { get; set; }
-        public ChannelResult() { }
         public ChannelResult(List<ChannelContainer> channelContainers, List<UrlHistoryContainer> errors)
         {
             ChannelContainers = channelContainers;
