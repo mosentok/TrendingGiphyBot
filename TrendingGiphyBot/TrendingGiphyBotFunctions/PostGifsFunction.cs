@@ -49,9 +49,10 @@ namespace TrendingGiphyBotFunctions
             var insertedContainers = await _GifPostingHelper.InsertHistories(historyContainers);
             var channelResult = await _GifPostingHelper.BuildChannelContainers(insertedContainers);
             var gifPostingResult = await _GifPostingHelper.PostGifs(channelResult.ChannelContainers, warningResponses);
-            var allHistoryErrors = channelResult.Errors.Concat(gifPostingResult.Errors).ToList();
-            if (allHistoryErrors.Any())
-                await _GifPostingHelper.DeleteErrorHistories(allHistoryErrors);
+            if (channelResult.Errors.Any())
+                await _GifPostingHelper.DeleteErrorHistories(channelResult.Errors);
+            if (gifPostingResult.Errors.Any())
+                await _GifPostingHelper.DeleteErrorHistories(gifPostingResult.Errors);
             if (gifPostingResult.ChannelsToDelete.Any())
                 await _GifPostingHelper.DeleteJobConfigs(gifPostingResult.ChannelsToDelete);
             await _GifPostingHelper.LogOutAsync();
