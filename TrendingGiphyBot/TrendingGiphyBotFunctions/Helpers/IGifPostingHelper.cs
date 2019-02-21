@@ -10,11 +10,12 @@ namespace TrendingGiphyBotFunctions.Helpers
     {
         Task LogInAsync();
         Task LogOutAsync();
+        List<int> DetermineCurrentValidMinutes(DateTime now, List<int> allValidMinutes);
         Task<ChannelResult> BuildChannelContainers(List<UrlHistoryContainer> insertedContainers);
         Task<List<UrlHistoryContainer>> BuildHistoryContainers(List<PendingJobConfig> containers, string giphyRandomEndpoint);
         Task DeleteErrorHistories(List<UrlHistoryContainer> errors);
         Task DeleteJobConfigs(List<UrlHistoryContainer> doNotExist);
-        Task<List<PendingJobConfig>> GetContainers(DateTime now, List<int> allValidMinutes);
+        Task<List<PendingJobConfig>> GetContainers(int nowHour, List<int> currentValidMinutes);
         Task<List<UrlHistoryContainer>> InsertHistories(List<UrlHistoryContainer> historyContainers);
         Task<GifPostingResult> PostGifs(List<ChannelContainer> channelContainers, List<string> warningResponses);
     }

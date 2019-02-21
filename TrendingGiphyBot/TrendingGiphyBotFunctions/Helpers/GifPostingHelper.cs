@@ -24,16 +24,19 @@ namespace TrendingGiphyBotFunctions.Helpers
         }
         public Task LogInAsync() => _DiscordClient.LogInAsync();
         public Task LogOutAsync() => _DiscordClient.LogOutAsync();
-        public async Task<List<PendingJobConfig>> GetContainers(DateTime now, List<int> allValidMinutes)
+        public List<int> DetermineCurrentValidMinutes(DateTime now, List<int> allValidMinutes)
         {
-            _Log.LogInformation("Getting job configs.");
             int totalMinutes;
             if (now.Hour == 0)
                 totalMinutes = 24 * 60;
             else
                 totalMinutes = now.Hour * 60 + now.Minute;
-            var currentValidMinutes = allValidMinutes.Where(s => totalMinutes % s == 0).ToList();
-            var containers = await _Context.GetJobConfigsToRun(now.Hour, currentValidMinutes);
+            return allValidMinutes.Where(s => totalMinutes % s == 0).ToList();
+        }
+        public async Task<List<PendingJobConfig>> GetContainers(int nowHour, List<int> currentValidMinutes)
+        {
+            _Log.LogInformation("Getting job configs.");
+            var containers = await _Context.GetJobConfigsToRun(nowHour, currentValidMinutes);
             _Log.LogInformation($"Got {containers.Count} containers.");
             return containers;
         }
