@@ -24,18 +24,9 @@ namespace TrendingGiphyBotFunctions.Helpers
         }
         public Task LogInAsync() => _DiscordClient.LogInAsync();
         public Task LogOutAsync() => _DiscordClient.LogOutAsync();
-        public async Task<List<PendingJobConfig>> GetContainers()
+        public async Task<List<PendingJobConfig>> GetContainers(DateTime now, List<int> allValidMinutes)
         {
             _Log.LogInformation("Getting job configs.");
-            var hourOffsetString = Environment.GetEnvironmentVariable("HourOffset");
-            var hourOffset = int.Parse(hourOffsetString);
-            var now = DateTime.Now.AddHours(-hourOffset);
-            var validMinutesString = Environment.GetEnvironmentVariable("ValidMinutes");
-            var validMinutes = validMinutesString.Split(',', options: StringSplitOptions.RemoveEmptyEntries).Select(int.Parse);
-            var validHoursString = Environment.GetEnvironmentVariable("ValidHours");
-            var validHours = validHoursString.Split(',', options: StringSplitOptions.RemoveEmptyEntries).Select(int.Parse);
-            var validHoursAsMinutes = validHours.Select(s => s * 60);
-            var allValidMinutes = validMinutes.Concat(validHoursAsMinutes);
             int totalMinutes;
             if (now.Hour == 0)
                 totalMinutes = 24 * 60;
@@ -46,11 +37,10 @@ namespace TrendingGiphyBotFunctions.Helpers
             _Log.LogInformation($"Got {containers.Count} containers.");
             return containers;
         }
-        public async Task<List<UrlHistoryContainer>> BuildHistoryContainers(List<PendingJobConfig> containers)
+        public async Task<List<UrlHistoryContainer>> BuildHistoryContainers(List<PendingJobConfig> containers, string giphyRandomEndpoint)
         {
             _Log.LogInformation($"Building {containers.Count} histories.");
             var urlCaches = await _Context.GetUrlCachesAsync();
-            var giphyRandomEndpoint = Environment.GetEnvironmentVariable("GiphyRandomEndpoint");
             var histories = new List<UrlHistoryContainer>();
             foreach (var container in containers)
             {
@@ -99,12 +89,11 @@ namespace TrendingGiphyBotFunctions.Helpers
             _Log.LogInformation($"Got {channelContainers.Count} channels.");
             return new ChannelResult(channelContainers, errors);
         }
-        public async Task<GifPostingResult> PostGifs(List<ChannelContainer> channelContainers)
+        public async Task<GifPostingResult> PostGifs(List<ChannelContainer> channelContainers, List<string> warningResponses)
         {
             _Log.LogInformation($"Posting {channelContainers.Count} gifs.");
             var errors = new List<UrlHistoryContainer>();
             var channelsToDelete = new List<UrlHistoryContainer>();
-            var warningResponses = Environment.GetEnvironmentVariable("WarningResponses").Split(',', options: StringSplitOptions.RemoveEmptyEntries);
             foreach (var channelContainer in channelContainers)
                 try
                 {
