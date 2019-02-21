@@ -28,8 +28,10 @@ namespace FunctionsTests
             var allValidMinutes = new List<int> { 123 };
             const string giphyRandomEndpoint = "giphy random endpoint";
             var warningResponses = new List<string> { "missing access", "missing permission" };
+            var currentValidMinutes = new List<int> { 456 };
+            _GifPostingHelper.Setup(s => s.DetermineCurrentValidMinutes(now, allValidMinutes)).Returns(currentValidMinutes);
             var pendingContainers = new List<PendingJobConfig> { new PendingJobConfig() };
-            _GifPostingHelper.Setup(s => s.GetContainers(now, allValidMinutes)).ReturnsAsync(pendingContainers);
+            _GifPostingHelper.Setup(s => s.GetContainers(now.Hour, currentValidMinutes)).ReturnsAsync(pendingContainers);
             var historyContainers = new List<UrlHistoryContainer> { new UrlHistoryContainer() };
             _GifPostingHelper.Setup(s => s.BuildHistoryContainers(pendingContainers, giphyRandomEndpoint)).ReturnsAsync(historyContainers);
             var insertedContainers = new List<UrlHistoryContainer> { new UrlHistoryContainer() };
