@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using TrendingGiphyBotFunctions.Models;
 using TrendingGiphyBotModel;
@@ -10,11 +11,11 @@ namespace TrendingGiphyBotFunctions.Helpers
         Task LogInAsync();
         Task LogOutAsync();
         Task<ChannelResult> BuildChannelContainers(List<UrlHistoryContainer> insertedContainers);
-        Task<List<UrlHistoryContainer>> BuildHistoryContainers(List<PendingJobConfig> containers);
+        Task<List<UrlHistoryContainer>> BuildHistoryContainers(List<PendingJobConfig> containers, string giphyRandomEndpoint);
         Task DeleteErrorHistories(List<UrlHistoryContainer> errors);
         Task DeleteJobConfigs(List<UrlHistoryContainer> doNotExist);
-        Task<List<PendingJobConfig>> GetContainers();
+        Task<List<PendingJobConfig>> GetContainers(DateTime now, List<int> allValidMinutes);
         Task<List<UrlHistoryContainer>> InsertHistories(List<UrlHistoryContainer> historyContainers);
-        Task<GifPostingResult> PostGifs(List<ChannelContainer> channelContainers);
+        Task<GifPostingResult> PostGifs(List<ChannelContainer> channelContainers, List<string> warningResponses);
     }
 }
