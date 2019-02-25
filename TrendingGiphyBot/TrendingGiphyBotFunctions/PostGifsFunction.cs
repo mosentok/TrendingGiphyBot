@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using TrendingGiphyBotFunctions.Helpers;
+using TrendingGiphyBotFunctions.Wrappers;
 using TrendingGiphyBotModel;
 
 namespace TrendingGiphyBotFunctions
@@ -27,11 +28,12 @@ namespace TrendingGiphyBotFunctions
             var allValidMinutes = validMinutes.Concat(validHoursAsMinutes).ToList();
             var giphyRandomEndpoint = Environment.GetEnvironmentVariable("GiphyRandomEndpoint");
             var warningResponses = Environment.GetEnvironmentVariable("WarningResponses").Split(',', options: StringSplitOptions.RemoveEmptyEntries).ToList();
+            var logWrapper = new LoggerWrapper(log);
             using (var context = new TrendingGiphyBotContext(connectionString))
             using (var giphyHelper = new GiphyHelper())
             using (var discordHelper = new DiscordHelper(botToken))
             {
-                var gifPostingHelper = new GifPostingHelper(log, context, giphyHelper, discordHelper);
+                var gifPostingHelper = new GifPostingHelper(logWrapper, context, giphyHelper, discordHelper);
                 var postGifsFunction = new PostGifsFunction(gifPostingHelper);
                 await postGifsFunction.RunAsync(now, allValidMinutes, giphyRandomEndpoint, warningResponses);
             }

@@ -3,7 +3,9 @@ using Moq;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using TrendingGiphyBotFunctions.Helpers;
+using TrendingGiphyBotFunctions.Wrappers;
 using TrendingGiphyBotModel;
 
 namespace FunctionsTests
@@ -11,7 +13,7 @@ namespace FunctionsTests
     [TestFixture]
     public class GifPostingHelperTests
     {
-        Mock<ILogger> _Log;
+        Mock<ILoggerWrapper> _Log;
         Mock<ITrendingGiphyBotContext> _Context;
         Mock<IGiphyHelper> _GiphyHelper;
         Mock<IDiscordHelper> _DiscordHelper;
@@ -19,7 +21,7 @@ namespace FunctionsTests
         [SetUp]
         public void SetUp()
         {
-            _Log = new Mock<ILogger>();
+            _Log = new Mock<ILoggerWrapper>();
             _Context = new Mock<ITrendingGiphyBotContext>();
             _GiphyHelper = new Mock<IGiphyHelper>();
             _DiscordHelper = new Mock<IDiscordHelper>();
@@ -64,6 +66,22 @@ namespace FunctionsTests
             Assert.That(currentValidMinutes.Count, Is.EqualTo(expectedValidMinutes.Length));
             foreach (var expectedValidMinute in expectedValidMinutes)
                 Assert.That(currentValidMinutes, Contains.Item(expectedValidMinute));
+        }
+        [Test]
+        public async Task GetContainers()
+        {
+            _Log.Setup(s => s.LogInformation("Getting job configs."));
+            const int nowHour = 1;
+            var currentValidMinutes = new List<int> { 10, 15, 20, 30, 60 };
+            var pendingJobConfig = new PendingJobConfig { ChannelId = 123, Histories = new List<PendingHistory>(), RandomSearchString = "cats" };
+            var containers = new List<PendingJobConfig> { pendingJobConfig };
+            _Context.Setup(s => s.GetJobConfigsToRun(nowHour, currentValidMinutes)).ReturnsAsync(containers);
+            _Log.Setup(s => s.LogInformation($"Got {containers.Count} containers."));
+            var jobConfigs = await _GifPostingHelper.GetContainers(nowHour, currentValidMinutes);
+            _Log.VerifyAll();
+            _Context.VerifyAll();
+            foreach (var container in containers)
+                Assert.That(jobConfigs, Contains.Item(container));
         }
     }
 }
