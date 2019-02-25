@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace TrendingGiphyBotFunctions.Helpers
 {
+    //TODO rename this to Wrapper
     public class DiscordHelper : IDiscordHelper, IDisposable
     {
         readonly TaskCompletionSource<bool> _LoggedInSource = new TaskCompletionSource<bool>();

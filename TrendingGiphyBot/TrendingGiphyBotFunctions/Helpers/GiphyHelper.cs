@@ -6,6 +6,7 @@ using TrendingGiphyBotFunctions.Models;
 
 namespace TrendingGiphyBotFunctions.Helpers
 {
+    //TODO rename this to Wrapper
     public class GiphyHelper : IGiphyHelper, IDisposable
     {
         readonly HttpClient _HttpClient = new HttpClient();

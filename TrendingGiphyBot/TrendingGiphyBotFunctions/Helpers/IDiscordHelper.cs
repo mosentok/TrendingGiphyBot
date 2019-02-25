@@ -3,6 +3,7 @@ using Discord;
 
 namespace TrendingGiphyBotFunctions.Helpers
 {
+    //TODO rename this to Wrapper
     public interface IDiscordHelper
     {
         Task<IMessageChannel> GetChannelAsync(ulong id);
