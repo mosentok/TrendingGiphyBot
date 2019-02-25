@@ -6,9 +6,9 @@ namespace TrendingGiphyBotFunctions.Wrappers
     public class LoggerWrapper : ILoggerWrapper
     {
         readonly ILogger _Log;
-        public LoggerWrapper(ILogger logger)
+        public LoggerWrapper(ILogger log)
         {
-            _Log = logger;
+            _Log = log;
         }
         public void LogInformation(string message)
         {
