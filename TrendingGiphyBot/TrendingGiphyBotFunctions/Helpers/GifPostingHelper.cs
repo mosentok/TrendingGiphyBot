@@ -1,21 +1,21 @@
 ﻿using Discord.Net;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TrendingGiphyBotFunctions.Models;
+using TrendingGiphyBotFunctions.Wrappers;
 using TrendingGiphyBotModel;
 
 namespace TrendingGiphyBotFunctions.Helpers
 {
     public class GifPostingHelper : IGifPostingHelper
     {
-        readonly ILogger _Log;
+        readonly ILoggerWrapper _Log;
         readonly ITrendingGiphyBotContext _Context;
         readonly IGiphyHelper _GiphyHelper;
         readonly IDiscordHelper _DiscordClient;
-        public GifPostingHelper(ILogger log, ITrendingGiphyBotContext context, IGiphyHelper giphyHelper, IDiscordHelper discordClient)
+        public GifPostingHelper(ILoggerWrapper log, ITrendingGiphyBotContext context, IGiphyHelper giphyHelper, IDiscordHelper discordClient)
         {
             _Log = log;
             _Context = context;
