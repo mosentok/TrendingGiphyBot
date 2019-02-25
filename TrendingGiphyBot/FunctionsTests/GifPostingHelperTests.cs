@@ -48,5 +48,22 @@ namespace FunctionsTests
             var totalMinutes = _GifPostingHelper.DetermineTotalMinutes(now);
             Assert.That(totalMinutes, Is.EqualTo(expectedTotalMinutes));
         }
+        [TestCase(10, 10)]
+        [TestCase(15, 15)]
+        [TestCase(20, 10, 20)]
+        [TestCase(30, 10, 15, 30)]
+        [TestCase(40, 10, 20)]
+        [TestCase(45, 15)]
+        [TestCase(50, 10)]
+        [TestCase(60, 10, 15, 20, 30, 60)]
+        [TestCase(1440, 10, 15, 20, 30, 60, 120, 180, 240, 360, 480, 720, 1440)]
+        public void DetermineCurrentValidMinutes(int totalMinutes, params int[] expectedValidMinutes)
+        {
+            var allValidMinutes = new List<int> { 10, 15, 20, 30, 60, 120, 180, 240, 360, 480, 720, 1440 };
+            var currentValidMinutes = _GifPostingHelper.DetermineCurrentValidMinutes(totalMinutes, allValidMinutes);
+            Assert.That(currentValidMinutes.Count, Is.EqualTo(expectedValidMinutes.Length));
+            foreach (var expectedValidMinute in expectedValidMinutes)
+                Assert.That(currentValidMinutes, Contains.Item(expectedValidMinute));
+        }
     }
 }
