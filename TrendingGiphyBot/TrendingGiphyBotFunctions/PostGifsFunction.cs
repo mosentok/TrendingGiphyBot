@@ -44,7 +44,8 @@ namespace TrendingGiphyBotFunctions
         public async Task RunAsync(DateTime now, List<int> allValidMinutes, string giphyRandomEndpoint, List<string> warningResponses)
         {
             await _GifPostingHelper.LogInAsync();
-            var currentValidMinutes = _GifPostingHelper.DetermineCurrentValidMinutes(now, allValidMinutes);
+            var totalMinutes = _GifPostingHelper.DetermineTotalMinutes(now);
+            var currentValidMinutes = _GifPostingHelper.DetermineCurrentValidMinutes(totalMinutes, allValidMinutes);
             var pendingContainers = await _GifPostingHelper.GetContainers(now.Hour, currentValidMinutes);
             var historyContainers = await _GifPostingHelper.BuildHistoryContainers(pendingContainers, giphyRandomEndpoint);
             var insertedContainers = await _GifPostingHelper.InsertHistories(historyContainers);
