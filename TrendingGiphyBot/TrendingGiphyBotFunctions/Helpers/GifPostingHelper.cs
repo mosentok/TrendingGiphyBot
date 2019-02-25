@@ -81,8 +81,7 @@ namespace TrendingGiphyBotFunctions.Helpers
             foreach (var insertedContainer in insertedContainers)
                 try
                 {
-                    var channelId = Convert.ToUInt64(insertedContainer.ChannelId);
-                    var channel = await _DiscordClient.GetChannelAsync(channelId);
+                    var channel = await _DiscordClient.GetChannelAsync(insertedContainer.ChannelId);
                     channelContainers.Add(new ChannelContainer(channel, insertedContainer));
                 }
                 catch (Exception ex)

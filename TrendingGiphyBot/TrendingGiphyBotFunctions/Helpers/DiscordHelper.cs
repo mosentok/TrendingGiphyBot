@@ -40,9 +40,10 @@ namespace TrendingGiphyBotFunctions.Helpers
             _LoggedOutSource.SetResult(true);
             return Task.CompletedTask;
         }
-        public async Task<IMessageChannel> GetChannelAsync(ulong id)
+        public async Task<IMessageChannel> GetChannelAsync(decimal id)
         {
-            return await _DiscordClient.GetChannelAsync(id) as IMessageChannel;
+            var channelId = Convert.ToUInt64(id);
+            return await _DiscordClient.GetChannelAsync(channelId) as IMessageChannel;
         }
         public void Dispose()
         {
