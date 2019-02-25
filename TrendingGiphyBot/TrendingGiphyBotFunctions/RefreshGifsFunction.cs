@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using TrendingGiphyBotFunctions.Helpers;
+using TrendingGiphyBotFunctions.Wrappers;
 using TrendingGiphyBotModel;
 
 namespace TrendingGiphyBotFunctions
@@ -14,17 +15,18 @@ namespace TrendingGiphyBotFunctions
         {
             var connectionString = Environment.GetEnvironmentVariable("TrendingGiphyBotConnectionString");
             var trendingEndpoint = Environment.GetEnvironmentVariable("GiphyTrendingEndpoint");
+            var logWrapper = new LoggerWrapper(log);
             using (var giphyHelper = new GiphyHelper())
             using (var context = new TrendingGiphyBotContext(connectionString))
             {
-                var refreshGifsFunction = new RefreshGifsFunction(log, giphyHelper, context);
+                var refreshGifsFunction = new RefreshGifsFunction(logWrapper, giphyHelper, context);
                 await refreshGifsFunction.RunAsync(trendingEndpoint);
             }
         }
-        readonly ILogger _Log;
+        readonly ILoggerWrapper _Log;
         readonly IGiphyHelper _GiphyHelper;
         readonly ITrendingGiphyBotContext _Context;
-        public RefreshGifsFunction(ILogger log, IGiphyHelper giphyHelper, ITrendingGiphyBotContext context)
+        public RefreshGifsFunction(ILoggerWrapper log, IGiphyHelper giphyHelper, ITrendingGiphyBotContext context)
         {
             _Log = log;
             _GiphyHelper = giphyHelper;

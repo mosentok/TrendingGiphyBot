@@ -11,6 +11,7 @@ using TrendingGiphyBotFunctions.Extensions;
 using TrendingGiphyBotFunctions.Helpers;
 using System.Collections.Generic;
 using TrendingGiphyBotFunctions.Exceptions;
+using TrendingGiphyBotFunctions.Wrappers;
 
 namespace TrendingGiphyBotFunctions
 {
@@ -24,15 +25,16 @@ namespace TrendingGiphyBotFunctions
             var guildCount = int.Parse(guildCountString);
             var statPostsSerialized = Environment.GetEnvironmentVariable("StatPostsSerialized");
             var statPosts = JsonConvert.DeserializeObject<List<StatPost>>(statPostsSerialized);
+            var logWrapper = new LoggerWrapper(log);
             using (var statHelper = new StatHelper())
             {
-                var postStatsFunction = new PostStatsFunction(log, statHelper);
+                var postStatsFunction = new PostStatsFunction(logWrapper, statHelper);
                 return await postStatsFunction.RunAsync(guildCount, botId, statPosts);
             }
         }
-        readonly ILogger _Log;
+        readonly ILoggerWrapper _Log;
         readonly IStatHelper _StatHelper;
-        public PostStatsFunction(ILogger log, IStatHelper statHelper)
+        public PostStatsFunction(ILoggerWrapper log, IStatHelper statHelper)
         {
             _Log = log;
             _StatHelper = statHelper;
@@ -49,7 +51,7 @@ namespace TrendingGiphyBotFunctions
                 }
                 catch (StatPostException ex)
                 {
-                    _Log.LogError(ex.ToString());
+                    _Log.LogError(ex, $"Error posting stats.");
                 }
             _Log.LogInformation("Posted stats.");
             return new NoContentResult();

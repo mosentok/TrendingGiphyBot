@@ -7,6 +7,7 @@ using System;
 using Microsoft.AspNetCore.Mvc;
 using TrendingGiphyBotFunctions.Extensions;
 using TrendingGiphyBotModel;
+using TrendingGiphyBotFunctions.Wrappers;
 
 namespace TrendingGiphyBotFunctions
 {
@@ -17,15 +18,16 @@ namespace TrendingGiphyBotFunctions
         {
             var container = await req.Body.ReadToEndAsync<JobConfigContainer>();
             var connectionString = Environment.GetEnvironmentVariable("TrendingGiphyBotConnectionString");
+            var logWrapper = new LoggerWrapper(log);
             using (var context = new TrendingGiphyBotContext(connectionString))
             {
-                var postJobConfigFunction = new PostJobConfigFunction(log, context);
+                var postJobConfigFunction = new PostJobConfigFunction(logWrapper, context);
                 return await postJobConfigFunction.RunAsync(container, channelId);
             }
         }
-        readonly ILogger _Log;
+        readonly ILoggerWrapper _Log;
         readonly ITrendingGiphyBotContext _Context;
-        public PostJobConfigFunction(ILogger log, ITrendingGiphyBotContext context)
+        public PostJobConfigFunction(ILoggerWrapper log, ITrendingGiphyBotContext context)
         {
             _Log = log;
             _Context = context;

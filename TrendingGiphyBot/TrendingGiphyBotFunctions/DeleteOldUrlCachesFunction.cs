@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
+using TrendingGiphyBotFunctions.Wrappers;
 using TrendingGiphyBotModel;
 
 namespace TrendingGiphyBotFunctions
@@ -15,15 +16,16 @@ namespace TrendingGiphyBotFunctions
             var urlCachesMaxDaysOldString = Environment.GetEnvironmentVariable("UrlCachesMaxDaysOld");
             var urlCachesMaxDaysOld = int.Parse(urlCachesMaxDaysOldString);
             var oldestDate = DateTime.Now.AddDays(-urlCachesMaxDaysOld);
+            var logWrapper = new LoggerWrapper(log);
             using (var context = new TrendingGiphyBotContext(connectionString))
             {
-                var deleteOldUrlCachesFunction = new DeleteOldUrlCachesFunction(log, context);
+                var deleteOldUrlCachesFunction = new DeleteOldUrlCachesFunction(logWrapper, context);
                 await deleteOldUrlCachesFunction.RunAsync(oldestDate);
             }
         }
-        readonly ILogger _Log;
+        readonly ILoggerWrapper _Log;
         readonly ITrendingGiphyBotContext _Context;
-        public DeleteOldUrlCachesFunction(ILogger log, ITrendingGiphyBotContext context)
+        public DeleteOldUrlCachesFunction(ILoggerWrapper log, ITrendingGiphyBotContext context)
         {
             _Log = log;
             _Context = context;
