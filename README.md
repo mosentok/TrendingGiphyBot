@@ -5,9 +5,16 @@
   Stay up to date with the latest trending gifs, right inside Discord.
 </p>
 <p align="center">
-  <a href="https://dev.azure.com/mosentok/TrendingGiphyBot/_build?definitionId=1">
-    <img src="https://img.shields.io/azure-devops/tests/mosentok/trendinggiphybot/1.svg?label=Unit%20Tests"></img>
-  </a>
+  <span>
+    <a href="https://dev.azure.com/mosentok/TrendingGiphyBot/_build?definitionId=1">
+      <img src="https://img.shields.io/azure-devops/tests/mosentok/trendinggiphybot/1.svg?label=Unit%20Tests"></img>
+    </a>
+  </span>
+  <span>
+    <a href="https://dev.azure.com/mosentok/TrendingGiphyBot/_build?definitionId=1">
+      <img src="https://img.shields.io/azure-devops/coverage/mosentok/TrendingGiphyBot/1.svg?label=Code%20Coverage"></img>
+    </a>
+  </span>
 </p>
 
 &nbsp;|&nbsp;
