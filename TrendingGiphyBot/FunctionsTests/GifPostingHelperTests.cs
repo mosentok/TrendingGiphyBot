@@ -26,6 +26,24 @@ namespace FunctionsTests
             _DiscordWrapper = new Mock<IDiscordWrapper>();
             _GifPostingHelper = new GifPostingHelper(_Log.Object, _Context.Object, _GiphyWrapper.Object, _DiscordWrapper.Object);
         }
+        [Test]
+        public async Task LogInAsync()
+        {
+            _DiscordWrapper.Setup(s => s.LogInAsync()).Returns(Task.CompletedTask);
+            var task = _GifPostingHelper.LogInAsync();
+            await task;
+            _DiscordWrapper.VerifyAll();
+            Assert.That(task.IsCompletedSuccessfully, Is.True);
+        }
+        [Test]
+        public async Task LogOutAsync()
+        {
+            _DiscordWrapper.Setup(s => s.LogOutAsync()).Returns(Task.CompletedTask);
+            var task = _GifPostingHelper.LogOutAsync();
+            await task;
+            _DiscordWrapper.VerifyAll();
+            Assert.That(task.IsCompletedSuccessfully, Is.True);
+        }
         [TestCase(0, 0, 1440)]
         [TestCase(0, 10, 10)]
         [TestCase(0, 15, 15)]
@@ -81,6 +99,34 @@ namespace FunctionsTests
             _Context.VerifyAll();
             foreach (var container in containers)
                 Assert.That(jobConfigs, Contains.Item(container));
+        }
+        [Test]
+        public async Task InsertHistories()
+        {
+            var historyContainers = new List<UrlHistoryContainer> { new UrlHistoryContainer() };
+            _Log.Setup(s => s.LogInformation($"Inserting {historyContainers.Count} histories."));
+            var inserted = new List<UrlHistoryContainer> { new UrlHistoryContainer() };
+            _Context.Setup(s => s.InsertUrlHistories(historyContainers)).ReturnsAsync(inserted);
+            _Log.Setup(s => s.LogInformation($"Inserted {inserted.Count} histories."));
+            var results = await _GifPostingHelper.InsertHistories(historyContainers);
+            _Log.VerifyAll();
+            _Context.VerifyAll();
+            foreach (var result in results)
+                Assert.That(inserted, Contains.Item(result));
+        }
+        [Test]
+        public async Task DeleteErrorHistories()
+        {
+            var errors = new List<UrlHistoryContainer> { new UrlHistoryContainer() };
+            _Log.Setup(s => s.LogError($"Deleting {errors.Count} histories."));
+            const int deletedCount = 123;
+            _Context.Setup(s => s.DeleteUrlHistories(errors)).ReturnsAsync(deletedCount);
+            _Log.Setup(s => s.LogError($"Deleted {deletedCount} histories."));
+            var task = _GifPostingHelper.DeleteErrorHistories(errors);
+            await task;
+            _Log.VerifyAll();
+            _Context.VerifyAll();
+            Assert.That(task.IsCompletedSuccessfully, Is.True);
         }
     }
 }

@@ -51,7 +51,7 @@ namespace FunctionsTests
             var task = _PostGifsHelper.RunAsync(now, allValidMinutes, giphyRandomEndpoint, warningResponses);
             await task;
             _GifPostingHelper.VerifyAll();
-            Assert.That(task.IsFaulted, Is.False);
+            Assert.That(task.IsCompletedSuccessfully, Is.True);
         }
     }
 }

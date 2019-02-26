@@ -39,7 +39,7 @@ namespace FunctionsTests
             _Log.VerifyAll();
             _GiphyWrapper.VerifyAll();
             _Context.VerifyAll();
-            Assert.That(task.IsFaulted, Is.False);
+            Assert.That(task.IsCompletedSuccessfully, Is.True);
         }
     }
 }
