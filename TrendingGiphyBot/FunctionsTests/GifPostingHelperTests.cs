@@ -128,5 +128,19 @@ namespace FunctionsTests
             _Context.VerifyAll();
             Assert.That(task.IsCompletedSuccessfully, Is.True);
         }
+        [Test]
+        public async Task DeleteJobConfigs()
+        {
+            var channelIds = new List<decimal> { 123 };
+            _Log.Setup(s => s.LogError($"Deleting {channelIds.Count} job configs."));
+            const int deletedCount = 123;
+            _Context.Setup(s => s.DeleteJobConfigs(channelIds)).ReturnsAsync(deletedCount);
+            _Log.Setup(s => s.LogError($"Deleted {deletedCount} job configs."));
+            var task = _GifPostingHelper.DeleteJobConfigs(channelIds);
+            await task;
+            _Log.VerifyAll();
+            _Context.VerifyAll();
+            Assert.That(task.IsCompletedSuccessfully, Is.True);
+        }
     }
 }
