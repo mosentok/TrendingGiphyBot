@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using TrendingGiphyBotFunctions.Models;
 using TrendingGiphyBotFunctions.Extensions;
-using TrendingGiphyBotFunctions.Helpers;
 using System.Collections.Generic;
 using TrendingGiphyBotFunctions.Exceptions;
 using TrendingGiphyBotFunctions.Wrappers;
@@ -26,18 +25,18 @@ namespace TrendingGiphyBotFunctions
             var statPostsSerialized = Environment.GetEnvironmentVariable("StatPostsSerialized");
             var statPosts = JsonConvert.DeserializeObject<List<StatPost>>(statPostsSerialized);
             var logWrapper = new LoggerWrapper(log);
-            using (var statHelper = new StatHelper())
+            using (var statWrapper = new StatWrapper())
             {
-                var postStatsFunction = new PostStatsFunction(logWrapper, statHelper);
+                var postStatsFunction = new PostStatsFunction(logWrapper, statWrapper);
                 return await postStatsFunction.RunAsync(guildCount, botId, statPosts);
             }
         }
         readonly ILoggerWrapper _Log;
-        readonly IStatHelper _StatHelper;
-        public PostStatsFunction(ILoggerWrapper log, IStatHelper statHelper)
+        readonly IStatWrapper _StatWrapper;
+        public PostStatsFunction(ILoggerWrapper log, IStatWrapper statWrapper)
         {
             _Log = log;
-            _StatHelper = statHelper;
+            _StatWrapper = statWrapper;
         }
         public async Task<IActionResult> RunAsync(int guildCount, long botId, List<StatPost> statPosts)
         {
@@ -47,7 +46,7 @@ namespace TrendingGiphyBotFunctions
                 {
                     var requestUri = string.Format(statPost.UrlStringFormat, botId);
                     var content = $"{{\"{statPost.GuildCountPropertyName}\":{guildCount}}}";
-                    await _StatHelper.PostStatAsync(requestUri, content, statPost.Token);
+                    await _StatWrapper.PostStatAsync(requestUri, content, statPost.Token);
                 }
                 catch (StatPostException ex)
                 {

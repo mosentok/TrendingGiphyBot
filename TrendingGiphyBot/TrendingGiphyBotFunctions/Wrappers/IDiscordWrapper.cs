@@ -1,10 +1,9 @@
 ﻿using System.Threading.Tasks;
 using Discord;
 
-namespace TrendingGiphyBotFunctions.Helpers
+namespace TrendingGiphyBotFunctions.Wrappers
 {
-    //TODO rename this to Wrapper
-    public interface IDiscordHelper
+    public interface IDiscordWrapper
     {
         Task<IMessageChannel> GetChannelAsync(decimal id);
         Task LogInAsync();

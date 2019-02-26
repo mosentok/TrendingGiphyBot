@@ -4,10 +4,9 @@ using System.Threading.Tasks;
 using TrendingGiphyBotFunctions.Exceptions;
 using TrendingGiphyBotFunctions.Extensions;
 
-namespace TrendingGiphyBotFunctions.Helpers
+namespace TrendingGiphyBotFunctions.Wrappers
 {
-    //TODO rename this to Wrapper
-    public class StatHelper : IStatHelper, IDisposable
+    public class StatWrapper : IStatWrapper, IDisposable
     {
         readonly HttpClient _HttpClient = new HttpClient();
         public async Task PostStatAsync(string requestUri, string content, string token)

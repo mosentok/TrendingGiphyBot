@@ -4,10 +4,9 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using TrendingGiphyBotFunctions.Models;
 
-namespace TrendingGiphyBotFunctions.Helpers
+namespace TrendingGiphyBotFunctions.Wrappers
 {
-    //TODO rename this to Wrapper
-    public class GiphyHelper : IGiphyHelper, IDisposable
+    public class GiphyWrapper : IGiphyWrapper, IDisposable
     {
         readonly HttpClient _HttpClient = new HttpClient();
         public async Task<GiphyTrendingResponse> GetTrendingGifsAsync(string giphyTrendingEndpoint)

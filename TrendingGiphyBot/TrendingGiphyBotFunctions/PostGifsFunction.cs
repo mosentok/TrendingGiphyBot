@@ -30,10 +30,10 @@ namespace TrendingGiphyBotFunctions
             var warningResponses = Environment.GetEnvironmentVariable("WarningResponses").Split(',', options: StringSplitOptions.RemoveEmptyEntries).ToList();
             var logWrapper = new LoggerWrapper(log);
             using (var context = new TrendingGiphyBotContext(connectionString))
-            using (var giphyHelper = new GiphyHelper())
-            using (var discordHelper = new DiscordHelper(botToken))
+            using (var giphyWrapper = new GiphyWrapper())
+            using (var discordWrapper = new DiscordWrapper(botToken))
             {
-                var gifPostingHelper = new GifPostingHelper(logWrapper, context, giphyHelper, discordHelper);
+                var gifPostingHelper = new GifPostingHelper(logWrapper, context, giphyWrapper, discordWrapper);
                 var postGifsFunction = new PostGifsFunction(gifPostingHelper);
                 await postGifsFunction.RunAsync(now, allValidMinutes, giphyRandomEndpoint, warningResponses);
             }
