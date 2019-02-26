@@ -15,7 +15,7 @@ namespace TrendingGiphyBotFunctions.Helpers
         Task<ChannelResult> BuildChannelContainers(List<UrlHistoryContainer> insertedContainers);
         Task<List<UrlHistoryContainer>> BuildHistoryContainers(List<PendingJobConfig> containers, string giphyRandomEndpoint);
         Task DeleteErrorHistories(List<UrlHistoryContainer> errors);
-        Task DeleteJobConfigs(List<UrlHistoryContainer> doNotExist);
+        Task DeleteJobConfigs(List<decimal> channelIds);
         Task<List<PendingJobConfig>> GetContainers(int nowHour, List<int> currentValidMinutes);
         Task<List<UrlHistoryContainer>> InsertHistories(List<UrlHistoryContainer> historyContainers);
         Task<GifPostingResult> PostGifs(List<ChannelContainer> channelContainers, List<string> warningResponses);

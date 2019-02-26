@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using TrendingGiphyBotFunctions.Helpers;
 using TrendingGiphyBotFunctions.Models;
@@ -47,7 +48,8 @@ namespace FunctionsTests
             _GifPostingHelper.Setup(s => s.PostGifs(channelResult.ChannelContainers, warningResponses)).ReturnsAsync(gifPostingResult);
             _GifPostingHelper.Setup(s => s.DeleteErrorHistories(channelResult.Errors)).Returns(Task.CompletedTask);
             _GifPostingHelper.Setup(s => s.DeleteErrorHistories(gifPostingResult.Errors)).Returns(Task.CompletedTask);
-            _GifPostingHelper.Setup(s => s.DeleteJobConfigs(gifPostingResult.ChannelsToDelete)).Returns(Task.CompletedTask);
+            var channelIds = gifPostingResult.ChannelsToDelete.Select(s => s.ChannelId).ToList();
+            _GifPostingHelper.Setup(s => s.DeleteJobConfigs(channelIds)).Returns(Task.CompletedTask);
             var task = _PostGifsHelper.RunAsync(now, allValidMinutes, giphyRandomEndpoint, warningResponses);
             await task;
             _GifPostingHelper.VerifyAll();

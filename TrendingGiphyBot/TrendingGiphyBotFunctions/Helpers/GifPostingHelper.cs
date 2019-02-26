@@ -132,10 +132,9 @@ namespace TrendingGiphyBotFunctions.Helpers
             var deletedCount = await _Context.DeleteUrlHistories(errors);
             _Log.LogError($"Deleted {deletedCount} histories.");
         }
-        public async Task DeleteJobConfigs(List<UrlHistoryContainer> doNotExist)
+        public async Task DeleteJobConfigs(List<decimal> channelIds)
         {
-            _Log.LogError($"Deleting {doNotExist.Count} job configs.");
-            var channelIds = doNotExist.Select(s => s.ChannelId);
+            _Log.LogError($"Deleting {channelIds.Count} job configs.");
             var deletedCount = await _Context.DeleteJobConfigs(channelIds);
             _Log.LogError($"Deleted {deletedCount} job configs.");
         }

@@ -27,7 +27,10 @@ namespace TrendingGiphyBotFunctions.Helpers
             if (gifPostingResult.Errors.Any())
                 await _GifPostingHelper.DeleteErrorHistories(gifPostingResult.Errors);
             if (gifPostingResult.ChannelsToDelete.Any())
-                await _GifPostingHelper.DeleteJobConfigs(gifPostingResult.ChannelsToDelete);
+            {
+                var channelIds = gifPostingResult.ChannelsToDelete.Select(s => s.ChannelId).ToList();
+                await _GifPostingHelper.DeleteJobConfigs(channelIds);
+            }
             await _GifPostingHelper.LogOutAsync();
         }
     }
