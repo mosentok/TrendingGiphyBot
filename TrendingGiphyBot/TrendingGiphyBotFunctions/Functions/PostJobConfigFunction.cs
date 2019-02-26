@@ -8,10 +8,11 @@ using Microsoft.AspNetCore.Mvc;
 using TrendingGiphyBotFunctions.Extensions;
 using TrendingGiphyBotModel;
 using TrendingGiphyBotFunctions.Wrappers;
+using TrendingGiphyBotFunctions.Helpers;
 
-namespace TrendingGiphyBotFunctions
+namespace TrendingGiphyBotFunctions.Functions
 {
-    public class PostJobConfigFunction
+    public static class PostJobConfigFunction
     {
         [FunctionName(nameof(PostJobConfigFunction))]
         public static async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = "jobconfigs/{channelid:decimal}")] HttpRequest req, decimal channelId, ILogger log)
@@ -21,23 +22,9 @@ namespace TrendingGiphyBotFunctions
             var logWrapper = new LoggerWrapper(log);
             using (var context = new TrendingGiphyBotContext(connectionString))
             {
-                var postJobConfigFunction = new PostJobConfigFunction(logWrapper, context);
-                return await postJobConfigFunction.RunAsync(container, channelId);
+                var postJobConfigHelper = new PostJobConfigHelper(logWrapper, context);
+                return await postJobConfigHelper.RunAsync(container, channelId);
             }
-        }
-        readonly ILoggerWrapper _Log;
-        readonly ITrendingGiphyBotContext _Context;
-        public PostJobConfigFunction(ILoggerWrapper log, ITrendingGiphyBotContext context)
-        {
-            _Log = log;
-            _Context = context;
-        }
-        public async Task<IActionResult> RunAsync(JobConfigContainer container, decimal channelId)
-        {
-            _Log.LogInformation($"Channel {channelId} posting job config.");
-            var result = await _Context.SetJobConfig(channelId, container);
-            _Log.LogInformation($"Channel {channelId} posted job config.");
-            return new OkObjectResult(result);
         }
     }
 }

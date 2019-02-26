@@ -7,10 +7,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using TrendingGiphyBotModel;
 using TrendingGiphyBotFunctions.Wrappers;
+using TrendingGiphyBotFunctions.Helpers;
 
-namespace TrendingGiphyBotFunctions
+namespace TrendingGiphyBotFunctions.Functions
 {
-    public class DeleteJobConfigFunction
+    public static class DeleteJobConfigFunction
     {
         [FunctionName(nameof(DeleteJobConfigFunction))]
         public static async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "delete", Route = "jobconfigs/{channelid:decimal}")] HttpRequest req, decimal channelId, ILogger log)
@@ -19,23 +20,9 @@ namespace TrendingGiphyBotFunctions
             var logWrapper = new LoggerWrapper(log);
             using (var context = new TrendingGiphyBotContext(connectionString))
             {
-                var deleteJobConfigFunction = new DeleteJobConfigFunction(logWrapper, context);
-                return await deleteJobConfigFunction.RunAsync(channelId);
+                var deleteJobConfigHelper = new DeleteJobConfigHelper(logWrapper, context);
+                return await deleteJobConfigHelper.RunAsync(channelId);
             }
-        }
-        readonly ILoggerWrapper _Log;
-        readonly ITrendingGiphyBotContext _Context;
-        public DeleteJobConfigFunction(ILoggerWrapper log, ITrendingGiphyBotContext context)
-        {
-            _Log = log;
-            _Context = context;
-        }
-        public async Task<IActionResult> RunAsync(decimal channelId)
-        {
-            _Log.LogInformation($"Channel {channelId} deleting job config.");
-            await _Context.DeleteJobConfig(channelId);
-            _Log.LogInformation($"Channel {channelId} deleted job config.");
-            return new NoContentResult();
         }
     }
 }
