@@ -13,17 +13,17 @@ namespace TrendingGiphyBotFunctions.Helpers
     {
         readonly ILoggerWrapper _Log;
         readonly ITrendingGiphyBotContext _Context;
-        readonly IGiphyHelper _GiphyHelper;
-        readonly IDiscordHelper _DiscordClient;
-        public GifPostingHelper(ILoggerWrapper log, ITrendingGiphyBotContext context, IGiphyHelper giphyHelper, IDiscordHelper discordClient)
+        readonly IGiphyWrapper _GiphyWrapper;
+        readonly IDiscordWrapper _DiscordWrapper;
+        public GifPostingHelper(ILoggerWrapper log, ITrendingGiphyBotContext context, IGiphyWrapper giphyWrapper, IDiscordWrapper discordWrapper)
         {
             _Log = log;
             _Context = context;
-            _GiphyHelper = giphyHelper;
-            _DiscordClient = discordClient;
+            _GiphyWrapper = giphyWrapper;
+            _DiscordWrapper = discordWrapper;
         }
-        public Task LogInAsync() => _DiscordClient.LogInAsync();
-        public Task LogOutAsync() => _DiscordClient.LogOutAsync();
+        public Task LogInAsync() => _DiscordWrapper.LogInAsync();
+        public Task LogOutAsync() => _DiscordWrapper.LogOutAsync();
         public int DetermineTotalMinutes(DateTime now)
         {
             if (now.Hour == 0 && now.Minute == 0)
@@ -57,7 +57,7 @@ namespace TrendingGiphyBotFunctions.Helpers
                 else if (!string.IsNullOrEmpty(container.RandomSearchString))
                 {
                     //TODO add a retry loop or something so that we can get/check more than 1 random gif for the channel
-                    var randomTagGif = await _GiphyHelper.GetRandomGifAsync(giphyRandomEndpoint, container.RandomSearchString);
+                    var randomTagGif = await _GiphyWrapper.GetRandomGifAsync(giphyRandomEndpoint, container.RandomSearchString);
                     //if there are no histories with this random gif's ID
                     if (!container.Histories.Any(s => s.GifId == randomTagGif.Data.Id))
                         histories.Add(new UrlHistoryContainer(container.ChannelId, randomTagGif.Data.Id, randomTagGif.Data.Url, false));
@@ -81,7 +81,7 @@ namespace TrendingGiphyBotFunctions.Helpers
             foreach (var insertedContainer in insertedContainers)
                 try
                 {
-                    var channel = await _DiscordClient.GetChannelAsync(insertedContainer.ChannelId);
+                    var channel = await _DiscordWrapper.GetChannelAsync(insertedContainer.ChannelId);
                     channelContainers.Add(new ChannelContainer(channel, insertedContainer));
                 }
                 catch (Exception ex)

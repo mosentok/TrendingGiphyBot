@@ -14,17 +14,17 @@ namespace FunctionsTests
     {
         Mock<ILoggerWrapper> _Log;
         Mock<ITrendingGiphyBotContext> _Context;
-        Mock<IGiphyHelper> _GiphyHelper;
-        Mock<IDiscordHelper> _DiscordHelper;
+        Mock<IGiphyWrapper> _GiphyWrapper;
+        Mock<IDiscordWrapper> _DiscordWrapper;
         GifPostingHelper _GifPostingHelper;
         [SetUp]
         public void SetUp()
         {
             _Log = new Mock<ILoggerWrapper>();
             _Context = new Mock<ITrendingGiphyBotContext>();
-            _GiphyHelper = new Mock<IGiphyHelper>();
-            _DiscordHelper = new Mock<IDiscordHelper>();
-            _GifPostingHelper = new GifPostingHelper(_Log.Object, _Context.Object, _GiphyHelper.Object, _DiscordHelper.Object);
+            _GiphyWrapper = new Mock<IGiphyWrapper>();
+            _DiscordWrapper = new Mock<IDiscordWrapper>();
+            _GifPostingHelper = new GifPostingHelper(_Log.Object, _Context.Object, _GiphyWrapper.Object, _DiscordWrapper.Object);
         }
         [TestCase(0, 0, 1440)]
         [TestCase(0, 10, 10)]

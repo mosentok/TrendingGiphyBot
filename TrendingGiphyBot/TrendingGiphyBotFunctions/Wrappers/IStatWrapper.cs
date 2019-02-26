@@ -1,9 +1,8 @@
 ﻿using System.Threading.Tasks;
 
-namespace TrendingGiphyBotFunctions.Helpers
+namespace TrendingGiphyBotFunctions.Wrappers
 {
-    //TODO rename this to Wrapper
-    public interface IStatHelper
+    public interface IStatWrapper
     {
         Task PostStatAsync(string requestUri, string content, string token);
     }

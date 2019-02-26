@@ -3,16 +3,15 @@ using Discord.Rest;
 using System;
 using System.Threading.Tasks;
 
-namespace TrendingGiphyBotFunctions.Helpers
+namespace TrendingGiphyBotFunctions.Wrappers
 {
-    //TODO rename this to Wrapper
-    public class DiscordHelper : IDiscordHelper, IDisposable
+    public class DiscordWrapper : IDiscordWrapper, IDisposable
     {
         readonly TaskCompletionSource<bool> _LoggedInSource = new TaskCompletionSource<bool>();
         readonly TaskCompletionSource<bool> _LoggedOutSource = new TaskCompletionSource<bool>();
         readonly DiscordRestClient _DiscordClient = new DiscordRestClient();
         readonly string _BotToken;
-        public DiscordHelper(string botToken)
+        public DiscordWrapper(string botToken)
         {
             _BotToken = botToken;
         }

@@ -1,10 +1,9 @@
 ﻿using System.Threading.Tasks;
 using TrendingGiphyBotFunctions.Models;
 
-namespace TrendingGiphyBotFunctions.Helpers
+namespace TrendingGiphyBotFunctions.Wrappers
 {
-    //TODO rename this to Wrapper
-    public interface IGiphyHelper
+    public interface IGiphyWrapper
     {
         Task<GiphyRandomResponse> GetRandomGifAsync(string giphyRandomEndpoint, string tag);
         Task<GiphyTrendingResponse> GetTrendingGifsAsync(string giphyTrendingEndpoint);
