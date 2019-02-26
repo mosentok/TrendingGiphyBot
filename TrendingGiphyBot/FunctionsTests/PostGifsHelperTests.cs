@@ -3,7 +3,6 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using TrendingGiphyBotFunctions;
 using TrendingGiphyBotFunctions.Helpers;
 using TrendingGiphyBotFunctions.Models;
 using TrendingGiphyBotModel;
@@ -11,15 +10,15 @@ using TrendingGiphyBotModel;
 namespace FunctionsTests
 {
     [TestFixture]
-    public class PostGifsFunctionTests
+    public class PostGifsHelperTests
     {
         Mock<IGifPostingHelper> _GifPostingHelper;
-        PostGifsFunction _PostGifsFunction;
+        PostGifsHelper _PostGifsHelper;
         [SetUp]
         public void SetUp()
         {
             _GifPostingHelper = new Mock<IGifPostingHelper>();
-            _PostGifsFunction = new PostGifsFunction(_GifPostingHelper.Object);
+            _PostGifsHelper = new PostGifsHelper(_GifPostingHelper.Object);
         }
         [Test]
         public async Task RunAsync()
@@ -49,7 +48,7 @@ namespace FunctionsTests
             _GifPostingHelper.Setup(s => s.DeleteErrorHistories(channelResult.Errors)).Returns(Task.CompletedTask);
             _GifPostingHelper.Setup(s => s.DeleteErrorHistories(gifPostingResult.Errors)).Returns(Task.CompletedTask);
             _GifPostingHelper.Setup(s => s.DeleteJobConfigs(gifPostingResult.ChannelsToDelete)).Returns(Task.CompletedTask);
-            var task = _PostGifsFunction.RunAsync(now, allValidMinutes, giphyRandomEndpoint, warningResponses);
+            var task = _PostGifsHelper.RunAsync(now, allValidMinutes, giphyRandomEndpoint, warningResponses);
             await task;
             _GifPostingHelper.VerifyAll();
             Assert.That(task.IsFaulted, Is.False);

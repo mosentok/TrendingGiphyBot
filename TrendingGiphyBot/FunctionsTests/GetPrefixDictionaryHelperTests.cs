@@ -3,24 +3,24 @@ using Moq;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using TrendingGiphyBotFunctions;
+using TrendingGiphyBotFunctions.Helpers;
 using TrendingGiphyBotFunctions.Wrappers;
 using TrendingGiphyBotModel;
 
 namespace FunctionsTests
 {
     [TestFixture]
-    public class GetPrefixDictionaryFunctionTests
+    public class GetPrefixDictionaryHelperTests
     {
         Mock<ILoggerWrapper> _Log;
         Mock<ITrendingGiphyBotContext> _Context;
-        GetPrefixDictionaryFunction _GetPrefixDictionaryFunction;
+        GetPrefixDictionaryHelper _GetPrefixDictionaryHelper;
         [SetUp]
         public void SetUp()
         {
             _Log = new Mock<ILoggerWrapper>();
             _Context = new Mock<ITrendingGiphyBotContext>();
-            _GetPrefixDictionaryFunction = new GetPrefixDictionaryFunction(_Log.Object, _Context.Object);
+            _GetPrefixDictionaryHelper = new GetPrefixDictionaryHelper(_Log.Object, _Context.Object);
         }
         [Test]
         public async Task RunAsync()
@@ -29,7 +29,7 @@ namespace FunctionsTests
             var prefixDictionary = new Dictionary<decimal, string> { { 123, "!" }, { 456, "^" } };
             _Context.Setup(s => s.GetPrefixDictionary()).ReturnsAsync(prefixDictionary);
             _Log.Setup(s => s.LogInformation($"Got {prefixDictionary.Count} prefixes."));
-            var result = await _GetPrefixDictionaryFunction.RunAsync();
+            var result = await _GetPrefixDictionaryHelper.RunAsync();
             _Log.VerifyAll();
             _Context.VerifyAll();
             var okObjectResult = result as OkObjectResult;

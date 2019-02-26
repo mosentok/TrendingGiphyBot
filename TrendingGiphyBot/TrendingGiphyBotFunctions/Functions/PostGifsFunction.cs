@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
@@ -8,9 +7,9 @@ using TrendingGiphyBotFunctions.Helpers;
 using TrendingGiphyBotFunctions.Wrappers;
 using TrendingGiphyBotModel;
 
-namespace TrendingGiphyBotFunctions
+namespace TrendingGiphyBotFunctions.Functions
 {
-    public class PostGifsFunction
+    public static class PostGifsFunction
     {
         [FunctionName(nameof(PostGifsFunction))]
         public static async Task Run([TimerTrigger("%PostGifsFunctionCron%")]TimerInfo myTimer, ILogger log)
@@ -34,32 +33,9 @@ namespace TrendingGiphyBotFunctions
             using (var discordWrapper = new DiscordWrapper(botToken))
             {
                 var gifPostingHelper = new GifPostingHelper(logWrapper, context, giphyWrapper, discordWrapper);
-                var postGifsFunction = new PostGifsFunction(gifPostingHelper);
-                await postGifsFunction.RunAsync(now, allValidMinutes, giphyRandomEndpoint, warningResponses);
+                var postGifsHelper = new PostGifsHelper(gifPostingHelper);
+                await postGifsHelper.RunAsync(now, allValidMinutes, giphyRandomEndpoint, warningResponses);
             }
-        }
-        readonly IGifPostingHelper _GifPostingHelper;
-        public PostGifsFunction(IGifPostingHelper gifPostingHelper)
-        {
-            _GifPostingHelper = gifPostingHelper;
-        }
-        public async Task RunAsync(DateTime now, List<int> allValidMinutes, string giphyRandomEndpoint, List<string> warningResponses)
-        {
-            await _GifPostingHelper.LogInAsync();
-            var totalMinutes = _GifPostingHelper.DetermineTotalMinutes(now);
-            var currentValidMinutes = _GifPostingHelper.DetermineCurrentValidMinutes(totalMinutes, allValidMinutes);
-            var pendingContainers = await _GifPostingHelper.GetContainers(now.Hour, currentValidMinutes);
-            var historyContainers = await _GifPostingHelper.BuildHistoryContainers(pendingContainers, giphyRandomEndpoint);
-            var insertedContainers = await _GifPostingHelper.InsertHistories(historyContainers);
-            var channelResult = await _GifPostingHelper.BuildChannelContainers(insertedContainers);
-            var gifPostingResult = await _GifPostingHelper.PostGifs(channelResult.ChannelContainers, warningResponses);
-            if (channelResult.Errors.Any())
-                await _GifPostingHelper.DeleteErrorHistories(channelResult.Errors);
-            if (gifPostingResult.Errors.Any())
-                await _GifPostingHelper.DeleteErrorHistories(gifPostingResult.Errors);
-            if (gifPostingResult.ChannelsToDelete.Any())
-                await _GifPostingHelper.DeleteJobConfigs(gifPostingResult.ChannelsToDelete);
-            await _GifPostingHelper.LogOutAsync();
         }
     }
 }

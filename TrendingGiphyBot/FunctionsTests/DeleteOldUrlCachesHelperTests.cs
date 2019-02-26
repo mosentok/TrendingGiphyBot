@@ -2,24 +2,24 @@
 using NUnit.Framework;
 using System;
 using System.Threading.Tasks;
-using TrendingGiphyBotFunctions;
+using TrendingGiphyBotFunctions.Helpers;
 using TrendingGiphyBotFunctions.Wrappers;
 using TrendingGiphyBotModel;
 
 namespace FunctionsTests
 {
     [TestFixture]
-    public class DeleteOldUrlCachesFunctionTests
+    public class DeleteOldUrlCachesHelperTests
     {
         Mock<ILoggerWrapper> _Log;
         Mock<ITrendingGiphyBotContext> _Context;
-        DeleteOldUrlCachesFunction _DeleteOldUrlCachesFunction;
+        DeleteOldUrlCachesHelper _DeleteOldUrlCachesHelper;
         [SetUp]
         public void SetUp()
         {
             _Log = new Mock<ILoggerWrapper>();
             _Context = new Mock<ITrendingGiphyBotContext>();
-            _DeleteOldUrlCachesFunction = new DeleteOldUrlCachesFunction(_Log.Object, _Context.Object);
+            _DeleteOldUrlCachesHelper = new DeleteOldUrlCachesHelper(_Log.Object, _Context.Object);
         }
         [Test]
         public async Task RunAsync()
@@ -29,7 +29,7 @@ namespace FunctionsTests
             const int count = 123;
             _Context.Setup(s => s.DeleteUrlCachesOlderThan(oldestDate)).ReturnsAsync(count);
             _Log.Setup(s => s.LogInformation($"Deleted {count} URL caches older than {oldestDate}."));
-            var task = _DeleteOldUrlCachesFunction.RunAsync(oldestDate);
+            var task = _DeleteOldUrlCachesHelper.RunAsync(oldestDate);
             await task;
             _Log.VerifyAll();
             _Context.VerifyAll();

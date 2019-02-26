@@ -2,24 +2,24 @@
 using Moq;
 using NUnit.Framework;
 using System.Threading.Tasks;
-using TrendingGiphyBotFunctions;
+using TrendingGiphyBotFunctions.Helpers;
 using TrendingGiphyBotFunctions.Wrappers;
 using TrendingGiphyBotModel;
 
 namespace FunctionsTests
 {
     [TestFixture]
-    public class PostJobConfigFunctionTests
+    public class PostJobConfigHelperTests
     {
         Mock<ILoggerWrapper> _Log;
         Mock<ITrendingGiphyBotContext> _Context;
-        PostJobConfigFunction _PostJobConfigFunction;
+        PostJobConfigHelper _PostJobConfigHelper;
         [SetUp]
         public void SetUp()
         {
             _Log = new Mock<ILoggerWrapper>();
             _Context = new Mock<ITrendingGiphyBotContext>();
-            _PostJobConfigFunction = new PostJobConfigFunction(_Log.Object, _Context.Object);
+            _PostJobConfigHelper = new PostJobConfigHelper(_Log.Object, _Context.Object);
         }
         [Test]
         public async Task RunAsync()
@@ -30,7 +30,7 @@ namespace FunctionsTests
             var updatedContainer = new JobConfigContainer();
             _Context.Setup(s => s.SetJobConfig(channelId, container)).ReturnsAsync(updatedContainer);
             _Log.Setup(s => s.LogInformation($"Channel {channelId} posted job config."));
-            var result = await _PostJobConfigFunction.RunAsync(container, channelId);
+            var result = await _PostJobConfigHelper.RunAsync(container, channelId);
             _Log.VerifyAll();
             _Context.VerifyAll();
             var okObjectResult = result as OkObjectResult;

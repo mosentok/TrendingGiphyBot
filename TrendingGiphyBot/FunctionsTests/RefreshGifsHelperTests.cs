@@ -2,7 +2,7 @@
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using TrendingGiphyBotFunctions;
+using TrendingGiphyBotFunctions.Helpers;
 using TrendingGiphyBotFunctions.Models;
 using TrendingGiphyBotFunctions.Wrappers;
 using TrendingGiphyBotModel;
@@ -10,19 +10,19 @@ using TrendingGiphyBotModel;
 namespace FunctionsTests
 {
     [TestFixture]
-    public class RefreshGifsFunctionTests
+    public class RefreshGifsHelperTests
     {
         Mock<ILoggerWrapper> _Log;
         Mock<IGiphyWrapper> _GiphyWrapper;
         Mock<ITrendingGiphyBotContext> _Context;
-        RefreshGifsFunction _RefreshGifsFunction;
+        RefreshGifsHelper _RefreshGifsHelper;
         [SetUp]
         public void SetUp()
         {
             _Log = new Mock<ILoggerWrapper>();
             _GiphyWrapper = new Mock<IGiphyWrapper>();
             _Context = new Mock<ITrendingGiphyBotContext>();
-            _RefreshGifsFunction = new RefreshGifsFunction(_Log.Object, _GiphyWrapper.Object, _Context.Object);
+            _RefreshGifsHelper = new RefreshGifsHelper(_Log.Object, _GiphyWrapper.Object, _Context.Object);
         }
         [Test]
         public async Task RunAsync()
@@ -34,7 +34,7 @@ namespace FunctionsTests
             _GiphyWrapper.Setup(s => s.GetTrendingGifsAsync(trendingEndpoint)).ReturnsAsync(trendingResponse);
             _Context.Setup(s => s.InsertNewTrendingGifs(trendingResponse.Data)).ReturnsAsync(count);
             _Log.Setup(s => s.LogInformation($"Inserted {count} URL caches."));
-            var task = _RefreshGifsFunction.RunAsync(trendingEndpoint);
+            var task = _RefreshGifsHelper.RunAsync(trendingEndpoint);
             await task;
             _Log.VerifyAll();
             _GiphyWrapper.VerifyAll();
