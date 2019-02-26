@@ -1,5 +1,14 @@
-# TrendingGiphyBot
-Stay up to date with the latest trending gifs, right inside Discord.
+<h1 align="center">
+  Trending Giphy Bot
+</h1>
+<p align="center">
+  Stay up to date with the latest trending gifs, right inside Discord.
+</p>
+<p align="center">
+  <a href="https://dev.azure.com/mosentok/TrendingGiphyBot/_build?definitionId=1">
+    <img src="https://img.shields.io/azure-devops/tests/mosentok/trendinggiphybot/1.svg?label=Unit%20Tests"></img>
+  </a>
+</p>
 
 &nbsp;|&nbsp;
 -|-
@@ -75,7 +84,9 @@ This command will show you some examples of the bot's commands. Use it as a quic
 
 - [.NET](https://dotnet.microsoft.com)
 - [Azure](https://azure.microsoft.com/en-us)
+- [Azure DevOps](https://azure.microsoft.com/en-us/services/devops/)
 - [Visual Studio](https://www.visualstudio.com)
 - [Discord](https://discordapp.com)
 - [Discord.Net](https://github.com/RogueException/Discord.Net)
 - [Giphy](https://giphy.com)
+- [Shields.io](https://shields.io/)
