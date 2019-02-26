@@ -15,7 +15,7 @@ variables:
 steps:
 - script: dotnet build $(Build.SourcesDirectory)/TrendingGiphyBot/TrendingGiphyBot.sln --configuration $(buildConfiguration)
   displayName: 'dotnet build $(buildConfiguration)'
-- script: dotnet test $(Build.SourcesDirectory)/TrendingGiphyBot/FunctionsTests/FunctionsTests.csproj --logger:trx
+- script: dotnet test $(Build.SourcesDirectory)/TrendingGiphyBot/FunctionsTests/FunctionsTests.csproj --no-build --no-restore --logger:trx /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Exclude="[TrendingGiphyBotModel]*"
   displayName: 'dotnet test $(buildConfiguration)'
 - task: PublishTestResults@2
   condition: succeededOrFailed()
@@ -23,3 +23,9 @@ steps:
     testRunner: VSTest
     testResultsFiles: '**/*.trx'
   displayName: 'publish test results'
+- task: PublishCodeCoverageResults@1
+  inputs:
+    codeCoverageTool: Cobertura
+    summaryFileLocation: $(Build.SourcesDirectory)/TrendingGiphyBot/FunctionsTests/coverage.cobertura.xml
+    reportDirectory: $(Build.SourcesDirectory)/TrendingGiphyBot/FunctionsTests
+  displayName: 'publish coverage results'
