@@ -16,10 +16,16 @@
     </a>
   </span>
 </p>
-
-&nbsp;|&nbsp;
--|-
-<img src="https://discordapp.com/assets/fc0b01fe10a0b8c602fb0106d8189d9b.png" width="900px" />|<img src="https://media1.giphy.com/media/3o6gbbuLW76jkt8vIc/giphy.gif" width="900px" />
+<table>
+  <tr>
+    <td>
+      <img src="https://discordapp.com/assets/fc0b01fe10a0b8c602fb0106d8189d9b.png" width="900px" />
+    </td>
+    <td>
+      <img src="https://media1.giphy.com/media/3o6gbbuLW76jkt8vIc/giphy.gif" width="900px" />
+    </td>
+  </tr>
+</table>
 
 ## Table of Contents
 
