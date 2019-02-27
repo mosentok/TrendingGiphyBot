@@ -1,7 +1,9 @@
-﻿using Moq;
+﻿using Discord;
+using Moq;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using TrendingGiphyBotFunctions.Helpers;
 using TrendingGiphyBotFunctions.Wrappers;
@@ -141,6 +143,63 @@ namespace FunctionsTests
             _Log.VerifyAll();
             _Context.VerifyAll();
             Assert.That(task.IsCompletedSuccessfully, Is.True);
+        }
+        [Test]
+        public async Task BuildHistoryContainers()
+        {
+            const string alreadySeenGifId = "already seen";
+            const string notYetSeenGifId = "not yet seen";
+            var histories = new List<PendingHistory> { new PendingHistory { GifId = alreadySeenGifId } };
+            var containers = new List<PendingJobConfig> { new PendingJobConfig { Histories = histories } };
+            _Log.Setup(s => s.LogInformation($"Building {containers.Count} histories."));
+            var urlCaches = new List<UrlCache> { new UrlCache { Id = alreadySeenGifId }, new UrlCache { Id = notYetSeenGifId } };
+            _Context.Setup(s => s.GetUrlCachesAsync()).ReturnsAsync(urlCaches);
+            _Log.Setup(s => s.LogInformation($"Built 1 histories."));
+            const string giphyRandomEndpoint = "giphy random endpoint";
+            var result = await _GifPostingHelper.BuildHistoryContainers(containers, giphyRandomEndpoint);
+            _Log.VerifyAll();
+            _Context.VerifyAll();
+            Assert.That(result.Count, Is.EqualTo(1));
+            Assert.That(result.Count(s => s.GifId == alreadySeenGifId), Is.EqualTo(0));
+            Assert.That(result.Count(s => s.GifId == notYetSeenGifId), Is.EqualTo(1));
+        }
+        [Test]
+        public async Task BuildChannelContainers()
+        {
+            const decimal channelId = 123;
+            var insertedContainers = new List<UrlHistoryContainer> { new UrlHistoryContainer { ChannelId = channelId } };
+            _Log.Setup(s => s.LogInformation($"Getting {insertedContainers.Count} channels."));
+            var channel = new Mock<IMessageChannel>();
+            var channelIdLong = Convert.ToUInt64(channelId);
+            channel.Setup(s => s.Id).Returns(channelIdLong);
+            _DiscordWrapper.Setup(s => s.GetChannelAsync(channelId)).ReturnsAsync(channel.Object);
+            _Log.Setup(s => s.LogInformation($"Got 1 channels."));
+            var result = await _GifPostingHelper.BuildChannelContainers(insertedContainers);
+            _Log.VerifyAll();
+            _DiscordWrapper.VerifyAll();
+            Assert.That(result.ChannelContainers.Count, Is.EqualTo(1));
+            Assert.That(result.Errors.Count, Is.EqualTo(0));
+            Assert.That(result.ChannelContainers.Count(s => s.Channel.Id == channelIdLong), Is.EqualTo(1));
+        }
+        [Test]
+        public async Task BuildChannelContainers_Error()
+        {
+            const decimal channelId = 123;
+            var insertedContainers = new List<UrlHistoryContainer> { new UrlHistoryContainer { ChannelId = channelId } };
+            _Log.Setup(s => s.LogInformation($"Getting {insertedContainers.Count} channels."));
+            var channel = new Mock<IMessageChannel>();
+            var channelIdLong = Convert.ToUInt64(channelId);
+            channel.Setup(s => s.Id).Returns(channelIdLong);
+            var exception = new Exception();
+            _DiscordWrapper.Setup(s => s.GetChannelAsync(channelId)).ThrowsAsync(exception);
+            _Log.Setup(s => s.LogError(exception, $"Error getting channel '{channelId}'."));
+            _Log.Setup(s => s.LogInformation($"Got 0 channels."));
+            var result = await _GifPostingHelper.BuildChannelContainers(insertedContainers);
+            _Log.VerifyAll();
+            _DiscordWrapper.VerifyAll();
+            Assert.That(result.ChannelContainers.Count, Is.EqualTo(0));
+            Assert.That(result.Errors.Count, Is.EqualTo(1));
+            Assert.That(result.ChannelContainers.Count(s => s.Channel.Id == channelIdLong), Is.EqualTo(0));
         }
     }
 }
