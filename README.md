@@ -29,11 +29,11 @@
 
 ## Table of Contents
 
-- [What is Trending Giphy Bot?](https://github.com/mosentok/TrendingGiphyBot#what-is-trending-giphy-bot)
-- [Invite](https://github.com/mosentok/TrendingGiphyBot#invite)
-- [Quick Start](https://github.com/mosentok/TrendingGiphyBot#quick-start)
-- [Commands](https://github.com/mosentok/TrendingGiphyBot#commands)
-- [Special Thanks](https://github.com/mosentok/TrendingGiphyBot#special-thanks)
+- [What is Trending Giphy Bot?](#what-is-trending-giphy-bot)
+- [Invite](#invite)
+- [Quick Start](#quick-start)
+- [Commands](#commands)
+- [Special Thanks](#special-thanks)
 
 ## What is Trending Giphy Bot?
 
