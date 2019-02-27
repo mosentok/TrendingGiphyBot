@@ -96,4 +96,6 @@ This command will show you some examples of the bot's commands. Use it as a quic
 - [Discord](https://discordapp.com)
 - [Discord.Net](https://github.com/RogueException/Discord.Net)
 - [Giphy](https://giphy.com)
+- [Coverlet](https://github.com/tonerdo/coverlet)
+- [ReportGenerator](https://github.com/danielpalme/ReportGenerator)
 - [Shields.io](https://shields.io/)
