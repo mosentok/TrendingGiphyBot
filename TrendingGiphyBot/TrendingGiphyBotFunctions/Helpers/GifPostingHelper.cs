@@ -112,7 +112,7 @@ namespace TrendingGiphyBotFunctions.Helpers
                     else
                         channelsToDelete.Add(channelContainer.HistoryContainer);
                 }
-                catch (HttpException httpException) when (warningResponses.Any(httpException.Message.EndsWith))
+                catch (HttpException httpException) when (warningResponses.Any(httpException.Message.Contains))
                 {
                     _Log.LogError(httpException, $"Error posting to channel '{channelContainer.HistoryContainer.ChannelId}' gif '{channelContainer.HistoryContainer.Url}'.");
                     channelsToDelete.Add(channelContainer.HistoryContainer);
