@@ -179,13 +179,15 @@ namespace FunctionsTests
             _DiscordWrapper.VerifyAll();
             Assert.That(result.ChannelContainers.Count, Is.EqualTo(1));
             Assert.That(result.Errors.Count, Is.EqualTo(0));
+            Assert.That(result.ChannelsToDelete.Count, Is.EqualTo(0));
             Assert.That(result.ChannelContainers.Count(s => s.Channel.Id == channelIdLong), Is.EqualTo(1));
         }
         [Test]
         public async Task BuildChannelContainers_Error()
         {
             const decimal channelId = 123;
-            var insertedContainers = new List<UrlHistoryContainer> { new UrlHistoryContainer { ChannelId = channelId } };
+            var errorHistory = new UrlHistoryContainer { ChannelId = channelId };
+            var insertedContainers = new List<UrlHistoryContainer> { errorHistory };
             _Log.Setup(s => s.LogInformation($"Getting {insertedContainers.Count} channels."));
             var channel = new Mock<IMessageChannel>();
             var channelIdLong = Convert.ToUInt64(channelId);
@@ -199,7 +201,27 @@ namespace FunctionsTests
             _DiscordWrapper.VerifyAll();
             Assert.That(result.ChannelContainers.Count, Is.EqualTo(0));
             Assert.That(result.Errors.Count, Is.EqualTo(1));
-            Assert.That(result.ChannelContainers.Count(s => s.Channel.Id == channelIdLong), Is.EqualTo(0));
+            Assert.That(result.ChannelsToDelete.Count, Is.EqualTo(0));
+            Assert.That(result.Errors, Contains.Item(errorHistory));
+        }
+        [Test]
+        public async Task BuildChannelContainers_NullChannel()
+        {
+            const decimal channelId = 123;
+            var errorHistory = new UrlHistoryContainer { ChannelId = channelId };
+            var insertedContainers = new List<UrlHistoryContainer> { errorHistory };
+            _Log.Setup(s => s.LogInformation($"Getting {insertedContainers.Count} channels."));
+            IMessageChannel channel = null;
+            var channelIdLong = Convert.ToUInt64(channelId);
+            _DiscordWrapper.Setup(s => s.GetChannelAsync(channelId)).ReturnsAsync(channel);
+            _Log.Setup(s => s.LogInformation($"Got 0 channels."));
+            var result = await _GifPostingHelper.BuildChannelContainers(insertedContainers);
+            _Log.VerifyAll();
+            _DiscordWrapper.VerifyAll();
+            Assert.That(result.ChannelContainers.Count, Is.EqualTo(0));
+            Assert.That(result.Errors.Count, Is.EqualTo(0));
+            Assert.That(result.ChannelsToDelete.Count, Is.EqualTo(1));
+            Assert.That(result.ChannelsToDelete, Contains.Item(channelId));
         }
     }
 }
