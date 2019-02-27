@@ -78,11 +78,15 @@ namespace TrendingGiphyBotFunctions.Helpers
             _Log.LogInformation($"Getting {insertedContainers.Count} channels.");
             var channelContainers = new List<ChannelContainer>();
             var errors = new List<UrlHistoryContainer>();
+            var channelsToDelete = new List<decimal>();
             foreach (var insertedContainer in insertedContainers)
                 try
                 {
                     var channel = await _DiscordWrapper.GetChannelAsync(insertedContainer.ChannelId);
-                    channelContainers.Add(new ChannelContainer(channel, insertedContainer));
+                    if (channel != null)
+                        channelContainers.Add(new ChannelContainer(channel, insertedContainer));
+                    else
+                        channelsToDelete.Add(insertedContainer.ChannelId);
                 }
                 catch (Exception ex)
                 {
@@ -90,32 +94,27 @@ namespace TrendingGiphyBotFunctions.Helpers
                     errors.Add(insertedContainer);
                 }
             _Log.LogInformation($"Got {channelContainers.Count} channels.");
-            return new ChannelResult(channelContainers, errors);
+            return new ChannelResult(channelContainers, errors, channelsToDelete);
         }
         public async Task<GifPostingResult> PostGifs(List<ChannelContainer> channelContainers, List<string> warningResponses)
         {
             _Log.LogInformation($"Posting {channelContainers.Count} gifs.");
             var errors = new List<UrlHistoryContainer>();
-            var channelsToDelete = new List<UrlHistoryContainer>();
+            var channelsToDelete = new List<decimal>();
             foreach (var channelContainer in channelContainers)
                 try
                 {
-                    if (channelContainer.Channel != null)
-                    {
-                        string message;
-                        if (channelContainer.HistoryContainer.IsTrending)
-                            message = $"*Trending!* {channelContainer.HistoryContainer.Url}";
-                        else
-                            message = channelContainer.HistoryContainer.Url;
-                        await channelContainer.Channel.SendMessageAsync(message);
-                    }
+                    string message;
+                    if (channelContainer.HistoryContainer.IsTrending)
+                        message = $"*Trending!* {channelContainer.HistoryContainer.Url}";
                     else
-                        channelsToDelete.Add(channelContainer.HistoryContainer);
+                        message = channelContainer.HistoryContainer.Url;
+                    await channelContainer.Channel.SendMessageAsync(message);
                 }
                 catch (HttpException httpException) when (warningResponses.Any(httpException.Message.Contains))
                 {
                     _Log.LogError(httpException, $"Error posting to channel '{channelContainer.HistoryContainer.ChannelId}' gif '{channelContainer.HistoryContainer.Url}'.");
-                    channelsToDelete.Add(channelContainer.HistoryContainer);
+                    channelsToDelete.Add(channelContainer.HistoryContainer.ChannelId);
                 }
                 catch (Exception ex)
                 {

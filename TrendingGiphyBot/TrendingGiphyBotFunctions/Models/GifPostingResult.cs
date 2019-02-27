@@ -6,8 +6,8 @@ namespace TrendingGiphyBotFunctions.Models
     public class GifPostingResult
     {
         public List<UrlHistoryContainer> Errors { get; set; }
-        public List<UrlHistoryContainer> ChannelsToDelete { get; set; }
-        public GifPostingResult(List<UrlHistoryContainer> errors, List<UrlHistoryContainer> channelsToDelete)
+        public List<decimal> ChannelsToDelete { get; set; }
+        public GifPostingResult(List<UrlHistoryContainer> errors, List<decimal> channelsToDelete)
         {
             Errors = errors;
             ChannelsToDelete = channelsToDelete;

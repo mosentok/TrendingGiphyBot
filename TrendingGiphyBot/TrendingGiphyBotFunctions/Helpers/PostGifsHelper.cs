@@ -24,13 +24,12 @@ namespace TrendingGiphyBotFunctions.Helpers
             var gifPostingResult = await _GifPostingHelper.PostGifs(channelResult.ChannelContainers, warningResponses);
             if (channelResult.Errors.Any())
                 await _GifPostingHelper.DeleteErrorHistories(channelResult.Errors);
+            if (channelResult.ChannelsToDelete.Any())
+                await _GifPostingHelper.DeleteJobConfigs(channelResult.ChannelsToDelete);
             if (gifPostingResult.Errors.Any())
                 await _GifPostingHelper.DeleteErrorHistories(gifPostingResult.Errors);
             if (gifPostingResult.ChannelsToDelete.Any())
-            {
-                var channelIds = gifPostingResult.ChannelsToDelete.Select(s => s.ChannelId).ToList();
-                await _GifPostingHelper.DeleteJobConfigs(channelIds);
-            }
+                await _GifPostingHelper.DeleteJobConfigs(gifPostingResult.ChannelsToDelete);
             await _GifPostingHelper.LogOutAsync();
         }
     }
