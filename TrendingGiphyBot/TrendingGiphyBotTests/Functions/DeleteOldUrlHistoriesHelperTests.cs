@@ -2,12 +2,11 @@
 using NUnit.Framework;
 using System;
 using System.Threading.Tasks;
-using TrendingGiphyBotFunctions;
 using TrendingGiphyBotFunctions.Helpers;
 using TrendingGiphyBotFunctions.Wrappers;
 using TrendingGiphyBotModel;
 
-namespace FunctionsTests
+namespace TrendingGiphyBotTests.Functions
 {
     [TestFixture]
     public class DeleteOldUrlHistoriesHelperTests
