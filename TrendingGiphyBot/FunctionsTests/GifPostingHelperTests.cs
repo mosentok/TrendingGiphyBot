@@ -158,7 +158,7 @@ namespace FunctionsTests
             _Log.Setup(s => s.LogInformation($"Building {containers.Count} histories."));
             var urlCaches = new List<UrlCache> { new UrlCache { Id = alreadySeenGifId }, new UrlCache { Id = notYetSeenGifId } };
             _Context.Setup(s => s.GetUrlCachesAsync()).ReturnsAsync(urlCaches);
-            _Log.Setup(s => s.LogInformation($"Built 1 histories."));
+            _Log.Setup(s => s.LogInformation("Built 1 histories."));
             const string giphyRandomEndpoint = "giphy random endpoint";
             var result = await _GifPostingHelper.BuildHistoryContainers(containers, giphyRandomEndpoint);
             _Log.VerifyAll();
@@ -186,7 +186,7 @@ namespace FunctionsTests
             const string giphyRandomEndpoint = "giphy random endpoint";
             var giphyRandomResponse = new GiphyRandomResponse { Data = new GifObject { Id = notYetSeenGifId } };
             _GiphyWrapper.Setup(s => s.GetRandomGifAsync(giphyRandomEndpoint, pendingJobConfig.RandomSearchString)).ReturnsAsync(giphyRandomResponse);
-            _Log.Setup(s => s.LogInformation($"Built 1 histories."));
+            _Log.Setup(s => s.LogInformation("Built 1 histories."));
             var result = await _GifPostingHelper.BuildHistoryContainers(containers, giphyRandomEndpoint);
             _Log.VerifyAll();
             _Context.VerifyAll();
@@ -216,7 +216,7 @@ namespace FunctionsTests
             const string giphyRandomEndpoint = "giphy random endpoint";
             var giphyRandomResponse = new GiphyRandomResponse { Data = new GifObject { Id = randomGifAlreadySeenId } };
             _GiphyWrapper.Setup(s => s.GetRandomGifAsync(giphyRandomEndpoint, pendingJobConfig.RandomSearchString)).ReturnsAsync(giphyRandomResponse);
-            _Log.Setup(s => s.LogInformation($"Built 0 histories."));
+            _Log.Setup(s => s.LogInformation("Built 0 histories."));
             var result = await _GifPostingHelper.BuildHistoryContainers(containers, giphyRandomEndpoint);
             _Log.VerifyAll();
             _Context.VerifyAll();
@@ -236,7 +236,7 @@ namespace FunctionsTests
             var channelIdLong = Convert.ToUInt64(channelId);
             channel.Setup(s => s.Id).Returns(channelIdLong);
             _DiscordWrapper.Setup(s => s.GetChannelAsync(channelId)).ReturnsAsync(channel.Object);
-            _Log.Setup(s => s.LogInformation($"Got 1 channels."));
+            _Log.Setup(s => s.LogInformation("Got 1 channels."));
             var result = await _GifPostingHelper.BuildChannelContainers(insertedContainers);
             _Log.VerifyAll();
             _DiscordWrapper.VerifyAll();
@@ -258,7 +258,7 @@ namespace FunctionsTests
             var exception = new Exception();
             _DiscordWrapper.Setup(s => s.GetChannelAsync(channelId)).ThrowsAsync(exception);
             _Log.Setup(s => s.LogError(exception, $"Error getting channel '{channelId}'."));
-            _Log.Setup(s => s.LogInformation($"Got 0 channels."));
+            _Log.Setup(s => s.LogInformation("Got 0 channels."));
             var result = await _GifPostingHelper.BuildChannelContainers(insertedContainers);
             _Log.VerifyAll();
             _DiscordWrapper.VerifyAll();
@@ -277,7 +277,7 @@ namespace FunctionsTests
             IMessageChannel channel = null;
             var channelIdLong = Convert.ToUInt64(channelId);
             _DiscordWrapper.Setup(s => s.GetChannelAsync(channelId)).ReturnsAsync(channel);
-            _Log.Setup(s => s.LogInformation($"Got 0 channels."));
+            _Log.Setup(s => s.LogInformation("Got 0 channels."));
             var result = await _GifPostingHelper.BuildChannelContainers(insertedContainers);
             _Log.VerifyAll();
             _DiscordWrapper.VerifyAll();
@@ -285,6 +285,37 @@ namespace FunctionsTests
             Assert.That(result.Errors.Count, Is.EqualTo(0));
             Assert.That(result.ChannelsToDelete.Count, Is.EqualTo(1));
             Assert.That(result.ChannelsToDelete, Contains.Item(channelId));
+        }
+        [Test]
+        public async Task PostGifs_Trending()
+        {
+            var channel = new Mock<IMessageChannel>();
+            var historyContainer = new UrlHistoryContainer { IsTrending = true, Url = "a.b/c" };
+            IUserMessage userMessage = null;
+            var message = $"*Trending!* {historyContainer.Url}";
+            channel.Setup(s => s.SendMessageAsync(message, It.IsAny<bool>(), It.IsAny<Embed>(), It.IsAny<RequestOptions>())).ReturnsAsync(userMessage);
+            var channelContainers = new List<ChannelContainer> { new ChannelContainer { Channel = channel.Object, HistoryContainer = historyContainer } };
+            _Log.Setup(s => s.LogInformation($"Posting {channelContainers.Count} gifs."));
+            _Log.Setup(s => s.LogInformation("Posted 1 gifs."));
+            var warningResponses = new List<string> { "missing access", "missing permission" };
+            var result = await _GifPostingHelper.PostGifs(channelContainers, warningResponses);
+            Assert.That(result.ChannelsToDelete, Is.Empty);
+            Assert.That(result.Errors, Is.Empty);
+        }
+        [Test]
+        public async Task PostGifs_RandomGif()
+        {
+            var channel = new Mock<IMessageChannel>();
+            var historyContainer = new UrlHistoryContainer { IsTrending = false, Url = "a.b/c" };
+            IUserMessage userMessage = null;
+            channel.Setup(s => s.SendMessageAsync(historyContainer.Url, It.IsAny<bool>(), It.IsAny<Embed>(), It.IsAny<RequestOptions>())).ReturnsAsync(userMessage);
+            var channelContainers = new List<ChannelContainer> { new ChannelContainer { Channel = channel.Object, HistoryContainer = historyContainer } };
+            _Log.Setup(s => s.LogInformation($"Posting {channelContainers.Count} gifs."));
+            _Log.Setup(s => s.LogInformation("Posted 1 gifs."));
+            var warningResponses = new List<string> { "missing access", "missing permission" };
+            var result = await _GifPostingHelper.PostGifs(channelContainers, warningResponses);
+            Assert.That(result.ChannelsToDelete, Is.Empty);
+            Assert.That(result.Errors, Is.Empty);
         }
     }
 }
