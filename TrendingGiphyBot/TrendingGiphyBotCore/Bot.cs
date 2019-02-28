@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using TrendingGiphyBotCore.Exceptions;
 using TrendingGiphyBotCore.Extensions;
 using TrendingGiphyBotCore.Helpers;
+using TrendingGiphyBotCore.Wrappers;
 
 namespace TrendingGiphyBotCore
 {
@@ -24,7 +25,7 @@ namespace TrendingGiphyBotCore
         IServiceProvider _Services;
         DiscordSocketClient _DiscordClient;
         List<string> _ModuleNames;
-        IFunctionHelper _FunctionHelper;
+        IFunctionWrapper _FunctionWrapper;
         TaskCompletionSource<bool> _LoggedInSource;
         TaskCompletionSource<bool> _ReadySource;
         List<ulong> _ListenToOnlyTheseChannels;
@@ -37,14 +38,14 @@ namespace TrendingGiphyBotCore
                 .AddEnvironmentVariables()
                 .Build();
             _ListenToOnlyTheseChannels = _Config.Get<List<ulong>>("ListenToOnlyTheseChannels");
-            _FunctionHelper = new FunctionHelper(_Config);
+            _FunctionWrapper = new FunctionWrapper(_Config);
             _DiscordClient = new DiscordSocketClient();
             var trendHelper = new TrendHelper(_Config);
             trendHelper.PrefixUpdated += TrendHelper_PrefixUpdated;
             _Services = new ServiceCollection()
                 .AddSingleton(_DiscordClient)
                 .AddSingleton<ITrendHelper>(trendHelper)
-                .AddSingleton(_FunctionHelper)
+                .AddSingleton(_FunctionWrapper)
                 .AddSingleton(_Config)
                 .AddLogging(s => s.AddConsole())
                 .BuildServiceProvider();
@@ -59,7 +60,7 @@ namespace TrendingGiphyBotCore
             _DiscordClient.JoinedGuild += JoinedGuild;
             _DiscordClient.LeftGuild += LeftGuild;
             await _DiscordClient.SetGameAsync(_Config["PlayingGame"]);
-            _PrefixDictionary = await _FunctionHelper.GetPrefixDictionaryAsync();
+            _PrefixDictionary = await _FunctionWrapper.GetPrefixDictionaryAsync();
         }
         void TrendHelper_PrefixUpdated(decimal channelId, string prefix)
         {
@@ -100,21 +101,21 @@ namespace TrendingGiphyBotCore
         }
         async Task JoinedGuild(SocketGuild arg)
         {
-            await _Logger.SwallowAsync(_FunctionHelper.PostStatsAsync(_DiscordClient.CurrentUser.Id, _DiscordClient.Guilds.Count));
+            await _Logger.SwallowAsync(_FunctionWrapper.PostStatsAsync(_DiscordClient.CurrentUser.Id, _DiscordClient.Guilds.Count));
         }
         async Task LeftGuild(SocketGuild arg)
         {
             await _Logger.SwallowAsync(async () =>
             {
                 await RemoveThisGuildsJobConfigs(arg);
-                await _FunctionHelper.PostStatsAsync(_DiscordClient.CurrentUser.Id, _DiscordClient.Guilds.Count);
+                await _FunctionWrapper.PostStatsAsync(_DiscordClient.CurrentUser.Id, _DiscordClient.Guilds.Count);
             });
         }
         async Task RemoveThisGuildsJobConfigs(SocketGuild arg)
         {
             var textChannelIds = arg.TextChannels.Select(s => Convert.ToDecimal(s.Id));
             foreach (var id in textChannelIds)
-                await _FunctionHelper.DeleteJobConfigAsync(id);
+                await _FunctionWrapper.DeleteJobConfigAsync(id);
         }
         async Task MessageReceived(SocketMessage messageParam)
         {
