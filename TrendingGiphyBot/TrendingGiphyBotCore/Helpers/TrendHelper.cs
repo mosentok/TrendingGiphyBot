@@ -1,11 +1,10 @@
-﻿using Microsoft.Extensions.Configuration;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using TrendingGiphyBotCore.Configuration;
 using TrendingGiphyBotCore.Enums;
 using TrendingGiphyBotCore.Exceptions;
-using TrendingGiphyBotCore.Extensions;
+using TrendingGiphyBotCore.Wrappers;
 
 namespace TrendingGiphyBotCore.Helpers
 {
@@ -13,8 +12,8 @@ namespace TrendingGiphyBotCore.Helpers
     {
         public event Action<decimal, string> PrefixUpdated;
         static readonly string[] _FluentWords = new[] { "gifs of", "gif of", "gifs", "gif" };
-        readonly IConfiguration _Config;
-        public TrendHelper(IConfiguration config)
+        readonly IConfigurationWrapper _Config;
+        public TrendHelper(IConfigurationWrapper config)
         {
             _Config = config;
         }

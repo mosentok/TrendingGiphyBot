@@ -20,7 +20,7 @@ namespace TrendingGiphyBotCore
     public class Bot : IDisposable
     {
         ILogger _Logger;
-        IConfiguration _Config;
+        IConfigurationWrapper _ConfigWrapper;
         CommandService _Commands;
         IServiceProvider _Services;
         DiscordSocketClient _DiscordClient;
@@ -32,21 +32,22 @@ namespace TrendingGiphyBotCore
         Dictionary<decimal, string> _PrefixDictionary;
         public async Task Run()
         {
-            _Config = new ConfigurationBuilder()
+            var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json")
                 .AddEnvironmentVariables()
                 .Build();
-            _ListenToOnlyTheseChannels = _Config.Get<List<ulong>>("ListenToOnlyTheseChannels");
-            _FunctionWrapper = new FunctionWrapper(_Config);
+            _ConfigWrapper = new ConfigurationWrapper(config);
+            _ListenToOnlyTheseChannels = _ConfigWrapper.Get<List<ulong>>("ListenToOnlyTheseChannels");
+            _FunctionWrapper = new FunctionWrapper(_ConfigWrapper);
             _DiscordClient = new DiscordSocketClient();
-            var trendHelper = new TrendHelper(_Config);
+            var trendHelper = new TrendHelper(_ConfigWrapper);
             trendHelper.PrefixUpdated += TrendHelper_PrefixUpdated;
             _Services = new ServiceCollection()
                 .AddSingleton(_DiscordClient)
                 .AddSingleton<ITrendHelper>(trendHelper)
                 .AddSingleton(_FunctionWrapper)
-                .AddSingleton(_Config)
+                .AddSingleton(_ConfigWrapper)
                 .AddLogging(s => s.AddConsole())
                 .BuildServiceProvider();
             _Logger = _Services.GetService<ILogger<Bot>>();
@@ -59,7 +60,7 @@ namespace TrendingGiphyBotCore
             _DiscordClient.MessageReceived += MessageReceived;
             _DiscordClient.JoinedGuild += JoinedGuild;
             _DiscordClient.LeftGuild += LeftGuild;
-            await _DiscordClient.SetGameAsync(_Config["PlayingGame"]);
+            await _DiscordClient.SetGameAsync(_ConfigWrapper["PlayingGame"]);
             _PrefixDictionary = await _FunctionWrapper.GetPrefixDictionaryAsync();
         }
         void TrendHelper_PrefixUpdated(decimal channelId, string prefix)
@@ -70,7 +71,7 @@ namespace TrendingGiphyBotCore
         {
             _LoggedInSource = new TaskCompletionSource<bool>();
             _DiscordClient.LoggedIn += LoggedIn;
-            var token = _Config["DiscordToken"];
+            var token = _ConfigWrapper["DiscordToken"];
             await _DiscordClient.LoginAsync(TokenType.Bot, token);
             await _LoggedInSource.Task;
             _DiscordClient.LoggedIn -= LoggedIn;
@@ -152,7 +153,7 @@ namespace TrendingGiphyBotCore
             var found = _PrefixDictionary.TryGetValue(channelId, out var prefix);
             if (found)
                 return prefix;
-            return _Config["DefaultPrefix"];
+            return _ConfigWrapper["DefaultPrefix"];
         }
         Task Log(LogMessage logMessage)
         {

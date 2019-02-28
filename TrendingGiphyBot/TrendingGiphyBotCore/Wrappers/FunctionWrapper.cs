@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -22,7 +21,7 @@ namespace TrendingGiphyBotCore.Wrappers
         readonly string _DeleteJobConfigFunctionKey;
         readonly string _PostStatsFunctionKey;
         readonly string _GetPrefixDictionaryFunctionKey;
-        public FunctionWrapper(IConfiguration config)
+        public FunctionWrapper(IConfigurationWrapper config)
         {
             _JobConfigEndpoint = config["JobConfigEndpoint"];
             _PostStatsEndpoint = config["PostStatsEndpoint"];
