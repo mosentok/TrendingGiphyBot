@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TrendingGiphyBotCore\TrendingGiphyBotCore.csproj" />
     <ProjectReference Include="..\TrendingGiphyBotFunctions\TrendingGiphyBotFunctions.csproj" />
   </ItemGroup>
 
