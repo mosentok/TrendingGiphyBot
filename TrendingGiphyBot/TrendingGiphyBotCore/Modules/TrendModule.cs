@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.Net;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TrendingGiphyBotCore.Enums;
@@ -24,13 +23,13 @@ namespace TrendingGiphyBotCore.Modules
         readonly ILogger _Logger;
         readonly ITrendHelper _TrendHelper;
         readonly IFunctionWrapper _FunctionWrapper;
-        readonly IConfiguration _Config;
+        readonly IConfigurationWrapper _Config;
         public TrendModule(IServiceProvider services)
         {
             _Logger = services.GetService<ILogger<TrendModule>>();  
             _TrendHelper = services.GetRequiredService<ITrendHelper>();
             _FunctionWrapper = services.GetRequiredService<IFunctionWrapper>();
-            _Config = services.GetService<IConfiguration>();
+            _Config = services.GetService<IConfigurationWrapper>();
         }
         [Command(nameof(Get))]
         [Alias(nameof(Get), "", "Config", "Setup")]
