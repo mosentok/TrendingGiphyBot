@@ -15,7 +15,7 @@ variables:
 steps:
 - script: dotnet build $(Build.SourcesDirectory)/TrendingGiphyBot/TrendingGiphyBot.sln --configuration $(buildConfiguration)
   displayName: 'dotnet build $(buildConfiguration)'
-- script: dotnet test $(Build.SourcesDirectory)/TrendingGiphyBot/FunctionsTests/FunctionsTests.csproj --no-build --no-restore --logger:trx /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Exclude="[TrendingGiphyBotModel]*%2c[TrendingGiphyBotFunctions]TrendingGiphyBotFunctions.Models*%2c[TrendingGiphyBotFunctions]TrendingGiphyBotFunctions.Wrappers*%2c[TrendingGiphyBotFunctions]TrendingGiphyBotFunctions.Extensions*%2c[TrendingGiphyBotFunctions]TrendingGiphyBotFunctions.Exceptions*%2c[TrendingGiphyBotFunctions]TrendingGiphyBotFunctions.Functions*" /p:CoverletOutput=./TestResults/coverage.cobertura.xml
+- script: dotnet test $(Build.SourcesDirectory)/TrendingGiphyBot/TrendingGiphyBotTests/TrendingGiphyBotTests.csproj --no-build --no-restore --logger:trx /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Exclude="[TrendingGiphyBotModel]*%2c[TrendingGiphyBotFunctions]TrendingGiphyBotFunctions.Models*%2c[TrendingGiphyBotFunctions]TrendingGiphyBotFunctions.Wrappers*%2c[TrendingGiphyBotFunctions]TrendingGiphyBotFunctions.Extensions*%2c[TrendingGiphyBotFunctions]TrendingGiphyBotFunctions.Exceptions*%2c[TrendingGiphyBotFunctions]TrendingGiphyBotFunctions.Functions*" /p:CoverletOutput=./TestResults/coverage.cobertura.xml
   displayName: 'dotnet test $(buildConfiguration)'
 - task: PublishTestResults@2
   condition: succeededOrFailed()
@@ -24,11 +24,11 @@ steps:
     testResultsFiles: '**/*.trx'
   displayName: 'publish test results'
 - script: dotnet reportgenerator -reports:./TestResults/coverage.cobertura.xml -reportTypes:htmlInline_azurePipelines_dark -targetdir:./TestResults
-  workingDirectory: $(Build.SourcesDirectory)/TrendingGiphyBot/FunctionsTests
+  workingDirectory: $(Build.SourcesDirectory)/TrendingGiphyBot/TrendingGiphyBotTests
   displayName: 'generate coverage report'
 - task: PublishCodeCoverageResults@1
   inputs:
     codeCoverageTool: Cobertura
-    summaryFileLocation: $(Build.SourcesDirectory)/TrendingGiphyBot/FunctionsTests/TestResults/coverage.cobertura.xml
-    reportDirectory: $(Build.SourcesDirectory)/TrendingGiphyBot/FunctionsTests/TestResults
+    summaryFileLocation: $(Build.SourcesDirectory)/TrendingGiphyBot/TrendingGiphyBotTests/TestResults/coverage.cobertura.xml
+    reportDirectory: $(Build.SourcesDirectory)/TrendingGiphyBot/TrendingGiphyBotTests/TestResults
   displayName: 'publish code coverage'

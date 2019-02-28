@@ -9,7 +9,7 @@ using TrendingGiphyBotFunctions.Helpers;
 using TrendingGiphyBotFunctions.Models;
 using TrendingGiphyBotFunctions.Wrappers;
 
-namespace FunctionsTests
+namespace TrendingGiphyBotTests.Functions
 {
     [TestFixture]
     public class PostStatsHelperTests
