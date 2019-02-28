@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TrendingGiphyBotFunctions.Helpers;
+using TrendingGiphyBotFunctions.Models;
 using TrendingGiphyBotFunctions.Wrappers;
 using TrendingGiphyBotModel;
 
@@ -145,11 +146,14 @@ namespace FunctionsTests
             Assert.That(task.IsCompletedSuccessfully, Is.True);
         }
         [Test]
-        public async Task BuildHistoryContainers()
+        public async Task BuildHistoryContainers_UnseenCache()
         {
             const string alreadySeenGifId = "already seen";
             const string notYetSeenGifId = "not yet seen";
-            var histories = new List<PendingHistory> { new PendingHistory { GifId = alreadySeenGifId } };
+            var histories = new List<PendingHistory>
+            {
+                new PendingHistory { GifId = alreadySeenGifId }
+            };
             var containers = new List<PendingJobConfig> { new PendingJobConfig { Histories = histories } };
             _Log.Setup(s => s.LogInformation($"Building {containers.Count} histories."));
             var urlCaches = new List<UrlCache> { new UrlCache { Id = alreadySeenGifId }, new UrlCache { Id = notYetSeenGifId } };
@@ -162,6 +166,65 @@ namespace FunctionsTests
             Assert.That(result.Count, Is.EqualTo(1));
             Assert.That(result.Count(s => s.GifId == alreadySeenGifId), Is.EqualTo(0));
             Assert.That(result.Count(s => s.GifId == notYetSeenGifId), Is.EqualTo(1));
+        }
+        [Test]
+        public async Task BuildHistoryContainers_RandomGifNotYetSeen()
+        {
+            const string alreadySeenGifId = "already seen";
+            const string anotherSeenGifId = "another seen";
+            const string notYetSeenGifId = "not yet seen";
+            var histories = new List<PendingHistory>
+            {
+                new PendingHistory { GifId = alreadySeenGifId },
+                new PendingHistory { GifId = anotherSeenGifId }
+            };
+            var pendingJobConfig = new PendingJobConfig { Histories = histories, RandomSearchString = "apex legends" };
+            var containers = new List<PendingJobConfig> { pendingJobConfig };
+            _Log.Setup(s => s.LogInformation($"Building {containers.Count} histories."));
+            var urlCaches = new List<UrlCache> { new UrlCache { Id = alreadySeenGifId }, new UrlCache { Id = anotherSeenGifId } };
+            _Context.Setup(s => s.GetUrlCachesAsync()).ReturnsAsync(urlCaches);
+            const string giphyRandomEndpoint = "giphy random endpoint";
+            var giphyRandomResponse = new GiphyRandomResponse { Data = new GifObject { Id = notYetSeenGifId } };
+            _GiphyWrapper.Setup(s => s.GetRandomGifAsync(giphyRandomEndpoint, pendingJobConfig.RandomSearchString)).ReturnsAsync(giphyRandomResponse);
+            _Log.Setup(s => s.LogInformation($"Built 1 histories."));
+            var result = await _GifPostingHelper.BuildHistoryContainers(containers, giphyRandomEndpoint);
+            _Log.VerifyAll();
+            _Context.VerifyAll();
+            _GiphyWrapper.VerifyAll();
+            Assert.That(result.Count, Is.EqualTo(1));
+            Assert.That(result.Count(s => s.GifId == alreadySeenGifId), Is.EqualTo(0));
+            Assert.That(result.Count(s => s.GifId == anotherSeenGifId), Is.EqualTo(0));
+            Assert.That(result.Count(s => s.GifId == notYetSeenGifId), Is.EqualTo(1));
+        }
+        [Test]
+        public async Task BuildHistoryContainers_RandomGifAlreadySeen()
+        {
+            const string alreadySeenGifId = "already seen";
+            const string anotherSeenGifId = "another seen";
+            const string randomGifAlreadySeenId = "random gif already seen";
+            var histories = new List<PendingHistory>
+            {
+                new PendingHistory { GifId = alreadySeenGifId },
+                new PendingHistory { GifId = anotherSeenGifId },
+                new PendingHistory { GifId = randomGifAlreadySeenId }
+            };
+            var pendingJobConfig = new PendingJobConfig { Histories = histories, RandomSearchString = "apex legends" };
+            var containers = new List<PendingJobConfig> { pendingJobConfig };
+            _Log.Setup(s => s.LogInformation($"Building {containers.Count} histories."));
+            var urlCaches = new List<UrlCache> { new UrlCache { Id = alreadySeenGifId }, new UrlCache { Id = anotherSeenGifId } };
+            _Context.Setup(s => s.GetUrlCachesAsync()).ReturnsAsync(urlCaches);
+            const string giphyRandomEndpoint = "giphy random endpoint";
+            var giphyRandomResponse = new GiphyRandomResponse { Data = new GifObject { Id = randomGifAlreadySeenId } };
+            _GiphyWrapper.Setup(s => s.GetRandomGifAsync(giphyRandomEndpoint, pendingJobConfig.RandomSearchString)).ReturnsAsync(giphyRandomResponse);
+            _Log.Setup(s => s.LogInformation($"Built 0 histories."));
+            var result = await _GifPostingHelper.BuildHistoryContainers(containers, giphyRandomEndpoint);
+            _Log.VerifyAll();
+            _Context.VerifyAll();
+            _GiphyWrapper.VerifyAll();
+            Assert.That(result.Count, Is.EqualTo(0));
+            Assert.That(result.Count(s => s.GifId == alreadySeenGifId), Is.EqualTo(0));
+            Assert.That(result.Count(s => s.GifId == anotherSeenGifId), Is.EqualTo(0));
+            Assert.That(result.Count(s => s.GifId == randomGifAlreadySeenId), Is.EqualTo(0));
         }
         [Test]
         public async Task BuildChannelContainers()
