@@ -1,9 +1,11 @@
 ﻿using Discord;
+using Discord.Net;
 using Moq;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using TrendingGiphyBotFunctions.Helpers;
 using TrendingGiphyBotFunctions.Models;
@@ -299,6 +301,8 @@ namespace FunctionsTests
             _Log.Setup(s => s.LogInformation("Posted 1 gifs."));
             var warningResponses = new List<string> { "missing access", "missing permission" };
             var result = await _GifPostingHelper.PostGifs(channelContainers, warningResponses);
+            channel.VerifyAll();
+            _Log.VerifyAll();
             Assert.That(result.ChannelsToDelete, Is.Empty);
             Assert.That(result.Errors, Is.Empty);
         }
@@ -314,8 +318,50 @@ namespace FunctionsTests
             _Log.Setup(s => s.LogInformation("Posted 1 gifs."));
             var warningResponses = new List<string> { "missing access", "missing permission" };
             var result = await _GifPostingHelper.PostGifs(channelContainers, warningResponses);
+            channel.VerifyAll();
+            _Log.VerifyAll();
             Assert.That(result.ChannelsToDelete, Is.Empty);
             Assert.That(result.Errors, Is.Empty);
+        }
+        [Test]
+        public async Task PostGifs_HttpException()
+        {
+            var channel = new Mock<IMessageChannel>();
+            const decimal channelId = 123;
+            var historyContainer = new UrlHistoryContainer { ChannelId = channelId, IsTrending = false, Url = "a.b/c" };
+            var request = new Mock<IRequest>();
+            var httpException = new HttpException(HttpStatusCode.Unauthorized, request.Object, 50001, "missing access");
+            channel.Setup(s => s.SendMessageAsync(historyContainer.Url, It.IsAny<bool>(), It.IsAny<Embed>(), It.IsAny<RequestOptions>())).ThrowsAsync(httpException);
+            var channelContainers = new List<ChannelContainer> { new ChannelContainer { Channel = channel.Object, HistoryContainer = historyContainer } };
+            _Log.Setup(s => s.LogError(httpException, $"Error posting to channel '{historyContainer.ChannelId}' gif '{historyContainer.Url}'."));
+            _Log.Setup(s => s.LogInformation($"Posting {channelContainers.Count} gifs."));
+            _Log.Setup(s => s.LogInformation("Posted 0 gifs."));
+            var warningResponses = new List<string> { "missing access", "missing permission" };
+            var result = await _GifPostingHelper.PostGifs(channelContainers, warningResponses);
+            channel.VerifyAll();
+            _Log.VerifyAll();
+            Assert.That(result.ChannelsToDelete, Contains.Item(channelId));
+            Assert.That(result.Errors, Is.Empty);
+        }
+        [Test]
+        public async Task PostGifs_Exception()
+        {
+            var channel = new Mock<IMessageChannel>();
+            const decimal channelId = 123;
+            var historyContainer = new UrlHistoryContainer { ChannelId = channelId, IsTrending = false, GifId = "the gif ID", Url = "a.b/c" };
+            var request = new Mock<IRequest>();
+            var exception = new Exception();
+            channel.Setup(s => s.SendMessageAsync(historyContainer.Url, It.IsAny<bool>(), It.IsAny<Embed>(), It.IsAny<RequestOptions>())).ThrowsAsync(exception);
+            var channelContainers = new List<ChannelContainer> { new ChannelContainer { Channel = channel.Object, HistoryContainer = historyContainer } };
+            _Log.Setup(s => s.LogError(exception, $"Error posting to channel '{historyContainer.ChannelId}' gif '{historyContainer.Url}'."));
+            _Log.Setup(s => s.LogInformation($"Posting {channelContainers.Count} gifs."));
+            _Log.Setup(s => s.LogInformation("Posted 0 gifs."));
+            var warningResponses = new List<string> { "missing access", "missing permission" };
+            var result = await _GifPostingHelper.PostGifs(channelContainers, warningResponses);
+            channel.VerifyAll();
+            _Log.VerifyAll();
+            Assert.That(result.ChannelsToDelete, Is.Empty);
+            Assert.That(result.Errors, Contains.Item(historyContainer));
         }
     }
 }
