@@ -87,16 +87,14 @@ namespace TrendingGiphyBotCore.Modules
         }
         Task ProcessRandomRequest(string randomSearchString, JobConfigContainer match)
         {
-            var cleanedRandomSearchString = _TrendHelper.CleanRandomSearchString(randomSearchString);
-            var maxLengthString = _Config["RandomSearchStringMaxLength"];
-            var maxLength = Convert.ToInt32(maxLengthString);
-            var isValidRandomSearchString = _TrendHelper.IsValidRandomSearchString(cleanedRandomSearchString, maxLength);
-            if (!isValidRandomSearchString)
-                return TryReplyAsync($"Random search string must be at most {maxLengthString} characters long.");
+            var maxLength = _Config.GetValue<int>("RandomSearchStringMaxLength");
+            var isValidSearchString = !string.IsNullOrEmpty(randomSearchString) && randomSearchString.Length <= maxLength;
+            if (!isValidSearchString)
+                return TryReplyAsync($"Please provide a random gif filter that is at most {maxLength} characters long.");
             var shouldTurnCommandOff = _TrendHelper.ShouldTurnCommandOff(randomSearchString);
             if (shouldTurnCommandOff)
                 return SetRandom(match, null);
-            return SetRandom(match, cleanedRandomSearchString);
+            return SetRandom(match, randomSearchString);
         }
         async Task SetRandom(JobConfigContainer match, string randomSearchString)
         {
