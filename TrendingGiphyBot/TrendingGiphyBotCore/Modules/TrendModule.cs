@@ -171,37 +171,26 @@ namespace TrendingGiphyBotCore.Modules
                 .WithAuthor(author)
                 .WithDescription(examplesDescription)
                 .AddField(helpField);
-            await TryReplyAsync(embedBuilder);
+            await TryReplyAsync(embedBuilder.Build());
         }
         async Task ReplyWithJobConfig(JobConfigContainer config)
         {
-            var author = new EmbedAuthorBuilder()
-                .WithName($"Setup for Channel # {Context.Channel.Name}")
-                .WithIconUrl(Context.Guild.IconUrl);
-            var helpFieldText = _Config["GetConfigHelpFieldText"];
-            var helpField = new EmbedFieldBuilder()
-                .WithName("Need Help?")
-                .WithValue(helpFieldText);
-            var embedBuilder = new EmbedBuilder()
-                .WithAuthor(author)
-                .WithHowOften(config)
-                .WithRandomConfigFields(config)
-                .WithQuietHourFields(config)
-                .AddField(helpField);
-            await TryReplyAsync(embedBuilder);
+            var embed = _TrendHelper.BuildEmbed(config, Context);
+            await TryReplyAsync(embed);
         }
-        async Task TryReplyAsync(string message) => await TryReplyAsync(message, null);
-        async Task TryReplyAsync(EmbedBuilder embedBuilder) => await TryReplyAsync(string.Empty, embedBuilder);
-        async Task TryReplyAsync(string message, EmbedBuilder embedBuilder)
+        async Task TryReplyAsync(string message) => await ReplyAsync(message: message, embed: null);
+        async Task TryReplyAsync(Embed embed) => await ReplyAsync(message: string.Empty, embed: embed);
+        protected override Task<IUserMessage> ReplyAsync(string message = null, bool isTTS = false, Embed embed = null, RequestOptions options = null)
         {
             var warningResponses = _Config.Get<List<string>>("WarningResponses");
             try
             {
-                await ReplyAsync(message, embed: embedBuilder?.Build());
+                return base.ReplyAsync(message, embed: embed);
             }
-            catch (HttpException httpException) when (warningResponses.Any(httpException.Message.EndsWith))
+            catch (HttpException httpException) when (warningResponses.Any(httpException.Message.Contains))
             {
                 _Logger.LogWarning(httpException.Message);
+                return Task.FromResult<IUserMessage>(null);
             }
         }
     }
