@@ -1,9 +1,13 @@
-﻿using System;
+﻿using Discord;
+using Discord.Commands;
+using System;
 using System.Collections.Generic;
 using TrendingGiphyBotCore.Configuration;
 using TrendingGiphyBotCore.Enums;
 using TrendingGiphyBotCore.Exceptions;
+using TrendingGiphyBotCore.Extensions;
 using TrendingGiphyBotCore.Wrappers;
+using TrendingGiphyBotModel;
 
 namespace TrendingGiphyBotCore.Helpers
 {
@@ -81,6 +85,23 @@ namespace TrendingGiphyBotCore.Helpers
                 default:
                     throw new UnexpectedTimeException(time);
             }
+        }
+        public Embed BuildEmbed(JobConfigContainer config, ICommandContext context)
+        {
+            var author = new EmbedAuthorBuilder()
+                .WithName($"Setup for Channel # {context.Channel.Name}")
+                .WithIconUrl(context.Guild.IconUrl);
+            var helpFieldText = _Config["GetConfigHelpFieldText"];
+            var helpField = new EmbedFieldBuilder()
+                .WithName("Need Help?")
+                .WithValue(helpFieldText);
+            var embedBuilder = new EmbedBuilder()
+                .WithAuthor(author)
+                .WithHowOften(config)
+                .WithRandomConfigFields(config)
+                .WithQuietHourFields(config)
+                .AddField(helpField);
+            return embedBuilder.Build();
         }
         public void OnPrefixUpdated(decimal channelId, string prefix)
         {

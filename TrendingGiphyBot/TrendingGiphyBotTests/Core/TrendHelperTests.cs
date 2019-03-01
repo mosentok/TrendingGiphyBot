@@ -1,10 +1,12 @@
-﻿using Moq;
+﻿using Discord.Commands;
+using Moq;
 using NUnit.Framework;
 using System.Collections.Generic;
 using TrendingGiphyBotCore.Configuration;
 using TrendingGiphyBotCore.Enums;
 using TrendingGiphyBotCore.Helpers;
 using TrendingGiphyBotCore.Wrappers;
+using TrendingGiphyBotModel;
 
 namespace TrendingGiphyBotTests.Core
 {
@@ -120,6 +122,36 @@ namespace TrendingGiphyBotTests.Core
             var result = _TrendHelper.DetermineJobConfigState(desiredInterval, desiredTime);
             _Config.VerifyAll();
             Assert.That(result, Is.EqualTo(expectedResult));
+        }
+        [Test]
+        public void BuildEmbed()
+        {
+            var context = new Mock<ICommandContext>();
+            const string channelName = "Apex Legends Pog";
+            context.Setup(s => s.Channel.Name).Returns(channelName);
+            const string guildIconUrl = "https://asdf.com/icon";
+            context.Setup(s => s.Guild.IconUrl).Returns(guildIconUrl);
+            const string helpText = "Here is some help text to help you out.";
+            _Config.Setup(s => s["GetConfigHelpFieldText"]).Returns(helpText);
+            var config = new JobConfigContainer();
+            var result = _TrendHelper.BuildEmbed(config, context.Object);
+            context.VerifyAll();
+            _Config.VerifyAll();
+            var expectedAuthorName = $"Setup for Channel # {channelName}";
+            Assert.That(result.Author.Value.Name, Is.EqualTo(expectedAuthorName));
+            Assert.That(result.Author.Value.IconUrl, Is.EqualTo(guildIconUrl));
+            Assert.That(result.Fields[0].Inline, Is.True);
+            Assert.That(result.Fields[0].Name, Is.EqualTo("How Often?"));
+            Assert.That(result.Fields[0].Value, Is.EqualTo("```less\nnever```"));
+            Assert.That(result.Fields[1].Inline, Is.True);
+            Assert.That(result.Fields[1].Name, Is.EqualTo("Random Gifs?"));
+            Assert.That(result.Fields[1].Value, Is.EqualTo("```yaml\nno```"));
+            Assert.That(result.Fields[2].Inline, Is.True);
+            Assert.That(result.Fields[2].Name, Is.EqualTo("Trend When?"));
+            Assert.That(result.Fields[2].Value, Is.EqualTo("```fix\nall the time```"));
+            Assert.That(result.Fields[3].Inline, Is.False);
+            Assert.That(result.Fields[3].Name, Is.EqualTo("Need Help?"));
+            Assert.That(result.Fields[3].Value, Is.EqualTo(helpText));
         }
     }
 }
