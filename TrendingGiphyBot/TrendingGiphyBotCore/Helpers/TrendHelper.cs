@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using TrendingGiphyBotCore.Configuration;
 using TrendingGiphyBotCore.Enums;
 using TrendingGiphyBotCore.Exceptions;
@@ -11,22 +10,11 @@ namespace TrendingGiphyBotCore.Helpers
     public class TrendHelper : ITrendHelper
     {
         public event Action<decimal, string> PrefixUpdated;
-        static readonly string[] _FluentWords = new[] { "gifs of", "gif of", "gifs", "gif" };
         readonly IConfigurationWrapper _Config;
         public TrendHelper(IConfigurationWrapper config)
         {
             _Config = config;
         }
-        public string CleanRandomSearchString(string randomSearchString)
-        {
-            if (string.IsNullOrEmpty(randomSearchString))
-                return null;
-            var match = _FluentWords.FirstOrDefault(s => randomSearchString.StartsWith(s, StringComparison.CurrentCultureIgnoreCase));
-            if (match != null)
-                return randomSearchString.Substring(match.Length).TrimStart();
-            return randomSearchString;
-        }
-        public bool IsValidRandomSearchString(string cleanedRandomSearchString, int randomSearchStringMaxLength) => string.IsNullOrWhiteSpace(cleanedRandomSearchString) || cleanedRandomSearchString.Length <= randomSearchStringMaxLength;
         public bool IsInRange(string quietHourString, out short quietHour)
         {
             var success = short.TryParse(quietHourString, out quietHour);
@@ -57,16 +45,10 @@ namespace TrendingGiphyBotCore.Helpers
             var minTimeSpan = AsTimeSpan(minJobConfig);
             var maxTimeSpan = AsTimeSpan(maxJobConfig);
             var desiredTimeSpan = AsTimeSpan(interval, time);
-            if (desiredTimeSpan >= minTimeSpan)
-            {
-                if (desiredTimeSpan <= maxTimeSpan)
-                    return DetermineTimeState(interval, time);
+            if (desiredTimeSpan < minTimeSpan)
+                return JobConfigState.IntervalTooSmall;
+            if (desiredTimeSpan > maxTimeSpan)
                 return JobConfigState.IntervallTooBig;
-            }
-            return JobConfigState.IntervalTooSmall;
-        }
-        JobConfigState DetermineTimeState(short interval, Time time)
-        {
             switch (time)
             {
                 case Time.Hour:
