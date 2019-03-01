@@ -8,7 +8,6 @@ using Discord.Net;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TrendingGiphyBotCore.Enums;
-using TrendingGiphyBotCore.Exceptions;
 using TrendingGiphyBotCore.Helpers;
 using TrendingGiphyBotCore.Wrappers;
 using TrendingGiphyBotModel;
@@ -25,7 +24,7 @@ namespace TrendingGiphyBotCore.Modules
         readonly IConfigurationWrapper _Config;
         public TrendModule(IServiceProvider services)
         {
-            _Logger = services.GetService<ILogger<TrendModule>>();  
+            _Logger = services.GetService<ILogger<TrendModule>>();
             _TrendHelper = services.GetRequiredService<ITrendHelper>();
             _FunctionWrapper = services.GetRequiredService<IFunctionWrapper>();
             _Config = services.GetService<IConfigurationWrapper>();
@@ -46,60 +45,37 @@ namespace TrendingGiphyBotCore.Modules
         [Command(nameof(Every))]
         public async Task Every(short interval, Time time)
         {
-            var state = _TrendHelper.DetermineJobConfigState(interval, time);
-            await ProcessJobConfigRequest(state, interval, time);
-        }
-        Task ProcessJobConfigRequest(JobConfigState state, short interval, Time time)
-        {
-            switch (state)
+            var errorMessage = _TrendHelper.DetermineErrorMessage(interval, time);
+            if (string.IsNullOrEmpty(errorMessage))
             {
-                case JobConfigState.InvalidHours:
-                    var invalidHoursMessage = _TrendHelper.InvalidHoursConfigMessage(time);
-                    return TryReplyAsync(invalidHoursMessage);
-                case JobConfigState.InvalidMinutes:
-                    var invalidMinutesMessage = _TrendHelper.InvalidMinutesConfigMessage(time);
-                    return TryReplyAsync(invalidMinutesMessage);
-                case JobConfigState.InvalidTime:
-                    return TryReplyAsync($"{time.ToString()} is an invalid {nameof(Time)}.");
-                case JobConfigState.IntervalTooSmall:
-                case JobConfigState.IntervallTooBig:
-                    var invalidConfigRangeMessage = _TrendHelper.InvalidConfigRangeMessage();
-                    return TryReplyAsync(invalidConfigRangeMessage);
-                case JobConfigState.Valid:
-                    return SetJobConfig(interval, time);
-                default:
-                    throw new UnexpectedTimeException(time);
+                var match = await _FunctionWrapper.GetJobConfigAsync(Context.Channel.Id);
+                var container = new JobConfigContainer(match, interval, time.ToString());
+                var result = await _FunctionWrapper.PostJobConfigAsync(Context.Channel.Id, container);
+                await ReplyWithJobConfig(result);
             }
-        }
-        async Task SetJobConfig(short interval, Time time)
-        {
-            var match = await _FunctionWrapper.GetJobConfigAsync(Context.Channel.Id);
-            var container = new JobConfigContainer(match, interval, time.ToString());
-            var result = await _FunctionWrapper.PostJobConfigAsync(Context.Channel.Id, container);
-            await ReplyWithJobConfig(result);
+            else
+                await TryReplyAsync(errorMessage);
         }
         [Command("Random")]
         public async Task TrendRandom([Remainder] string randomSearchString)
         {
             var match = await _FunctionWrapper.GetJobConfigAsync(Context.Channel.Id);
-            await ProcessRandomRequest(randomSearchString, match);
-        }
-        Task ProcessRandomRequest(string randomSearchString, JobConfigContainer match)
-        {
             var maxLength = _Config.GetValue<int>("RandomSearchStringMaxLength");
             var isValidSearchString = !string.IsNullOrEmpty(randomSearchString) && randomSearchString.Length <= maxLength;
             if (!isValidSearchString)
-                return TryReplyAsync($"Please provide a random gif filter that is at most {maxLength} characters long.");
-            var shouldTurnCommandOff = _TrendHelper.ShouldTurnCommandOff(randomSearchString);
-            if (shouldTurnCommandOff)
-                return SetRandom(match, null);
-            return SetRandom(match, randomSearchString);
-        }
-        async Task SetRandom(JobConfigContainer match, string randomSearchString)
-        {
-            var container = new JobConfigContainer(match, randomSearchString);
-            var result = await _FunctionWrapper.PostJobConfigAsync(Context.Channel.Id, container);
-            await ReplyWithJobConfig(result);
+                await TryReplyAsync($"Please provide a random gif filter that is at most {maxLength} characters long.");
+            else
+            {
+                string newRandomSearchString;
+                var shouldTurnCommandOff = _TrendHelper.ShouldTurnCommandOff(randomSearchString);
+                if (shouldTurnCommandOff)
+                    newRandomSearchString = null;
+                else
+                    newRandomSearchString = randomSearchString;
+                var container = new JobConfigContainer(match, randomSearchString);
+                var result = await _FunctionWrapper.PostJobConfigAsync(Context.Channel.Id, container);
+                await ReplyWithJobConfig(result);
+            }
         }
         [Command(nameof(Between))]
         public async Task Between([Remainder] string trendBetweenString)
