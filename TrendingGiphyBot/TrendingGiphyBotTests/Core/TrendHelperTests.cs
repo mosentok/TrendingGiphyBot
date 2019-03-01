@@ -18,24 +18,6 @@ namespace TrendingGiphyBotTests.Core
             _Config = new Mock<IConfigurationWrapper>();
             _TrendHelper = new TrendHelper(_Config.Object);
         }
-        [TestCase(null, null)]
-        [TestCase("apex legends", "apex legends")]
-        [TestCase("gifs of apex legends", "apex legends")]
-        [TestCase("gif of apex legends", "apex legends")]
-        [TestCase("gifs apex legends", "apex legends")]
-        [TestCase("gif apex legends", "apex legends")]
-        public void CleanRandomSearchString(string randomSearchString, string expectedResult)
-        {
-            var result = _TrendHelper.CleanRandomSearchString(randomSearchString);
-            Assert.That(result, Is.EqualTo(expectedResult));
-        }
-        [TestCase("apex legends", 32, true)]
-        [TestCase("apex legends", 3, false)]
-        public void IsValidRandomSearchString(string cleanedRandomSearchString, int randomSearchStringMaxLength, bool expectedResult)
-        {
-            var result = _TrendHelper.IsValidRandomSearchString(cleanedRandomSearchString, randomSearchStringMaxLength);
-            Assert.That(result, Is.EqualTo(expectedResult));
-        }
         [TestCase("8", 8, true)]
         [TestCase("22", 22, true)]
         [TestCase("24", 24, false)]
@@ -62,7 +44,7 @@ namespace TrendingGiphyBotTests.Core
         {
             var validHours = new List<short> { 10, 15, 20, 30 };
             _Config.Setup(s => s.Get<List<short>>("ValidHours")).Returns(validHours);
-            var message = _TrendHelper.InvalidHoursConfigMessage(time);
+            var message = _TrendHelper.InvalidMinutesConfigMessage(time);
             var expectedMessage = $"When {nameof(Time)} is {time}, interval must be {string.Join(", ", validHours)}.";
             Assert.That(message, Is.EqualTo(expectedMessage));
         }
