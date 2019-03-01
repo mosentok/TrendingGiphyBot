@@ -2,6 +2,7 @@
 
 namespace TrendingGiphyBotCore.Configuration
 {
+    //TODO replace this with TimeSpan
     public class SubJobConfig
     {
         public short Interval { get; set; }
