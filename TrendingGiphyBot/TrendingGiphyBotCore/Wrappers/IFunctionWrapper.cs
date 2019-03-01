@@ -2,9 +2,9 @@
 using System.Threading.Tasks;
 using TrendingGiphyBotModel;
 
-namespace TrendingGiphyBotCore.Helpers
+namespace TrendingGiphyBotCore.Wrappers
 {
-    public interface IFunctionHelper
+    public interface IFunctionWrapper
     {
         Task<JobConfigContainer> GetJobConfigAsync(decimal channelId);
         Task<JobConfigContainer> PostJobConfigAsync(decimal channelId, JobConfigContainer jobConfigContainer);

@@ -5,13 +5,13 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.Net;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TrendingGiphyBotCore.Enums;
 using TrendingGiphyBotCore.Exceptions;
 using TrendingGiphyBotCore.Extensions;
 using TrendingGiphyBotCore.Helpers;
+using TrendingGiphyBotCore.Wrappers;
 using TrendingGiphyBotModel;
 
 namespace TrendingGiphyBotCore.Modules
@@ -22,26 +22,26 @@ namespace TrendingGiphyBotCore.Modules
         static readonly char[] _ArgsSplit = new[] { ' ' };
         readonly ILogger _Logger;
         readonly ITrendHelper _TrendHelper;
-        readonly IFunctionHelper _FunctionHelper;
-        readonly IConfiguration _Config;
+        readonly IFunctionWrapper _FunctionWrapper;
+        readonly IConfigurationWrapper _Config;
         public TrendModule(IServiceProvider services)
         {
             _Logger = services.GetService<ILogger<TrendModule>>();  
             _TrendHelper = services.GetRequiredService<ITrendHelper>();
-            _FunctionHelper = services.GetRequiredService<IFunctionHelper>();
-            _Config = services.GetService<IConfiguration>();
+            _FunctionWrapper = services.GetRequiredService<IFunctionWrapper>();
+            _Config = services.GetService<IConfigurationWrapper>();
         }
         [Command(nameof(Get))]
         [Alias(nameof(Get), "", "Config", "Setup")]
         public async Task Get()
         {
-            var jobConfig = await _FunctionHelper.GetJobConfigAsync(Context.Channel.Id);
+            var jobConfig = await _FunctionWrapper.GetJobConfigAsync(Context.Channel.Id);
             await ReplyWithJobConfig(jobConfig);
         }
         [Command(nameof(Off))]
         public async Task Off()
         {
-            await _FunctionHelper.DeleteJobConfigAsync(Context.Channel.Id);
+            await _FunctionWrapper.DeleteJobConfigAsync(Context.Channel.Id);
             await TryReplyAsync("Done.");
         }
         [Command(nameof(Every))]
@@ -74,15 +74,15 @@ namespace TrendingGiphyBotCore.Modules
         }
         async Task SetJobConfig(short interval, Time time)
         {
-            var match = await _FunctionHelper.GetJobConfigAsync(Context.Channel.Id);
+            var match = await _FunctionWrapper.GetJobConfigAsync(Context.Channel.Id);
             var container = new JobConfigContainer(match, interval, time.ToString());
-            var result = await _FunctionHelper.PostJobConfigAsync(Context.Channel.Id, container);
+            var result = await _FunctionWrapper.PostJobConfigAsync(Context.Channel.Id, container);
             await ReplyWithJobConfig(result);
         }
         [Command("Random")]
         public async Task TrendRandom([Remainder] string randomSearchString)
         {
-            var match = await _FunctionHelper.GetJobConfigAsync(Context.Channel.Id);
+            var match = await _FunctionWrapper.GetJobConfigAsync(Context.Channel.Id);
             await ProcessRandomRequest(randomSearchString, match);
         }
         Task ProcessRandomRequest(string randomSearchString, JobConfigContainer match)
@@ -101,13 +101,13 @@ namespace TrendingGiphyBotCore.Modules
         async Task SetRandom(JobConfigContainer match, string randomSearchString)
         {
             var container = new JobConfigContainer(match, randomSearchString);
-            var result = await _FunctionHelper.PostJobConfigAsync(Context.Channel.Id, container);
+            var result = await _FunctionWrapper.PostJobConfigAsync(Context.Channel.Id, container);
             await ReplyWithJobConfig(result);
         }
         [Command(nameof(Between))]
         public async Task Between([Remainder] string trendBetweenString)
         {
-            var match = await _FunctionHelper.GetJobConfigAsync(Context.Channel.Id);
+            var match = await _FunctionWrapper.GetJobConfigAsync(Context.Channel.Id);
             await ProcessBetweenRequest(trendBetweenString, match);
         }
         Task ProcessBetweenRequest(string trendBetweenString, JobConfigContainer match)
@@ -127,13 +127,13 @@ namespace TrendingGiphyBotCore.Modules
         async Task SetBetween(JobConfigContainer match, short? minQuietHour, short? maxQuietHour)
         {
             var container = new JobConfigContainer(match, minQuietHour, maxQuietHour);
-            var result = await _FunctionHelper.PostJobConfigAsync(Context.Channel.Id, container);
+            var result = await _FunctionWrapper.PostJobConfigAsync(Context.Channel.Id, container);
             await ReplyWithJobConfig(result);
         }
         [Command(nameof(Prefix))]
         public async Task Prefix(string prefix)
         {
-            var match = await _FunctionHelper.GetJobConfigAsync(Context.Channel.Id);
+            var match = await _FunctionWrapper.GetJobConfigAsync(Context.Channel.Id);
             await ProcessPrefixRequest(prefix, match);
             _TrendHelper.OnPrefixUpdated(match.ChannelId, prefix);
         }
@@ -143,7 +143,7 @@ namespace TrendingGiphyBotCore.Modules
                 return TryReplyAsync("Prefix must be 1-4 characters long.");
             var newPrefix = DetermineNewPrefix(prefix);
             match.Prefix = newPrefix;
-            return _FunctionHelper.PostJobConfigAsync(Context.Channel.Id, match)
+            return _FunctionWrapper.PostJobConfigAsync(Context.Channel.Id, match)
                 .ContinueWith(t => TryReplyAsync($"New prefix: {t.Result.Prefix}"))
                 .Unwrap();
         }

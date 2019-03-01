@@ -5,10 +5,9 @@ using System.Threading.Tasks;
 using Discord.Commands;
 using Discord.Net;
 using Discord.WebSocket;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using TrendingGiphyBotCore.Extensions;
+using TrendingGiphyBotCore.Wrappers;
 
 namespace TrendingGiphyBotCore.Modules
 {
@@ -16,12 +15,12 @@ namespace TrendingGiphyBotCore.Modules
     public class OwnerModule : ModuleBase
     {
         readonly ILogger _Logger;
-        readonly IConfiguration _Config;
+        readonly IConfigurationWrapper _Config;
         readonly DiscordSocketClient _DiscordClient;
         public OwnerModule(IServiceProvider services)
         {
             _Logger = services.GetService<ILogger<OwnerModule>>();
-            _Config = services.GetService<IConfiguration>();
+            _Config = services.GetService<IConfigurationWrapper>();
             _DiscordClient = services.GetService<DiscordSocketClient>();
         }
         [Command(nameof(SetGame))]
