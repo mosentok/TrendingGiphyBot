@@ -36,6 +36,7 @@ namespace TrendingGiphyBotTests.Core
             var validHours = new List<short> { 1, 2, 3, 4, 6, 8, 12, 24 };
             _Config.Setup(s => s.Get<List<short>>("ValidHours")).Returns(validHours);
             var message = _TrendHelper.InvalidHoursConfigMessage(time);
+            _Config.VerifyAll();
             var expectedMessage = $"When {nameof(Time)} is {time}, interval must be {string.Join(", ", validHours)}.";
             Assert.That(message, Is.EqualTo(expectedMessage));
         }
@@ -46,6 +47,7 @@ namespace TrendingGiphyBotTests.Core
             var validMinutes = new List<short> { 10, 15, 20, 30 };
             _Config.Setup(s => s.Get<List<short>>("ValidMinutes")).Returns(validMinutes);
             var message = _TrendHelper.InvalidMinutesConfigMessage(time);
+            _Config.VerifyAll();
             var expectedMessage = $"When {nameof(Time)} is {time}, interval must be {string.Join(", ", validMinutes)}.";
             Assert.That(message, Is.EqualTo(expectedMessage));
         }
@@ -58,6 +60,7 @@ namespace TrendingGiphyBotTests.Core
             _Config.Setup(s => s.Get<SubJobConfig>("MinJobConfig")).Returns(minJobConfig);
             _Config.Setup(s => s.Get<SubJobConfig>("MaxJobConfig")).Returns(maxJobConfig);
             var message = _TrendHelper.InvalidConfigRangeMessage();
+            _Config.VerifyAll();
             Assert.That(message, Is.EqualTo(expectedMessage));
         }
         [TestCase("Off", true)]
@@ -66,6 +69,56 @@ namespace TrendingGiphyBotTests.Core
         public void ShouldTurnCommandOff(string word, bool expectedResult)
         {
             var result = _TrendHelper.ShouldTurnCommandOff(word);
+            Assert.That(result, Is.EqualTo(expectedResult));
+        }
+        [TestCase(10, Time.Minutes, 24, Time.Hours, 5, Time.Minutes, JobConfigState.IntervalTooSmall)]
+        [TestCase(10, Time.Minutes, 24, Time.Hours, 30, Time.Hours, JobConfigState.IntervallTooBig)]
+        public void DetermineJobConfigState_Invalid(short minInterval, Time minTime, short maxInterval, Time maxTime, short desiredInterval, Time desiredTime, JobConfigState expectedResult)
+        {
+            var minJobConfig = new SubJobConfig(minInterval, minTime);
+            var maxJobConfig = new SubJobConfig(maxInterval, maxTime);
+            _Config.Setup(s => s.Get<SubJobConfig>("MinJobConfig")).Returns(minJobConfig);
+            _Config.Setup(s => s.Get<SubJobConfig>("MaxJobConfig")).Returns(maxJobConfig);
+            var result = _TrendHelper.DetermineJobConfigState(desiredInterval, desiredTime);
+            _Config.VerifyAll();
+            Assert.That(result, Is.EqualTo(expectedResult));
+        }
+        [TestCase(10, Time.Minutes, 24, Time.Hours, 10, Time.Minutes, JobConfigState.Valid)]
+        [TestCase(10, Time.Minutes, 24, Time.Hours, 15, Time.Minutes, JobConfigState.Valid)]
+        [TestCase(10, Time.Minutes, 24, Time.Hours, 20, Time.Minutes, JobConfigState.Valid)]
+        [TestCase(10, Time.Minutes, 24, Time.Hours, 30, Time.Minutes, JobConfigState.Valid)]
+        [TestCase(10, Time.Minutes, 24, Time.Hours, 12, Time.Minutes, JobConfigState.InvalidMinutes)]
+        public void DetermineJobConfigState_Minutes(short minInterval, Time minTime, short maxInterval, Time maxTime, short desiredInterval, Time desiredTime, JobConfigState expectedResult)
+        {
+            var validMinutes = new List<short> { 10, 15, 20, 30 };
+            _Config.Setup(s => s.Get<List<short>>("ValidMinutes")).Returns(validMinutes);
+            var minJobConfig = new SubJobConfig(minInterval, minTime);
+            var maxJobConfig = new SubJobConfig(maxInterval, maxTime);
+            _Config.Setup(s => s.Get<SubJobConfig>("MinJobConfig")).Returns(minJobConfig);
+            _Config.Setup(s => s.Get<SubJobConfig>("MaxJobConfig")).Returns(maxJobConfig);
+            var result = _TrendHelper.DetermineJobConfigState(desiredInterval, desiredTime);
+            _Config.VerifyAll();
+            Assert.That(result, Is.EqualTo(expectedResult));
+        }
+        [TestCase(10, Time.Minutes, 24, Time.Hours, 1, Time.Hour, JobConfigState.Valid)]
+        [TestCase(10, Time.Minutes, 24, Time.Hours, 2, Time.Hours, JobConfigState.Valid)]
+        [TestCase(10, Time.Minutes, 24, Time.Hours, 3, Time.Hours, JobConfigState.Valid)]
+        [TestCase(10, Time.Minutes, 24, Time.Hours, 4, Time.Hours, JobConfigState.Valid)]
+        [TestCase(10, Time.Minutes, 24, Time.Hours, 6, Time.Hours, JobConfigState.Valid)]
+        [TestCase(10, Time.Minutes, 24, Time.Hours, 8, Time.Hours, JobConfigState.Valid)]
+        [TestCase(10, Time.Minutes, 24, Time.Hours, 12, Time.Hours, JobConfigState.Valid)]
+        [TestCase(10, Time.Minutes, 24, Time.Hours, 24, Time.Hours, JobConfigState.Valid)]
+        [TestCase(10, Time.Minutes, 24, Time.Hours, 5, Time.Hours, JobConfigState.InvalidHours)]
+        public void DetermineJobConfigState_ValidHours(short minInterval, Time minTime, short maxInterval, Time maxTime, short desiredInterval, Time desiredTime, JobConfigState expectedResult)
+        {
+            var validHours = new List<short> { 1, 2, 3, 4, 6, 8, 12, 24 };
+            _Config.Setup(s => s.Get<List<short>>("ValidHours")).Returns(validHours);
+            var minJobConfig = new SubJobConfig(minInterval, minTime);
+            var maxJobConfig = new SubJobConfig(maxInterval, maxTime);
+            _Config.Setup(s => s.Get<SubJobConfig>("MinJobConfig")).Returns(minJobConfig);
+            _Config.Setup(s => s.Get<SubJobConfig>("MaxJobConfig")).Returns(maxJobConfig);
+            var result = _TrendHelper.DetermineJobConfigState(desiredInterval, desiredTime);
+            _Config.VerifyAll();
             Assert.That(result, Is.EqualTo(expectedResult));
         }
     }

@@ -45,16 +45,10 @@ namespace TrendingGiphyBotCore.Helpers
             var minTimeSpan = AsTimeSpan(minJobConfig);
             var maxTimeSpan = AsTimeSpan(maxJobConfig);
             var desiredTimeSpan = AsTimeSpan(interval, time);
-            if (desiredTimeSpan >= minTimeSpan)
-            {
-                if (desiredTimeSpan <= maxTimeSpan)
-                    return DetermineTimeState(interval, time);
+            if (desiredTimeSpan < minTimeSpan)
+                return JobConfigState.IntervalTooSmall;
+            if (desiredTimeSpan > maxTimeSpan)
                 return JobConfigState.IntervallTooBig;
-            }
-            return JobConfigState.IntervalTooSmall;
-        }
-        JobConfigState DetermineTimeState(short interval, Time time)
-        {
             switch (time)
             {
                 case Time.Hour:
