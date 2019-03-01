@@ -81,50 +81,53 @@ namespace TrendingGiphyBotCore.Modules
         public async Task Between([Remainder] string trendBetweenString)
         {
             var match = await _FunctionWrapper.GetJobConfigAsync(Context.Channel.Id);
-            await ProcessBetweenRequest(trendBetweenString, match);
-        }
-        Task ProcessBetweenRequest(string trendBetweenString, JobConfigContainer match)
-        {
-            var shouldTurnCommandOff = _TrendHelper.ShouldTurnCommandOff(trendBetweenString);
-            if (shouldTurnCommandOff)
-                return SetBetween(match, null, null);
             var split = trendBetweenString.Split(_ArgsSplit, StringSplitOptions.RemoveEmptyEntries);
             if (split.Length != 3)
-                return TryReplyAsync(_Config["InvalidQuietHoursInputFormat"]);
-            var minInRange = _TrendHelper.IsInRange(split[2], out var minQuietHour);
-            var maxInRange = _TrendHelper.IsInRange(split[0], out var maxQuietHour);
-            if (!(minInRange && maxInRange) || minQuietHour == maxQuietHour)
-                return TryReplyAsync(_Config["InvalidQuietHoursRangeMessage"]);
-            return SetBetween(match, minQuietHour, maxQuietHour);
-        }
-        async Task SetBetween(JobConfigContainer match, short? minQuietHour, short? maxQuietHour)
-        {
-            var container = new JobConfigContainer(match, minQuietHour, maxQuietHour);
-            var result = await _FunctionWrapper.PostJobConfigAsync(Context.Channel.Id, container);
-            await ReplyWithJobConfig(result);
+                await TryReplyAsync(_Config["InvalidQuietHoursInputFormat"]);
+            else
+            {
+                var minInRange = _TrendHelper.IsInRange(split[2], out var minQuietHour);
+                var maxInRange = _TrendHelper.IsInRange(split[0], out var maxQuietHour);
+                if (!(minInRange && maxInRange) || minQuietHour == maxQuietHour)
+                    await TryReplyAsync(_Config["InvalidQuietHoursRangeMessage"]);
+                else
+                {
+                    short? newMinQuietHour;
+                    short? newMaxQuietHour;
+                    var shouldTurnCommandOff = _TrendHelper.ShouldTurnCommandOff(trendBetweenString);
+                    if (shouldTurnCommandOff)
+                    {
+                        newMinQuietHour = null;
+                        newMaxQuietHour = null;
+                    }
+                    else
+                    {
+                        newMinQuietHour = minQuietHour;
+                        newMaxQuietHour = maxQuietHour;
+                    }
+                    var container = new JobConfigContainer(match, minQuietHour, maxQuietHour);
+                    var result = await _FunctionWrapper.PostJobConfigAsync(Context.Channel.Id, container);
+                    await ReplyWithJobConfig(result);
+                }
+            }
         }
         [Command(nameof(Prefix))]
         public async Task Prefix(string prefix)
         {
             var match = await _FunctionWrapper.GetJobConfigAsync(Context.Channel.Id);
-            await ProcessPrefixRequest(prefix, match);
-            _TrendHelper.OnPrefixUpdated(match.ChannelId, prefix);
-        }
-        Task ProcessPrefixRequest(string prefix, JobConfigContainer match)
-        {
             if (string.IsNullOrEmpty(prefix) || prefix.Length > 4)
-                return TryReplyAsync("Prefix must be 1-4 characters long.");
-            var newPrefix = DetermineNewPrefix(prefix);
-            match.Prefix = newPrefix;
-            return _FunctionWrapper.PostJobConfigAsync(Context.Channel.Id, match)
-                .ContinueWith(t => TryReplyAsync($"New prefix: {t.Result.Prefix}"))
-                .Unwrap();
-        }
-        string DetermineNewPrefix(string prefix)
-        {
-            if (_TrendHelper.ShouldTurnCommandOff(prefix))
-                return _Config["DefaultPrefix"];
-            return prefix;
+                await TryReplyAsync("Prefix must be 1-4 characters long.");
+            else
+            {
+                var shouldTurnCommandOff = _TrendHelper.ShouldTurnCommandOff(prefix);
+                if (shouldTurnCommandOff)
+                    match.Prefix = _Config["DefaultPrefix"];
+                else
+                    match.Prefix = prefix;
+                var result = await _FunctionWrapper.PostJobConfigAsync(Context.Channel.Id, match);
+                await TryReplyAsync($"New prefix: {result.Prefix}");
+            }
+            _TrendHelper.OnPrefixUpdated(match.ChannelId, prefix);
         }
         [Command(nameof(Examples))]
         [Alias("Example", "Help")]
