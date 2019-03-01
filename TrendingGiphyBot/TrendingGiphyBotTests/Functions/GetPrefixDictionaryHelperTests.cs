@@ -7,7 +7,7 @@ using TrendingGiphyBotFunctions.Helpers;
 using TrendingGiphyBotFunctions.Wrappers;
 using TrendingGiphyBotModel;
 
-namespace FunctionsTests
+namespace TrendingGiphyBotTests.Functions
 {
     [TestFixture]
     public class GetPrefixDictionaryHelperTests

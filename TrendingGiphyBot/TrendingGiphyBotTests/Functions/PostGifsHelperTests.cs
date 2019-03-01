@@ -7,7 +7,7 @@ using TrendingGiphyBotFunctions.Helpers;
 using TrendingGiphyBotFunctions.Models;
 using TrendingGiphyBotModel;
 
-namespace FunctionsTests
+namespace TrendingGiphyBotTests.Functions
 {
     [TestFixture]
     public class PostGifsHelperTests

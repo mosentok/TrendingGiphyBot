@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -8,9 +7,9 @@ using TrendingGiphyBotCore.Exceptions;
 using TrendingGiphyBotCore.Extensions;
 using TrendingGiphyBotModel;
 
-namespace TrendingGiphyBotCore.Helpers
+namespace TrendingGiphyBotCore.Wrappers
 {
-    public class FunctionHelper : IFunctionHelper, IDisposable
+    public class FunctionWrapper : IFunctionWrapper, IDisposable
     {
         static readonly HttpClient _HttpClient = new HttpClient();
         readonly string _JobConfigEndpoint;
@@ -22,7 +21,7 @@ namespace TrendingGiphyBotCore.Helpers
         readonly string _DeleteJobConfigFunctionKey;
         readonly string _PostStatsFunctionKey;
         readonly string _GetPrefixDictionaryFunctionKey;
-        public FunctionHelper(IConfiguration config)
+        public FunctionWrapper(IConfigurationWrapper config)
         {
             _JobConfigEndpoint = config["JobConfigEndpoint"];
             _PostStatsEndpoint = config["PostStatsEndpoint"];
