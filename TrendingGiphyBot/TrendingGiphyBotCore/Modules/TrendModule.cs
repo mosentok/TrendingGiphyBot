@@ -9,7 +9,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TrendingGiphyBotCore.Enums;
 using TrendingGiphyBotCore.Exceptions;
-using TrendingGiphyBotCore.Extensions;
 using TrendingGiphyBotCore.Helpers;
 using TrendingGiphyBotCore.Wrappers;
 using TrendingGiphyBotModel;
@@ -153,8 +152,7 @@ namespace TrendingGiphyBotCore.Modules
         }
         [Command(nameof(Examples))]
         [Alias("Example", "Help")]
-        public async Task Examples() => await ExamplesReplyAsync();
-        async Task ExamplesReplyAsync()
+        public async Task Examples()
         {
             var author = new EmbedAuthorBuilder()
                 .WithName("Trending Giphy Bot Examples")
@@ -180,17 +178,17 @@ namespace TrendingGiphyBotCore.Modules
         }
         async Task TryReplyAsync(string message) => await ReplyAsync(message: message, embed: null);
         async Task TryReplyAsync(Embed embed) => await ReplyAsync(message: string.Empty, embed: embed);
-        protected override Task<IUserMessage> ReplyAsync(string message = null, bool isTTS = false, Embed embed = null, RequestOptions options = null)
+        protected override async Task<IUserMessage> ReplyAsync(string message = null, bool isTTS = false, Embed embed = null, RequestOptions options = null)
         {
             var warningResponses = _Config.Get<List<string>>("WarningResponses");
             try
             {
-                return base.ReplyAsync(message, embed: embed);
+                return await base.ReplyAsync(message: message, embed: embed);
             }
             catch (HttpException httpException) when (warningResponses.Any(httpException.Message.Contains))
             {
                 _Logger.LogWarning(httpException.Message);
-                return Task.FromResult<IUserMessage>(null);
+                return null;
             }
         }
     }
