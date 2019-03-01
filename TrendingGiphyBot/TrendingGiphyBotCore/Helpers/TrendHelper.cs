@@ -24,51 +24,33 @@ namespace TrendingGiphyBotCore.Helpers
             var success = short.TryParse(quietHourString, out quietHour);
             return success && 0 <= quietHour && quietHour <= 23;
         }
-        public string InvalidHoursConfigMessage(Time time)
-        {
-            var validHours = _Config.Get<List<short>>("ValidHours");
-            return InvalidConfigMessage(time, validHours);
-        }
-        public string InvalidMinutesConfigMessage(Time time)
-        {
-            var validMinutes = _Config.Get<List<short>>("ValidMinutes");
-            return InvalidConfigMessage(time, validMinutes);
-        }
         static string InvalidConfigMessage(Time time, List<short> validValues) => $"When {nameof(Time)} is {time}, interval must be {string.Join(", ", validValues)}.";
-        public string InvalidConfigRangeMessage()
-        {
-            var minJobConfig = _Config.Get<SubJobConfig>("MinJobConfig");
-            var maxJobConfig = _Config.Get<SubJobConfig>("MaxJobConfig");
-            return $"Interval must be between {minJobConfig.Interval} {minJobConfig.Time} and {maxJobConfig.Interval} {maxJobConfig.Time}.";
-        }
         public bool ShouldTurnCommandOff(string word) => "Off".Equals(word, StringComparison.CurrentCultureIgnoreCase);
-        public JobConfigState DetermineJobConfigState(short interval, Time time)
+        public string DetermineErrorMessage(short interval, Time time)
         {
             var minJobConfig = _Config.Get<SubJobConfig>("MinJobConfig");
             var maxJobConfig = _Config.Get<SubJobConfig>("MaxJobConfig");
             var minTimeSpan = AsTimeSpan(minJobConfig);
             var maxTimeSpan = AsTimeSpan(maxJobConfig);
             var desiredTimeSpan = AsTimeSpan(interval, time);
-            if (desiredTimeSpan < minTimeSpan)
-                return JobConfigState.IntervalTooSmall;
-            if (desiredTimeSpan > maxTimeSpan)
-                return JobConfigState.IntervallTooBig;
+            if (desiredTimeSpan < minTimeSpan || desiredTimeSpan > maxTimeSpan)
+                return $"Interval must be between {minJobConfig.Interval} {minJobConfig.Time} and {maxJobConfig.Interval} {maxJobConfig.Time}.";
             switch (time)
             {
                 case Time.Hour:
                 case Time.Hours:
                     var validHours = _Config.Get<List<short>>("ValidHours");
-                    if (validHours.Contains(interval))
-                        return JobConfigState.Valid;
-                    return JobConfigState.InvalidHours;
+                    if (!validHours.Contains(interval))
+                        return InvalidConfigMessage(time, validHours);
+                    return null;
                 case Time.Minute:
                 case Time.Minutes:
                     var validMinutes = _Config.Get<List<short>>("ValidMinutes");
-                    if (validMinutes.Contains(interval))
-                        return JobConfigState.Valid;
-                    return JobConfigState.InvalidMinutes;
+                    if (!validMinutes.Contains(interval))
+                        return InvalidConfigMessage(time, validMinutes);
+                    return null;
                 default:
-                    return JobConfigState.InvalidTime;
+                    throw new UnexpectedTimeException(time);
             }
         }
         static TimeSpan AsTimeSpan(SubJobConfig config) => AsTimeSpan(config.Interval, config.Time);
