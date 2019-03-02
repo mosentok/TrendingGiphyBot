@@ -119,5 +119,13 @@ namespace TrendingGiphyBotTests.Core
             Assert.That(result.Fields[3].Name, Is.EqualTo("Need Help?"));
             Assert.That(result.Fields[3].Value, Is.EqualTo(helpText));
         }
+        [Test]
+        public void OnPrefixUpdated()
+        {
+            var wasRaised = false;
+            _TrendHelper.PrefixUpdated += (channelId, prefix) => wasRaised = true;
+            _TrendHelper.OnPrefixUpdated(123, "!");
+            Assert.That(wasRaised, Is.True);
+        }
     }
 }
