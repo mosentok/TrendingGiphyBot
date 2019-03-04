@@ -45,7 +45,7 @@ Trending Giphy Bot does all the heavy lifting. Tell it how often you want gifs, 
 
 ## Invite
 
-Invite the bot [here](https://discordapp.com/oauth2/authorize?client_id=333392663061463040&scope=bot)!
+Invite the bot [here](https://discordapp.com/oauth2/authorize?client_id=333392663061463040&scope=bot&permissions=19456)!
 
 ## Quick Start
 
