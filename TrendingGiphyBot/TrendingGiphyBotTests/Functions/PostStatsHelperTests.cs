@@ -36,10 +36,11 @@ namespace TrendingGiphyBotTests.Functions
             var statPosts = new List<StatPost> { statPost };
             _StatWrapper.Setup(s => s.PostStatAsync(requestUri, content, "bot token")).Returns(Task.CompletedTask);
             _Log.Setup(s => s.LogInformation("Posted stats."));
-            var result = await _PostStatsHelper.RunAsync(guildCount, botId, statPosts);
+            var task = _PostStatsHelper.RunAsync(guildCount, botId, statPosts);
+            await task;
             _Log.VerifyAll();
             _StatWrapper.VerifyAll();
-            Assert.That(result, Is.TypeOf<NoContentResult>());
+            Assert.That(task.IsCompletedSuccessfully, Is.True);
         }
         [Test]
         public async Task RunAsync_StatPostException()
@@ -55,10 +56,11 @@ namespace TrendingGiphyBotTests.Functions
             _StatWrapper.Setup(s => s.PostStatAsync(requestUri, content, "bot token")).ThrowsAsync(exception);
             _Log.Setup(s => s.LogError(exception, $"Error posting stats."));
             _Log.Setup(s => s.LogInformation("Posted stats."));
-            var result = await _PostStatsHelper.RunAsync(guildCount, botId, statPosts);
+            var task = _PostStatsHelper.RunAsync(guildCount, botId, statPosts);
+            await task;
             _Log.VerifyAll();
             _StatWrapper.VerifyAll();
-            Assert.That(result, Is.TypeOf<NoContentResult>());
+            Assert.That(task.IsCompletedSuccessfully, Is.True);
         }
         [Test]
         public void RunAsync_OtherException()

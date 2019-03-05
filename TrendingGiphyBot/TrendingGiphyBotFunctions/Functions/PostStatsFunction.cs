@@ -28,8 +28,9 @@ namespace TrendingGiphyBotFunctions.Functions
             using (var statWrapper = new StatWrapper())
             {
                 var postStatsHelper = new PostStatsHelper(logWrapper, statWrapper);
-                return await postStatsHelper.RunAsync(guildCount, botId, statPosts);
+                await postStatsHelper.RunAsync(guildCount, botId, statPosts);
             }
+            return new NoContentResult();
         }
     }
 }

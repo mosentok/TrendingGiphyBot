@@ -14,12 +14,12 @@ namespace TrendingGiphyBotFunctions.Helpers
             _Log = log;
             _Context = context;
         }
-        public async Task<IActionResult> RunAsync(JobConfigContainer container, decimal channelId)
+        public async Task<JobConfigContainer> RunAsync(JobConfigContainer container, decimal channelId)
         {
             _Log.LogInformation($"Channel {channelId} posting job config.");
             var result = await _Context.SetJobConfig(channelId, container);
             _Log.LogInformation($"Channel {channelId} posted job config.");
-            return new OkObjectResult(result);
+            return result;
         }
     }
 }

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using TrendingGiphyBotModel;
 using TrendingGiphyBotFunctions.Wrappers;
 using TrendingGiphyBotFunctions.Helpers;
+using System.Collections.Generic;
 
 namespace TrendingGiphyBotFunctions.Functions
 {
@@ -18,11 +19,13 @@ namespace TrendingGiphyBotFunctions.Functions
         {
             var connectionString = Environment.GetEnvironmentVariable("TrendingGiphyBotConnectionString");
             var logWrapper = new LoggerWrapper(log);
+            Dictionary<decimal, string> prefixDictionary;
             using (var context = new TrendingGiphyBotContext(connectionString))
             {
                 var getPrefixDictionaryHelper = new GetPrefixDictionaryHelper(logWrapper, context);
-                return await getPrefixDictionaryHelper.RunAsync();
+                prefixDictionary = await getPrefixDictionaryHelper.RunAsync();
             }
+            return new OkObjectResult(prefixDictionary);
         }
     }
 }

@@ -20,11 +20,13 @@ namespace TrendingGiphyBotFunctions.Functions
             var container = await req.Body.ReadToEndAsync<JobConfigContainer>();
             var connectionString = Environment.GetEnvironmentVariable("TrendingGiphyBotConnectionString");
             var logWrapper = new LoggerWrapper(log);
+            JobConfigContainer result;
             using (var context = new TrendingGiphyBotContext(connectionString))
             {
                 var postJobConfigHelper = new PostJobConfigHelper(logWrapper, context);
-                return await postJobConfigHelper.RunAsync(container, channelId);
+                result = await postJobConfigHelper.RunAsync(container, channelId);
             }
+            return new OkObjectResult(result);
         }
     }
 }

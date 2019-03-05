@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using TrendingGiphyBotFunctions.Wrappers;
 using TrendingGiphyBotModel;
 
@@ -14,12 +13,11 @@ namespace TrendingGiphyBotFunctions.Helpers
             _Log = log;
             _Context = context;
         }
-        public async Task<IActionResult> RunAsync(decimal channelId)
+        public async Task RunAsync(decimal channelId)
         {
             _Log.LogInformation($"Channel {channelId} deleting job config.");
             await _Context.DeleteJobConfig(channelId);
             _Log.LogInformation($"Channel {channelId} deleted job config.");
-            return new NoContentResult();
         }
     }
 }

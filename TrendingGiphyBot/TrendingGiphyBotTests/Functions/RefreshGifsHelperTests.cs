@@ -31,8 +31,11 @@ namespace TrendingGiphyBotTests.Functions
             var gifObjects = new List<GifObject> { new GifObject { Id = "some ID", Url = "some url" } };
             var trendingResponse = new GiphyTrendingResponse { Data = gifObjects };
             const int count = 123;
+            _Log.Setup(s => s.LogInformation("Getting trending gifs."));
             _GiphyWrapper.Setup(s => s.GetTrendingGifsAsync(trendingEndpoint)).ReturnsAsync(trendingResponse);
+            _Log.Setup(s => s.LogInformation($"Got {trendingResponse.Data.Count} trending gifs."));
             _Context.Setup(s => s.InsertNewTrendingGifs(trendingResponse.Data)).ReturnsAsync(count);
+            _Log.Setup(s => s.LogInformation($"Inserting {trendingResponse.Data.Count} URL caches."));
             _Log.Setup(s => s.LogInformation($"Inserted {count} URL caches."));
             var task = _RefreshGifsHelper.RunAsync(trendingEndpoint);
             await task;

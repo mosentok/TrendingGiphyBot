@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Moq;
+﻿using Moq;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -32,9 +31,7 @@ namespace TrendingGiphyBotTests.Functions
             var result = await _GetPrefixDictionaryHelper.RunAsync();
             _Log.VerifyAll();
             _Context.VerifyAll();
-            var okObjectResult = result as OkObjectResult;
-            Assert.That(okObjectResult, Is.Not.Null);
-            Assert.That(okObjectResult.Value, Is.EqualTo(prefixDictionary));
+            Assert.That(result, Is.EqualTo(prefixDictionary));
         }
     }
 }

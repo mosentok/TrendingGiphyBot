@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Moq;
+﻿using Moq;
 using NUnit.Framework;
 using System.Threading.Tasks;
 using TrendingGiphyBotFunctions.Helpers;
@@ -32,9 +31,7 @@ namespace TrendingGiphyBotTests.Functions
             var result = await _GetJobConfigHelper.RunAsync(channelId);
             _Log.VerifyAll();
             _Context.VerifyAll();
-            var okObjectResult = result as OkObjectResult;
-            Assert.That(okObjectResult, Is.Not.Null);
-            Assert.That(okObjectResult.Value, Is.EqualTo(container));
+            Assert.That(result, Is.EqualTo(container));
         }
     }
 }

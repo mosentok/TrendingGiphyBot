@@ -18,11 +18,13 @@ namespace TrendingGiphyBotFunctions.Functions
         {
             var connectionString = Environment.GetEnvironmentVariable("TrendingGiphyBotConnectionString");
             var logWrapper = new LoggerWrapper(log);
+            JobConfigContainer container;
             using (var context = new TrendingGiphyBotContext(connectionString))
             {
                 var getJobConfigHelper = new GetJobConfigHelper(logWrapper, context);
-                return await getJobConfigHelper.RunAsync(channelId);
+                container = await getJobConfigHelper.RunAsync(channelId);
             }
+            return new OkObjectResult(container);
         }
     }
 }

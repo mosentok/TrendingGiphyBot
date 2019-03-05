@@ -21,8 +21,9 @@ namespace TrendingGiphyBotFunctions.Functions
             using (var context = new TrendingGiphyBotContext(connectionString))
             {
                 var deleteJobConfigHelper = new DeleteJobConfigHelper(logWrapper, context);
-                return await deleteJobConfigHelper.RunAsync(channelId);
+                await deleteJobConfigHelper.RunAsync(channelId);
             }
+            return new NoContentResult();
         }
     }
 }

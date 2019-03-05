@@ -17,7 +17,10 @@ namespace TrendingGiphyBotFunctions.Helpers
         }
         public async Task RunAsync(string trendingEndpoint)
         {
+            _Log.LogInformation("Getting trending gifs.");
             var trendingResponse = await _GiphyWrapper.GetTrendingGifsAsync(trendingEndpoint);
+            _Log.LogInformation($"Got {trendingResponse.Data.Count} trending gifs.");
+            _Log.LogInformation($"Inserting {trendingResponse.Data.Count} URL caches.");
             var count = await _Context.InsertNewTrendingGifs(trendingResponse.Data);
             _Log.LogInformation($"Inserted {count} URL caches.");
         }

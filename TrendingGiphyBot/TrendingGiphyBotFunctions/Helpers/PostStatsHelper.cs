@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using TrendingGiphyBotFunctions.Exceptions;
 using TrendingGiphyBotFunctions.Models;
@@ -16,7 +15,7 @@ namespace TrendingGiphyBotFunctions.Helpers
             _Log = log;
             _StatWrapper = statWrapper;
         }
-        public async Task<IActionResult> RunAsync(int guildCount, long botId, List<StatPost> statPosts)
+        public async Task RunAsync(int guildCount, long botId, List<StatPost> statPosts)
         {
             _Log.LogInformation("Posting stats.");
             foreach (var statPost in statPosts)
@@ -31,7 +30,6 @@ namespace TrendingGiphyBotFunctions.Helpers
                     _Log.LogError(ex, $"Error posting stats.");
                 }
             _Log.LogInformation("Posted stats.");
-            return new NoContentResult();
         }
     }
 }

@@ -29,11 +29,11 @@ namespace TrendingGiphyBotTests.Functions
             var container = new JobConfigContainer();
             _Context.Setup(s => s.DeleteJobConfig(channelId)).Returns(Task.CompletedTask);
             _Log.Setup(s => s.LogInformation($"Channel {channelId} deleted job config."));
-            var result = await _DeleteJobConfigHelper.RunAsync(channelId);
+            var task = _DeleteJobConfigHelper.RunAsync(channelId);
+            await task;
             _Log.VerifyAll();
             _Context.VerifyAll();
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result, Is.InstanceOf<NoContentResult>());
+            Assert.That(task.IsCompletedSuccessfully, Is.True);
         }
     }
 }
