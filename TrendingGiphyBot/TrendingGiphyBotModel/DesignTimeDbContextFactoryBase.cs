@@ -37,7 +37,7 @@ namespace TrendingGiphyBotModel
             if (string.IsNullOrEmpty(connectionString))
                 throw new ArgumentException($"{nameof(connectionString)} is null or empty.", nameof(connectionString));
             var optionsBuilder = new DbContextOptionsBuilder<TContext>();
-            Console.WriteLine($"MyDesignTimeDbContextFactory.Create(string): Connection string: {connectionString}");
+            Console.WriteLine($"Connection string: {connectionString}");
             optionsBuilder.UseSqlServer(connectionString, s => s.CommandTimeout((int)TimeSpan.FromMinutes(10).TotalSeconds));
             DbContextOptions<TContext> options = optionsBuilder.Options;
             return CreateNewInstance(options);

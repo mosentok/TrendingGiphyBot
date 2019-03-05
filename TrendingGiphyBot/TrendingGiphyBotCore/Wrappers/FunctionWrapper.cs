@@ -11,7 +11,7 @@ namespace TrendingGiphyBotCore.Wrappers
 {
     public class FunctionWrapper : IFunctionWrapper, IDisposable
     {
-        static readonly HttpClient _HttpClient = new HttpClient();
+        readonly HttpClient _HttpClient = new HttpClient();
         readonly string _JobConfigEndpoint;
         readonly string _PostStatsEndpoint;
         readonly string _PrefixDictionaryEndpoint;

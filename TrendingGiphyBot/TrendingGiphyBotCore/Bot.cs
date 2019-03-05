@@ -57,11 +57,11 @@ namespace TrendingGiphyBotCore
             _Commands = new CommandService();
             await _Commands.AddModulesAsync(Assembly.GetEntryAssembly(), _Services);
             DetermineModuleNames();
+            _PrefixDictionary = await _FunctionWrapper.GetPrefixDictionaryAsync();
             _DiscordClient.MessageReceived += MessageReceived;
             _DiscordClient.JoinedGuild += JoinedGuild;
             _DiscordClient.LeftGuild += LeftGuild;
             await _DiscordClient.SetGameAsync(_ConfigWrapper["PlayingGame"]);
-            _PrefixDictionary = await _FunctionWrapper.GetPrefixDictionaryAsync();
         }
         void TrendHelper_PrefixUpdated(decimal channelId, string prefix)
         {
