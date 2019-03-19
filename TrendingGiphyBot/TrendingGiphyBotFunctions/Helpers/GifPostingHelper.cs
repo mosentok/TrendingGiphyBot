@@ -45,10 +45,11 @@ namespace TrendingGiphyBotFunctions.Helpers
         {
             _Log.LogInformation($"Building {containers.Count} histories.");
             var urlCaches = await _Context.GetUrlCachesAsync();
+            var orderedUrlCaches = urlCaches.OrderByDescending(s => s.Stamp).ToList();
             var histories = new List<UrlHistoryContainer>();
             foreach (var container in containers)
             {
-                var firstUnseenUrlCache = (from urlCache in urlCaches
+                var firstUnseenUrlCache = (from urlCache in orderedUrlCaches
                                                //find caches where there are no histories with their gif IDs
                                            where !container.Histories.Any(s => s.GifId == urlCache.Id)
                                            select urlCache).FirstOrDefault();
