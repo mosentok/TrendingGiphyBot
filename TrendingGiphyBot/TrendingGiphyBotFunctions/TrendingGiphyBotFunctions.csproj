@@ -10,6 +10,7 @@
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.26" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\TrendingGiphyBotCore\TrendingGiphyBotCore.csproj" />
     <ProjectReference Include="..\TrendingGiphyBotModel\TrendingGiphyBotModel.csproj" />
   </ItemGroup>
   <ItemGroup>

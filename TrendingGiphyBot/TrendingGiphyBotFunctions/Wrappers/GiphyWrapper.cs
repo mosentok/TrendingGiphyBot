@@ -2,6 +2,7 @@
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using TrendingGiphyBotCore.Exceptions;
 using TrendingGiphyBotFunctions.Models;
 
 namespace TrendingGiphyBotFunctions.Wrappers
@@ -19,7 +20,14 @@ namespace TrendingGiphyBotFunctions.Wrappers
         {
             var combined = $"{giphyRandomEndpoint}&tag={tag}";
             var response = await _HttpClient.GetStringAsync(combined);
-            return JsonConvert.DeserializeObject<GiphyRandomResponse>(response);
+            try
+            {
+                return JsonConvert.DeserializeObject<GiphyRandomResponse>(response);
+            }
+            catch (JsonSerializationException ex)
+            {
+                throw new GiphyException($"Error getting {combined}", ex, response);
+            }
         }
         public void Dispose()
         {
