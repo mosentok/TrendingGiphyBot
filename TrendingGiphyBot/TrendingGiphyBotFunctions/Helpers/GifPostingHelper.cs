@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TrendingGiphyBotCore.Exceptions;
 using TrendingGiphyBotFunctions.Models;
 using TrendingGiphyBotFunctions.Wrappers;
 using TrendingGiphyBotModel;
@@ -58,10 +59,17 @@ namespace TrendingGiphyBotFunctions.Helpers
                 else if (!string.IsNullOrEmpty(container.RandomSearchString))
                 {
                     //TODO add a retry loop or something so that we can get/check more than 1 random gif for the channel
-                    var randomTagGif = await _GiphyWrapper.GetRandomGifAsync(giphyRandomEndpoint, container.RandomSearchString);
-                    var hasBeenSeenBefore = container.Histories.Any(s => s.GifId == randomTagGif.Data.Id);
-                    if (!hasBeenSeenBefore)
-                        histories.Add(new UrlHistoryContainer(container.ChannelId, randomTagGif.Data.Id, randomTagGif.Data.Url, false));
+                    try
+                    {
+                        var randomTagGif = await _GiphyWrapper.GetRandomGifAsync(giphyRandomEndpoint, container.RandomSearchString);
+                        var hasBeenSeenBefore = container.Histories.Any(s => s.GifId == randomTagGif.Data.Id);
+                        if (!hasBeenSeenBefore)
+                            histories.Add(new UrlHistoryContainer(container.ChannelId, randomTagGif.Data.Id, randomTagGif.Data.Url, false));
+                    }
+                    catch (GiphyException ex)
+                    {
+                        _Log.LogError(ex, "Error getting random gif.");
+                    }
                 }
             }
             _Log.LogInformation($"Built {histories.Count} histories.");
