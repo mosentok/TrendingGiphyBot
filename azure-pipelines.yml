@@ -6,6 +6,13 @@
 trigger:
 - master
 
+schedules:
+  - cron: "0 0 * * *"
+    displayName: 'daily midnight build'
+    branches:
+      include:
+        - master
+
 pool:
   vmImage: 'Ubuntu-16.04'
 
