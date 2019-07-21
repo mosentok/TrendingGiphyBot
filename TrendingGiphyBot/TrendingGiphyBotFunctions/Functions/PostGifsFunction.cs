@@ -32,9 +32,9 @@ namespace TrendingGiphyBotFunctions.Functions
             using (var giphyWrapper = new GiphyWrapper())
             using (var discordWrapper = new DiscordWrapper(botToken))
             {
-                var gifPostingHelper = new GifPostingHelper(logWrapper, context, giphyWrapper, discordWrapper);
+                var gifPostingHelper = new GifPostingHelper(logWrapper, context, giphyWrapper, discordWrapper, warningResponses);
                 var postGifsHelper = new PostGifsHelper(gifPostingHelper);
-                await postGifsHelper.RunAsync(now, allValidMinutes, giphyRandomEndpoint, warningResponses);
+                await postGifsHelper.RunAsync(now, allValidMinutes, giphyRandomEndpoint);
             }
         }
     }
