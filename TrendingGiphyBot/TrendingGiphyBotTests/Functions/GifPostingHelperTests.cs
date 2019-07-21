@@ -22,6 +22,7 @@ namespace TrendingGiphyBotTests.Functions
         Mock<IGiphyWrapper> _GiphyWrapper;
         Mock<IDiscordWrapper> _DiscordWrapper;
         GifPostingHelper _GifPostingHelper;
+        static readonly List<string> warningResponses = new List<string> { "missing access", "missing permission" };
         [SetUp]
         public void SetUp()
         {
@@ -29,7 +30,7 @@ namespace TrendingGiphyBotTests.Functions
             _Context = new Mock<ITrendingGiphyBotContext>();
             _GiphyWrapper = new Mock<IGiphyWrapper>();
             _DiscordWrapper = new Mock<IDiscordWrapper>();
-            _GifPostingHelper = new GifPostingHelper(_Log.Object, _Context.Object, _GiphyWrapper.Object, _DiscordWrapper.Object);
+            _GifPostingHelper = new GifPostingHelper(_Log.Object, _Context.Object, _GiphyWrapper.Object, _DiscordWrapper.Object, warningResponses);
         }
         [Test]
         public async Task LogInAsync()
@@ -299,8 +300,7 @@ namespace TrendingGiphyBotTests.Functions
             var channelContainers = new List<ChannelContainer> { new ChannelContainer { Channel = channel.Object, HistoryContainer = historyContainer } };
             _Log.Setup(s => s.LogInformation($"Posting {channelContainers.Count} gifs."));
             _Log.Setup(s => s.LogInformation("Posted 1 gifs."));
-            var warningResponses = new List<string> { "missing access", "missing permission" };
-            var result = await _GifPostingHelper.PostGifs(channelContainers, warningResponses);
+            var result = await _GifPostingHelper.PostGifs(channelContainers);
             channel.VerifyAll();
             _Log.VerifyAll();
             Assert.That(result.ChannelsToDelete, Is.Empty);
@@ -316,8 +316,7 @@ namespace TrendingGiphyBotTests.Functions
             var channelContainers = new List<ChannelContainer> { new ChannelContainer { Channel = channel.Object, HistoryContainer = historyContainer } };
             _Log.Setup(s => s.LogInformation($"Posting {channelContainers.Count} gifs."));
             _Log.Setup(s => s.LogInformation("Posted 1 gifs."));
-            var warningResponses = new List<string> { "missing access", "missing permission" };
-            var result = await _GifPostingHelper.PostGifs(channelContainers, warningResponses);
+            var result = await _GifPostingHelper.PostGifs(channelContainers);
             channel.VerifyAll();
             _Log.VerifyAll();
             Assert.That(result.ChannelsToDelete, Is.Empty);
@@ -336,8 +335,7 @@ namespace TrendingGiphyBotTests.Functions
             _Log.Setup(s => s.LogError(httpException, $"Error posting to channel '{historyContainer.ChannelId}' gif '{historyContainer.Url}'."));
             _Log.Setup(s => s.LogInformation($"Posting {channelContainers.Count} gifs."));
             _Log.Setup(s => s.LogInformation("Posted 0 gifs."));
-            var warningResponses = new List<string> { "missing access", "missing permission" };
-            var result = await _GifPostingHelper.PostGifs(channelContainers, warningResponses);
+            var result = await _GifPostingHelper.PostGifs(channelContainers);
             channel.VerifyAll();
             _Log.VerifyAll();
             Assert.That(result.ChannelsToDelete, Contains.Item(channelId));
@@ -356,8 +354,7 @@ namespace TrendingGiphyBotTests.Functions
             _Log.Setup(s => s.LogError(exception, $"Error posting to channel '{historyContainer.ChannelId}' gif '{historyContainer.Url}'."));
             _Log.Setup(s => s.LogInformation($"Posting {channelContainers.Count} gifs."));
             _Log.Setup(s => s.LogInformation("Posted 0 gifs."));
-            var warningResponses = new List<string> { "missing access", "missing permission" };
-            var result = await _GifPostingHelper.PostGifs(channelContainers, warningResponses);
+            var result = await _GifPostingHelper.PostGifs(channelContainers);
             channel.VerifyAll();
             _Log.VerifyAll();
             Assert.That(result.ChannelsToDelete, Is.Empty);

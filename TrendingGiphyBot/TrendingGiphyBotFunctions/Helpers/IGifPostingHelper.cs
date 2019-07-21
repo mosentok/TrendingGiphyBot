@@ -18,6 +18,6 @@ namespace TrendingGiphyBotFunctions.Helpers
         Task DeleteJobConfigs(List<decimal> channelIds);
         Task<List<PendingJobConfig>> GetContainers(int nowHour, List<int> currentValidMinutes);
         Task<List<UrlHistoryContainer>> InsertHistories(List<UrlHistoryContainer> historyContainers);
-        Task<GifPostingResult> PostGifs(List<ChannelContainer> channelContainers, List<string> warningResponses);
+        Task<GifPostingResult> PostGifs(List<ChannelContainer> channelContainers);
     }
 }
