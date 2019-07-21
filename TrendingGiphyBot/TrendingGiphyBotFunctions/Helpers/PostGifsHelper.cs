@@ -12,7 +12,7 @@ namespace TrendingGiphyBotFunctions.Helpers
         {
             _GifPostingHelper = gifPostingHelper;
         }
-        public async Task RunAsync(DateTime now, List<int> allValidMinutes, string giphyRandomEndpoint, List<string> warningResponses)
+        public async Task RunAsync(DateTime now, List<int> allValidMinutes, string giphyRandomEndpoint)
         {
             await _GifPostingHelper.LogInAsync();
             var totalMinutes = _GifPostingHelper.DetermineTotalMinutes(now);
@@ -21,7 +21,7 @@ namespace TrendingGiphyBotFunctions.Helpers
             var historyContainers = await _GifPostingHelper.BuildHistoryContainers(pendingContainers, giphyRandomEndpoint);
             var insertedContainers = await _GifPostingHelper.InsertHistories(historyContainers);
             var channelResult = await _GifPostingHelper.BuildChannelContainers(insertedContainers);
-            var gifPostingResult = await _GifPostingHelper.PostGifs(channelResult.ChannelContainers, warningResponses);
+            var gifPostingResult = await _GifPostingHelper.PostGifs(channelResult.ChannelContainers);
             if (channelResult.Errors.Any())
                 await _GifPostingHelper.DeleteErrorHistories(channelResult.Errors);
             if (channelResult.ChannelsToDelete.Any())

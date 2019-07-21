@@ -16,12 +16,14 @@ namespace TrendingGiphyBotFunctions.Helpers
         readonly ITrendingGiphyBotContext _Context;
         readonly IGiphyWrapper _GiphyWrapper;
         readonly IDiscordWrapper _DiscordWrapper;
-        public GifPostingHelper(ILoggerWrapper log, ITrendingGiphyBotContext context, IGiphyWrapper giphyWrapper, IDiscordWrapper discordWrapper)
+        readonly List<string> _WarningResponses;
+        public GifPostingHelper(ILoggerWrapper log, ITrendingGiphyBotContext context, IGiphyWrapper giphyWrapper, IDiscordWrapper discordWrapper, List<string> warningResponses)
         {
             _Log = log;
             _Context = context;
             _GiphyWrapper = giphyWrapper;
             _DiscordWrapper = discordWrapper;
+            _WarningResponses = warningResponses;
         }
         public Task LogInAsync() => _DiscordWrapper.LogInAsync();
         public Task LogOutAsync() => _DiscordWrapper.LogOutAsync();
@@ -97,6 +99,11 @@ namespace TrendingGiphyBotFunctions.Helpers
                     else
                         channelsToDelete.Add(insertedContainer.ChannelId);
                 }
+                catch (HttpException httpException) when (_WarningResponses.Any(httpException.Message.Contains))
+                {
+                    _Log.LogError(httpException, $"Error posting to channel '{insertedContainer.ChannelId}' gif '{insertedContainer.Url}'.");
+                    channelsToDelete.Add(insertedContainer.ChannelId);
+                }
                 catch (Exception ex)
                 {
                     _Log.LogError(ex, $"Error getting channel '{insertedContainer.ChannelId}'.");
@@ -105,7 +112,7 @@ namespace TrendingGiphyBotFunctions.Helpers
             _Log.LogInformation($"Got {channelContainers.Count} channels.");
             return new ChannelResult(channelContainers, errors, channelsToDelete);
         }
-        public async Task<GifPostingResult> PostGifs(List<ChannelContainer> channelContainers, List<string> warningResponses)
+        public async Task<GifPostingResult> PostGifs(List<ChannelContainer> channelContainers)
         {
             _Log.LogInformation($"Posting {channelContainers.Count} gifs.");
             var errors = new List<UrlHistoryContainer>();
@@ -120,7 +127,7 @@ namespace TrendingGiphyBotFunctions.Helpers
                         message = channelContainer.HistoryContainer.Url;
                     await channelContainer.Channel.SendMessageAsync(message);
                 }
-                catch (HttpException httpException) when (warningResponses.Any(httpException.Message.Contains))
+                catch (HttpException httpException) when (_WarningResponses.Any(httpException.Message.Contains))
                 {
                     _Log.LogError(httpException, $"Error posting to channel '{channelContainer.HistoryContainer.ChannelId}' gif '{channelContainer.HistoryContainer.Url}'.");
                     channelsToDelete.Add(channelContainer.HistoryContainer.ChannelId);
