@@ -101,7 +101,7 @@ namespace TrendingGiphyBotFunctions.Helpers
                 }
                 catch (HttpException httpException) when (_WarningResponses.Any(httpException.Message.Contains))
                 {
-                    _Log.LogError(httpException, $"Error posting to channel '{insertedContainer.ChannelId}' gif '{insertedContainer.Url}'.");
+                    _Log.LogError(httpException, $"Error getting channel '{insertedContainer.ChannelId}'. Channel will be deleted.");
                     channelsToDelete.Add(insertedContainer.ChannelId);
                 }
                 catch (Exception ex)
