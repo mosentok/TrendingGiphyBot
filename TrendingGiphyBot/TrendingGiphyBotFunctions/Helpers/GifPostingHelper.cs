@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using TrendingGiphyBotCore.Exceptions;
+using TrendingGiphyBotFunctions.Exceptions;
 using TrendingGiphyBotFunctions.Models;
 using TrendingGiphyBotFunctions.Wrappers;
 using TrendingGiphyBotModel;

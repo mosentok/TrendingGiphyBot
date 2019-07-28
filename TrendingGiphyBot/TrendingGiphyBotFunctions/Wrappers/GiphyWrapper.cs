@@ -2,7 +2,7 @@
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using TrendingGiphyBotCore.Exceptions;
+using TrendingGiphyBotFunctions.Exceptions;
 using TrendingGiphyBotFunctions.Models;
 
 namespace TrendingGiphyBotFunctions.Wrappers
