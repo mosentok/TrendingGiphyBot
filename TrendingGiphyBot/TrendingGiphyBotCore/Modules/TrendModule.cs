@@ -166,7 +166,8 @@ namespace TrendingGiphyBotCore.Modules
             }
             catch (HttpException httpException) when (warningResponses.Any(httpException.Message.Contains))
             {
-                _Logger.LogWarning(httpException.Message);
+                _Logger.LogWarning(httpException, $"Error replying to channel '{Context.Channel.Id}'. Deleting channel.");
+                await _FunctionWrapper.DeleteJobConfigAsync(Context.Channel.Id);
                 return null;
             }
         }
