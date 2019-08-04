@@ -35,8 +35,9 @@ namespace TrendingGiphyBotTests.Functions
         [Test]
         public async Task LogInAsync()
         {
-            _DiscordWrapper.Setup(s => s.LogInAsync()).Returns(Task.CompletedTask);
-            var task = _GifPostingHelper.LogInAsync();
+            const string botToken = "atoken";
+            _DiscordWrapper.Setup(s => s.LogInAsync(botToken)).Returns(Task.CompletedTask);
+            var task = _GifPostingHelper.LogInAsync(botToken);
             await task;
             _DiscordWrapper.VerifyAll();
             Assert.That(task.IsCompletedSuccessfully, Is.True);

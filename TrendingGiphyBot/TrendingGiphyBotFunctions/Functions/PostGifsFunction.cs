@@ -30,11 +30,11 @@ namespace TrendingGiphyBotFunctions.Functions
             var logWrapper = new LoggerWrapper(log);
             using (var context = new TrendingGiphyBotContext(connectionString))
             using (var giphyWrapper = new GiphyWrapper())
-            using (var discordWrapper = new DiscordWrapper(botToken))
+            using (var discordWrapper = new DiscordWrapper())
             {
                 var gifPostingHelper = new GifPostingHelper(logWrapper, context, giphyWrapper, discordWrapper, warningResponses);
                 var postGifsHelper = new PostGifsHelper(gifPostingHelper);
-                await postGifsHelper.RunAsync(now, allValidMinutes, giphyRandomEndpoint);
+                await postGifsHelper.RunAsync(now, allValidMinutes, giphyRandomEndpoint, botToken);
             }
         }
     }

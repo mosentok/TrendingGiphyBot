@@ -27,6 +27,8 @@ namespace TrendingGiphyBotTests.Functions
             var allValidMinutes = new List<int> { 123 };
             const string giphyRandomEndpoint = "giphy random endpoint";
             const int totalMinutes = 789;
+            const string botToken = "someToken";
+            _GifPostingHelper.Setup(s => s.LogInAsync(botToken)).Returns(Task.CompletedTask);
             _GifPostingHelper.Setup(s => s.DetermineTotalMinutes(now)).Returns(totalMinutes);
             var currentValidMinutes = new List<int> { 456 };
             _GifPostingHelper.Setup(s => s.DetermineCurrentValidMinutes(totalMinutes, allValidMinutes)).Returns(currentValidMinutes);
@@ -49,7 +51,7 @@ namespace TrendingGiphyBotTests.Functions
             _GifPostingHelper.Setup(s => s.DeleteJobConfigs(channelResult.ChannelsToDelete)).Returns(Task.CompletedTask);
             _GifPostingHelper.Setup(s => s.DeleteErrorHistories(gifPostingResult.Errors)).Returns(Task.CompletedTask);
             _GifPostingHelper.Setup(s => s.DeleteJobConfigs(gifPostingResult.ChannelsToDelete)).Returns(Task.CompletedTask);
-            var task = _PostGifsHelper.RunAsync(now, allValidMinutes, giphyRandomEndpoint);
+            var task = _PostGifsHelper.RunAsync(now, allValidMinutes, giphyRandomEndpoint, botToken);
             await task;
             _GifPostingHelper.VerifyAll();
             Assert.That(task.IsCompletedSuccessfully, Is.True);

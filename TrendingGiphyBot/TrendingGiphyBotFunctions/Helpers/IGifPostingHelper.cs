@@ -8,7 +8,7 @@ namespace TrendingGiphyBotFunctions.Helpers
 {
     public interface IGifPostingHelper
     {
-        Task LogInAsync();
+        Task LogInAsync(string botToken);
         Task LogOutAsync();
         int DetermineTotalMinutes(DateTime now);
         List<int> DetermineCurrentValidMinutes(int totalMinutes, List<int> allValidMinutes);

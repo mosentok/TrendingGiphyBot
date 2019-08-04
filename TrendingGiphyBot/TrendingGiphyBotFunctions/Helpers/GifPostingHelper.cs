@@ -25,7 +25,7 @@ namespace TrendingGiphyBotFunctions.Helpers
             _DiscordWrapper = discordWrapper;
             _WarningResponses = warningResponses;
         }
-        public Task LogInAsync() => _DiscordWrapper.LogInAsync();
+        public Task LogInAsync(string botToken) => _DiscordWrapper.LogInAsync(botToken);
         public Task LogOutAsync() => _DiscordWrapper.LogOutAsync();
         public int DetermineTotalMinutes(DateTime now)
         {

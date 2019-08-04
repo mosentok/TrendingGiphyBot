@@ -12,9 +12,9 @@ namespace TrendingGiphyBotFunctions.Helpers
         {
             _GifPostingHelper = gifPostingHelper;
         }
-        public async Task RunAsync(DateTime now, List<int> allValidMinutes, string giphyRandomEndpoint)
+        public async Task RunAsync(DateTime now, List<int> allValidMinutes, string giphyRandomEndpoint, string botToken)
         {
-            await _GifPostingHelper.LogInAsync();
+            await _GifPostingHelper.LogInAsync(botToken);
             var totalMinutes = _GifPostingHelper.DetermineTotalMinutes(now);
             var currentValidMinutes = _GifPostingHelper.DetermineCurrentValidMinutes(totalMinutes, allValidMinutes);
             var pendingContainers = await _GifPostingHelper.GetContainers(now.Hour, currentValidMinutes);

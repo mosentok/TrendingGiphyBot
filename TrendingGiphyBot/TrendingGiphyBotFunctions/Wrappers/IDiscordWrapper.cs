@@ -6,7 +6,7 @@ namespace TrendingGiphyBotFunctions.Wrappers
     public interface IDiscordWrapper
     {
         Task<IMessageChannel> GetChannelAsync(decimal id);
-        Task LogInAsync();
+        Task LogInAsync(string botToken);
         Task LogOutAsync();
     }
 }
