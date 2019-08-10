@@ -4,17 +4,19 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using TrendingGiphyBotFunctions.Helpers;
-using TrendingGiphyBotFunctions.Wrappers;
-using TrendingGiphyBotModel;
 
 namespace TrendingGiphyBotFunctions.Functions
 {
-    public static class PostGifsFunction
+    public class PostGifsFunction
     {
-        [FunctionName(nameof(PostGifsFunction))]
-        public static async Task Run([TimerTrigger("%PostGifsFunctionCron%")]TimerInfo myTimer, ILogger log)
+        readonly IPostGifsHelper _PostGifsHelper;
+        public PostGifsFunction(IPostGifsHelper postGifsHelper)
         {
-            var connectionString = Environment.GetEnvironmentVariable("TrendingGiphyBotConnectionString");
+            _PostGifsHelper = postGifsHelper;
+        }
+        [FunctionName(nameof(PostGifsFunction))]
+        public async Task Run([TimerTrigger("%PostGifsFunctionCron%")]TimerInfo myTimer, ILogger log)
+        {
             var botToken = Environment.GetEnvironmentVariable("BotToken");
             var hourOffsetString = Environment.GetEnvironmentVariable("HourOffset");
             var hourOffset = int.Parse(hourOffsetString);
@@ -26,16 +28,23 @@ namespace TrendingGiphyBotFunctions.Functions
             var validHoursAsMinutes = validHours.Select(s => s * 60);
             var allValidMinutes = validMinutes.Concat(validHoursAsMinutes).ToList();
             var giphyRandomEndpoint = Environment.GetEnvironmentVariable("GiphyRandomEndpoint");
-            var warningResponses = Environment.GetEnvironmentVariable("WarningResponses").Split(',', options: StringSplitOptions.RemoveEmptyEntries).ToList();
-            var logWrapper = new LoggerWrapper(log);
-            using (var context = new TrendingGiphyBotContext(connectionString))
-            using (var giphyWrapper = new GiphyWrapper())
-            using (var discordWrapper = new DiscordWrapper())
-            {
-                var gifPostingHelper = new GifPostingHelper(logWrapper, context, giphyWrapper, discordWrapper, warningResponses);
-                var postGifsHelper = new PostGifsHelper(gifPostingHelper);
-                await postGifsHelper.RunAsync(now, allValidMinutes, giphyRandomEndpoint, botToken);
-            }
+            await _PostGifsHelper.LogInAsync(botToken);
+            var totalMinutes = _PostGifsHelper.DetermineTotalMinutes(now);
+            var currentValidMinutes = _PostGifsHelper.DetermineCurrentValidMinutes(totalMinutes, allValidMinutes);
+            var pendingContainers = await _PostGifsHelper.GetContainers(now.Hour, currentValidMinutes, log);
+            var historyContainers = await _PostGifsHelper.BuildHistoryContainers(pendingContainers, giphyRandomEndpoint, log);
+            var insertedContainers = await _PostGifsHelper.InsertHistories(historyContainers, log);
+            var channelResult = await _PostGifsHelper.BuildChannelContainers(insertedContainers, log);
+            var gifPostingResult = await _PostGifsHelper.PostGifs(channelResult.ChannelContainers, log);
+            if (channelResult.Errors.Any())
+                await _PostGifsHelper.DeleteErrorHistories(channelResult.Errors, log);
+            if (channelResult.ChannelsToDelete.Any())
+                await _PostGifsHelper.DeleteJobConfigs(channelResult.ChannelsToDelete, log);
+            if (gifPostingResult.Errors.Any())
+                await _PostGifsHelper.DeleteErrorHistories(gifPostingResult.Errors, log);
+            if (gifPostingResult.ChannelsToDelete.Any())
+                await _PostGifsHelper.DeleteJobConfigs(gifPostingResult.ChannelsToDelete, log);
+            await _PostGifsHelper.LogOutAsync();
         }
     }
 }

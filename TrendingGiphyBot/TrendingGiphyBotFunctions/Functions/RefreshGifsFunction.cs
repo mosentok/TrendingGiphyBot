@@ -2,26 +2,27 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
-using TrendingGiphyBotFunctions.Helpers;
 using TrendingGiphyBotFunctions.Wrappers;
 using TrendingGiphyBotModel;
 
 namespace TrendingGiphyBotFunctions.Functions
 {
-    public static class RefreshGifsFunction
+    public class RefreshGifsFunction
     {
-        [FunctionName(nameof(RefreshGifsFunction))]
-        public static async Task Run([TimerTrigger("%RefreshGifsFunctionCron%")]TimerInfo myTimer, ILogger log)
+        readonly ITrendingGiphyBotContext _Context;
+        readonly IGiphyWrapper _GiphyWrapper;
+        public RefreshGifsFunction(ITrendingGiphyBotContext context, IGiphyWrapper giphyWrapper)
         {
-            var connectionString = Environment.GetEnvironmentVariable("TrendingGiphyBotConnectionString");
+            _Context = context;
+            _GiphyWrapper = giphyWrapper;
+        }
+        [FunctionName(nameof(RefreshGifsFunction))]
+        public async Task Run([TimerTrigger("%RefreshGifsFunctionCron%")]TimerInfo myTimer, ILogger log)
+        {
             var trendingEndpoint = Environment.GetEnvironmentVariable("GiphyTrendingEndpoint");
-            var logWrapper = new LoggerWrapper(log);
-            using (var giphyWrapper = new GiphyWrapper())
-            using (var context = new TrendingGiphyBotContext(connectionString))
-            {
-                var refreshGifsHelper = new RefreshGifsHelper(logWrapper, giphyWrapper, context);
-                await refreshGifsHelper.RunAsync(trendingEndpoint);
-            }
+            var trendingResponse = await _GiphyWrapper.GetTrendingGifsAsync(trendingEndpoint);
+            var count = await _Context.InsertNewTrendingGifs(trendingResponse.Data);
+            log.LogInformation($"Inserted {count} URL caches.");
         }
     }
 }

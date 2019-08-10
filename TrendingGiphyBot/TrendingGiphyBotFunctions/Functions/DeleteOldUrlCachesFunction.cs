@@ -2,27 +2,26 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
-using TrendingGiphyBotFunctions.Helpers;
-using TrendingGiphyBotFunctions.Wrappers;
 using TrendingGiphyBotModel;
 
 namespace TrendingGiphyBotFunctions.Functions
 {
-    public static class DeleteOldUrlCachesFunction
+    public class DeleteOldUrlCachesFunction
     {
-        [FunctionName(nameof(DeleteOldUrlCachesFunction))]
-        public static async Task Run([TimerTrigger("%DeleteOldUrlCachesFunctionCron%")]TimerInfo myTimer, ILogger log)
+        readonly ITrendingGiphyBotContext _Context;
+        public DeleteOldUrlCachesFunction(ITrendingGiphyBotContext context)
         {
-            var connectionString = Environment.GetEnvironmentVariable("TrendingGiphyBotConnectionString");
+            _Context = context;
+        }
+        [FunctionName(nameof(DeleteOldUrlCachesFunction))]
+        public async Task Run([TimerTrigger("%DeleteOldUrlCachesFunctionCron%")]TimerInfo myTimer, ILogger log)
+        {
             var urlCachesMaxDaysOldString = Environment.GetEnvironmentVariable("UrlCachesMaxDaysOld");
             var urlCachesMaxDaysOld = int.Parse(urlCachesMaxDaysOldString);
             var oldestDate = DateTime.Now.AddDays(-urlCachesMaxDaysOld);
-            var logWrapper = new LoggerWrapper(log);
-            using (var context = new TrendingGiphyBotContext(connectionString))
-            {
-                var deleteOldUrlCachesHelper = new DeleteOldUrlCachesHelper(logWrapper, context);
-                await deleteOldUrlCachesHelper.RunAsync(oldestDate);
-            }
+            log.LogInformation($"Deleting URL caches older than {oldestDate}.");
+            var count = await _Context.DeleteUrlCachesOlderThan(oldestDate);
+            log.LogInformation($"Deleted {count} URL caches older than {oldestDate}.");
         }
     }
 }

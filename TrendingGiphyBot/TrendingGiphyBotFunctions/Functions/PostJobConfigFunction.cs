@@ -12,19 +12,21 @@ using TrendingGiphyBotFunctions.Helpers;
 
 namespace TrendingGiphyBotFunctions.Functions
 {
-    public static class PostJobConfigFunction
+    public class PostJobConfigFunction
     {
+        readonly ITrendingGiphyBotContext _Context;
+        public PostJobConfigFunction(ITrendingGiphyBotContext context)
+        {
+            _Context = context;
+        }
         [FunctionName(nameof(PostJobConfigFunction))]
-        public static async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = "jobconfigs/{channelid:decimal}")] HttpRequest req, decimal channelId, ILogger log)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = "jobconfigs/{channelid:decimal}")] HttpRequest req, decimal channelId, ILogger log)
         {
             var container = await req.Body.ReadToEndAsync<JobConfigContainer>();
-            var connectionString = Environment.GetEnvironmentVariable("TrendingGiphyBotConnectionString");
-            var logWrapper = new LoggerWrapper(log);
-            using (var context = new TrendingGiphyBotContext(connectionString))
-            {
-                var postJobConfigHelper = new PostJobConfigHelper(logWrapper, context);
-                return await postJobConfigHelper.RunAsync(container, channelId);
-            }
+            log.LogInformation($"Channel {channelId} posting job config.");
+            var result = await _Context.SetJobConfig(channelId, container);
+            log.LogInformation($"Channel {channelId} posted job config.");
+            return new OkObjectResult(result);
         }
     }
 }

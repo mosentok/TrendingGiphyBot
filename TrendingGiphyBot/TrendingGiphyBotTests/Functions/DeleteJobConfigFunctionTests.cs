@@ -1,36 +1,33 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using System.Threading.Tasks;
-using TrendingGiphyBotFunctions.Helpers;
-using TrendingGiphyBotFunctions.Wrappers;
+using TrendingGiphyBotFunctions.Functions;
 using TrendingGiphyBotModel;
 
 namespace TrendingGiphyBotTests.Functions
 {
     [TestFixture]
-    public class DeleteJobConfigHelperTests
+    public class DeleteJobConfigFunctionTests
     {
-        Mock<ILoggerWrapper> _Log;
         Mock<ITrendingGiphyBotContext> _Context;
-        DeleteJobConfigHelper _DeleteJobConfigHelper;
+        DeleteJobConfigFunction _DeleteJobConfigFunction;
         [SetUp]
         public void SetUp()
         {
-            _Log = new Mock<ILoggerWrapper>();
             _Context = new Mock<ITrendingGiphyBotContext>();
-            _DeleteJobConfigHelper = new DeleteJobConfigHelper(_Log.Object, _Context.Object);
+            _DeleteJobConfigFunction = new DeleteJobConfigFunction(_Context.Object);
         }
         [Test]
-        public async Task RunAsync()
+        public async Task Run()
         {
+            var log = new Mock<ILogger>();
             const decimal channelId = 123;
-            _Log.Setup(s => s.LogInformation($"Channel {channelId} deleting job config."));
             var container = new JobConfigContainer();
             _Context.Setup(s => s.DeleteJobConfig(channelId)).Returns(Task.CompletedTask);
-            _Log.Setup(s => s.LogInformation($"Channel {channelId} deleted job config."));
-            var result = await _DeleteJobConfigHelper.RunAsync(channelId);
-            _Log.VerifyAll();
+            var result = await _DeleteJobConfigFunction.Run(null, channelId, log.Object);
+            log.VerifyAll();
             _Context.VerifyAll();
             Assert.That(result, Is.Not.Null);
             Assert.That(result, Is.InstanceOf<NoContentResult>());
