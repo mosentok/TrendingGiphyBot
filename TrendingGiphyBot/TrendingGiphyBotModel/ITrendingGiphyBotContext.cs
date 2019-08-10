@@ -13,6 +13,8 @@ namespace TrendingGiphyBotModel
 
         Task DeleteJobConfig(decimal channelId);
         Task<int> DeleteJobConfigs(IEnumerable<decimal> channelIds);
+        DateTime GetUrlCachesOldestDate();
+        DateTime GetUrlHistoriesOldestDate();
         Task<int> DeleteUrlCachesOlderThan(DateTime oldestDate);
         Task<int> DeleteUrlHistories(List<UrlHistoryContainer> historyContainers);
         Task<int> DeleteUrlHistoriesOlderThan(DateTime oldestDate);

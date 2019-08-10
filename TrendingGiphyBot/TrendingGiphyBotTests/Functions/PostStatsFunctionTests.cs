@@ -29,7 +29,7 @@ namespace TrendingGiphyBotTests.Functions
         [Test]
         public async Task RunAsync()
         {
-            //TODO environment vars
+            //TODO HttpRequest
             //const long botId = 456;
             //const string requestUri = "some/bot/url/456/stats";
             //const string content = "{\"guild_count\":123}";
@@ -47,7 +47,7 @@ namespace TrendingGiphyBotTests.Functions
         [Test]
         public async Task RunAsync_StatPostException()
         {
-            //TODO environment vars
+            //TODO HttpRequest
             //const long botId = 456;
             //const string requestUri = "some/bot/url/456/stats";
             //const string content = "{\"guild_count\":123}";
@@ -66,7 +66,7 @@ namespace TrendingGiphyBotTests.Functions
         [Test]
         public void RunAsync_OtherException()
         {
-            //TODO environment vars
+            //TODO HttpRequest
             //const long botId = 456;
             //const string requestUri = "some/bot/url/456/stats";
             //const string content = "{\"guild_count\":123}";

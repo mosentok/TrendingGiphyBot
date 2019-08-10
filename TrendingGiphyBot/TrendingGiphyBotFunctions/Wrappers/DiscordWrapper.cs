@@ -10,10 +10,15 @@ namespace TrendingGiphyBotFunctions.Wrappers
         readonly TaskCompletionSource<bool> _LoggedInSource = new TaskCompletionSource<bool>();
         readonly TaskCompletionSource<bool> _LoggedOutSource = new TaskCompletionSource<bool>();
         readonly DiscordRestClient _DiscordClient = new DiscordRestClient();
-        public async Task LogInAsync(string botToken)
+        readonly string _BotToken;
+        public DiscordWrapper(string botToken)
+        {
+            _BotToken = botToken;
+        }
+        public async Task LogInAsync()
         {
             _DiscordClient.LoggedIn += LoggedIn;
-            await _DiscordClient.LoginAsync(TokenType.Bot, botToken);
+            await _DiscordClient.LoginAsync(TokenType.Bot, _BotToken);
             await _LoggedInSource.Task;
             _DiscordClient.LoggedIn -= LoggedIn;
         }

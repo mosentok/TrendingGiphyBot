@@ -22,18 +22,14 @@ namespace TrendingGiphyBotTests.Functions
         [Test]
         public async Task Run()
         {
-            //TODO
-            //var log = new Mock<ILogger>();
-            //const int urlCachesMaxDaysOld = 7;
-            //const int count = 123;
-            //var oldestDate = DateTime.Now.AddDays(-urlCachesMaxDaysOld);
-            //Environment.SetEnvironmentVariable("UrlCachesMaxDaysOld", urlCachesMaxDaysOld.ToString());
-            //_Context.Setup(s => s.DeleteUrlCachesOlderThan(oldestDate)).ReturnsAsync(count);
-            //var task = _DeleteOldUrlCachesFunction.Run(null, log.Object);
-            //await task;
-            //log.VerifyAll();
-            //_Context.VerifyAll();
-            //Assert.That(task.IsCompletedSuccessfully, Is.True);
+            var log = new Mock<ILogger>();
+            var oldestDate = DateTime.Now.AddDays(-7);
+            _Context.Setup(s => s.GetUrlCachesOldestDate()).Returns(oldestDate);
+            _Context.Setup(s => s.DeleteUrlCachesOlderThan(oldestDate)).ReturnsAsync(123);
+            var task = _DeleteOldUrlCachesFunction.Run(null, log.Object);
+            await task;
+            _Context.VerifyAll();
+            Assert.That(task.IsCompletedSuccessfully, Is.True);
         }
     }
 }

@@ -24,7 +24,9 @@ namespace TrendingGiphyBotTests.Functions
         Mock<IGiphyWrapper> _GiphyWrapper;
         Mock<IDiscordWrapper> _DiscordWrapper;
         PostGifsHelper _PostGifsHelper;
-        static readonly List<string> warningResponses = new List<string> { "missing access", "missing permission" };
+        static readonly List<string> _WarningResponses = new List<string> { "missing access", "missing permission" };
+        DateTime _Now;
+        List<int> _CurrentValidMinutes;
         [SetUp]
         public void SetUp()
         {
@@ -36,14 +38,15 @@ namespace TrendingGiphyBotTests.Functions
                 .AddSingleton(_Context.Object)
                 .AddSingleton(_GiphyWrapper.Object)
                 .AddSingleton(_DiscordWrapper.Object);
-            _PostGifsHelper = new PostGifsHelper(services.BuildServiceProvider(), warningResponses);
+            _Now = DateTime.Now;
+            _CurrentValidMinutes = new List<int> { 10, 15, 20, 30, 60 };
+            _PostGifsHelper = new PostGifsHelper(services.BuildServiceProvider(), _WarningResponses, _Now, _CurrentValidMinutes);
         }
         [Test]
         public async Task LogInAsync()
         {
-            const string botToken = "atoken";
-            _DiscordWrapper.Setup(s => s.LogInAsync(botToken)).Returns(Task.CompletedTask);
-            var task = _PostGifsHelper.LogInAsync(botToken);
+            _DiscordWrapper.Setup(s => s.LogInAsync()).Returns(Task.CompletedTask);
+            var task = _PostGifsHelper.LogInAsync();
             await task;
             _DiscordWrapper.VerifyAll();
             Assert.That(task.IsCompletedSuccessfully, Is.True);
@@ -57,55 +60,13 @@ namespace TrendingGiphyBotTests.Functions
             _DiscordWrapper.VerifyAll();
             Assert.That(task.IsCompletedSuccessfully, Is.True);
         }
-        [TestCase(0, 0, 1440)]
-        [TestCase(0, 10, 10)]
-        [TestCase(0, 15, 15)]
-        [TestCase(0, 20, 20)]
-        [TestCase(0, 30, 30)]
-        [TestCase(0, 40, 40)]
-        [TestCase(0, 45, 45)]
-        [TestCase(0, 50, 50)]
-        [TestCase(1, 0, 60)]
-        [TestCase(1, 10, 70)]
-        [TestCase(1, 15, 75)]
-        [TestCase(1, 20, 80)]
-        [TestCase(1, 30, 90)]
-        [TestCase(1, 40, 100)]
-        [TestCase(1, 45, 105)]
-        [TestCase(1, 50, 110)]
-        [TestCase(2, 0, 120)]
-        public void DetermineTotalMinutes(int nowHour, int nowMinutes, int expectedTotalMinutes)
-        {
-            var now = new DateTime(1988, 2, 12, nowHour, nowMinutes, 0);
-            var totalMinutes = _PostGifsHelper.DetermineTotalMinutes(now);
-            Assert.That(totalMinutes, Is.EqualTo(expectedTotalMinutes));
-        }
-        [TestCase(10, 10)]
-        [TestCase(15, 15)]
-        [TestCase(20, 10, 20)]
-        [TestCase(30, 10, 15, 30)]
-        [TestCase(40, 10, 20)]
-        [TestCase(45, 15)]
-        [TestCase(50, 10)]
-        [TestCase(60, 10, 15, 20, 30, 60)]
-        [TestCase(1440, 10, 15, 20, 30, 60, 120, 180, 240, 360, 480, 720, 1440)]
-        public void DetermineCurrentValidMinutes(int totalMinutes, params int[] expectedValidMinutes)
-        {
-            var allValidMinutes = new List<int> { 10, 15, 20, 30, 60, 120, 180, 240, 360, 480, 720, 1440 };
-            var currentValidMinutes = _PostGifsHelper.DetermineCurrentValidMinutes(totalMinutes, allValidMinutes);
-            Assert.That(currentValidMinutes.Count, Is.EqualTo(expectedValidMinutes.Length));
-            foreach (var expectedValidMinute in expectedValidMinutes)
-                Assert.That(currentValidMinutes, Contains.Item(expectedValidMinute));
-        }
         [Test]
         public async Task GetContainers()
         {
-            const int nowHour = 1;
-            var currentValidMinutes = new List<int> { 10, 15, 20, 30, 60 };
             var pendingJobConfig = new PendingJobConfig { ChannelId = 123, Histories = new List<PendingHistory>(), RandomSearchString = "cats" };
             var containers = new List<PendingJobConfig> { pendingJobConfig };
-            _Context.Setup(s => s.GetJobConfigsToRun(nowHour, currentValidMinutes)).ReturnsAsync(containers);
-            var jobConfigs = await _PostGifsHelper.GetContainers(nowHour, currentValidMinutes, _Log.Object);
+            _Context.Setup(s => s.GetJobConfigsToRun(_Now.Hour, _CurrentValidMinutes)).ReturnsAsync(containers);
+            var jobConfigs = await _PostGifsHelper.GetContainers(_Log.Object);
             _Context.VerifyAll();
             foreach (var container in containers)
                 Assert.That(jobConfigs, Contains.Item(container));
@@ -155,8 +116,7 @@ namespace TrendingGiphyBotTests.Functions
             var containers = new List<PendingJobConfig> { new PendingJobConfig { Histories = histories } };
             var urlCaches = new List<UrlCache> { new UrlCache { Id = alreadySeenGifId }, new UrlCache { Id = notYetSeenGifId } };
             _Context.Setup(s => s.GetUrlCachesAsync()).ReturnsAsync(urlCaches);
-            const string giphyRandomEndpoint = "giphy random endpoint";
-            var result = await _PostGifsHelper.BuildHistoryContainers(containers, giphyRandomEndpoint, _Log.Object);
+            var result = await _PostGifsHelper.BuildHistoryContainers(containers, _Log.Object);
             _Context.VerifyAll();
             Assert.That(result.Count, Is.EqualTo(1));
             Assert.That(result.Count(s => s.GifId == alreadySeenGifId), Is.EqualTo(0));
@@ -177,10 +137,9 @@ namespace TrendingGiphyBotTests.Functions
             var containers = new List<PendingJobConfig> { pendingJobConfig };
             var urlCaches = new List<UrlCache> { new UrlCache { Id = alreadySeenGifId }, new UrlCache { Id = anotherSeenGifId } };
             _Context.Setup(s => s.GetUrlCachesAsync()).ReturnsAsync(urlCaches);
-            const string giphyRandomEndpoint = "giphy random endpoint";
             var giphyRandomResponse = new GiphyRandomResponse { Data = new GifObject { Id = notYetSeenGifId } };
-            _GiphyWrapper.Setup(s => s.GetRandomGifAsync(giphyRandomEndpoint, pendingJobConfig.RandomSearchString)).ReturnsAsync(giphyRandomResponse);
-            var result = await _PostGifsHelper.BuildHistoryContainers(containers, giphyRandomEndpoint, _Log.Object);
+            _GiphyWrapper.Setup(s => s.GetRandomGifAsync(pendingJobConfig.RandomSearchString)).ReturnsAsync(giphyRandomResponse);
+            var result = await _PostGifsHelper.BuildHistoryContainers(containers, _Log.Object);
             _Context.VerifyAll();
             _GiphyWrapper.VerifyAll();
             Assert.That(result.Count, Is.EqualTo(1));
@@ -204,10 +163,9 @@ namespace TrendingGiphyBotTests.Functions
             var containers = new List<PendingJobConfig> { pendingJobConfig };
             var urlCaches = new List<UrlCache> { new UrlCache { Id = alreadySeenGifId }, new UrlCache { Id = anotherSeenGifId } };
             _Context.Setup(s => s.GetUrlCachesAsync()).ReturnsAsync(urlCaches);
-            const string giphyRandomEndpoint = "giphy random endpoint";
             var giphyRandomResponse = new GiphyRandomResponse { Data = new GifObject { Id = randomGifAlreadySeenId } };
-            _GiphyWrapper.Setup(s => s.GetRandomGifAsync(giphyRandomEndpoint, pendingJobConfig.RandomSearchString)).ReturnsAsync(giphyRandomResponse);
-            var result = await _PostGifsHelper.BuildHistoryContainers(containers, giphyRandomEndpoint, _Log.Object);
+            _GiphyWrapper.Setup(s => s.GetRandomGifAsync(pendingJobConfig.RandomSearchString)).ReturnsAsync(giphyRandomResponse);
+            var result = await _PostGifsHelper.BuildHistoryContainers(containers, _Log.Object);
             _Context.VerifyAll();
             _GiphyWrapper.VerifyAll();
             Assert.That(result.Count, Is.EqualTo(0));

@@ -18,33 +18,27 @@ namespace TrendingGiphyBotFunctions.Helpers
         readonly IGiphyWrapper _GiphyWrapper;
         readonly IDiscordWrapper _DiscordWrapper;
         readonly List<string> _WarningResponses;
-        public PostGifsHelper(IServiceProvider services, List<string> warningResponses)
+        readonly DateTime _Now;
+        readonly List<int> _CurrentValidMinutes;
+        public PostGifsHelper(IServiceProvider services, List<string> warningResponses, DateTime now, List<int> currentValidMinutes)
         {
             _Context = services.GetRequiredService<ITrendingGiphyBotContext>();
             _GiphyWrapper = services.GetRequiredService<IGiphyWrapper>();
             _DiscordWrapper = services.GetRequiredService<IDiscordWrapper>();
             _WarningResponses = warningResponses;
+            _Now = now;
+            _CurrentValidMinutes = currentValidMinutes;
         }
-        public Task LogInAsync(string botToken) => _DiscordWrapper.LogInAsync(botToken);
+        public Task LogInAsync() => _DiscordWrapper.LogInAsync();
         public Task LogOutAsync() => _DiscordWrapper.LogOutAsync();
-        public int DetermineTotalMinutes(DateTime now)
-        {
-            if (now.Hour == 0 && now.Minute == 0)
-                return 24 * 60;
-            return now.Hour * 60 + now.Minute;
-        }
-        public List<int> DetermineCurrentValidMinutes(int totalMinutes, List<int> allValidMinutes)
-        {
-            return allValidMinutes.Where(s => totalMinutes % s == 0).ToList();
-        }
-        public async Task<List<PendingJobConfig>> GetContainers(int nowHour, List<int> currentValidMinutes, ILogger log)
+        public async Task<List<PendingJobConfig>> GetContainers(ILogger log)
         {
             log.LogInformation("Getting job configs.");
-            var containers = await _Context.GetJobConfigsToRun(nowHour, currentValidMinutes);
+            var containers = await _Context.GetJobConfigsToRun(_Now.Hour, _CurrentValidMinutes);
             log.LogInformation($"Got {containers.Count} containers.");
             return containers;
         }
-        public async Task<List<UrlHistoryContainer>> BuildHistoryContainers(List<PendingJobConfig> containers, string giphyRandomEndpoint, ILogger log)
+        public async Task<List<UrlHistoryContainer>> BuildHistoryContainers(List<PendingJobConfig> containers, ILogger log)
         {
             log.LogInformation($"Building {containers.Count} histories.");
             var urlCaches = await _Context.GetUrlCachesAsync();
@@ -62,7 +56,7 @@ namespace TrendingGiphyBotFunctions.Helpers
                     //TODO add a retry loop or something so that we can get/check more than 1 random gif for the channel
                     try
                     {
-                        var randomTagGif = await _GiphyWrapper.GetRandomGifAsync(giphyRandomEndpoint, container.RandomSearchString);
+                        var randomTagGif = await _GiphyWrapper.GetRandomGifAsync(container.RandomSearchString);
                         var hasBeenSeenBefore = container.Histories.Any(s => s.GifId == randomTagGif.Data.Id);
                         if (!hasBeenSeenBefore)
                             histories.Add(new UrlHistoryContainer(container.ChannelId, randomTagGif.Data.Id, randomTagGif.Data.Url, false));

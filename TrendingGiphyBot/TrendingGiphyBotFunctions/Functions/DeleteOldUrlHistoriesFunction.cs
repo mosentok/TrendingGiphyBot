@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
@@ -16,9 +15,7 @@ namespace TrendingGiphyBotFunctions.Functions
         [FunctionName(nameof(DeleteOldUrlHistoriesFunction))]
         public async Task Run([TimerTrigger("%DeleteOldUrlHistoriesFunctionCron%")]TimerInfo myTimer, ILogger log)
         {
-            var urlHistoriesMaxDaysOldString = Environment.GetEnvironmentVariable("UrlHistoriesMaxDaysOld");
-            var urlHistoriesMaxDaysOld = int.Parse(urlHistoriesMaxDaysOldString);
-            var oldestDate = DateTime.Now.AddDays(-urlHistoriesMaxDaysOld);
+            var oldestDate = _Context.GetUrlHistoriesOldestDate();
             log.LogInformation($"Deleting URL histories older than {oldestDate}.");
             var count = await _Context.DeleteUrlHistoriesOlderThan(oldestDate);
             log.LogInformation($"Deleted {count} URL histories older than {oldestDate}.");

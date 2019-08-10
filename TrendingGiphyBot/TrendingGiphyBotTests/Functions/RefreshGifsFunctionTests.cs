@@ -24,21 +24,19 @@ namespace TrendingGiphyBotTests.Functions
             _RefreshGifsFunction = new RefreshGifsFunction(_Context.Object, _GiphyWrapper.Object);
         }
         [Test]
-        public async Task RunAsync()
+        public async Task Run()
         {
-            //TODO environment vars
-            //const string trendingEndpoint = "some endpoint";
-            //var gifObjects = new List<GifObject> { new GifObject { Id = "some ID", Url = "some url" } };
-            //var trendingResponse = new GiphyTrendingResponse { Data = gifObjects };
-            //const int count = 123;
-            //_GiphyWrapper.Setup(s => s.GetTrendingGifsAsync(trendingEndpoint)).ReturnsAsync(trendingResponse);
-            //_Context.Setup(s => s.InsertNewTrendingGifs(trendingResponse.Data)).ReturnsAsync(count);
-            //var log = new Mock<ILogger>();
-            //var task = _RefreshGifsFunction.Run(null, log.Object);
-            //await task;
-            //_GiphyWrapper.VerifyAll();
-            //_Context.VerifyAll();
-            //Assert.That(task.IsCompletedSuccessfully, Is.True);
+            var gifObjects = new List<GifObject> { new GifObject { Id = "some ID", Url = "some url" } };
+            var trendingResponse = new GiphyTrendingResponse { Data = gifObjects };
+            const int count = 123;
+            _GiphyWrapper.Setup(s => s.GetTrendingGifsAsync()).ReturnsAsync(trendingResponse);
+            _Context.Setup(s => s.InsertNewTrendingGifs(trendingResponse.Data)).ReturnsAsync(count);
+            var log = new Mock<ILogger>();
+            var task = _RefreshGifsFunction.Run(null, log.Object);
+            await task;
+            _GiphyWrapper.VerifyAll();
+            _Context.VerifyAll();
+            Assert.That(task.IsCompletedSuccessfully, Is.True);
         }
     }
 }

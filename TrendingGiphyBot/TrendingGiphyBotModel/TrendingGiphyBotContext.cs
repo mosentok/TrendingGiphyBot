@@ -11,13 +11,18 @@ namespace TrendingGiphyBotModel
 {
     public partial class TrendingGiphyBotContext : DbContext, ITrendingGiphyBotContext
     {
+        readonly int _UrlCachesMaxDaysOld;
+        readonly int _UrlHistoriesMaxDaysOld;
         public TrendingGiphyBotContext() { }
         public TrendingGiphyBotContext(DbContextOptions<TrendingGiphyBotContext> options) : base(options) { }
         //TODO remove hardcoded command timeout
-        public TrendingGiphyBotContext(string connectionString) : this(new DbContextOptionsBuilder<TrendingGiphyBotContext>()
+        public TrendingGiphyBotContext(string connectionString, int urlCachesMaxDaysOld, int urlHistoriesMaxDaysOld) : this(new DbContextOptionsBuilder<TrendingGiphyBotContext>()
             .UseSqlServer(connectionString, options => options.CommandTimeout((int)TimeSpan.FromMinutes(10).TotalSeconds))
             .UseLazyLoadingProxies().Options)
-        { }
+        {
+            _UrlCachesMaxDaysOld = urlCachesMaxDaysOld;
+            _UrlHistoriesMaxDaysOld = urlHistoriesMaxDaysOld;
+        }
         public virtual DbSet<JobConfig> JobConfigs { get; set; }
         public virtual DbSet<UrlCache> UrlCaches { get; set; }
         public virtual DbSet<UrlHistory> UrlHistories { get; set; }
@@ -35,6 +40,8 @@ namespace TrendingGiphyBotModel
                 .ForSqlServerHasIndex(s => s.ChannelId)
                 .ForSqlServerInclude(s => s.GifId);
         }
+        public DateTime GetUrlCachesOldestDate() => DateTime.Now.AddDays(-_UrlCachesMaxDaysOld);
+        public DateTime GetUrlHistoriesOldestDate() => DateTime.Now.AddDays(-_UrlHistoriesMaxDaysOld);
         public async Task<int> DeleteUrlCachesOlderThan(DateTime oldestDate)
         {
             return await Database.ExecuteSqlCommandAsync($"DELETE FROM UrlCache WHERE Stamp < {oldestDate}");

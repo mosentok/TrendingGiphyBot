@@ -1,9 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 
 namespace TrendingGiphyBotFunctions.Wrappers
 {
     public interface IStatWrapper
     {
-        Task PostStatAsync(string requestUri, string content, string token);
+        Task PostStatsAsync(long botId, int guildCount, ILogger log);
     }
 }

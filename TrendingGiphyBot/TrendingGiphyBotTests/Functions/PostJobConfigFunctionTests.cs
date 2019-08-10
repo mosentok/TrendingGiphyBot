@@ -24,7 +24,7 @@ namespace TrendingGiphyBotTests.Functions
         [Test]
         public async Task Run()
         {
-            //TODO environment vars
+            //TODO HttpRequest
             //var req = new Mock<HttpRequest>();
             //var container = new JobConfigContainer();
             //var stream = new MemoryStream();

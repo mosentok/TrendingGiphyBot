@@ -3,12 +3,9 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using System;
 using Microsoft.AspNetCore.Mvc;
 using TrendingGiphyBotFunctions.Extensions;
 using TrendingGiphyBotModel;
-using TrendingGiphyBotFunctions.Wrappers;
-using TrendingGiphyBotFunctions.Helpers;
 
 namespace TrendingGiphyBotFunctions.Functions
 {
