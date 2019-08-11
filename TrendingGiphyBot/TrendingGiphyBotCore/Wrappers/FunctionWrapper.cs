@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using TrendingGiphyBotCore.Exceptions;
 using TrendingGiphyBotCore.Extensions;
+using TrendingGiphyBotCore.Models;
 using TrendingGiphyBotModel;
 
 namespace TrendingGiphyBotCore.Wrappers
@@ -36,19 +37,20 @@ namespace TrendingGiphyBotCore.Wrappers
         public async Task<JobConfigContainer> GetJobConfigAsync(decimal channelId)
         {
             var requestUri = $"{_JobConfigEndpoint}/{channelId}";
-            var response = await _HttpClient.GetWithHeaderAsync(requestUri, _FunctionsKeyHeaderName, _GetJobConfigFunctionKey);
-            return await ProcessJobConfigResponse(channelId, response);
+            using (var response = await _HttpClient.GetWithHeaderAsync(requestUri, _FunctionsKeyHeaderName, _GetJobConfigFunctionKey))
+                return await ProcessJobConfigResponse(channelId, response);
         }
         public async Task<JobConfigContainer> PostJobConfigAsync(decimal channelId, JobConfigContainer jobConfigContainer)
         {
             var requestUri = $"{_JobConfigEndpoint}/{channelId}";
-            var response = await _HttpClient.PostObjectWithHeaderAsync(requestUri, jobConfigContainer, _FunctionsKeyHeaderName, _PostJobConfigFunctionKey);
-            return await ProcessJobConfigResponse(channelId, response);
+            using (var response = await _HttpClient.PostWithHeaderAsync(requestUri, jobConfigContainer, _FunctionsKeyHeaderName, _PostJobConfigFunctionKey))
+                return await ProcessJobConfigResponse(channelId, response);
         }
         public async Task DeleteJobConfigAsync(decimal channelId)
         {
             var requestUri = $"{_JobConfigEndpoint}/{channelId}";
-            await _HttpClient.DeleteWithHeaderAsync(requestUri, _FunctionsKeyHeaderName, _DeleteJobConfigFunctionKey);
+            var response = await _HttpClient.DeleteWithHeaderAsync(requestUri, _FunctionsKeyHeaderName, _DeleteJobConfigFunctionKey);
+            response.Dispose();
         }
         static async Task<JobConfigContainer> ProcessJobConfigResponse(decimal channelId, HttpResponseMessage response)
         {
@@ -60,16 +62,20 @@ namespace TrendingGiphyBotCore.Wrappers
         public async Task PostStatsAsync(ulong botId, int guildCount)
         {
             var requestUri = $"{_PostStatsEndpoint}/{botId}";
-            var response = await _HttpClient.PostStringWithHeaderAsync(requestUri, guildCount.ToString(), _FunctionsKeyHeaderName, _PostStatsFunctionKey);
-            if (!response.IsSuccessStatusCode)
-                throw new FunctionHelperException($"Error posting stats for bot '{botId}'. Status code '{response.StatusCode.ToString()}'. Reason phrase '{response.ReasonPhrase}'.");
+            var container = new GuildCountContainer(guildCount);
+            using (var response = await _HttpClient.PostWithHeaderAsync(requestUri, container, _FunctionsKeyHeaderName, _PostStatsFunctionKey))
+                if (!response.IsSuccessStatusCode)
+                    throw new FunctionHelperException($"Error posting stats for bot '{botId}'. Status code '{response.StatusCode.ToString()}'. Reason phrase '{response.ReasonPhrase}'.");
         }
         public async Task<Dictionary<decimal, string>> GetPrefixDictionaryAsync()
         {
-            var response = await _HttpClient.GetWithHeaderAsync(_PrefixDictionaryEndpoint, _FunctionsKeyHeaderName, _GetPrefixDictionaryFunctionKey);
-            if (!response.IsSuccessStatusCode)
-                throw new FunctionHelperException($"Error getting prefix dictionary. Status code '{response.StatusCode}'. Reason phrase '{response.ReasonPhrase}'.");
-            var content = await response.Content.ReadAsStringAsync();
+            string content;
+            using (var response = await _HttpClient.GetWithHeaderAsync(_PrefixDictionaryEndpoint, _FunctionsKeyHeaderName, _GetPrefixDictionaryFunctionKey))
+            {
+                if (!response.IsSuccessStatusCode)
+                    throw new FunctionHelperException($"Error getting prefix dictionary. Status code '{response.StatusCode}'. Reason phrase '{response.ReasonPhrase}'.");
+                content = await response.Content.ReadAsStringAsync();
+            }
             return JsonConvert.DeserializeObject<Dictionary<decimal, string>>(content);
         }
         public void Dispose()

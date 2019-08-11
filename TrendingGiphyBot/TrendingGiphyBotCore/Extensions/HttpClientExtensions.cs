@@ -14,16 +14,7 @@ namespace TrendingGiphyBotCore.Extensions
                 return await httpClient.SendAsync(request);
             }
         }
-        public static async Task<HttpResponseMessage> PostStringWithHeaderAsync(this HttpClient httpClient, string requestUri, string contentToSend, string headerName, string headerValue)
-        {
-            using (var content = new StringContent(contentToSend))
-            using (var request = new HttpRequestMessage(HttpMethod.Post, requestUri) { Content = content })
-            {
-                request.Headers.Add(headerName, headerValue);
-                return await httpClient.SendAsync(request);
-            }
-        }
-        public static async Task<HttpResponseMessage> PostObjectWithHeaderAsync<T>(this HttpClient httpClient, string requestUri, T contentToSend, string headerName, string headerValue) where T : class
+        public static async Task<HttpResponseMessage> PostWithHeaderAsync<T>(this HttpClient httpClient, string requestUri, T contentToSend, string headerName, string headerValue) where T : class
         {
             var serialized = JsonConvert.SerializeObject(contentToSend);
             using (var content = new StringContent(serialized))
