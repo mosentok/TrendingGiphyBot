@@ -2,9 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
-using TrendingGiphyBotFunctions.Exceptions;
-using TrendingGiphyBotFunctions.Extensions;
 using TrendingGiphyBotFunctions.Models;
 
 namespace TrendingGiphyBotFunctions.Wrappers
@@ -20,25 +19,18 @@ namespace TrendingGiphyBotFunctions.Wrappers
         public async Task PostStatsAsync(long botId, int guildCount, ILogger log)
         {
             foreach (var statPost in _StatPosts)
-                try
+            {
+                var requestUri = string.Format(statPost.UrlStringFormat, botId);
+                var content = $"{{\"{statPost.GuildCountPropertyName}\":{guildCount}}}";
+                using (var stringContent = new StringContent(content, Encoding.UTF8, "application/json"))
+                using (var request = new HttpRequestMessage(HttpMethod.Post, requestUri) { Content = stringContent })
                 {
-                    var requestUri = string.Format(statPost.UrlStringFormat, botId);
-                    var content = $"{{\"{statPost.GuildCountPropertyName}\":{guildCount}}}";
-                    await PostStatAsync(requestUri, content, statPost.Token);
+                    request.Headers.Add("Authorization", statPost.Token);
+                    using (var response = await _HttpClient.SendAsync(request))
+                        if (!response.IsSuccessStatusCode)
+                            log.LogError($"Error: {request.Method.Method} {request.RequestUri.AbsoluteUri} {response.StatusCode.ToString()} {response.ReasonPhrase}");
                 }
-                catch (StatPostException ex)
-                {
-                    log.LogError(ex, $"Error posting stats.");
-                }
-        }
-        async Task PostStatAsync(string requestUri, string content, string token)
-        {
-            using (var response = await _HttpClient.PostStringWithHeaderAsync(requestUri, content, "Authorization", token))
-                if (!response.IsSuccessStatusCode)
-                {
-                    var message = await response.Content.ReadAsStringAsync();
-                    throw new StatPostException($"Error posting stats. Request uri '{requestUri}'. Status code '{response.StatusCode.ToString()}'. Reason phrase '{response.ReasonPhrase}'. Content '{message}'.");
-                }
+            }
         }
         public void Dispose()
         {
