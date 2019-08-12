@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
-using TrendingGiphyBotCore.Exceptions;
 using TrendingGiphyBotCore.Extensions;
 using TrendingGiphyBotCore.Models;
 using TrendingGiphyBotModel;
@@ -54,8 +53,6 @@ namespace TrendingGiphyBotCore.Wrappers
         }
         static async Task<JobConfigContainer> ProcessJobConfigResponse(decimal channelId, HttpResponseMessage response)
         {
-            if (!response.IsSuccessStatusCode)
-                throw new FunctionHelperException($"Error with job config for channel '{channelId}'. Status code '{response.StatusCode.ToString()}'. Reason phrase '{response.ReasonPhrase}'.");
             var content = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<JobConfigContainer>(content);
         }
@@ -63,19 +60,14 @@ namespace TrendingGiphyBotCore.Wrappers
         {
             var requestUri = $"{_PostStatsEndpoint}/{botId}";
             var container = new GuildCountContainer(guildCount);
-            using (var response = await _HttpClient.PostWithHeaderAsync(requestUri, container, _FunctionsKeyHeaderName, _PostStatsFunctionKey))
-                if (!response.IsSuccessStatusCode)
-                    throw new FunctionHelperException($"Error posting stats for bot '{botId}'. Status code '{response.StatusCode.ToString()}'. Reason phrase '{response.ReasonPhrase}'.");
+            var response = await _HttpClient.PostWithHeaderAsync(requestUri, container, _FunctionsKeyHeaderName, _PostStatsFunctionKey);
+            response.Dispose();
         }
         public async Task<Dictionary<decimal, string>> GetPrefixDictionaryAsync()
         {
             string content;
             using (var response = await _HttpClient.GetWithHeaderAsync(_PrefixDictionaryEndpoint, _FunctionsKeyHeaderName, _GetPrefixDictionaryFunctionKey))
-            {
-                if (!response.IsSuccessStatusCode)
-                    throw new FunctionHelperException($"Error getting prefix dictionary. Status code '{response.StatusCode}'. Reason phrase '{response.ReasonPhrase}'.");
                 content = await response.Content.ReadAsStringAsync();
-            }
             return JsonConvert.DeserializeObject<Dictionary<decimal, string>>(content);
         }
         public void Dispose()
