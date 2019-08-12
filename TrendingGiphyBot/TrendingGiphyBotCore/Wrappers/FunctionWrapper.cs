@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -36,39 +35,27 @@ namespace TrendingGiphyBotCore.Wrappers
         public async Task<JobConfigContainer> GetJobConfigAsync(decimal channelId)
         {
             var requestUri = $"{_JobConfigEndpoint}/{channelId}";
-            using (var response = await _HttpClient.GetWithHeaderAsync(requestUri, _FunctionsKeyHeaderName, _GetJobConfigFunctionKey))
-                return await ProcessJobConfigResponse(channelId, response);
+            return await _HttpClient.GetWithHeaderAsync<JobConfigContainer>(requestUri, _FunctionsKeyHeaderName, _GetJobConfigFunctionKey);
         }
         public async Task<JobConfigContainer> PostJobConfigAsync(decimal channelId, JobConfigContainer jobConfigContainer)
         {
             var requestUri = $"{_JobConfigEndpoint}/{channelId}";
-            using (var response = await _HttpClient.PostWithHeaderAsync(requestUri, jobConfigContainer, _FunctionsKeyHeaderName, _PostJobConfigFunctionKey))
-                return await ProcessJobConfigResponse(channelId, response);
+            return await _HttpClient.PostWithHeaderAsync<JobConfigContainer>(requestUri, jobConfigContainer, _FunctionsKeyHeaderName, _PostJobConfigFunctionKey);
         }
         public async Task DeleteJobConfigAsync(decimal channelId)
         {
             var requestUri = $"{_JobConfigEndpoint}/{channelId}";
-            var response = await _HttpClient.DeleteWithHeaderAsync(requestUri, _FunctionsKeyHeaderName, _DeleteJobConfigFunctionKey);
-            response.Dispose();
-        }
-        static async Task<JobConfigContainer> ProcessJobConfigResponse(decimal channelId, HttpResponseMessage response)
-        {
-            var content = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<JobConfigContainer>(content);
+            await _HttpClient.DeleteWithHeaderAsync(requestUri, _FunctionsKeyHeaderName, _DeleteJobConfigFunctionKey);
         }
         public async Task PostStatsAsync(ulong botId, int guildCount)
         {
             var requestUri = $"{_PostStatsEndpoint}/{botId}";
             var container = new GuildCountContainer(guildCount);
-            var response = await _HttpClient.PostWithHeaderAsync(requestUri, container, _FunctionsKeyHeaderName, _PostStatsFunctionKey);
-            response.Dispose();
+            await _HttpClient.PostWithHeaderAsync(requestUri, container, _FunctionsKeyHeaderName, _PostStatsFunctionKey);
         }
         public async Task<Dictionary<decimal, string>> GetPrefixDictionaryAsync()
         {
-            string content;
-            using (var response = await _HttpClient.GetWithHeaderAsync(_PrefixDictionaryEndpoint, _FunctionsKeyHeaderName, _GetPrefixDictionaryFunctionKey))
-                content = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<Dictionary<decimal, string>>(content);
+            return await _HttpClient.GetWithHeaderAsync<Dictionary<decimal, string>>(_PrefixDictionaryEndpoint, _FunctionsKeyHeaderName, _GetPrefixDictionaryFunctionKey);
         }
         public void Dispose()
         {
