@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26430.15
+# Visual Studio Version 18
+VisualStudioVersion = 18.1.11312.151 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrendingGiphyBotFunctions", "TrendingGiphyBotFunctions\TrendingGiphyBotFunctions.csproj", "{4BE7F8A4-346A-42FF-87A5-1A9DCAE2BABA}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrendingGiphyBotCore", "TrendingGiphyBotCore\TrendingGiphyBotCore.csproj", "{35E9211B-6355-4CC5-9AD1-6BD132B3A650}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrendingGiphyBotTests", "TrendingGiphyBotTests\TrendingGiphyBotTests.csproj", "{9930F8E7-8B7D-4AD4-9845-E9A5BD74DD4E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrendingGiphyBotWorkerService", "TrendingGiphyBotWorkerService\TrendingGiphyBotWorkerService.csproj", "{A6390F3D-D33F-4BC0-97ED-40B2590D2A45}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{9930F8E7-8B7D-4AD4-9845-E9A5BD74DD4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9930F8E7-8B7D-4AD4-9845-E9A5BD74DD4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9930F8E7-8B7D-4AD4-9845-E9A5BD74DD4E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6390F3D-D33F-4BC0-97ED-40B2590D2A45}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6390F3D-D33F-4BC0-97ED-40B2590D2A45}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6390F3D-D33F-4BC0-97ED-40B2590D2A45}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6390F3D-D33F-4BC0-97ED-40B2590D2A45}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
