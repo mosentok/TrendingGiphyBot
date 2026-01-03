@@ -20,11 +20,4 @@ public class LoggerWrapper<T>(ILogger<T> _logger) : ILoggerWrapper<T>
 			_logger.LogError(ex, "An exception was thrown and swallowed.");
 		}
 	}
-
-    public async Task SwallowAsync(Func<Task> taskDelegate)
-    {
-        var task = taskDelegate.Invoke();
-
-        await SwallowAsync(task);
-    }
 }
