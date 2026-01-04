@@ -7,6 +7,7 @@ namespace TrendingGiphyBotWorkerService
     public class ChannelSettingsInteractionModule(IChannelSettingsMessageComponentFactory _settingsMessageComponentFactory, ITrendingGiphyBotContext _trendingGiphyBotContext) : InteractionModuleBase<SocketInteractionContext<SocketMessageComponent>>
     {
         ChannelSettings? _channelSettings;
+        bool _theresAnythingToUpdate = true;
 
         public override async Task BeforeExecuteAsync(ICommandInfo command)
         {
@@ -15,6 +16,13 @@ namespace TrendingGiphyBotWorkerService
 
         public override async Task AfterExecuteAsync(ICommandInfo command)
         {
+            if (!_theresAnythingToUpdate)
+            {
+                await Context.Interaction.DeferAsync();
+
+                return;
+            }
+
             var settingsMessageComponent = _settingsMessageComponentFactory.BuildChannelSettingsMessageComponent(_channelSettings!);
 
             await Context.Interaction.UpdateAsync(async messageProperties => messageProperties.Components = settingsMessageComponent);
@@ -36,15 +44,29 @@ namespace TrendingGiphyBotWorkerService
         [ComponentInteraction("trending-gifs-only-button")]
         public async Task SetTrendingGifsOnlyAsync()
         {
-            _channelSettings!.GifPostingBehavior = "trending-gifs-only-button";
+            if (_channelSettings!.GifPostingBehavior == "trending-gifs-only-button")
+            {
+                _theresAnythingToUpdate = false;
+
+                return;
+            }
+
+			_channelSettings.GifPostingBehavior = "trending-gifs-only-button";
 
             await _trendingGiphyBotContext.SaveChangesAsync();
         }
 
         [ComponentInteraction("trending-gifs-with-random-button")]
         public async Task SetTrendingGifsWithRandomAsync()
-        {
-            _channelSettings!.GifPostingBehavior = "trending-gifs-with-random-button";
+		{
+			if (_channelSettings!.GifPostingBehavior == "trending-gifs-with-random-button")
+			{
+				_theresAnythingToUpdate = false;
+
+				return;
+			}
+
+			_channelSettings.GifPostingBehavior = "trending-gifs-with-random-button";
 
             await _trendingGiphyBotContext.SaveChangesAsync();
         }

@@ -8,103 +8,74 @@ public class ChannelSettingsMessageComponentFactory(int[] _minutes, int[] _hours
 	{
 		var minutesBuilders = _minutes.Select(static minute =>
 			new SelectMenuOptionBuilder()
-				.WithLabel($"Every {minute} minutes")
+				.WithLabel($"Post Gifs Every {minute} Minutes")
 				.WithValue($"every-{minute}-minutes"));
 
 		var hour1Builder = new SelectMenuOptionBuilder()
-			.WithLabel("Every 1 hour")
+			.WithLabel("Post Gifs Every 1 Hour")
 			.WithValue("every-1-hour");
 
 		var hoursBuilders = _hours.Select(static hour =>
 			new SelectMenuOptionBuilder()
-				.WithLabel($"Every {hour} hours")
+				.WithLabel($"Post Gifs Every {hour} Hours")
 				.WithValue($"every-{hour}-hours"));
 
 		var howOftenOptions = minutesBuilders.Append(hour1Builder).Concat(hoursBuilders).ToList();
+
+        var selectedOption = channelSettings.HowOften is null
+			? howOftenOptions.Single(s => s.Value == "every-1-hour")
+			: howOftenOptions.Single(s => s.Value == channelSettings.HowOften);
+
+        selectedOption.IsDefault = true;
 
 		var howOftenSelectMenu = new SelectMenuBuilder()
 			.WithCustomId("how-often-select-menu")
 			.WithPlaceholder("How often gifs get posted")
 			.WithOptions(howOftenOptions);
 
+		var (gifsOnlyButtonLabel, gifsOnlyButtonStyle, randomGifsButtonLabel, randomGifsButtonStyle) = channelSettings.GifPostingBehavior switch
+		{
+			"trending-gifs-with-random-button" => ("Post Trending Gifs Only", ButtonStyle.Primary, "=> Post Random Gifs When There's No New Trending Gifs <=", ButtonStyle.Success),
+			"trending-gifs-only-button" or _ => ("=> Post Trending Gifs Only <=", ButtonStyle.Success, "Post Random Gifs When There's No New Trending Gifs", ButtonStyle.Primary)
+		};
+
 		var trendingGifsOnlyButton = new ButtonBuilder()
 			.WithCustomId("trending-gifs-only-button")
-			.WithLabel("Trending Gifs Only")
-			.WithStyle(ButtonStyle.Secondary);
+			.WithLabel(gifsOnlyButtonLabel)
+			.WithStyle(gifsOnlyButtonStyle);
 
 		var trendingGifsWithRandomButton = new ButtonBuilder()
 			.WithCustomId("trending-gifs-with-random-button")
-			.WithLabel("Trending Gifs + Random Gifs When Up-to-date")
-			.WithStyle(ButtonStyle.Secondary);
-
-		var trendingGifsWithKeywordButton = new ButtonBuilder()
-			.WithCustomId("trending-gifs-with-keyword-button")
-			.WithLabel("Trending Gifs + Keyword Gifs When Up-to-date")
-			.WithStyle(ButtonStyle.Secondary);
-
-		var gifKeywordTextInput = new TextInputBuilder()
-			.WithCustomId("trending-gifs-with-keyword-text-input")
-			.WithPlaceholder("Keyword to post gifs of when up-to-date")
-			.WithLabel("Keyword to post gifs of when up-to-date")
-			.WithRequired(false);
+			.WithLabel(randomGifsButtonLabel)
+			.WithStyle(randomGifsButtonStyle);
 
 		var gifKeywordButton = new ButtonBuilder()
 			.WithCustomId("trending-gifs-with-keyword-modal-button")
-			.WithLabel("Set Keyword")
+			.WithLabel($"(Optional) Set Random Gif Keywords")
 			.WithStyle(ButtonStyle.Secondary);
 
-		var postingHoursFromTextInput = new TextInputBuilder()
-			.WithCustomId("posting-hours-from")
-			.WithPlaceholder("From (0-23)")
-			.WithLabel("From (0-23)")
-			.WithRequired(false);
+		var clearGifKeywordButton = new ButtonBuilder()
+			.WithCustomId("clear-keyword-modal-button")
+			.WithLabel($"""Clear Random Gif Keywords (Currently "{channelSettings.GifKeyword ?? "<none>"}")""")
+			.WithStyle(ButtonStyle.Danger)
+			.WithDisabled(channelSettings.GifKeyword is null);
 
-		var postingHoursToTextInput = new TextInputBuilder()
-			.WithCustomId("posting-hours-to")
-			.WithPlaceholder("To (0-23)")
-			.WithLabel("To (0-23)")
-			.WithRequired(false);
+		var setPostingHoursButtonLabel = channelSettings.PostingHoursFrom is null || channelSettings.PostingHoursTo is null || channelSettings.TimeZone is null
+			? "<none>"
+			: $"{channelSettings.PostingHoursFrom} - {channelSettings.PostingHoursTo} {channelSettings.TimeZone}";
 
-		var timeZoneInput = new TextInputBuilder()
-			.WithCustomId("time-zone")
-			.WithPlaceholder("TimeZone (ex: UTC-5:00, UTC+10:30)")
-			.WithLabel("TimeZone (ex: UTC-5:00, UTC+10:30)")
-			.WithRequired(false);
-
-		const string none = "<none>";
-
-		//TODO fix bugs
-		/*
-		UNION_TYPE_CHOICES: Value of field "type" must be one of (2, 3, 5, 6, 7, 8).
-		UNION_TYPE_CHOICES: Value of field "type" must be one of (2, 3, 5, 6, 7, 8).
-		UNION_TYPE_CHOICES: Value of field "type" must be one of (2, 3, 5, 6, 7, 8).
-		UNION_TYPE_CHOICES: Value of field "type" must be one of (2, 3, 5, 6, 7, 8).'
-		*/
+		var setPostingHoursButton = new ButtonBuilder()
+			.WithCustomId("set-posting-hours-modal-button")
+			.WithLabel($"Set Posting Hours (Currently {setPostingHoursButtonLabel})")
+			.WithStyle(ButtonStyle.Secondary);
 
 		return new ComponentBuilderV2()
 			.WithTextDisplay("# Trending Giphy Bot Settings")
 			.WithSeparator()
-			.WithTextDisplay("## How often gifs get posted")
-			.WithTextDisplay($"Current value: {channelSettings.HowOften ?? "Every 1 hour"}")
 			.WithActionRow([howOftenSelectMenu])
+			.WithActionRow([trendingGifsOnlyButton, trendingGifsWithRandomButton])
 			.WithSeparator()
-			.WithTextDisplay("## Gif posting behavior")
-			.WithTextDisplay($"Current value: {channelSettings.GifPostingBehavior ?? "Trending Gifs Only"}")
-			.WithActionRow([trendingGifsOnlyButton, trendingGifsWithRandomButton, trendingGifsWithKeywordButton])
-			.WithSeparator(isDivider: false)
-			.WithTextDisplay("## Keyword to post gifs of when up-to-date")
-			.WithTextDisplay($"Current value: {channelSettings.GifKeyword ?? none}")
-			.WithActionRow([gifKeywordButton])
-			.WithSeparator()
-			.WithTextDisplay("## Posting hours")
-			.WithTextDisplay($"Current value: from {channelSettings.PostingHoursFrom ?? none} to {channelSettings.PostingHoursTo ?? none}")
-			//.WithActionRow([postingHoursFromTextInput])
-			//.WithActionRow([postingHoursToTextInput])
-			.WithSeparator(isDivider: false)
-			.WithTextDisplay("## Timezone (UTC)")
-			.WithTextDisplay($"Current value: {channelSettings.TimeZone ?? none}")
-			//.WithActionRow([timeZoneInput])
-			.WithSeparator()
+			.WithActionRow([gifKeywordButton, clearGifKeywordButton, setPostingHoursButton])
 			.Build();
 	}
 }
