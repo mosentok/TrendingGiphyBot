@@ -45,7 +45,7 @@ var interactionService = host.Services.GetRequiredService<InteractionService>();
 var discordToken = builder.Configuration.GetRequiredConfiguration("DiscordToken");
 var playingGame = builder.Configuration.GetRequiredConfiguration("PlayingGame");
 var guildToRegisterCommands = builder.Configuration.GetSection("RegisterCommandsToGuild").Get<ulong?>();
-var entryAssembly = Assembly.GetEntryAssembly();
+var assembly = typeof(TgbSlashInteractionModule).Assembly;
 
 discordSocketClient.Log += discordSocketClientHandler.Log;
 discordSocketClient.JoinedGuild += discordSocketClientHandler.JoinedGuild;
@@ -60,7 +60,7 @@ await host.RunAsync();
 async Task DiscordSocketClient_Ready()
 {
 	await discordSocketClient.SetGameAsync(playingGame);
-	await interactionService.AddModulesAsync(entryAssembly, host.Services);
+	await interactionService.AddModulesAsync(assembly, host.Services);
 
 	if (guildToRegisterCommands is not null)
 		await interactionService.RegisterCommandsToGuildAsync(guildToRegisterCommands.Value);
@@ -69,8 +69,22 @@ async Task DiscordSocketClient_Ready()
 
 	discordSocketClient.InteractionCreated += async interaction =>
 	{
+		if (interaction.Type == InteractionType.MessageComponent)
+			return;
+
 		var socketInteractionContext = new SocketInteractionContext(discordSocketClient, interaction);
 
 		await interactionService.ExecuteCommandAsync(socketInteractionContext, host.Services);
 	};
+
+	discordSocketClient.SelectMenuExecuted += HandleInteraction;
+
+	discordSocketClient.ButtonExecuted += HandleInteraction;
+
+	async Task HandleInteraction(SocketMessageComponent interaction)
+	{
+		var socketInteractionContext = new SocketInteractionContext<SocketMessageComponent>(discordSocketClient, interaction);
+
+		await interactionService.ExecuteCommandAsync(socketInteractionContext, host.Services);
+	}
 }

@@ -282,3 +282,6 @@ __pycache__/
 /TrendingGiphyBot/TrendingGiphyBotCore/Settings.job
 /TrendingGiphyBot/TrendingGiphyBotCore/Properties/PublishProfiles/TrendingGiphyBotCoreService - Web Deploy.pubxml
 /TrendingGiphyBot/TrendingGiphyBotFunctions/Properties/PublishProfiles/TrendingGiphyBotFunctions - Web Deploy1.pubxml
+/TrendingGiphyBot/TrendingGiphyBotWorkerService/app.db
+/TrendingGiphyBot/TrendingGiphyBotWorkerService/app.db-shm
+/TrendingGiphyBot/TrendingGiphyBotWorkerService/app.db-wal

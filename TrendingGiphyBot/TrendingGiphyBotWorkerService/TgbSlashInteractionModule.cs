@@ -7,12 +7,21 @@ namespace TrendingGiphyBotWorkerService
     [Group("tgb", "Trending Giphy Bot commands for your server")]
     public class TgbSlashInteractionModule(IChannelSettingsMessageComponentFactory _settingsMessageComponentFactory, ITrendingGiphyBotContext _trendingGiphyBotContext) : InteractionModuleBase<SocketInteractionContext>
     {
-        [SlashCommand("settings", "View and change your Trending Giphy Bot's settings for your server")]
-        public async Task GetSettingsAsync()
+        [SlashCommand("settings", "View and change your Trending Giphy Bot's settings for this channel")]
+        public async Task GetOrCreateChannelSettingsAsync()
         {
-            //var channelSettings = await _trendingGiphyBotContext.ChannelSettings.SingleAsync(s => s.ChannelId == Context.Channel.Id);
+            var channelSettings = await _trendingGiphyBotContext.ChannelSettings.SingleOrDefaultAsync(s => s.ChannelId == Context.Channel.Id);
 
-            var settingsMessageComponent = _settingsMessageComponentFactory.BuildChannelSettingsMessageComponent(new ChannelSettings());
+            if (channelSettings is null)
+            {
+                channelSettings = new() { ChannelId = Context.Channel.Id };
+
+				_trendingGiphyBotContext.ChannelSettings.Add(channelSettings);
+
+                await _trendingGiphyBotContext.SaveChangesAsync();
+			}
+
+            var settingsMessageComponent = _settingsMessageComponentFactory.BuildChannelSettingsMessageComponent(channelSettings);
 
             await RespondAsync(components: settingsMessageComponent);
         }
@@ -20,29 +29,37 @@ namespace TrendingGiphyBotWorkerService
 
 	public class TgbComponentInteractionModule(IChannelSettingsMessageComponentFactory _settingsMessageComponentFactory, ITrendingGiphyBotContext _trendingGiphyBotContext) : InteractionModuleBase<SocketInteractionContext<SocketMessageComponent>>
     {
+        ChannelSettings? _channelSettings;
+
+		public override async Task BeforeExecuteAsync(ICommandInfo command)
+		{
+			_channelSettings = await _trendingGiphyBotContext.ChannelSettings.SingleAsync(s => s.ChannelId == Context.Channel.Id);
+		}
+
+		public override async Task AfterExecuteAsync(ICommandInfo command)
+		{
+			var settingsMessageComponent = _settingsMessageComponentFactory.BuildChannelSettingsMessageComponent(_channelSettings!);
+
+			await Context.Interaction.UpdateAsync(async messageProperties => messageProperties.Components = settingsMessageComponent);
+		}
+
 		[ComponentInteraction("how-often-select-menu")]
         public async Task SetHowOftenAsync(string[] selectedValues)
         {
             if (selectedValues.Length != 1)
                 throw new ThisShouldBeImpossibleException();
 
-            var channelSettings = await _trendingGiphyBotContext.ChannelSettings.SingleAsync(s => s.ChannelId == Context.Channel.Id);
+			_channelSettings = await _trendingGiphyBotContext.ChannelSettings.SingleAsync(s => s.ChannelId == Context.Channel.Id);
 
-            channelSettings.HowOften = selectedValues[0];
+			_channelSettings.HowOften = selectedValues[0];
 
             await _trendingGiphyBotContext.SaveChangesAsync();
-
-            var settingsMessageComponent = _settingsMessageComponentFactory.BuildChannelSettingsMessageComponent(channelSettings);
-
-            await Context.Interaction.UpdateAsync(async messageProperties => messageProperties.Components = settingsMessageComponent);
         }
 
         [ComponentInteraction("trending-gifs-only-button")]
         public async Task SetTrendingGifsOnlyAsync()
         {
-            var channelSettings = await _trendingGiphyBotContext.ChannelSettings.SingleAsync(s => s.ChannelId == Context.Channel.Id);
-
-            channelSettings.GifPostingBehavior = "trending-gifs-only-button";
+			_channelSettings!.GifPostingBehavior = "trending-gifs-only-button";
 
             await _trendingGiphyBotContext.SaveChangesAsync();
         }
@@ -50,9 +67,7 @@ namespace TrendingGiphyBotWorkerService
         [ComponentInteraction("trending-gifs-with-random-button")]
         public async Task SetTrendingGifsWithRandomAsync()
         {
-			var channelSettings = await _trendingGiphyBotContext.ChannelSettings.SingleAsync(s => s.ChannelId == Context.Channel.Id);
-
-			channelSettings.GifPostingBehavior = "trending-gifs-with-random-button";
+			_channelSettings!.GifPostingBehavior = "trending-gifs-with-random-button";
 
             await _trendingGiphyBotContext.SaveChangesAsync();
         }
@@ -60,9 +75,7 @@ namespace TrendingGiphyBotWorkerService
         [ComponentInteraction("trending-gifs-with-keyword-button")]
         public async Task SetTrendingGifsWithKeywordAsync()
         {
-			var channelSettings = await _trendingGiphyBotContext.ChannelSettings.SingleAsync(s => s.ChannelId == Context.Channel.Id);
-
-			channelSettings.GifPostingBehavior = "trending-gifs-with-keyword-button";
+			_channelSettings!.GifPostingBehavior = "trending-gifs-with-keyword-button";
 
             await _trendingGiphyBotContext.SaveChangesAsync();
         }
@@ -72,9 +85,7 @@ namespace TrendingGiphyBotWorkerService
         {
 			//TODO validation of input
 
-			var channelSettings = await _trendingGiphyBotContext.ChannelSettings.SingleAsync(s => s.ChannelId == Context.Channel.Id);
-
-			channelSettings.GifKeyword = keyword;
+			_channelSettings!.GifKeyword = keyword;
 
             await _trendingGiphyBotContext.SaveChangesAsync();
         }
@@ -84,9 +95,7 @@ namespace TrendingGiphyBotWorkerService
         {
 			//TODO validation of input
 
-			var channelSettings = await _trendingGiphyBotContext.ChannelSettings.SingleAsync(s => s.ChannelId == Context.Channel.Id);
-
-			channelSettings.PostingHoursFrom = postingHoursFrom;
+			_channelSettings!.PostingHoursFrom = postingHoursFrom;
 
             await _trendingGiphyBotContext.SaveChangesAsync();
         }
@@ -96,21 +105,17 @@ namespace TrendingGiphyBotWorkerService
         {
 			//TODO validation of input
 
-			var channelSettings = await _trendingGiphyBotContext.ChannelSettings.SingleAsync(s => s.ChannelId == Context.Channel.Id);
-
-			channelSettings.PostingHoursTo = postingHoursTo;
+			_channelSettings!.PostingHoursTo = postingHoursTo;
 
             await _trendingGiphyBotContext.SaveChangesAsync();
         }
 
-        [ComponentInteraction("time-zone")]
+		[ComponentInteraction("time-zone")]
         public async Task SetTimeZoneAsync(string timeZone)
         {
 			//TODO validation of input
 
-			var channelSettings = await _trendingGiphyBotContext.ChannelSettings.SingleAsync(s => s.ChannelId == Context.Channel.Id);
-
-			channelSettings.TimeZone = timeZone;
+			_channelSettings!.TimeZone = timeZone;
 
             await _trendingGiphyBotContext.SaveChangesAsync();
         }
