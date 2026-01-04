@@ -1,3 +1,4 @@
+using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
@@ -24,8 +25,8 @@ namespace TrendingGiphyBotWorkerService
             var settingsMessageComponent = _settingsMessageComponentFactory.BuildChannelSettingsMessageComponent(channelSettings);
 
             await RespondAsync(components: settingsMessageComponent);
-        }
-    }
+		}
+	}
 
 	public class TgbComponentInteractionModule(IChannelSettingsMessageComponentFactory _settingsMessageComponentFactory, ITrendingGiphyBotContext _trendingGiphyBotContext) : InteractionModuleBase<SocketInteractionContext<SocketMessageComponent>>
     {
@@ -80,16 +81,6 @@ namespace TrendingGiphyBotWorkerService
             await _trendingGiphyBotContext.SaveChangesAsync();
         }
 
-        [ComponentInteraction("trending-gifs-with-keyword-text-input")]
-        public async Task SetKeywordAsync(string keyword)
-        {
-			//TODO validation of input
-
-			_channelSettings!.GifKeyword = keyword;
-
-            await _trendingGiphyBotContext.SaveChangesAsync();
-        }
-
         [ComponentInteraction("posting-hours-from")]
         public async Task SetPostingHoursFromAsync(string postingHoursFrom)
         {
@@ -120,4 +111,47 @@ namespace TrendingGiphyBotWorkerService
             await _trendingGiphyBotContext.SaveChangesAsync();
         }
     }
+    public class TgbModalComponentInteractionModule(ITrendingGiphyBotContext _trendingGiphyBotContext) : InteractionModuleBase<SocketInteractionContext<SocketMessageComponent>>
+	{
+		[ComponentInteraction("trending-gifs-with-keyword-modal-button")]
+		public async Task OpenKeywordModalAsync()
+		{
+			var gifKeyword = await _trendingGiphyBotContext.ChannelSettings.Where(s => s.ChannelId == Context.Channel.Id).Select(s => s.GifKeyword).SingleAsync();
+
+			var gifKeywordModal = new ModalBuilder()
+				.WithTitle("Set keyword to post gifs of when up-to-date")
+				.WithCustomId("trending-gifs-with-keyword-modal")
+				.AddTextInput("Keyword", "trending-gifs-with-keyword-text-input", placeholder: "cats", value: gifKeyword)
+                .Build();
+
+            await Context.Interaction.RespondWithModalAsync(gifKeywordModal);
+		}
+	}
+
+	public class TgbModalComponentInteractionModule2(IChannelSettingsMessageComponentFactory _settingsMessageComponentFactory, ITrendingGiphyBotContext _trendingGiphyBotContext) : InteractionModuleBase<SocketInteractionContext<SocketModal>>
+	{
+		[ModalInteraction("trending-gifs-with-keyword-modal")]
+		public async Task SetKeywordAsync(FeedbackModal modal)
+		{
+			var channelSettings = await _trendingGiphyBotContext.ChannelSettings.SingleAsync(s => s.ChannelId == Context.Channel.Id);
+
+			channelSettings.GifKeyword = modal.Keyword;
+
+			await _trendingGiphyBotContext.SaveChangesAsync();
+
+			var settingsMessageComponent = _settingsMessageComponentFactory.BuildChannelSettingsMessageComponent(channelSettings);
+
+			await Context.Interaction.UpdateAsync(async messageProperties => messageProperties.Components = settingsMessageComponent);
+		}
+	}
+
+	public class FeedbackModal : IModal
+	{
+		public string Title => "Set keyword to post gifs of when up-to-date";
+
+		// CustomId of the component in the ModalBuilder
+		[InputLabel("Keyword")]
+		[ModalTextInput("trending-gifs-with-keyword-text-input", placeholder: "cats")]
+		public string Keyword { get; set; }
+	}
 }

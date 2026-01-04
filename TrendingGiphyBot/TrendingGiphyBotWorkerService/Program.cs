@@ -69,13 +69,15 @@ async Task DiscordSocketClient_Ready()
 
 	discordSocketClient.InteractionCreated += async interaction =>
 	{
-		if (interaction.Type == InteractionType.MessageComponent)
+		if (interaction.Type is not InteractionType.ApplicationCommand)
 			return;
 
 		var socketInteractionContext = new SocketInteractionContext(discordSocketClient, interaction);
 
 		await interactionService.ExecuteCommandAsync(socketInteractionContext, host.Services);
 	};
+
+	discordSocketClient.ModalSubmitted += DiscordSocketClient_ModalSubmitted;
 
 	discordSocketClient.SelectMenuExecuted += HandleInteraction;
 
@@ -87,4 +89,27 @@ async Task DiscordSocketClient_Ready()
 
 		await interactionService.ExecuteCommandAsync(socketInteractionContext, host.Services);
 	}
+
+	async Task DiscordSocketClient_ModalSubmitted(SocketModal arg)
+	{
+		var socketInteractionContext = new SocketInteractionContext<SocketModal>(discordSocketClient, arg);
+
+		await interactionService.ExecuteCommandAsync(socketInteractionContext, host.Services);
+	}
+
+	//async Task DiscordSocketClient_ModalSubmitted(SocketModal arg)
+	//{
+	//	switch (arg.Data.CustomId)
+	//	{
+	//		case "trending-gifs-with-keyword-modal":
+	//			break;
+
+	//		default:
+	//			throw new ThisShouldBeImpossibleException();
+	//	}
+	//	var textInput = arg.Data.Components.Where(s => s.CustomId == "trending-gifs-with-keyword-text-input").Select(s => s.Value);
+
+	//	textInput.Value
+	//	throw new NotImplementedException();
+	//}
 }

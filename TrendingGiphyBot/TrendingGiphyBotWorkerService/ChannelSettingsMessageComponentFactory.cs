@@ -59,6 +59,11 @@ public class ChannelSettingsMessageComponentFactory(int[] _minutes, int[] _hours
 			.WithLabel("Keyword to post gifs of when up-to-date")
 			.WithRequired(false);
 
+		var gifKeywordButton = new ButtonBuilder()
+			.WithCustomId("trending-gifs-with-keyword-modal-button")
+			.WithLabel("Set Keyword")
+			.WithStyle(ButtonStyle.Secondary);
+
 		var postingHoursFromTextInput = new TextInputBuilder()
 			.WithCustomId("posting-hours-from")
 			.WithPlaceholder("From (0-23)")
@@ -78,7 +83,6 @@ public class ChannelSettingsMessageComponentFactory(int[] _minutes, int[] _hours
 			.WithRequired(false);
 
 		const string none = "<none>";
-
 
 		//TODO fix bugs
 		/*
@@ -101,7 +105,7 @@ public class ChannelSettingsMessageComponentFactory(int[] _minutes, int[] _hours
 			.WithSeparator(isDivider: false)
 			.WithTextDisplay("## Keyword to post gifs of when up-to-date")
 			.WithTextDisplay($"Current value: {channelSettings.GifKeyword ?? none}")
-			//.WithActionRow([gifKeywordTextInput])
+			.WithActionRow([gifKeywordButton])
 			.WithSeparator()
 			.WithTextDisplay("## Posting hours")
 			.WithTextDisplay($"Current value: from {channelSettings.PostingHoursFrom ?? none} to {channelSettings.PostingHoursTo ?? none}")
