@@ -1,4 +1,3 @@
-using System.Reflection;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
@@ -96,20 +95,4 @@ async Task DiscordSocketClient_Ready()
 
 		await interactionService.ExecuteCommandAsync(socketInteractionContext, host.Services);
 	}
-
-	//async Task DiscordSocketClient_ModalSubmitted(SocketModal arg)
-	//{
-	//	switch (arg.Data.CustomId)
-	//	{
-	//		case "trending-gifs-with-keyword-modal":
-	//			break;
-
-	//		default:
-	//			throw new ThisShouldBeImpossibleException();
-	//	}
-	//	var textInput = arg.Data.Components.Where(s => s.CustomId == "trending-gifs-with-keyword-text-input").Select(s => s.Value);
-
-	//	textInput.Value
-	//	throw new NotImplementedException();
-	//}
 }

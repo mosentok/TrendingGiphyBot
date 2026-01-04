@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace TrendingGiphyBotWorkerService;
 
@@ -30,12 +29,4 @@ public class TrendingGiphyBotContext : DbContext, ITrendingGiphyBotContext
     }
 
 	public async Task SaveChangesAsync() => await base.SaveChangesAsync();
-}
-
-public class ChannelSettingsConfiguration : IEntityTypeConfiguration<ChannelSettings>
-{
-    public void Configure(EntityTypeBuilder<ChannelSettings> builder)
-    {
-		builder.HasKey(s => s.ChannelId);
-    }
 }
