@@ -1,6 +1,6 @@
 using Discord;
 
-namespace TrendingGiphyBotWorkerService;
+namespace TrendingGiphyBotWorkerService.Logging;
 
 public class LoggerWrapper<T>(ILogger<T> _logger) : ILoggerWrapper<T>
 {

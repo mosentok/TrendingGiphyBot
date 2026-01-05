@@ -2,8 +2,12 @@ using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
-using TrendingGiphyBotWorkerService;
+using TrendingGiphyBotWorkerService.ChannelSettings;
+using TrendingGiphyBotWorkerService.Configuration;
+using TrendingGiphyBotWorkerService.Database;
+using TrendingGiphyBotWorkerService.Discord;
 using TrendingGiphyBotWorkerService.Giphy;
+using TrendingGiphyBotWorkerService.Logging;
 
 var builder = Host.CreateApplicationBuilder(args);
 

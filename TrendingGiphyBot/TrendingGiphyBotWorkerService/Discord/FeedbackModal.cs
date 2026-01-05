@@ -1,6 +1,6 @@
 using Discord.Interactions;
 
-namespace TrendingGiphyBotWorkerService;
+namespace TrendingGiphyBotWorkerService.Discord;
 
 public class FeedbackModal : IModal
 {

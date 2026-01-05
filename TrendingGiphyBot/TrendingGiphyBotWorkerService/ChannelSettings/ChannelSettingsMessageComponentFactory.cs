@@ -1,10 +1,10 @@
 using Discord;
 
-namespace TrendingGiphyBotWorkerService;
+namespace TrendingGiphyBotWorkerService.ChannelSettings;
 
 public class ChannelSettingsMessageComponentFactory(int[] _minutes, int[] _hours) : IChannelSettingsMessageComponentFactory
 {
-	public MessageComponent BuildChannelSettingsMessageComponent(ChannelSettings channelSettings, string channelName)
+	public MessageComponent BuildChannelSettingsMessageComponent(ChannelSettingsModel channelSettings, string channelName)
 	{
 		var neverBuilder = new SelectMenuOptionBuilder()
 			.WithLabel("Never")

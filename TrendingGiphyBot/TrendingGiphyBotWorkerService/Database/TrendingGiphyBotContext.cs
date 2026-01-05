@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore;
+using TrendingGiphyBotWorkerService.ChannelSettings;
 
-namespace TrendingGiphyBotWorkerService;
+namespace TrendingGiphyBotWorkerService.Database;
 
 public class TrendingGiphyBotContext : DbContext, ITrendingGiphyBotContext
 {
-	public virtual DbSet<ChannelSettings> ChannelSettings { get; set; }
+	public virtual DbSet<ChannelSettingsModel> ChannelSettings { get; set; }
 
 	public TrendingGiphyBotContext() { }
 

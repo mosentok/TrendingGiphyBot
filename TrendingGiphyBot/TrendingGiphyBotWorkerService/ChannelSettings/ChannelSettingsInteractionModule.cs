@@ -1,12 +1,13 @@
 using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
+using TrendingGiphyBotWorkerService.Database;
 
-namespace TrendingGiphyBotWorkerService;
+namespace TrendingGiphyBotWorkerService.ChannelSettings;
 
 public class ChannelSettingsInteractionModule(IChannelSettingsMessageComponentFactory _settingsMessageComponentFactory, ITrendingGiphyBotContext _trendingGiphyBotContext) : InteractionModuleBase<SocketInteractionContext<SocketMessageComponent>>
 {
-    ChannelSettings? _channelSettings;
+    ChannelSettingsModel? _channelSettings;
     bool _shouldUpdateInteraction = true;
 
     public override async Task BeforeExecuteAsync(ICommandInfo command)

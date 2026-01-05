@@ -1,6 +1,6 @@
-namespace TrendingGiphyBotWorkerService;
+namespace TrendingGiphyBotWorkerService.ChannelSettings;
 
-public class ChannelSettings
+public class ChannelSettingsModel
 {
     public ulong ChannelId { get; set; }
     public string? HowOften { get; set; }

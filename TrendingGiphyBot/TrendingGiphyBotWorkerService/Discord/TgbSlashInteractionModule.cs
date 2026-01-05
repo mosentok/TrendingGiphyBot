@@ -1,7 +1,9 @@
 using Discord.Interactions;
 using Microsoft.EntityFrameworkCore;
+using TrendingGiphyBotWorkerService.ChannelSettings;
+using TrendingGiphyBotWorkerService.Database;
 
-namespace TrendingGiphyBotWorkerService;
+namespace TrendingGiphyBotWorkerService.Discord;
 
 [Group("tgb", "Trending Giphy Bot commands for your server")]
 public class TgbSlashInteractionModule(IChannelSettingsMessageComponentFactory _channelSettingsMessageComponentFactory, ITrendingGiphyBotContext _trendingGiphyBotContext) : InteractionModuleBase<SocketInteractionContext>

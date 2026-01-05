@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace TrendingGiphyBotWorkerService;
+namespace TrendingGiphyBotWorkerService.Configuration;
 
 public static class ConfigurationExtensions
 {

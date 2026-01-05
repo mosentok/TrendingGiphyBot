@@ -1,7 +1,9 @@
 using Discord;
 using Discord.WebSocket;
+using TrendingGiphyBotWorkerService;
+using TrendingGiphyBotWorkerService.Logging;
 
-namespace TrendingGiphyBotWorkerService;
+namespace TrendingGiphyBotWorkerService.Discord;
 
 public class DiscordSocketClientHandler(ILoggerWrapper<DiscordSocketClientHandler> _loggerWrapper, HttpClient _httpClient) : IDiscordSocketClientHandler
 {

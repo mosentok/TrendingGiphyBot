@@ -1,4 +1,4 @@
-namespace TrendingGiphyBotWorkerService;
+namespace TrendingGiphyBotWorkerService.Configuration;
 
 public class MissingConfigurationException : Exception
 {
