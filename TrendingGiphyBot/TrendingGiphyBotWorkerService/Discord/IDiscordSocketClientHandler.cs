@@ -5,7 +5,11 @@ namespace TrendingGiphyBotWorkerService.Discord;
 
 public interface IDiscordSocketClientHandler
 {
-    Task JoinedGuild(SocketGuild arg);
-    Task LeftGuild(SocketGuild arg);
-    Task Log(LogMessage logMessage);
+    Task OnReady();
+    Task OnInteractionCreated(SocketInteraction socketInteraction);
+    Task OnComponentExecuted(SocketMessageComponent interaction);
+    Task OnModalSubmitted(SocketModal arg);
+    Task OnJoinedGuild(SocketGuild arg);
+    Task OnLeftGuild(SocketGuild arg);
+    Task OnLog(LogMessage logMessage);
 }
