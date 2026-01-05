@@ -4,8 +4,12 @@ namespace TrendingGiphyBotWorkerService;
 
 public class ChannelSettingsMessageComponentFactory(int[] _minutes, int[] _hours) : IChannelSettingsMessageComponentFactory
 {
-	public MessageComponent BuildChannelSettingsMessageComponent(ChannelSettings channelSettings)
+	public MessageComponent BuildChannelSettingsMessageComponent(ChannelSettings channelSettings, string channelName)
 	{
+		var neverBuilder = new SelectMenuOptionBuilder()
+			.WithLabel("Never")
+			.WithValue("never");
+
 		var minutesBuilders = _minutes.Select(static minute =>
 			new SelectMenuOptionBuilder()
 				.WithLabel($"Post Gifs Every {minute} Minutes")
@@ -20,7 +24,7 @@ public class ChannelSettingsMessageComponentFactory(int[] _minutes, int[] _hours
 				.WithLabel($"Post Gifs Every {hour} Hours")
 				.WithValue($"every-{hour}-hours"));
 
-		var howOftenOptions = minutesBuilders.Append(hour1Builder).Concat(hoursBuilders).ToList();
+		var howOftenOptions = new[] { neverBuilder }.Concat(minutesBuilders).Append(hour1Builder).Concat(hoursBuilders).ToList();
 
         var selectedOption = channelSettings.HowOften is null
 			? howOftenOptions.Single(s => s.Value == "every-1-hour")

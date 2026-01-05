@@ -6,45 +6,44 @@ using TrendingGiphyBotWorkerService;
 
 #nullable disable
 
-namespace TrendingGiphyBotWorkerService.Migrations
+namespace TrendingGiphyBotWorkerService.Migrations;
+
+[DbContext(typeof(TrendingGiphyBotContext))]
+partial class TrendingGiphyBotContextModelSnapshot : ModelSnapshot
 {
-    [DbContext(typeof(TrendingGiphyBotContext))]
-    partial class TrendingGiphyBotContextModelSnapshot : ModelSnapshot
+    protected override void BuildModel(ModelBuilder modelBuilder)
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
-        {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "10.0.1");
+        modelBuilder.HasAnnotation("ProductVersion", "10.0.1");
 
-            modelBuilder.Entity("TrendingGiphyBotWorkerService.ChannelSettings", b =>
-                {
-                    b.Property<ulong>("ChannelId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+        modelBuilder.Entity("TrendingGiphyBotWorkerService.ChannelSettings", b =>
+            {
+                b.Property<ulong>("ChannelId")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("INTEGER");
 
-                    b.Property<string>("GifKeyword")
-                        .HasColumnType("TEXT");
+                b.Property<string>("GifKeyword")
+                    .HasColumnType("TEXT");
 
-                    b.Property<string>("GifPostingBehavior")
-                        .HasColumnType("TEXT");
+                b.Property<string>("GifPostingBehavior")
+                    .HasColumnType("TEXT");
 
-                    b.Property<string>("HowOften")
-                        .HasColumnType("TEXT");
+                b.Property<string>("HowOften")
+                    .HasColumnType("TEXT");
 
-                    b.Property<string>("PostingHoursFrom")
-                        .HasColumnType("TEXT");
+                b.Property<string>("PostingHoursFrom")
+                    .HasColumnType("TEXT");
 
-                    b.Property<string>("PostingHoursTo")
-                        .HasColumnType("TEXT");
+                b.Property<string>("PostingHoursTo")
+                    .HasColumnType("TEXT");
 
-                    b.Property<string>("TimeZone")
-                        .HasColumnType("TEXT");
+                b.Property<string>("TimeZone")
+                    .HasColumnType("TEXT");
 
-                    b.HasKey("ChannelId");
+                b.HasKey("ChannelId");
 
-                    b.ToTable("ChannelSettings");
-                });
+                b.ToTable("ChannelSettings");
+            });
 #pragma warning restore 612, 618
-        }
     }
 }

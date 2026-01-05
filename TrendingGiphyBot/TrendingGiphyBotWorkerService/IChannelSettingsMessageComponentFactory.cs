@@ -1,9 +1,8 @@
 using Discord;
 
-namespace TrendingGiphyBotWorkerService
+namespace TrendingGiphyBotWorkerService;
+
+public interface IChannelSettingsMessageComponentFactory
 {
-    public interface IChannelSettingsMessageComponentFactory
-    {
-        MessageComponent BuildChannelSettingsMessageComponent(ChannelSettings channelSettings);
-    }
+    MessageComponent BuildChannelSettingsMessageComponent(ChannelSettings channelSettings, string channelName);
 }

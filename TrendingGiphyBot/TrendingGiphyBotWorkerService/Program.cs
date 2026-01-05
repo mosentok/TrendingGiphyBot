@@ -3,6 +3,7 @@ using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using TrendingGiphyBotWorkerService;
+using TrendingGiphyBotWorkerService.Giphy;
 
 var builder = Host.CreateApplicationBuilder(args);
 
@@ -12,39 +13,72 @@ builder.Configuration
 	.SetBasePath(currentDirectory)
 	.AddJsonFile("appsettings.json")
 	.AddJsonFile("appsettings.Development.json", optional: true)
-	.AddEnvironmentVariables();
+	.AddEnvironmentVariables("Tgb__");
+
+var discordToken = builder.Configuration.GetRequiredConfiguration("DiscordToken");
+var giphyApiKey = builder.Configuration.GetRequiredConfiguration("GiphyApiKey");
+var maxPageCount = builder.Configuration.GetRequiredConfiguration<int>("MaxPageCount");
+var playingGame = builder.Configuration.GetRequiredConfiguration("PlayingGame");
+var guildToRegisterCommands = builder.Configuration.GetOptionalConfiguration<ulong?>("RegisterCommandsToGuild");
+var timeSpanBetweenRefreshes = builder.Configuration.GetRequiredConfiguration<TimeSpan>("TimeSpanBetweenRefreshes");
+var assembly = typeof(TgbSlashInteractionModule).Assembly;
 
 builder.Services
 	.AddHostedService<Worker>()
+	.AddHostedService<GiphyCacheWorker>(services =>
+	{
+		var loggerWrapper = services.GetRequiredService<ILoggerWrapper<GiphyCacheWorker>>();
+		var giphyClient = services.GetRequiredService<IGiphyClient>();
+		var gifCache = services.GetRequiredService<IGifCache>();
+
+		return new(loggerWrapper, giphyClient, gifCache, maxPageCount, timeSpanBetweenRefreshes);
+	})
 	.AddLogging(builder => builder.AddConsole())
+	.AddSingleton(typeof(ILogger<>), typeof(Logger<>))
+	.AddSingleton(typeof(ILoggerWrapper<>), typeof(LoggerWrapper<>))
 	.AddDbContext<ITrendingGiphyBotContext, TrendingGiphyBotContext>(builder =>
 	{
 		var databasePath = Path.Combine(currentDirectory, "app.db");
 
 		builder.UseSqlite($"Data Source={databasePath}");
 	})
-	.AddSingleton(typeof(ILogger<>), typeof(Logger<>))
-	.AddSingleton(typeof(ILoggerWrapper<>), typeof(LoggerWrapper<>))
+	.AddSingleton<IGifCache>(_ => new GifCache([], _maxCount: 288))
 	.AddSingleton<IChannelSettingsMessageComponentFactory>(_ => new ChannelSettingsMessageComponentFactory(_minutes: [5, 10, 15, 30], _hours: [1, 2, 3, 4, 6, 8, 12, 24]))
-	.AddSingleton<DiscordSocketClient>()
+	.AddSingleton<DiscordSocketClient>(_ =>
+	{
+		var discordSocketConfig = new DiscordSocketConfig
+		{
+			GatewayIntents =
+				GatewayIntents.Guilds | GatewayIntents.GuildBans | GatewayIntents.GuildEmojis | GatewayIntents.GuildIntegrations | GatewayIntents.GuildWebhooks |
+				GatewayIntents.GuildVoiceStates | GatewayIntents.GuildMessages | GatewayIntents.GuildMessageReactions | GatewayIntents.GuildMessageTyping | GatewayIntents.DirectMessages |
+				GatewayIntents.DirectMessageReactions | GatewayIntents.DirectMessageTyping | GatewayIntents.AutoModerationConfiguration | GatewayIntents.AutoModerationActionExecution | GatewayIntents.GuildMessagePolls |
+				GatewayIntents.DirectMessagePolls
+		};
+
+		return new(discordSocketConfig);
+	})
 	.AddSingleton<InteractionService>(services =>
 	{
 		var discordSocketClient = services.GetRequiredService<DiscordSocketClient>();
 
-		return new(discordSocketClient.Rest);
+		//TODO map appsettings log level to discord.net's here
+		return new(discordSocketClient.Rest, new() { UseCompiledLambda = true, LogLevel = LogSeverity.Verbose });
 	})
 	.AddHttpClient<IDiscordSocketClientHandler, DiscordSocketClientHandler>()
 	.AddStandardResilienceHandler()
-;
+	.Services
+	.AddHttpClient<IGiphyClient, GiphyClient>(httpClient =>
+	{
+		httpClient.BaseAddress = new("https://api.giphy.com/v1/");
+
+		return new(httpClient, giphyApiKey);
+	})
+	.AddStandardResilienceHandler();
 
 var host = builder.Build();
 var discordSocketClientHandler = host.Services.GetRequiredService<IDiscordSocketClientHandler>();
 var discordSocketClient = host.Services.GetRequiredService<DiscordSocketClient>();
 var interactionService = host.Services.GetRequiredService<InteractionService>();
-var discordToken = builder.Configuration.GetRequiredConfiguration("DiscordToken");
-var playingGame = builder.Configuration.GetRequiredConfiguration("PlayingGame");
-var guildToRegisterCommands = builder.Configuration.GetSection("RegisterCommandsToGuild").Get<ulong?>();
-var assembly = typeof(TgbSlashInteractionModule).Assembly;
 
 discordSocketClient.Log += discordSocketClientHandler.Log;
 discordSocketClient.JoinedGuild += discordSocketClientHandler.JoinedGuild;

@@ -1,13 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace TrendingGiphyBotWorkerService
+namespace TrendingGiphyBotWorkerService;
+
+public class ChannelSettingsConfiguration : IEntityTypeConfiguration<ChannelSettings>
 {
-    public class ChannelSettingsConfiguration : IEntityTypeConfiguration<ChannelSettings>
+    public void Configure(EntityTypeBuilder<ChannelSettings> builder)
     {
-        public void Configure(EntityTypeBuilder<ChannelSettings> builder)
-        {
-            builder.HasKey(s => s.ChannelId);
-        }
+        builder.HasKey(s => s.ChannelId);
     }
 }
