@@ -1,4 +1,3 @@
-namespace TrendingGiphyBotWorkerService.Discord
-{
-    public record DiscordWorkerConfig(string DiscordToken);
-}
+namespace TrendingGiphyBotWorkerService.Discord;
+
+public record DiscordWorkerConfig(string DiscordToken);

@@ -1,6 +1,5 @@
 using Discord;
 using Discord.Interactions;
-using Discord.WebSocket;
 using TrendingGiphyBotWorkerService.Logging;
 
 namespace TrendingGiphyBotWorkerService.Discord;
@@ -8,7 +7,7 @@ namespace TrendingGiphyBotWorkerService.Discord;
 public class DiscordInteractionWorker(
     ILoggerWrapper<DiscordInteractionWorker> _loggerWrapper,
     IDiscordSocketClientHandler _discordSocketClientHandler,
-    DiscordSocketClient _discordSocketClient,
+	IDiscordSocketClientWrapper _discordSocketClient,
     InteractionService _interactionService,
 	DiscordWorkerConfig _discordWorkerConfig
 ) : BackgroundService

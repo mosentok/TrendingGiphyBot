@@ -27,9 +27,24 @@ var playingGame = builder.Configuration.GetRequiredConfiguration("PlayingGame");
 var guildToRegisterCommands = builder.Configuration.GetOptionalConfiguration<ulong?>("RegisterCommandsToGuild");
 var timeSpanBetweenRefreshes = builder.Configuration.GetRequiredConfiguration<TimeSpan>("TimeSpanBetweenRefreshes");
 
+var discordSocketConfig = new DiscordSocketConfig
+{
+	GatewayIntents =
+		GatewayIntents.Guilds | GatewayIntents.GuildBans | GatewayIntents.GuildEmojis | GatewayIntents.GuildIntegrations | GatewayIntents.GuildWebhooks |
+		GatewayIntents.GuildVoiceStates | GatewayIntents.GuildMessages | GatewayIntents.GuildMessageReactions | GatewayIntents.GuildMessageTyping | GatewayIntents.DirectMessages |
+		GatewayIntents.DirectMessageReactions | GatewayIntents.DirectMessageTyping | GatewayIntents.AutoModerationConfiguration | GatewayIntents.AutoModerationActionExecution | GatewayIntents.GuildMessagePolls |
+		GatewayIntents.DirectMessagePolls
+};
+
+var discordSocketClient = new DiscordSocketClient(discordSocketConfig);
 var discordWorkerConfig = new DiscordWorkerConfig(discordToken);
 var discordSocketClientHandlerConfig = new DiscordSocketClientHandlerConfig(playingGame, guildToRegisterCommands, assembly);
 var giphyConfig = new GiphyConfig(maxPageCount, timeSpanBetweenRefreshes);
+var gifCache = new GifCache([], _maxCount: 288);
+var channelSettingsMessageComponentFactory = new ChannelSettingsMessageComponentFactory(_minutes: [5, 10, 15, 30], _hours: [1, 2, 3, 4, 6, 8, 12, 24]);
+
+//TODO map appsettings log level to discord.net's here
+var interactionService = new InteractionService(discordSocketClient.Rest, new() { UseCompiledLambda = true, LogLevel = LogSeverity.Verbose });
 
 builder.Services
 	.AddHostedService<DiscordInteractionWorker>()
@@ -41,36 +56,17 @@ builder.Services
 
 		builder.UseSqlite($"Data Source={databasePath}");
 	})
+	.AddSingleton(discordSocketClient)
 	.AddSingleton(discordWorkerConfig)
 	.AddSingleton(discordSocketClientHandlerConfig)
 	.AddSingleton(giphyConfig)
+	.AddSingleton(interactionService)
 	.AddSingleton(typeof(ILogger<>), typeof(Logger<>))
 	.AddSingleton(typeof(ILoggerWrapper<>), typeof(LoggerWrapper<>))
 	.AddSingleton<IDiscordSocketClientHandler, DiscordSocketClientHandler>()
-	.AddSingleton<IGifCache>(_ => new GifCache([], _maxCount: 288))
-	.AddSingleton<IChannelSettingsMessageComponentFactory>(_ => new ChannelSettingsMessageComponentFactory(_minutes: [5, 10, 15, 30], _hours: [1, 2, 3, 4, 6, 8, 12, 24]))
-	.AddSingleton<DiscordSocketClient>(_ =>
-	{
-		var discordSocketConfig = new DiscordSocketConfig
-		{
-			GatewayIntents =
-				GatewayIntents.Guilds | GatewayIntents.GuildBans | GatewayIntents.GuildEmojis | GatewayIntents.GuildIntegrations | GatewayIntents.GuildWebhooks |
-				GatewayIntents.GuildVoiceStates | GatewayIntents.GuildMessages | GatewayIntents.GuildMessageReactions | GatewayIntents.GuildMessageTyping | GatewayIntents.DirectMessages |
-				GatewayIntents.DirectMessageReactions | GatewayIntents.DirectMessageTyping | GatewayIntents.AutoModerationConfiguration | GatewayIntents.AutoModerationActionExecution | GatewayIntents.GuildMessagePolls |
-				GatewayIntents.DirectMessagePolls
-		};
-
-		return new(discordSocketConfig);
-	})
-	.AddSingleton<InteractionService>(services =>
-	{
-		var discordSocketClient = services.GetRequiredService<DiscordSocketClient>();
-
-        var interactionServiceConfig = new InteractionServiceConfig { UseCompiledLambda = true, LogLevel = LogSeverity.Verbose };
-
-        //TODO map appsettings log level to discord.net's here
-        return new(discordSocketClient.Rest, interactionServiceConfig);
-	})
+	.AddSingleton<IGifCache>(gifCache)
+	.AddSingleton<IChannelSettingsMessageComponentFactory>(channelSettingsMessageComponentFactory)
+	.AddSingleton<IDiscordSocketClientWrapper, DiscordSocketClientWrapper>()
 	.AddHttpClient<IGiphyClient, GiphyClient>(httpClient =>
 	{
 		//TODO move base address to config
