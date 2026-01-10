@@ -48,7 +48,8 @@ var interactionService = new InteractionService(discordSocketClient.Rest, new() 
 
 builder.Services
 	.AddHostedService<DiscordInteractionWorker>()
-	.AddHostedService<GiphyCacheWorker>()
+	.AddHostedService<DiscordPostingWorker>()
+	//.AddHostedService<GiphyCacheWorker>()
 	.AddLogging(builder => builder.AddConsole())
 	.AddDbContext<ITrendingGiphyBotDbContext, TrendingGiphyBotDbContext>(builder =>
 	{

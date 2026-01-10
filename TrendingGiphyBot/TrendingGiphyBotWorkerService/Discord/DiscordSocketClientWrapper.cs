@@ -3,9 +3,9 @@ using Discord.WebSocket;
 
 namespace TrendingGiphyBotWorkerService.Discord;
 
-public class DiscordSocketClientWrapper(DiscordSocketConfig discordSocketConfig) : IDiscordSocketClientWrapper
+public class DiscordSocketClientWrapper(DiscordSocketClient discordSocketClient) : IDiscordSocketClientWrapper
 {
-	readonly DiscordSocketClient _discordSocketClient = new(discordSocketConfig);
+	readonly DiscordSocketClient _discordSocketClient = discordSocketClient;
 
 	public event Func<SocketMessageComponent, Task> ButtonExecuted
 	{
@@ -61,4 +61,6 @@ public class DiscordSocketClientWrapper(DiscordSocketConfig discordSocketConfig)
 	public Task LogoutAsync() => _discordSocketClient.LogoutAsync();
 
 	public Task StartAsync() => _discordSocketClient.StartAsync();
+
+	public ValueTask<IChannel> GetChannelAsync(ulong channelId) => _discordSocketClient.GetChannelAsync(channelId);
 }

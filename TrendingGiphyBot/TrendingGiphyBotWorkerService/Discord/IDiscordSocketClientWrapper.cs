@@ -5,6 +5,8 @@ namespace TrendingGiphyBotWorkerService.Discord;
 
 public interface IDiscordSocketClientWrapper
 {
+    ValueTask<IChannel> GetChannelAsync(ulong channelId);
+
     event Func<SocketMessageComponent, Task> ButtonExecuted;
     event Func<SocketInteraction, Task> InteractionCreated;
     event Func<SocketGuild, Task> JoinedGuild;
