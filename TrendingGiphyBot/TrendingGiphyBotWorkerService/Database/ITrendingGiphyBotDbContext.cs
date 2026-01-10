@@ -3,7 +3,7 @@ using TrendingGiphyBotWorkerService.ChannelSettings;
 
 namespace TrendingGiphyBotWorkerService.Database;
 
-public interface ITrendingGiphyBotContext
+public interface ITrendingGiphyBotDbContext
 {
     DbSet<ChannelSettingsModel> ChannelSettings { get; set; }
 	Task SaveChangesAsync();

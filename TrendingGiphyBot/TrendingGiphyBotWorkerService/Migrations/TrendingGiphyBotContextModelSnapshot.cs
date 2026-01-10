@@ -8,7 +8,7 @@ using TrendingGiphyBotWorkerService.Database;
 
 namespace TrendingGiphyBotWorkerService.Migrations;
 
-[DbContext(typeof(TrendingGiphyBotContext))]
+[DbContext(typeof(TrendingGiphyBotDbContext))]
 partial class TrendingGiphyBotContextModelSnapshot : ModelSnapshot
 {
     protected override void BuildModel(ModelBuilder modelBuilder)

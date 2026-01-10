@@ -9,7 +9,7 @@ using TrendingGiphyBotWorkerService.Database;
 
 namespace TrendingGiphyBotWorkerService.Migrations;
 
-[DbContext(typeof(TrendingGiphyBotContext))]
+[DbContext(typeof(TrendingGiphyBotDbContext))]
 [Migration("20260103234322_InitialCreate")]
 partial class InitialCreate
 {

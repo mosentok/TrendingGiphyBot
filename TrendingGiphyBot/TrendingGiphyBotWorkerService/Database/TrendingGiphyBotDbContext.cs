@@ -3,13 +3,13 @@ using TrendingGiphyBotWorkerService.ChannelSettings;
 
 namespace TrendingGiphyBotWorkerService.Database;
 
-public class TrendingGiphyBotContext : DbContext, ITrendingGiphyBotContext
+public class TrendingGiphyBotDbContext : DbContext, ITrendingGiphyBotDbContext
 {
 	public virtual DbSet<ChannelSettingsModel> ChannelSettings { get; set; }
 
-	public TrendingGiphyBotContext() { }
+	public TrendingGiphyBotDbContext() { }
 
-	public TrendingGiphyBotContext(DbContextOptions<TrendingGiphyBotContext> options) : base(options) { }
+	public TrendingGiphyBotDbContext(DbContextOptions<TrendingGiphyBotDbContext> options) : base(options) { }
 
 	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 	{

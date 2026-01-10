@@ -7,7 +7,7 @@ using TrendingGiphyBotWorkerService.Discord;
 
 namespace TrendingGiphyBotWorkerService.Keywords;
 
-public class KeywordModalInteractionModule(IChannelSettingsMessageComponentFactory _settingsMessageComponentFactory, ITrendingGiphyBotContext _trendingGiphyBotContext) : InteractionModuleBase<SocketInteractionContext<SocketModal>>
+public class KeywordModalInteractionModule(IChannelSettingsMessageComponentFactory _settingsMessageComponentFactory, ITrendingGiphyBotDbContext _trendingGiphyBotContext) : InteractionModuleBase<SocketInteractionContext<SocketModal>>
 {
 	[ModalInteraction("trending-gifs-with-keyword-modal")]
 	public async Task SetKeywordAsync(FeedbackModal modal)

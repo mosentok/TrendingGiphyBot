@@ -6,7 +6,7 @@ using TrendingGiphyBotWorkerService.Database;
 namespace TrendingGiphyBotWorkerService.Discord;
 
 [Group("tgb", "Trending Giphy Bot commands for your server")]
-public class TgbSlashInteractionModule(IChannelSettingsMessageComponentFactory _channelSettingsMessageComponentFactory, ITrendingGiphyBotContext _trendingGiphyBotContext) : InteractionModuleBase<SocketInteractionContext>
+public class TgbSlashInteractionModule(IChannelSettingsMessageComponentFactory _channelSettingsMessageComponentFactory, ITrendingGiphyBotDbContext _trendingGiphyBotContext) : InteractionModuleBase<SocketInteractionContext>
 {
 	[SlashCommand("settings", "View and change your Trending Giphy Bot's settings for this channel")]
 	public async Task GetOrCreateChannelSettingsAsync()

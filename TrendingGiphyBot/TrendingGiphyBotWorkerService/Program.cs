@@ -50,7 +50,7 @@ builder.Services
 	.AddHostedService<DiscordInteractionWorker>()
 	.AddHostedService<GiphyCacheWorker>()
 	.AddLogging(builder => builder.AddConsole())
-	.AddDbContext<ITrendingGiphyBotContext, TrendingGiphyBotContext>(builder =>
+	.AddDbContext<ITrendingGiphyBotDbContext, TrendingGiphyBotDbContext>(builder =>
 	{
 		var databasePath = Path.Combine(currentDirectory, "app.db");
 
