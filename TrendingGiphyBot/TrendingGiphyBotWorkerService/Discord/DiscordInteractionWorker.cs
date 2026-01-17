@@ -16,16 +16,16 @@ public class DiscordInteractionWorker(
 	{
 		try
 		{
-			_discordSocketClient.ButtonExecuted += _discordSocketClientHandler.OnComponentExecuted;
-			_discordSocketClient.InteractionCreated += _discordSocketClientHandler.OnInteractionCreated;
-			_discordSocketClient.JoinedGuild += _discordSocketClientHandler.OnJoinedGuild;
-			_discordSocketClient.LeftGuild += _discordSocketClientHandler.OnLeftGuild;
-			_discordSocketClient.Log += _discordSocketClientHandler.OnLog;
-			_discordSocketClient.ModalSubmitted += _discordSocketClientHandler.OnModalSubmitted;
-			_discordSocketClient.Ready += _discordSocketClientHandler.OnReady;
-			_discordSocketClient.SelectMenuExecuted += _discordSocketClientHandler.OnComponentExecuted;
+			_discordSocketClient.ButtonExecuted += _discordSocketClientHandler.OnComponentExecutedAsync;
+			_discordSocketClient.InteractionCreated += _discordSocketClientHandler.OnInteractionCreatedAsync;
+			_discordSocketClient.JoinedGuild += _discordSocketClientHandler.OnJoinedGuildAsync;
+			_discordSocketClient.LeftGuild += _discordSocketClientHandler.OnLeftGuildAsync;
+			_discordSocketClient.Log += _discordSocketClientHandler.OnLogAsync;
+			_discordSocketClient.ModalSubmitted += _discordSocketClientHandler.OnModalSubmittedAsync;
+			_discordSocketClient.Ready += _discordSocketClientHandler.OnReadyAsync;
+			_discordSocketClient.SelectMenuExecuted += _discordSocketClientHandler.OnComponentExecutedAsync;
 
-			_interactionService.Log += _discordSocketClientHandler.OnLog;
+			_interactionService.Log += _discordSocketClientHandler.OnLogAsync;
 
 			await _discordSocketClient.LoginAsync(TokenType.Bot, _discordWorkerConfig.DiscordToken);
 			await _discordSocketClient.StartAsync();

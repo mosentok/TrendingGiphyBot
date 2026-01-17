@@ -31,5 +31,5 @@ public class TrendingGiphyBotDbContext : DbContext, ITrendingGiphyBotDbContext
 		modelBuilder.ApplyConfigurationsFromAssembly(type.Assembly);
     }
 
-	public new async Task SaveChangesAsync(CancellationToken cancellation = default) => await base.SaveChangesAsync(cancellation);
+	public new Task SaveChangesAsync(CancellationToken cancellation = default) => base.SaveChangesAsync(cancellation);
 }

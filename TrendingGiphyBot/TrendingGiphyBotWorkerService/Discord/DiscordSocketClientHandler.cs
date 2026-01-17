@@ -13,13 +13,13 @@ public class DiscordSocketClientHandler(
 	IServiceProvider _services
 ) : IDiscordSocketClientHandler
 {
-	public async Task OnJoinedGuild(SocketGuild arg)
+	public async Task OnJoinedGuildAsync(SocketGuild arg)
 	{
 		//TODO post stats to websites that track the bot's server count
 		//await _loggerWrapper.SwallowAsync(_FunctionWrapper.PostStatsAsync(_discordSocketClient.CurrentUser.Id, _discordSocketClient.Guilds.Count));
 	}
 
-	public async Task OnLeftGuild(SocketGuild arg)
+	public async Task OnLeftGuildAsync(SocketGuild arg)
 	{
 		//TODO post stats to websites that track the bot's server count
 		//await _loggerWrapper.SwallowAsync(async () =>
@@ -29,7 +29,7 @@ public class DiscordSocketClientHandler(
 		//});
 	}
 
-	public Task OnLog(LogMessage logMessage)
+	public Task OnLogAsync(LogMessage logMessage)
 	{
 		switch (logMessage.Severity)
 		{
@@ -64,7 +64,7 @@ public class DiscordSocketClientHandler(
 		return Task.CompletedTask;
 	}
 
-	public async Task OnReady()
+	public async Task OnReadyAsync()
 	{
 		await _discordSocketClient.SetGameAsync(_discordSocketClientHandlerConfig.PlayingGame);
 		await _interactionService.AddModulesAsync(_discordSocketClientHandlerConfig.Assembly, _services);
@@ -75,7 +75,7 @@ public class DiscordSocketClientHandler(
 			await _interactionService.RegisterCommandsGloballyAsync();
 	}
 
-	public async Task OnInteractionCreated(SocketInteraction socketInteraction)
+	public async Task OnInteractionCreatedAsync(SocketInteraction socketInteraction)
 	{
 		if (socketInteraction.Type is not InteractionType.ApplicationCommand)
 			return;
@@ -85,14 +85,14 @@ public class DiscordSocketClientHandler(
 		await _interactionService.ExecuteCommandAsync(socketInteractionContext, _services);
 	}
 
-	public async Task OnComponentExecuted(SocketMessageComponent interaction)
+	public async Task OnComponentExecutedAsync(SocketMessageComponent interaction)
 	{
 		var socketInteractionContext = new SocketInteractionContext<SocketMessageComponent>(_discordSocketClient, interaction);
 
 		await _interactionService.ExecuteCommandAsync(socketInteractionContext, _services);
 	}
 
-	public async Task OnModalSubmitted(SocketModal arg)
+	public async Task OnModalSubmittedAsync(SocketModal arg)
 	{
 		var socketInteractionContext = new SocketInteractionContext<SocketModal>(_discordSocketClient, arg);
 
