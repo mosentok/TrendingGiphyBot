@@ -1,8 +1,9 @@
 using Discord;
+using TrendingGiphyBotWorkerService.Intervals;
 
 namespace TrendingGiphyBotWorkerService.ChannelSettings;
 
-public class ChannelSettingsMessageComponentFactory(int[] _minutes, int[] _hours) : IChannelSettingsMessageComponentFactory
+public class ChannelSettingsMessageComponentFactory(IntervalConfig _intervalConfig) : IChannelSettingsMessageComponentFactory
 {
 	public MessageComponent BuildChannelSettingsMessageComponent(ChannelSettingsModel channelSettings, string channelName)
 	{
@@ -10,7 +11,7 @@ public class ChannelSettingsMessageComponentFactory(int[] _minutes, int[] _hours
 			.WithLabel("Never")
 			.WithValue("never");
 
-		var minutesBuilders = _minutes.Select(static minute =>
+		var minutesBuilders = _intervalConfig.Minutes.Select(static minute =>
 			new SelectMenuOptionBuilder()
 				.WithLabel($"Post Gifs Every {minute} Minutes")
 				.WithValue($"every-{minute}-minutes"));
@@ -19,7 +20,7 @@ public class ChannelSettingsMessageComponentFactory(int[] _minutes, int[] _hours
 			.WithLabel("Post Gifs Every 1 Hour")
 			.WithValue("every-1-hour");
 
-		var hoursBuilders = _hours.Select(static hour =>
+		var hoursBuilders = _intervalConfig.Hours.Select(static hour =>
 			new SelectMenuOptionBuilder()
 				.WithLabel($"Post Gifs Every {hour} Hours")
 				.WithValue($"every-{hour}-hours"));
@@ -55,7 +56,7 @@ public class ChannelSettingsMessageComponentFactory(int[] _minutes, int[] _hours
 
 		var gifKeywordButton = new ButtonBuilder()
 			.WithCustomId("trending-gifs-with-keyword-modal-button")
-			.WithLabel($"(Optional) Set Random Gif Keywords")
+			.WithLabel("(Optional) Set Random Gif Keywords")
 			.WithStyle(ButtonStyle.Secondary);
 
 		var clearGifKeywordButton = new ButtonBuilder()

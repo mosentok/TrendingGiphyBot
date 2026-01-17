@@ -3,10 +3,8 @@ using Discord.WebSocket;
 
 namespace TrendingGiphyBotWorkerService.Discord;
 
-public class DiscordSocketClientWrapper(DiscordSocketClient discordSocketClient) : IDiscordSocketClientWrapper
+public class DiscordSocketClientWrapper(DiscordSocketClient _discordSocketClient) : IDiscordSocketClientWrapper
 {
-	readonly DiscordSocketClient _discordSocketClient = discordSocketClient;
-
 	public event Func<SocketMessageComponent, Task> ButtonExecuted
 	{
 		add => _discordSocketClient.ButtonExecuted += value;

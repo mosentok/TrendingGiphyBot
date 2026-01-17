@@ -6,7 +6,7 @@ public class GiphyCacheWorker(
     ILoggerWrapper<GiphyCacheWorker> _loggerWrapper,
     IGiphyClient _giphyClient,
     IGifCache _gifCache,
-	GiphyConfig _giphyConfig
+	GiphyCacheWorkerConfig _giphyCacheWorkerConfig
 ) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -17,7 +17,7 @@ public class GiphyCacheWorker(
             {
                 var numberOfResponses = 0;
 
-                while (numberOfResponses % _giphyConfig.MaxPageCount == 0)
+                for (var numberOfLoops = 0; numberOfLoops < _giphyCacheWorkerConfig.MaxGiphyCacheLoops && numberOfResponses % _giphyCacheWorkerConfig.MaxPageCount == 0; numberOfLoops++)
                 {
                     var giphyResponse = await _giphyClient.GetTrendingGifsAsync(offset: numberOfResponses, cancellationToken: stoppingToken);
 
@@ -26,7 +26,7 @@ public class GiphyCacheWorker(
                     numberOfResponses += giphyResponse.Data.Count;
                 }
 
-                await Task.Delay(_giphyConfig.TimeSpanBetweenRefreshes, stoppingToken);
+                await Task.Delay(_giphyCacheWorkerConfig.TimeSpanBetweenRefreshes, stoppingToken);
             }
         }
         catch (Exception exception)

@@ -2,6 +2,7 @@ using Discord.Interactions;
 using Microsoft.EntityFrameworkCore;
 using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Database;
+using TrendingGiphyBotWorkerService.Intervals;
 
 namespace TrendingGiphyBotWorkerService.Discord;
 
@@ -15,7 +16,7 @@ public class TgbSlashInteractionModule(IChannelSettingsMessageComponentFactory _
 
 		if (channelSettings is null)
 		{
-			channelSettings = new() { ChannelId = Context.Channel.Id };
+			channelSettings = new() { ChannelId = Context.Channel.Id, IntervalId = (int)IntervalDescription.None };
 
 			_trendingGiphyBotContext.ChannelSettings.Add(channelSettings);
 

@@ -1,11 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using TrendingGiphyBotWorkerService.ChannelSettings;
+using TrendingGiphyBotWorkerService.Intervals;
 
 namespace TrendingGiphyBotWorkerService.Database;
 
 public class TrendingGiphyBotDbContext : DbContext, ITrendingGiphyBotDbContext
 {
 	public virtual DbSet<ChannelSettingsModel> ChannelSettings { get; set; }
+	public virtual DbSet<Interval> Intervals { get; set; }
 
 	public TrendingGiphyBotDbContext() { }
 
@@ -29,5 +31,5 @@ public class TrendingGiphyBotDbContext : DbContext, ITrendingGiphyBotDbContext
 		modelBuilder.ApplyConfigurationsFromAssembly(type.Assembly);
     }
 
-	public async Task SaveChangesAsync() => await base.SaveChangesAsync();
+	public new async Task SaveChangesAsync(CancellationToken cancellation = default) => await base.SaveChangesAsync(cancellation);
 }

@@ -1,21 +1,26 @@
 namespace TrendingGiphyBotWorkerService.Giphy;
 
 // TODO get rid of _items? unless we expect to seed the values somehow. that ought to be done post-DI by the worker already anyway tho
-public class GifCache(List<GiphyData> _items, int _maxCount) : IGifCache
+public class GifCache(GifCacheConfig _gifCacheConfig) : IGifCache
 {
-    public OrderedDictionary<string, GiphyData> Items { get; } = new(_items.ToDictionary(s => s.Id, s => s));
+    public List<GiphyData> Items { get; } = [.. _gifCacheConfig.Items.OrderByDescending(s => s.TrendingDatetime)];
 
     public void Add(ICollection<GiphyData> gifs)
     {
-        foreach (var gif in gifs)
-            _ = Items.TryAdd(gif.Id, gif);
+        var notInListYet = gifs.Where(s => !Items.Contains(s));
 
-        while (Items.Count > _maxCount)
-            Items.RemoveAt(0);
+        Items.AddRange(notInListYet);
+        Items.Sort((left, right) => string.Compare(left.TrendingDatetime, right.TrendingDatetime));
+
+        if (Items.Count <= _gifCacheConfig.MaxCount)
+            return;
+
+        var excessCount = Items.Count - _gifCacheConfig.MaxCount;
+
+        Items.RemoveRange(_gifCacheConfig.MaxCount, excessCount);
     }
 
-    public GiphyData? GetFirstUnseenGif(ICollection<string> idsAlreadySeen)
-    {
-        return Items.Where(s => !idsAlreadySeen.Contains(s.Key)).Select(s => s.Value).FirstOrDefault();
-    }
+    public GiphyData? GetFirstUnseenGif() => Items.FirstOrDefault();
+
+    public GiphyData? GetFirstUnseenGif(ICollection<string> idsAlreadySeen) => Items.FirstOrDefault(s => !idsAlreadySeen.Contains(s.Id));
 }
