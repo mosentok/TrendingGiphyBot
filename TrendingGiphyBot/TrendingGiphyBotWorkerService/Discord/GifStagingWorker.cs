@@ -10,7 +10,7 @@ public class GifStagingWorker(IGifPostStage _gifPostStage) : BackgroundService
         {
             await timer.WaitForNextTickAsync(stoppingToken);
 
-            _gifPostStage.Refresh();
+            await _gifPostStage.RefreshAsync();
         }
     }
 }

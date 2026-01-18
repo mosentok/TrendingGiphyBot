@@ -6,7 +6,6 @@ public interface IGifPostStage
 {
     GiphyData GetStagedGiphyData(ulong channelId);
     bool HasStagedGiphyData(ulong channelId);
-    bool TryGetGiphyData(ulong channelId, out GiphyData? giphyData);
-    void Refresh();
+    Task RefreshAsync();
     void Evict(ulong channelId);
 }

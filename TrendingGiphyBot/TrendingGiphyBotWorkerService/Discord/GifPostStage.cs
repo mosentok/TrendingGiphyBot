@@ -11,12 +11,13 @@ public class GifPostStage(IServiceScopeFactory _serviceScopeFactory, IGifCache _
 
 	public void Evict(ulong channelId) => _channelGifPostStage.Remove(channelId);
 
-	public void Refresh()
+	public async Task RefreshAsync()
 	{
 		using var scope = _serviceScopeFactory.CreateScope();
 
 		var trendingGiphyBotDbContext = scope.ServiceProvider.GetRequiredService<ITrendingGiphyBotDbContext>();
-		var activeChannels = trendingGiphyBotDbContext.ChannelSettings.Where(s => s.HowOften != null);
+
+		var activeChannels = await trendingGiphyBotDbContext.ChannelSettings.Where(s => s.HowOften != null).ToListAsync();
 
 		foreach (var channel in activeChannels)
 		{
@@ -55,6 +56,4 @@ public class GifPostStage(IServiceScopeFactory _serviceScopeFactory, IGifCache _
 	public bool HasStagedGiphyData(ulong channelId) => _channelGifPostStage.ContainsKey(channelId);
 
 	public GiphyData GetStagedGiphyData(ulong channelId) => _channelGifPostStage[channelId];
-
-	public bool TryGetGiphyData(ulong channelId, out GiphyData? giphyData) => _channelGifPostStage.TryGetValue(channelId, out giphyData);
 }
