@@ -67,12 +67,14 @@ builder.Services
 	.AddSingleton(giphyCacheWorkerConfig)
 	.AddSingleton(interactionService)
 	.AddSingleton(intervalConfig)
+	.AddSingleton(TimeProvider.System)
 	.AddSingleton(typeof(ILogger<>), typeof(Logger<>))
 	.AddSingleton(typeof(ILoggerWrapper<>), typeof(LoggerWrapper<>))
 	.AddSingleton<IChannelSettingsMessageComponentFactory, ChannelSettingsMessageComponentFactory>()
 	.AddSingleton<IDiscordSocketClientHandler, DiscordSocketClientHandler>()
 	.AddSingleton<IDiscordSocketClientWrapper, DiscordSocketClientWrapper>()
 	.AddSingleton<IGifCache, GifCache>()
+	.AddSingleton<IGifPostStage, GifPostStage>()
 	.AddHttpClient<IGiphyClient, GiphyClient>(httpClient =>
 	{
 		httpClient.BaseAddress = new(giphyBaseAddress);

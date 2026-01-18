@@ -3,7 +3,7 @@ using TrendingGiphyBotWorkerService.Database;
 
 namespace TrendingGiphyBotWorkerService.Intervals;
 
-public class IntervalSeederWorker(ITrendingGiphyBotDbContext _trendingGiphyBotDbContext) : BackgroundService
+public class IntervalSeederWorker(IServiceScopeFactory _serviceScopeFactory) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -13,8 +13,10 @@ public class IntervalSeederWorker(ITrendingGiphyBotDbContext _trendingGiphyBotDb
             IntervalId = (int)intervalDescription,
             Description = intervalDescription.ToString()
         });
+        using var scope = _serviceScopeFactory.CreateScope();
 
-        var intervals = await _trendingGiphyBotDbContext.Intervals.ToListAsync(stoppingToken);
+        var _trendingGiphyBotDbContext = scope.ServiceProvider.GetRequiredService<ITrendingGiphyBotDbContext>();
+		var intervals = await _trendingGiphyBotDbContext.Intervals.ToListAsync(stoppingToken);
 
         foreach (var expectedInterval in expectedIntervals)
         {

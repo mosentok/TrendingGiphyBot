@@ -5,7 +5,7 @@ using TrendingGiphyBotWorkerService.Giphy;
 
 namespace TrendingGiphyBotWorkerService.Discord;
 
-public class GifPostStage(ITrendingGiphyBotDbContext _trendingGiphyBotDbContext, IGifCache _gifCache) : IGifPostStage
+public class GifPostStage(IServiceScopeFactory _serviceScopeFactory, IGifCache _gifCache) : IGifPostStage
 {
 	readonly Dictionary<ulong, GiphyData> _channelGifPostStage = [];
 
@@ -13,7 +13,10 @@ public class GifPostStage(ITrendingGiphyBotDbContext _trendingGiphyBotDbContext,
 
 	public void Refresh()
 	{
-		var activeChannels = _trendingGiphyBotDbContext.ChannelSettings.Where(s => s.HowOften != null);
+		using var scope = _serviceScopeFactory.CreateScope();
+
+		var trendingGiphyBotDbContext = scope.ServiceProvider.GetRequiredService<ITrendingGiphyBotDbContext>();
+		var activeChannels = trendingGiphyBotDbContext.ChannelSettings.Where(s => s.HowOften != null);
 
 		foreach (var channel in activeChannels)
 		{

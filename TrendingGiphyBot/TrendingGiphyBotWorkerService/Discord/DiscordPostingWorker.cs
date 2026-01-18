@@ -8,7 +8,7 @@ namespace TrendingGiphyBotWorkerService.Discord;
 
 public class DiscordPostingWorker(
 	ILoggerWrapper<DiscordPostingWorker> _loggerWrapper,
-	ITrendingGiphyBotDbContext _trendingGiphyBotDbContext,
+	IServiceScopeFactory _serviceScopeFactory,
 	IGifPostStage _gifPostStage,
 	IDiscordSocketClientWrapper _discordSocketClientWrapper,
 	IntervalConfig _intervalConfig,
@@ -28,7 +28,11 @@ public class DiscordPostingWorker(
 			var validMinutes = _intervalConfig.Minutes.Where(s => now.Minute % s == 0);
 			var validHours = _intervalConfig.Hours.Where(s => now.Hour % s == 0);
 
-			var activeChannelIds = await _trendingGiphyBotDbContext.ChannelSettings
+			using var scope = _serviceScopeFactory.CreateScope();
+
+			var trendingGiphyBotDbContext = scope.ServiceProvider.GetRequiredService<ITrendingGiphyBotDbContext>();
+
+			var activeChannelIds = await trendingGiphyBotDbContext.ChannelSettings
 				.Where(s =>
 					(s.IntervalId == (int)IntervalDescription.Minutes && validMinutes.Contains(s.Frequency)) ||
 					(s.IntervalId == (int)IntervalDescription.Hours && validHours.Contains(s.Frequency)))
