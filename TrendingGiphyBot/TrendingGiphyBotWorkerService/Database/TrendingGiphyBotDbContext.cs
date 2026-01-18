@@ -20,8 +20,11 @@ public class TrendingGiphyBotDbContext : DbContext, ITrendingGiphyBotDbContext
 
 		var currentDirectory = Directory.GetCurrentDirectory();
 		var databasePath = Path.Combine(currentDirectory, "app.db");
+		var connectionString = $"Data Source={databasePath}";
 
-		optionsBuilder.UseSqlite($"Data Source={databasePath}");
+		optionsBuilder
+			.EnableSensitiveDataLogging()
+			.UseSqlite(connectionString);
 	}
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -32,6 +32,7 @@ public class DiscordPostingWorker(
 			if (now.Minute % 5 != 0)
 				continue;
 
+			// this will constantly execute for all 60 seconds of a valid minute, tho
 			var stagedChannelGifPosts = _gifPostStage.GetChannelGifPostStage();
 
 			var validMinutes = _intervalConfig.Minutes.Where(s => now.Minute % s == 0);
@@ -42,10 +43,10 @@ public class DiscordPostingWorker(
 			var trendingGiphyBotDbContext = scope.ServiceProvider.GetRequiredService<ITrendingGiphyBotDbContext>();
 
 			var activeChannelIds = await trendingGiphyBotDbContext.ChannelSettings
-				.Where(s =>
-					stagedChannelGifPosts.Keys.Contains(s.ChannelId) &&
-					((s.IntervalId == (int)IntervalDescription.Minutes && validMinutes.Contains(s.Frequency)) ||
-					(s.IntervalId == (int)IntervalDescription.Hours && validHours.Contains(s.Frequency))))
+				.Where(channelSettings =>
+					stagedChannelGifPosts.Keys.Contains(channelSettings.ChannelId) &&
+					((channelSettings.IntervalId == (int)IntervalDescription.Minutes && validMinutes.Contains(channelSettings.Frequency)) ||
+					(channelSettings.IntervalId == (int)IntervalDescription.Hours && validHours.Contains(channelSettings.Frequency))))
 				.Select(s => s.ChannelId)
 				.ToListAsync(stoppingToken);
 

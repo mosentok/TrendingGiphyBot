@@ -61,7 +61,10 @@ builder.Services
 	.AddHostedService<GiphyCacheWorker>()
 	.AddHostedService<IntervalSeederWorker>()
 	.AddLogging(builder => builder.AddConsole())
-	.AddDbContext<ITrendingGiphyBotDbContext, TrendingGiphyBotDbContext>(builder => builder.UseSqlite(connectionString))
+	.AddDbContext<ITrendingGiphyBotDbContext, TrendingGiphyBotDbContext>(builder =>
+		builder
+            .EnableSensitiveDataLogging()
+            .UseSqlite(connectionString))
 	.AddSingleton(discordSocketClient)
 	.AddSingleton(discordSocketClientHandlerConfig)
 	.AddSingleton(discordWorkerConfig)
