@@ -8,8 +8,8 @@ public class Meta
     public int Status { get; set; }
 
     [JsonPropertyName("msg")]
-    public string Msg { get; set; }
+    public required string Msg { get; set; }
 
     [JsonPropertyName("response_id")]
-    public string ResponseId { get; set; }
+    public required string ResponseId { get; set; }
 }

@@ -5,8 +5,8 @@ namespace TrendingGiphyBotWorkerService.Giphy;
 public class Images
 {
     [JsonPropertyName("original")]
-    public ImageDetails Original { get; set; }
+	public required ImageDetails Original { get; set; }
 
     [JsonPropertyName("fixed_width")]
-    public ImageDetails FixedWidth { get; set; }
+	public required ImageDetails FixedWidth { get; set; }
 }

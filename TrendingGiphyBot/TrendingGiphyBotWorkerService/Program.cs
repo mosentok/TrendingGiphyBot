@@ -54,10 +54,10 @@ var giphyCacheWorkerConfig = new GiphyCacheWorkerConfig(maxPageCount, timeSpanBe
 var interactionService = new InteractionService(discordSocketClient.Rest, new() { UseCompiledLambda = true, LogLevel = discordLogLevel });
 
 builder.Services
-	.AddHostedService<DiscordInteractionWorker>()
-	.AddHostedService<DiscordPostingWorker>()
+	//.AddHostedService<DiscordInteractionWorker>()
+	//.AddHostedService<DiscordPostingWorker>()
 	.AddHostedService<GiphyCacheWorker>()
-	.AddHostedService<IntervalSeederWorker>()
+	//.AddHostedService<IntervalSeederWorker>()
 	.AddLogging(builder => builder.AddConsole())
 	.AddDbContext<ITrendingGiphyBotDbContext, TrendingGiphyBotDbContext>(builder => builder.UseSqlite(connectionString))
 	.AddSingleton(discordSocketClient)

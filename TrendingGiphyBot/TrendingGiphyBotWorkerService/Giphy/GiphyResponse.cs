@@ -5,11 +5,11 @@ namespace TrendingGiphyBotWorkerService.Giphy;
 public class GiphyResponse
 {
     [JsonPropertyName("data")]
-    public List<GiphyData> Data { get; set; }
+    public required List<GiphyData> Data { get; set; }
 
     [JsonPropertyName("meta")]
-    public Meta Meta { get; set; }
+	public required Meta Meta { get; set; }
 
     [JsonPropertyName("pagination")]
-    public Pagination Pagination { get; set; }
+	public required Pagination Pagination { get; set; }
 }
