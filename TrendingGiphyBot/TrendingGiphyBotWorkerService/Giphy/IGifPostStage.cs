@@ -1,6 +1,4 @@
-using TrendingGiphyBotWorkerService.Giphy;
-
-namespace TrendingGiphyBotWorkerService.Discord;
+namespace TrendingGiphyBotWorkerService.Giphy;
 
 public interface IGifPostStage
 {

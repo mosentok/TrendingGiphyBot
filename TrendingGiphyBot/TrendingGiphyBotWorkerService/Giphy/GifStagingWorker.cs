@@ -1,6 +1,4 @@
-using TrendingGiphyBotWorkerService.Giphy;
-
-namespace TrendingGiphyBotWorkerService.Discord;
+namespace TrendingGiphyBotWorkerService.Giphy;
 
 public class GifStagingWorker(IGifPostStage _gifPostStage, GifStagingWorkerConfig _gifStagingWorkerConfig) : BackgroundService
 {

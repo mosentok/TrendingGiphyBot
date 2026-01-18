@@ -1,6 +1,7 @@
 using Discord;
 using Microsoft.EntityFrameworkCore;
 using TrendingGiphyBotWorkerService.Database;
+using TrendingGiphyBotWorkerService.Giphy;
 using TrendingGiphyBotWorkerService.Intervals;
 using TrendingGiphyBotWorkerService.Logging;
 
