@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Configuration;
 using TrendingGiphyBotWorkerService.Database;
-using TrendingGiphyBotWorkerService.DependencyInjection;
 using TrendingGiphyBotWorkerService.Discord;
 using TrendingGiphyBotWorkerService.Giphy;
 using TrendingGiphyBotWorkerService.Intervals;
