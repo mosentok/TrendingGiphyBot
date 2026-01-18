@@ -1,6 +1,7 @@
 using Discord;
 using Microsoft.EntityFrameworkCore;
 using TrendingGiphyBotWorkerService.Database;
+using TrendingGiphyBotWorkerService.Delaying;
 using TrendingGiphyBotWorkerService.Giphy;
 using TrendingGiphyBotWorkerService.Intervals;
 using TrendingGiphyBotWorkerService.Logging;
@@ -12,63 +13,60 @@ public class DiscordPostingWorker(
 	IServiceScopeFactory _serviceScopeFactory,
 	IGifPostStage _gifPostStage,
 	IDiscordSocketClientWrapper _discordSocketClientWrapper,
+	IDelayer _delayer,
 	IntervalConfig _intervalConfig,
 	TimeProvider _timeProvider
 ) : BackgroundService
 {
 	protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 	{
-        var oneSecond = TimeSpan.FromSeconds(1);
-
-        using var periodicTimer = new PeriodicTimer(oneSecond);
-
 		while (!stoppingToken.IsCancellationRequested)
-		{
-			await periodicTimer.WaitForNextTickAsync(stoppingToken);
+        {
+            await _delayer.DelayUntilNextPostingTimeAsync(stoppingToken);
 
-			var now = _timeProvider.GetUtcNow();
+            var stagedChannelGifPosts = _gifPostStage.GetChannelGifPostStage();
 
-			// the bot should only post on minutes divisible by 5
-			if (now.Minute % 5 != 0)
-				continue;
+            var activeChannelIds = await DetermineActiveChannelIdsAsync();
 
-			// this will constantly execute for all 60 seconds of a valid minute, tho
-			var stagedChannelGifPosts = _gifPostStage.GetChannelGifPostStage();
+            // TODO parallelize this loop?
+            foreach (var channelId in activeChannelIds)
+            {
+                try
+                {
+                    var channel = await _discordSocketClientWrapper.GetChannelAsync(channelId);
 
-			var validMinutes = _intervalConfig.Minutes.Where(s => now.Minute % s == 0);
-			var validHours = _intervalConfig.Hours.Where(s => now.Hour % s == 0);
+                    if (channel is not IMessageChannel messageChannel)
+                        throw new ThisShouldBeImpossibleException();
 
-			using var scope = _serviceScopeFactory.CreateScope();
+                    await messageChannel.SendMessageAsync($"*Trending!* {stagedChannelGifPosts[channelId].Url}");
 
-			var trendingGiphyBotDbContext = scope.ServiceProvider.GetRequiredService<ITrendingGiphyBotDbContext>();
+                    _gifPostStage.Evict(channelId);
+                }
+                catch (Exception ex)
+                {
+                    _loggerWrapper.LogGifPostingException(ex);
+                }
+			}
 
-			var activeChannelIds = await trendingGiphyBotDbContext.ChannelSettings
-				.Where(channelSettings =>
-					stagedChannelGifPosts.Keys.Contains(channelSettings.ChannelId) &&
-					((channelSettings.IntervalId == (int)IntervalDescription.Minutes && validMinutes.Contains(channelSettings.Frequency)) ||
-					(channelSettings.IntervalId == (int)IntervalDescription.Hours && validHours.Contains(channelSettings.Frequency))))
-				.Select(s => s.ChannelId)
-				.ToListAsync(stoppingToken);
-
-			// TODO parallelize this loop?
-			foreach (var channelId in activeChannelIds)
+			async Task<List<ulong>> DetermineActiveChannelIdsAsync()
 			{
-				try
-				{
-					var channel = await _discordSocketClientWrapper.GetChannelAsync(channelId);
+                // TODO i think this calculation needs more thought. maybe need to go back to the "total minutes" concept
+				var now = _timeProvider.GetUtcNow();
+				var validMinutes = _intervalConfig.Minutes.Where(s => now.Minute % s == 0);
+				var validHours = _intervalConfig.Hours.Where(s => (now.Hour * 60) % s == 0);
 
-					if (channel is not IMessageChannel messageChannel)
-						throw new ThisShouldBeImpossibleException();
+				using var scope = _serviceScopeFactory.CreateScope();
 
-					await messageChannel.SendMessageAsync($"*Trending!* {stagedChannelGifPosts[channelId].Url}");
+				var trendingGiphyBotDbContext = scope.ServiceProvider.GetRequiredService<ITrendingGiphyBotDbContext>();
 
-					_gifPostStage.Evict(channelId);
-				}
-				catch (Exception ex)
-				{
-					_loggerWrapper.LogGifPostingException(ex);
-				}
+				return await trendingGiphyBotDbContext.ChannelSettings
+					.Where(channelSettings =>
+						stagedChannelGifPosts.Keys.Contains(channelSettings.ChannelId) &&
+						((channelSettings.IntervalId == (int)IntervalDescription.Minutes && validMinutes.Contains(channelSettings.Frequency)) ||
+						(channelSettings.IntervalId == (int)IntervalDescription.Hours && validHours.Contains(channelSettings.Frequency))))
+					.Select(s => s.ChannelId)
+					.ToListAsync(stoppingToken);
 			}
 		}
-	}
+    }
 }

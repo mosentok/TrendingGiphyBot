@@ -1,3 +1,4 @@
+using Cronos;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
@@ -5,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Configuration;
 using TrendingGiphyBotWorkerService.Database;
+using TrendingGiphyBotWorkerService.Delaying;
 using TrendingGiphyBotWorkerService.Discord;
 using TrendingGiphyBotWorkerService.Giphy;
 using TrendingGiphyBotWorkerService.Intervals;
@@ -45,14 +47,18 @@ var discordSocketConfig = new DiscordSocketConfig
 
 var minutes = new[] { 5, 10, 15, 30 };
 var hours = new[] { 1, 2, 3, 4, 6, 8, 12, 24 };
+
 var intervalConfig = new IntervalConfig(minutes, hours);
+
+var every5Minutes = CronExpression.Parse("*/5 * * * *");
+
+var delayerConfig = new DelayerConfig(every5Minutes);
 var discordSocketClient = new DiscordSocketClient(discordSocketConfig);
 var discordWorkerConfig = new DiscordWorkerConfig(discordToken);
 var discordSocketClientHandlerConfig = new DiscordSocketClientHandlerConfig(playingGame, guildToRegisterCommands, assembly);
 var gifCacheConfig = new GifCacheConfig([], 1_000);
 var giphyCacheWorkerConfig = new GiphyCacheWorkerConfig(maxPageCount, timeSpanBetweenCacheRefreshes, maxGiphyCacheLoops);
 var gifStagingWorkerConfig = new GifStagingWorkerConfig(timeSpanBetweenStageRefreshes);
-
 var interactionService = new InteractionService(discordSocketClient.Rest, new() { UseCompiledLambda = true, LogLevel = discordLogLevel });
 
 builder.Services
@@ -73,6 +79,7 @@ builder.Services
 	.AddSingleton(gifStagingWorkerConfig)
 	.AddSingleton(interactionService)
 	.AddSingleton(intervalConfig)
+	.AddSingleton(delayerConfig)
 	.AddSingleton(TimeProvider.System)
 	.AddSingleton(typeof(ILogger<>), typeof(Logger<>))
 	.AddSingleton(typeof(ILoggerWrapper<>), typeof(LoggerWrapper<>))
@@ -81,6 +88,7 @@ builder.Services
 	.AddSingleton<IDiscordSocketClientWrapper, DiscordSocketClientWrapper>()
 	.AddSingleton<IGifCache, GifCache>()
 	.AddSingleton<IGifPostStage, GifPostStage>()
+	.AddSingleton<IDelayer, Delayer>()
 	.AddHttpClient<IGiphyClient, GiphyClient>(httpClient =>
 	{
 		httpClient.BaseAddress = new(giphyBaseAddress);
