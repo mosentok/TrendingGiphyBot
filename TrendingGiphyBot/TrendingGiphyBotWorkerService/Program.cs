@@ -61,14 +61,13 @@ builder.Services
 	.AddHostedService<IntervalSeederWorker>()
 	.AddLogging(builder => builder.AddConsole())
 	.AddDbContext<ITrendingGiphyBotDbContext, TrendingGiphyBotDbContext>(builder => builder.UseSqlite(connectionString))
-	.AddSingletons(
-		discordSocketClient,
-		discordSocketClientHandlerConfig,
-		discordWorkerConfig,
-		gifCacheConfig,
-		giphyCacheWorkerConfig,
-		interactionService,
-		intervalConfig)
+	.AddSingleton(discordSocketClient)
+	.AddSingleton(discordSocketClientHandlerConfig)
+	.AddSingleton(discordWorkerConfig)
+	.AddSingleton(gifCacheConfig)
+	.AddSingleton(giphyCacheWorkerConfig)
+	.AddSingleton(interactionService)
+	.AddSingleton(intervalConfig)
 	.AddSingleton(typeof(ILogger<>), typeof(Logger<>))
 	.AddSingleton(typeof(ILoggerWrapper<>), typeof(LoggerWrapper<>))
 	.AddSingleton<IChannelSettingsMessageComponentFactory, ChannelSettingsMessageComponentFactory>()
