@@ -1,13 +1,15 @@
+using System.Collections.Immutable;
 using Microsoft.EntityFrameworkCore;
 using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Database;
-using TrendingGiphyBotWorkerService.Giphy;
 
-namespace TrendingGiphyBotWorkerService.Discord;
+namespace TrendingGiphyBotWorkerService.Giphy;
 
 public class GifPostStage(IServiceScopeFactory _serviceScopeFactory, IGifCache _gifCache) : IGifPostStage
 {
 	readonly Dictionary<ulong, GiphyData> _channelGifPostStage = [];
+
+	public IImmutableDictionary<ulong, GiphyData> GetChannelGifPostStage() => _channelGifPostStage.ToImmutableDictionary();
 
 	public void Evict(ulong channelId) => _channelGifPostStage.Remove(channelId);
 
@@ -52,8 +54,4 @@ public class GifPostStage(IServiceScopeFactory _serviceScopeFactory, IGifCache _
 			return _gifCache.GetFirstUnseenGif(seenGifIds);
 		}
 	}
-
-	public bool HasStagedGiphyData(ulong channelId) => _channelGifPostStage.ContainsKey(channelId);
-
-	public GiphyData GetStagedGiphyData(ulong channelId) => _channelGifPostStage[channelId];
 }

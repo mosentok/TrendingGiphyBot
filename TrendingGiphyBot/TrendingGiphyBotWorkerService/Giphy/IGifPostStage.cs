@@ -1,9 +1,10 @@
+using System.Collections.Immutable;
+
 namespace TrendingGiphyBotWorkerService.Giphy;
 
 public interface IGifPostStage
 {
-    GiphyData GetStagedGiphyData(ulong channelId);
-    bool HasStagedGiphyData(ulong channelId);
+    IImmutableDictionary<ulong, GiphyData> GetChannelGifPostStage();
     Task RefreshAsync();
     void Evict(ulong channelId);
 }
