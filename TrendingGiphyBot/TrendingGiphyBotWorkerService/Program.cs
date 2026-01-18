@@ -29,7 +29,8 @@ var maxPageCount = builder.Configuration.GetRequiredConfiguration<int>("MaxPageC
 var maxGiphyCacheLoops = builder.Configuration.GetRequiredConfiguration<int>("MaxGiphyCacheLoops");
 var playingGame = builder.Configuration.GetRequiredConfiguration("PlayingGame");
 var guildToRegisterCommands = builder.Configuration.GetOptionalConfiguration<ulong?>("RegisterCommandsToGuild");
-var timeSpanBetweenRefreshes = builder.Configuration.GetRequiredConfiguration<TimeSpan>("TimeSpanBetweenRefreshes");
+var timeSpanBetweenCacheRefreshes = builder.Configuration.GetRequiredConfiguration<TimeSpan>("TimeSpanBetweenCacheRefreshes");
+var timeSpanBetweenStageRefreshes = builder.Configuration.GetRequiredConfiguration<TimeSpan>("TimeSpanBetweenStageRefreshes");
 var giphyBaseAddress = builder.Configuration.GetRequiredConfiguration("GiphyBaseAddress");
 var discordLogLevel = builder.Configuration.GetRequiredConfiguration<LogSeverity>("DiscordLogLevel");
 
@@ -49,15 +50,16 @@ var discordSocketClient = new DiscordSocketClient(discordSocketConfig);
 var discordWorkerConfig = new DiscordWorkerConfig(discordToken);
 var discordSocketClientHandlerConfig = new DiscordSocketClientHandlerConfig(playingGame, guildToRegisterCommands, assembly);
 var gifCacheConfig = new GifCacheConfig([], 1_000);
-var giphyCacheWorkerConfig = new GiphyCacheWorkerConfig(maxPageCount, timeSpanBetweenRefreshes, maxGiphyCacheLoops);
+var giphyCacheWorkerConfig = new GiphyCacheWorkerConfig(maxPageCount, timeSpanBetweenCacheRefreshes, maxGiphyCacheLoops);
+var gifStagingWorkerConfig = new GifStagingWorkerConfig(timeSpanBetweenStageRefreshes);
 
 var interactionService = new InteractionService(discordSocketClient.Rest, new() { UseCompiledLambda = true, LogLevel = discordLogLevel });
 
 builder.Services
-	//.AddHostedService<DiscordInteractionWorker>()
-	//.AddHostedService<DiscordPostingWorker>()
+	.AddHostedService<DiscordInteractionWorker>()
+	.AddHostedService<DiscordPostingWorker>()
 	.AddHostedService<GiphyCacheWorker>()
-	//.AddHostedService<IntervalSeederWorker>()
+	.AddHostedService<IntervalSeederWorker>()
 	.AddLogging(builder => builder.AddConsole())
 	.AddDbContext<ITrendingGiphyBotDbContext, TrendingGiphyBotDbContext>(builder => builder.UseSqlite(connectionString))
 	.AddSingleton(discordSocketClient)
@@ -65,6 +67,7 @@ builder.Services
 	.AddSingleton(discordWorkerConfig)
 	.AddSingleton(gifCacheConfig)
 	.AddSingleton(giphyCacheWorkerConfig)
+	.AddSingleton(gifStagingWorkerConfig)
 	.AddSingleton(interactionService)
 	.AddSingleton(intervalConfig)
 	.AddSingleton(TimeProvider.System)

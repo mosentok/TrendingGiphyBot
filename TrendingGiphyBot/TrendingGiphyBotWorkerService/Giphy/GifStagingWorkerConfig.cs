@@ -1,0 +1,3 @@
+namespace TrendingGiphyBotWorkerService.Giphy;
+
+public record GifStagingWorkerConfig(TimeSpan TimeSpanBetweenStageRefreshes);

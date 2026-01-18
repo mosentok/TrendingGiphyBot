@@ -15,18 +15,25 @@ public class GiphyCacheWorker(
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                var numberOfResponses = 0;
-
-                for (var numberOfLoops = 0; numberOfLoops < _giphyCacheWorkerConfig.MaxGiphyCacheLoops && numberOfResponses % _giphyCacheWorkerConfig.MaxPageCount == 0; numberOfLoops++)
+                try
                 {
-                    var giphyResponse = await _giphyClient.GetTrendingGifsAsync(offset: numberOfResponses, cancellationToken: stoppingToken);
+                    var numberOfResponses = 0;
 
-                    _gifCache.Add(giphyResponse.Data);
+                    for (var numberOfLoops = 0; numberOfLoops < _giphyCacheWorkerConfig.MaxGiphyCacheLoops && numberOfResponses % _giphyCacheWorkerConfig.MaxPageCount == 0; numberOfLoops++)
+                    {
+                        var giphyResponse = await _giphyClient.GetTrendingGifsAsync(offset: numberOfResponses, cancellationToken: stoppingToken);
 
-                    numberOfResponses += giphyResponse.Data.Count;
+                        _gifCache.Add(giphyResponse.Data);
+
+                        numberOfResponses += giphyResponse.Data.Count;
+                    }
                 }
+                catch (Exception ex)
+                {
+                    _loggerWrapper.LogGifCacheRefreshException(ex);
+				}
 
-                await Task.Delay(_giphyCacheWorkerConfig.TimeSpanBetweenRefreshes, stoppingToken);
+                await Task.Delay(_giphyCacheWorkerConfig.TimeSpanBetweenCacheRefreshes, stoppingToken);
             }
         }
         catch (Exception exception)

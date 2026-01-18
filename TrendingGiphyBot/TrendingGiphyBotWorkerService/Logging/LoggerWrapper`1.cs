@@ -12,4 +12,6 @@ public class LoggerWrapper<T>(ILogger<T> _logger) : ILoggerWrapper<T>
 	public void LogDiscordMessage(LogLevel logLevel, LogMessage logMessage) => _logger.LogDiscordMessage(logLevel, logMessage);
 
 	public void LogThatChannelIsNotStaged(ulong channelId) => _logger.LogThatChannelIsNotStaged(channelId);
+
+	public void LogGifCacheRefreshException(Exception exception) => _logger.LogGifCacheRefreshException(exception);
 }

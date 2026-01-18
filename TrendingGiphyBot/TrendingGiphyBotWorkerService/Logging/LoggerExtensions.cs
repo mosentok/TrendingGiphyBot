@@ -10,6 +10,9 @@ public static partial class LoggerExtensions
 	[LoggerMessage(Level = LogLevel.Error, Message = "Exception caught when attempting to post a gif.")]
 	public static partial void LogGifPostingException(this ILogger logger, Exception exception);
 
+	[LoggerMessage(Level = LogLevel.Error, Message = "Exception caught when attempting to refresh the gif cache.")]
+	public static partial void LogGifCacheRefreshException(this ILogger logger, Exception exception);
+
 	[LoggerMessage(Message = "Discord.Net LogMessage: {LogMessage}")]
 	public static partial void LogDiscordMessage(this ILogger logger, LogLevel logLevel, LogMessage logMessage);
 
