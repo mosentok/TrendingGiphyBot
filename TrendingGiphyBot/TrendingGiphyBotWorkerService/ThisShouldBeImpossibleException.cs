@@ -6,9 +6,9 @@ public class ThisShouldBeImpossibleException : Exception
     public ThisShouldBeImpossibleException(string? message) : base(message) { }
     public ThisShouldBeImpossibleException(string? message, Exception? innerException) : base(message, innerException) { }
 
-    public static void ThrowIfNull(object? value)
+    public static void ThrowIf(bool condition)
     {
-        if (value is null)
+        if (condition)
             throw new ThisShouldBeImpossibleException();
     }
 }

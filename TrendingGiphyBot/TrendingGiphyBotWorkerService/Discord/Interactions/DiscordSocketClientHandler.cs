@@ -16,17 +16,11 @@ public class DiscordSocketClientHandler(
 	public async Task OnJoinedGuildAsync(SocketGuild arg)
 	{
 		//TODO post stats to websites that track the bot's server count
-		//await _logger.SwallowAsync(_FunctionWrapper.PostStatsAsync(_discordSocketClient.CurrentUser.Id, _discordSocketClient.Guilds.Count));
 	}
 
 	public async Task OnLeftGuildAsync(SocketGuild arg)
 	{
 		//TODO post stats to websites that track the bot's server count
-		//await _logger.SwallowAsync(async () =>
-		//{
-		//	await RemoveThisGuildsJobConfigs(arg);
-		//	await _FunctionWrapper.PostStatsAsync(_discordSocketClient.CurrentUser.Id, _discordSocketClient.Guilds.Count);
-		//});
 	}
 
 	public Task OnLogAsync(LogMessage logMessage)

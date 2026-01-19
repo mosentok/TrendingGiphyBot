@@ -16,6 +16,6 @@ public static partial class LoggerExtensions
 	[LoggerMessage(Message = "Discord.Net LogMessage: {LogMessage}")]
 	public static partial void LogDiscordMessage(this ILogger logger, LogLevel logLevel, LogMessage logMessage);
 
-	[LoggerMessage(Level = LogLevel.Debug, Message = "Channel with ChannelId {ChannelId} does not have staged Giphy data.")]
-	public static partial void LogThatChannelIsNotStaged(this ILogger logger, ulong channelId);
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Channel with ChannelId {ChannelId} does not have staged Giphy data.")]
+    public static partial void LogThatChannelIsNotStaged(this ILogger logger, ulong channelId);
 }
