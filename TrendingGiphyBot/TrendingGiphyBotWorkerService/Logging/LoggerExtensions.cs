@@ -1,6 +1,6 @@
 using Discord;
 
-namespace TrendingGiphyBotWorkerService;
+namespace TrendingGiphyBotWorkerService.Logging;
 
 public static partial class LoggerExtensions
 {

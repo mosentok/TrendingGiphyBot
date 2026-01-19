@@ -6,7 +6,7 @@ using TrendingGiphyBotWorkerService.Logging;
 namespace TrendingGiphyBotWorkerService.Discord.Interactions;
 
 public class DiscordSocketClientHandler(
-	ILoggerWrapper<DiscordSocketClientHandler> _loggerWrapper,
+	ILogger<DiscordSocketClientHandler> _logger,
 	DiscordSocketClient _discordSocketClient,
 	InteractionService _interactionService,
 	DiscordSocketClientHandlerConfig _discordSocketClientHandlerConfig,
@@ -16,13 +16,13 @@ public class DiscordSocketClientHandler(
 	public async Task OnJoinedGuildAsync(SocketGuild arg)
 	{
 		//TODO post stats to websites that track the bot's server count
-		//await _loggerWrapper.SwallowAsync(_FunctionWrapper.PostStatsAsync(_discordSocketClient.CurrentUser.Id, _discordSocketClient.Guilds.Count));
+		//await _logger.SwallowAsync(_FunctionWrapper.PostStatsAsync(_discordSocketClient.CurrentUser.Id, _discordSocketClient.Guilds.Count));
 	}
 
 	public async Task OnLeftGuildAsync(SocketGuild arg)
 	{
 		//TODO post stats to websites that track the bot's server count
-		//await _loggerWrapper.SwallowAsync(async () =>
+		//await _logger.SwallowAsync(async () =>
 		//{
 		//	await RemoveThisGuildsJobConfigs(arg);
 		//	await _FunctionWrapper.PostStatsAsync(_discordSocketClient.CurrentUser.Id, _discordSocketClient.Guilds.Count);
@@ -34,27 +34,27 @@ public class DiscordSocketClientHandler(
 		switch (logMessage.Severity)
 		{
 			case LogSeverity.Critical:
-				_loggerWrapper.LogDiscordMessage(LogLevel.Critical, logMessage);
+				_logger.LogDiscordMessage(LogLevel.Critical, logMessage);
 				break;
 
 			case LogSeverity.Debug:
-				_loggerWrapper.LogDiscordMessage(LogLevel.Debug, logMessage);
+				_logger.LogDiscordMessage(LogLevel.Debug, logMessage);
 				break;
 
 			case LogSeverity.Error:
-				_loggerWrapper.LogDiscordMessage(LogLevel.Error, logMessage);
+				_logger.LogDiscordMessage(LogLevel.Error, logMessage);
 				break;
 
 			case LogSeverity.Info:
-				_loggerWrapper.LogDiscordMessage(LogLevel.Information, logMessage);
+				_logger.LogDiscordMessage(LogLevel.Information, logMessage);
 				break;
 
 			case LogSeverity.Verbose:
-				_loggerWrapper.LogDiscordMessage(LogLevel.Trace, logMessage);
+				_logger.LogDiscordMessage(LogLevel.Trace, logMessage);
 				break;
 
 			case LogSeverity.Warning:
-				_loggerWrapper.LogDiscordMessage(LogLevel.Warning, logMessage);
+				_logger.LogDiscordMessage(LogLevel.Warning, logMessage);
 				break;
 
 			default:

@@ -7,7 +7,7 @@ using TrendingGiphyBotWorkerService.Logging;
 namespace TrendingGiphyBotWorkerService.Discord.Interactions;
 
 public class DiscordInteractionWorker(
-	ILoggerWrapper<DiscordInteractionWorker> _loggerWrapper,
+	ILogger<DiscordInteractionWorker> _logger,
 	IDiscordSocketClientHandler _discordSocketClientHandler,
 	IDiscordSocketClientWrapper _discordSocketClient,
 	InteractionService _interactionService,
@@ -36,7 +36,7 @@ public class DiscordInteractionWorker(
 		}
 		catch (Exception exception)
 		{
-			_loggerWrapper.LogTopLevelException(exception);
+			_logger.LogTopLevelException(exception);
 		}
 		finally
 		{

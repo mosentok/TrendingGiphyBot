@@ -4,7 +4,7 @@ using TrendingGiphyBotWorkerService.Logging;
 namespace TrendingGiphyBotWorkerService.Giphy.Staging.Caching;
 
 public class GiphyCacheWorker(
-    ILoggerWrapper<GiphyCacheWorker> _loggerWrapper,
+    ILogger<GiphyCacheWorker> _logger,
     IGiphyClient _giphyClient,
     IGifCache _gifCache,
 	GiphyCacheWorkerConfig _giphyCacheWorkerConfig
@@ -31,7 +31,7 @@ public class GiphyCacheWorker(
                 }
                 catch (Exception ex)
                 {
-                    _loggerWrapper.LogGifCacheRefreshException(ex);
+                    _logger.LogGifCacheRefreshException(ex);
 				}
 
                 await Task.Delay(_giphyCacheWorkerConfig.TimeSpanBetweenCacheRefreshes, stoppingToken);
@@ -39,7 +39,7 @@ public class GiphyCacheWorker(
         }
         catch (Exception exception)
         {
-            _loggerWrapper.LogTopLevelException(exception);
+            _logger.LogTopLevelException(exception);
         }
     }
 }

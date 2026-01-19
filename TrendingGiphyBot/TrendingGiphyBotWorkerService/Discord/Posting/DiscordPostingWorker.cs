@@ -10,7 +10,7 @@ using TrendingGiphyBotWorkerService.Logging;
 namespace TrendingGiphyBotWorkerService.Discord.Posting;
 
 public class DiscordPostingWorker(
-	ILoggerWrapper<DiscordPostingWorker> _loggerWrapper,
+	ILogger<DiscordPostingWorker> _logger,
 	IServiceScopeFactory _serviceScopeFactory,
 	IGifPostStage _gifPostStage,
 	IDiscordSocketClientWrapper _discordSocketClientWrapper,
@@ -45,7 +45,7 @@ public class DiscordPostingWorker(
                 }
                 catch (Exception ex)
                 {
-                    _loggerWrapper.LogGifPostingException(ex);
+                    _logger.LogGifPostingException(ex);
                 }
 			}
 

@@ -14,7 +14,6 @@ using TrendingGiphyBotWorkerService.Giphy.Api;
 using TrendingGiphyBotWorkerService.Giphy.Staging;
 using TrendingGiphyBotWorkerService.Giphy.Staging.Caching;
 using TrendingGiphyBotWorkerService.Intervals;
-using TrendingGiphyBotWorkerService.Logging;
 
 var builder = Host.CreateApplicationBuilder(args);
 
@@ -75,6 +74,7 @@ builder.Services
 		builder
             .EnableSensitiveDataLogging()
             .UseSqlite(connectionString))
+	.AddSingleton(delayerConfig)
 	.AddSingleton(discordSocketClient)
 	.AddSingleton(discordSocketClientHandlerConfig)
 	.AddSingleton(discordWorkerConfig)
@@ -83,16 +83,14 @@ builder.Services
 	.AddSingleton(gifStagingWorkerConfig)
 	.AddSingleton(interactionService)
 	.AddSingleton(intervalConfig)
-	.AddSingleton(delayerConfig)
 	.AddSingleton(TimeProvider.System)
 	.AddSingleton(typeof(ILogger<>), typeof(Logger<>))
-	.AddSingleton(typeof(ILoggerWrapper<>), typeof(LoggerWrapper<>))
 	.AddSingleton<IChannelSettingsMessageComponentFactory, ChannelSettingsMessageComponentFactory>()
+	.AddSingleton<IDelayer, Delayer>()
 	.AddSingleton<IDiscordSocketClientHandler, DiscordSocketClientHandler>()
 	.AddSingleton<IDiscordSocketClientWrapper, DiscordSocketClientWrapper>()
 	.AddSingleton<IGifCache, GifCache>()
 	.AddSingleton<IGifPostStage, GifPostStage>()
-	.AddSingleton<IDelayer, Delayer>()
 	.AddHttpClient<IGiphyClient, GiphyClient>(httpClient =>
 	{
 		httpClient.BaseAddress = new(giphyBaseAddress);
