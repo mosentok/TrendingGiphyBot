@@ -8,7 +8,9 @@ using TrendingGiphyBotWorkerService.Configuration;
 using TrendingGiphyBotWorkerService.Database;
 using TrendingGiphyBotWorkerService.Delaying;
 using TrendingGiphyBotWorkerService.Discord;
-using TrendingGiphyBotWorkerService.Giphy;
+using TrendingGiphyBotWorkerService.Giphy.Api;
+using TrendingGiphyBotWorkerService.Giphy.Staging;
+using TrendingGiphyBotWorkerService.Giphy.Staging.Caching;
 using TrendingGiphyBotWorkerService.Intervals;
 using TrendingGiphyBotWorkerService.Logging;
 

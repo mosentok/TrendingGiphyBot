@@ -1,4 +1,4 @@
-namespace TrendingGiphyBotWorkerService.Giphy;
+namespace TrendingGiphyBotWorkerService.Giphy.Api;
 
 public interface IGiphyClient
 {

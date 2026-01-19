@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace TrendingGiphyBotWorkerService.Giphy;
+namespace TrendingGiphyBotWorkerService.Giphy.Api;
 
 public class ImageDetails
 {

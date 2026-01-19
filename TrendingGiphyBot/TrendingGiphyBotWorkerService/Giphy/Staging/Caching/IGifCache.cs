@@ -1,4 +1,6 @@
-namespace TrendingGiphyBotWorkerService.Giphy;
+using TrendingGiphyBotWorkerService.Giphy.Api;
+
+namespace TrendingGiphyBotWorkerService.Giphy.Staging.Caching;
 
 public interface IGifCache
 {

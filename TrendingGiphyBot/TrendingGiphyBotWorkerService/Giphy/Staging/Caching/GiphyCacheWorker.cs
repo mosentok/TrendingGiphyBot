@@ -1,6 +1,7 @@
+using TrendingGiphyBotWorkerService.Giphy.Api;
 using TrendingGiphyBotWorkerService.Logging;
 
-namespace TrendingGiphyBotWorkerService.Giphy;
+namespace TrendingGiphyBotWorkerService.Giphy.Staging.Caching;
 
 public class GiphyCacheWorker(
     ILoggerWrapper<GiphyCacheWorker> _loggerWrapper,

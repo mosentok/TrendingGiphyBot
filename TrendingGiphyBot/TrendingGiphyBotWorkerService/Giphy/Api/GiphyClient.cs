@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace TrendingGiphyBotWorkerService.Giphy;
+namespace TrendingGiphyBotWorkerService.Giphy.Api;
 
 public class GiphyClient(HttpClient _httpClient, string _giphyApiKey) : IGiphyClient
 {

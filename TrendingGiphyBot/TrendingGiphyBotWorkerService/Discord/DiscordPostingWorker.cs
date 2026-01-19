@@ -2,7 +2,7 @@ using Discord;
 using Microsoft.EntityFrameworkCore;
 using TrendingGiphyBotWorkerService.Database;
 using TrendingGiphyBotWorkerService.Delaying;
-using TrendingGiphyBotWorkerService.Giphy;
+using TrendingGiphyBotWorkerService.Giphy.Staging;
 using TrendingGiphyBotWorkerService.Intervals;
 using TrendingGiphyBotWorkerService.Logging;
 

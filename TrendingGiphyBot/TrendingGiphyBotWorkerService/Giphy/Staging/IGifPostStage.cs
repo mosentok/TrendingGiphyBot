@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
+using TrendingGiphyBotWorkerService.Giphy.Api;
 
-namespace TrendingGiphyBotWorkerService.Giphy;
+namespace TrendingGiphyBotWorkerService.Giphy.Staging;
 
 public interface IGifPostStage
 {

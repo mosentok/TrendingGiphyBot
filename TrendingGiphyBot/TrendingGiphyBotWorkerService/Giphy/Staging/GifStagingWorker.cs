@@ -1,4 +1,4 @@
-namespace TrendingGiphyBotWorkerService.Giphy;
+namespace TrendingGiphyBotWorkerService.Giphy.Staging;
 
 public class GifStagingWorker(IGifPostStage _gifPostStage, GifStagingWorkerConfig _gifStagingWorkerConfig) : BackgroundService
 {

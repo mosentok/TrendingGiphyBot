@@ -2,8 +2,10 @@ using System.Collections.Immutable;
 using Microsoft.EntityFrameworkCore;
 using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Database;
+using TrendingGiphyBotWorkerService.Giphy.Api;
+using TrendingGiphyBotWorkerService.Giphy.Staging.Caching;
 
-namespace TrendingGiphyBotWorkerService.Giphy;
+namespace TrendingGiphyBotWorkerService.Giphy.Staging;
 
 public class GifPostStage(IServiceScopeFactory _serviceScopeFactory, IGifCache _gifCache) : IGifPostStage
 {

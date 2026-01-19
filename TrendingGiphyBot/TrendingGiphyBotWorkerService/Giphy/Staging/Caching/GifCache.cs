@@ -1,4 +1,6 @@
-namespace TrendingGiphyBotWorkerService.Giphy;
+using TrendingGiphyBotWorkerService.Giphy.Api;
+
+namespace TrendingGiphyBotWorkerService.Giphy.Staging.Caching;
 
 // TODO get rid of _items? unless we expect to seed the values somehow. that ought to be done post-DI by the worker already anyway tho
 public class GifCache(GifCacheConfig _gifCacheConfig) : IGifCache
