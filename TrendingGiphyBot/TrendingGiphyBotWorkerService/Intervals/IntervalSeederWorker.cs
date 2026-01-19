@@ -8,15 +8,18 @@ public class IntervalSeederWorker(IServiceScopeFactory _serviceScopeFactory) : B
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var thereAreNewChangesToSave = false;
+
         var expectedIntervals = Enum.GetValues<IntervalDescription>().Select(intervalDescription => new Interval
         {
             IntervalId = (int)intervalDescription,
             Description = intervalDescription.ToString()
         });
+
         using var scope = _serviceScopeFactory.CreateScope();
 
         var _trendingGiphyBotDbContext = scope.ServiceProvider.GetRequiredService<ITrendingGiphyBotDbContext>();
-		var intervals = await _trendingGiphyBotDbContext.Intervals.ToListAsync(stoppingToken);
+
+        var intervals = await _trendingGiphyBotDbContext.Intervals.ToListAsync(stoppingToken);
 
         foreach (var expectedInterval in expectedIntervals)
         {

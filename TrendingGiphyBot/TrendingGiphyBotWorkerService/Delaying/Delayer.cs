@@ -4,13 +4,13 @@ public class Delayer(TimeProvider _timeProvider, DelayerConfig _delayerConfig) :
 {
     public async Task DelayUntilNextPostingTimeAsync(CancellationToken cancellationToken)
     {
-        var now = _timeProvider.GetUtcNow();
-        var next = _delayerConfig.CronExpression.GetNextOccurrence(now.UtcDateTime);
+        var utcNow = _timeProvider.GetUtcNow();
+        var utcNext = _delayerConfig.CronExpression.GetNextOccurrence(utcNow.UtcDateTime);
 
-        if (!next.HasValue)
+        if (!utcNext.HasValue)
             throw new ThisShouldBeImpossibleException();
 
-        var delay = next.Value - now.UtcDateTime;
+        var delay = utcNext.Value - utcNow.UtcDateTime;
 
         if (delay > TimeSpan.Zero)
             await Task.Delay(delay, cancellationToken);

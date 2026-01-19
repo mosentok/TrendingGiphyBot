@@ -50,10 +50,9 @@ public class DiscordPostingWorker(
 
 			async Task<List<ulong>> DetermineActiveChannelIdsAsync()
 			{
-                // TODO i think this calculation needs more thought. maybe need to go back to the "total minutes" concept
 				var now = _timeProvider.GetUtcNow();
 				var validMinutes = _intervalConfig.Minutes.Where(s => now.Minute % s == 0);
-				var validHours = _intervalConfig.Hours.Where(s => (now.Hour * 60) % s == 0);
+				var validHours = _intervalConfig.Hours.Where(s => now.Hour % s == 0);
 
 				using var scope = _serviceScopeFactory.CreateScope();
 
