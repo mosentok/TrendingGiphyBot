@@ -3,9 +3,8 @@ using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Database;
-using TrendingGiphyBotWorkerService.Discord;
 
-namespace TrendingGiphyBotWorkerService.Keywords;
+namespace TrendingGiphyBotWorkerService.Discord.Interactions;
 
 public class KeywordModalInteractionModule(IChannelSettingsMessageComponentFactory _settingsMessageComponentFactory, ITrendingGiphyBotDbContext _trendingGiphyBotContext) : InteractionModuleBase<SocketInteractionContext<SocketModal>>
 {

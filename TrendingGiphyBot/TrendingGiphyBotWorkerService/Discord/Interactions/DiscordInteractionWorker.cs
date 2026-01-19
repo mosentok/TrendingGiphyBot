@@ -1,8 +1,10 @@
 using Discord;
 using Discord.Interactions;
+using TrendingGiphyBotWorkerService.Discord.Api;
+using TrendingGiphyBotWorkerService.Discord.Posting;
 using TrendingGiphyBotWorkerService.Logging;
 
-namespace TrendingGiphyBotWorkerService.Discord;
+namespace TrendingGiphyBotWorkerService.Discord.Interactions;
 
 public class DiscordInteractionWorker(
 	ILoggerWrapper<DiscordInteractionWorker> _loggerWrapper,

@@ -3,7 +3,7 @@ using Discord.Interactions;
 using Discord.WebSocket;
 using TrendingGiphyBotWorkerService.Logging;
 
-namespace TrendingGiphyBotWorkerService.Discord;
+namespace TrendingGiphyBotWorkerService.Discord.Interactions;
 
 public class DiscordSocketClientHandler(
 	ILoggerWrapper<DiscordSocketClientHandler> _loggerWrapper,

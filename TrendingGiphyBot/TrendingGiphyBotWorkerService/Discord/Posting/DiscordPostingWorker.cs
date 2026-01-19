@@ -2,11 +2,12 @@ using Discord;
 using Microsoft.EntityFrameworkCore;
 using TrendingGiphyBotWorkerService.Database;
 using TrendingGiphyBotWorkerService.Delaying;
+using TrendingGiphyBotWorkerService.Discord.Api;
 using TrendingGiphyBotWorkerService.Giphy.Staging;
 using TrendingGiphyBotWorkerService.Intervals;
 using TrendingGiphyBotWorkerService.Logging;
 
-namespace TrendingGiphyBotWorkerService.Discord;
+namespace TrendingGiphyBotWorkerService.Discord.Posting;
 
 public class DiscordPostingWorker(
 	ILoggerWrapper<DiscordPostingWorker> _loggerWrapper,
