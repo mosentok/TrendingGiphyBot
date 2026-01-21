@@ -28,11 +28,9 @@ public class ChannelSettingsMessageComponentFactory(IntervalConfig _intervalConf
 
 		var howOftenOptions = new[] { neverBuilder }.Concat(minutesBuilders).Append(hour1Builder).Concat(hoursBuilders).ToList();
 
-        var intervalDescription = (IntervalDescription)channelSettings.IntervalId;
-
-        var selectedOption = intervalDescription == IntervalDescription.None
+        var selectedOption = channelSettings.IntervalId == (int)IntervalDescription.None
 			? neverBuilder
-            : howOftenOptions.Single(s => s.Value == $"{channelSettings.Frequency}-{intervalDescription}");
+            : howOftenOptions.Single(s => s.Value == $"{channelSettings.Frequency}-{channelSettings.IntervalId}");
 
         selectedOption.IsDefault = true;
 
@@ -59,7 +57,7 @@ public class ChannelSettingsMessageComponentFactory(IntervalConfig _intervalConf
 
 		var gifKeywordButton = new ButtonBuilder()
 			.WithCustomId("trending-gifs-with-keyword-modal-button")
-			.WithLabel("(Optional) Set Random Gif Keywords")
+			.WithLabel("Set Random Gif Keywords")
 			.WithStyle(ButtonStyle.Secondary);
 
 		var clearGifKeywordButton = new ButtonBuilder()
@@ -68,22 +66,43 @@ public class ChannelSettingsMessageComponentFactory(IntervalConfig _intervalConf
 			.WithStyle(ButtonStyle.Danger)
 			.WithDisabled(channelSettings.GifKeyword is null);
 
-		var setPostingHoursButtonLabel = channelSettings.PostingHoursFrom is null || channelSettings.PostingHoursTo is null || channelSettings.TimeZone is null
-			? "<none>"
-			: $"{channelSettings.PostingHoursFrom} - {channelSettings.PostingHoursTo} {channelSettings.TimeZone}";
-
 		var setPostingHoursButton = new ButtonBuilder()
 			.WithCustomId("set-posting-hours-modal-button")
-			.WithLabel($"Set Posting Hours (Currently {setPostingHoursButtonLabel})")
+			.WithLabel("Set Posting Hours")
 			.WithStyle(ButtonStyle.Secondary);
 
-		return new ComponentBuilderV2()
-			.WithTextDisplay("# Trending Giphy Bot Settings")
+        string postingHoursDisplay;
+
+        if (channelSettings.PostingHoursFrom is null and not "" || channelSettings.PostingHoursTo is null and not "" || channelSettings.UtcOffset is null)
+            postingHoursDisplay = "<none>";
+        else
+        {
+			var utcOffsetIndicator = channelSettings.UtcOffset.Value switch
+			{
+				0 => "",
+				> 0 => "+",
+				< 0 => "-"
+			};
+
+            postingHoursDisplay = $"{channelSettings.PostingHoursFrom} - {channelSettings.PostingHoursTo} ({utcOffsetIndicator}{channelSettings.UtcOffset})";
+        }
+
+        var clearPostingHoursButton = new ButtonBuilder()
+            .WithCustomId("clear-posting-hours-modal-button")
+            .WithLabel($"""Clear Posting Hours (Currently "{postingHoursDisplay}")""")
+            .WithStyle(ButtonStyle.Danger)
+            .WithDisabled(channelSettings.GifKeyword is null);
+
+        return new ComponentBuilderV2()
+			.WithTextDisplay($"# Trending Giphy Bot Settings for {channelName}")
 			.WithSeparator()
+			.WithTextDisplay("## Main Settings")
 			.WithActionRow([howOftenSelectMenu])
-			.WithActionRow([trendingGifsOnlyButton, trendingGifsWithRandomButton])
+            .WithActionRow([trendingGifsOnlyButton, trendingGifsWithRandomButton])
 			.WithSeparator()
-			.WithActionRow([gifKeywordButton, clearGifKeywordButton, setPostingHoursButton])
+			.WithTextDisplay("## Optional Settings")
+			.WithActionRow([gifKeywordButton, clearGifKeywordButton])
+			.WithActionRow([setPostingHoursButton, clearPostingHoursButton])
 			.Build();
 	}
 }

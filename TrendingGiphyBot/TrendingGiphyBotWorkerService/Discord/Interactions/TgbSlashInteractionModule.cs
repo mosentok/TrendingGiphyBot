@@ -6,7 +6,7 @@ using TrendingGiphyBotWorkerService.Intervals;
 
 namespace TrendingGiphyBotWorkerService.Discord.Interactions;
 
-[Group("tgb", "Trending Giphy Bot commands for your server")]
+[Group("tgb", "Trending Giphy Bot commands for this channel")]
 public class TgbSlashInteractionModule(IChannelSettingsMessageComponentFactory _channelSettingsMessageComponentFactory, ITrendingGiphyBotDbContext _trendingGiphyBotContext) : InteractionModuleBase<SocketInteractionContext>
 {
 	[SlashCommand("settings", "View and change your Trending Giphy Bot's settings for this channel")]

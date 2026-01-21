@@ -63,7 +63,7 @@ var discordSocketClientHandlerConfig = new DiscordSocketClientHandlerConfig(play
 var gifCacheConfig = new GifCacheConfig([], 1_000);
 var giphyCacheWorkerConfig = new GiphyCacheWorkerConfig(maxPageCount, timeSpanBetweenCacheRefreshes, maxGiphyCacheLoops);
 var gifStagingWorkerConfig = new GifStagingWorkerConfig(timeSpanBetweenStageRefreshes);
-var interactionService = new InteractionService(discordSocketClient.Rest, new() { UseCompiledLambda = true, LogLevel = discordLogLevel });
+var interactionService = new InteractionService(discordSocketClient.Rest, new() { UseCompiledLambda = true, LogLevel = discordLogLevel, DefaultRunMode = RunMode.Async });
 
 builder.Services
 	.AddHostedService<DiscordInteractionWorker>()

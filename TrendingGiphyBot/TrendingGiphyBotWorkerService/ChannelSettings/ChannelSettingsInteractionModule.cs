@@ -2,7 +2,6 @@ using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using TrendingGiphyBotWorkerService.Database;
-using TrendingGiphyBotWorkerService.Intervals;
 
 namespace TrendingGiphyBotWorkerService.ChannelSettings;
 
@@ -129,8 +128,6 @@ public class ChannelSettingsInteractionModule(IChannelSettingsMessageComponentFa
 	public async Task SetTimeZoneAsync(string timeZone)
 	{
 		//TODO validation of input
-
-		_channelSettings!.TimeZone = timeZone;
 
 		await _trendingGiphyBotContext.SaveChangesAsync();
 
