@@ -14,6 +14,7 @@ using TrendingGiphyBotWorkerService.Giphy.Api;
 using TrendingGiphyBotWorkerService.Giphy.Staging;
 using TrendingGiphyBotWorkerService.Giphy.Staging.Caching;
 using TrendingGiphyBotWorkerService.Intervals;
+using TrendingGiphyBotWorkerService.Logging;
 
 var builder = Host.CreateApplicationBuilder(args);
 
@@ -58,7 +59,6 @@ var every5Minutes = CronExpression.Parse("*/5 * * * *");
 
 var delayerConfig = new DelayerConfig(every5Minutes);
 var discordSocketClient = new DiscordSocketClient(discordSocketConfig);
-var discordWorkerConfig = new DiscordWorkerConfig(discordToken);
 var discordSocketClientHandlerConfig = new DiscordSocketClientHandlerConfig(playingGame, guildToRegisterCommands, assembly);
 var gifCacheConfig = new GifCacheConfig([], 1_000);
 var giphyCacheWorkerConfig = new GiphyCacheWorkerConfig(maxPageCount, timeSpanBetweenCacheRefreshes, maxGiphyCacheLoops);
@@ -66,7 +66,6 @@ var gifStagingWorkerConfig = new GifStagingWorkerConfig(timeSpanBetweenStageRefr
 var interactionService = new InteractionService(discordSocketClient.Rest, new() { UseCompiledLambda = true, LogLevel = discordLogLevel, DefaultRunMode = RunMode.Async });
 
 builder.Services
-	.AddHostedService<DiscordInteractionWorker>()
 	.AddHostedService<DiscordPostingWorker>()
 	.AddHostedService<GiphyCacheWorker>()
 	.AddHostedService<IntervalSeederWorker>()
@@ -78,7 +77,6 @@ builder.Services
 	.AddSingleton(delayerConfig)
 	.AddSingleton(discordSocketClient)
 	.AddSingleton(discordSocketClientHandlerConfig)
-	.AddSingleton(discordWorkerConfig)
 	.AddSingleton(gifCacheConfig)
 	.AddSingleton(giphyCacheWorkerConfig)
 	.AddSingleton(gifStagingWorkerConfig)
@@ -101,5 +99,35 @@ builder.Services
 	.AddStandardResilienceHandler();
 
 var host = builder.Build();
+var discordSocketClientHandler = host.Services.GetRequiredService<IDiscordSocketClientHandler>();
 
-await host.RunAsync();
+discordSocketClient.ButtonExecuted += discordSocketClientHandler.OnComponentExecutedAsync;
+discordSocketClient.InteractionCreated += discordSocketClientHandler.OnInteractionCreatedAsync;
+discordSocketClient.JoinedGuild += discordSocketClientHandler.OnJoinedGuildAsync;
+discordSocketClient.LeftGuild += discordSocketClientHandler.OnLeftGuildAsync;
+discordSocketClient.Log += discordSocketClientHandler.OnLogAsync;
+discordSocketClient.ModalSubmitted += discordSocketClientHandler.OnModalSubmittedAsync;
+discordSocketClient.Ready += discordSocketClientHandler.OnReadyAsync;
+discordSocketClient.SelectMenuExecuted += discordSocketClientHandler.OnComponentExecutedAsync;
+
+interactionService.Log += discordSocketClientHandler.OnLogAsync;
+
+try
+{
+	await discordSocketClient.LoginAsync(TokenType.Bot, discordToken);
+	await discordSocketClient.StartAsync();
+
+	await host.RunAsync();
+}
+catch (Exception exception)
+{
+	var loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
+    var logger = loggerFactory.CreateLogger("Top Level");
+
+    logger.LogTopLevelException(exception);
+}
+finally
+{
+    await discordSocketClient.LogoutAsync();
+	await discordSocketClient.DisposeAsync();
+}
