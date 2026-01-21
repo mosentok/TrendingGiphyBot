@@ -9,22 +9,22 @@ public class ChannelSettingsMessageComponentFactory(IntervalConfig _intervalConf
 	{
         var neverBuilder = new SelectMenuOptionBuilder()
 			.WithLabel("Never")
-			.WithValue($"0-{nameof(IntervalDescription.None)}");
+			.WithValue($"0-{(int)IntervalDescription.None}");
 
 		var minutesBuilders = _intervalConfig.Minutes.Select(static minute =>
 			new SelectMenuOptionBuilder()
 				.WithLabel($"Post Gifs Every {minute} Minutes")
-				.WithValue($"{minute}-{nameof(IntervalDescription.Minutes)}"));
+				.WithValue($"{minute}-{(int)IntervalDescription.Minutes}"));
 
 		// this is a big assumption that 1 hour is both configured and the first item in the list
 		var hour1Builder = new SelectMenuOptionBuilder()
 			.WithLabel("Post Gifs Every 1 Hour")
-			.WithValue($"1-{nameof(IntervalDescription.Hours)}");
+			.WithValue($"1-{(int)IntervalDescription.Hours}");
 
 		var hoursBuilders = _intervalConfig.Hours.Skip(1).Select(static hour =>
 			new SelectMenuOptionBuilder()
 				.WithLabel($"Post Gifs Every {hour} Hours")
-				.WithValue($"{hour}-{nameof(IntervalDescription.Hours)}"));
+				.WithValue($"{hour}-{(int)IntervalDescription.Hours}"));
 
 		var howOftenOptions = new[] { neverBuilder }.Concat(minutesBuilders).Append(hour1Builder).Concat(hoursBuilders).ToList();
 

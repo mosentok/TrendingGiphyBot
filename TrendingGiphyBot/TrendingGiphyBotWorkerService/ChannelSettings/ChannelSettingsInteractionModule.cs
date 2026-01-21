@@ -44,13 +44,13 @@ public class ChannelSettingsInteractionModule(IChannelSettingsMessageComponentFa
 			throw new ThisShouldBeImpossibleException();
 
 		var frequencyString = howOftenPieces[0];
-		var intervalDescriptionString = howOftenPieces[1];
+		var intervalDescription = howOftenPieces[1];
 
 		var frequency = int.Parse(frequencyString);
-		var intervalDescription = Enum.Parse<IntervalDescription>(intervalDescriptionString);
+		var intervalId = int.Parse(intervalDescription);
 
 		_channelSettings!.Frequency = frequency;
-		_channelSettings.IntervalId = (int)intervalDescription;
+		_channelSettings.IntervalId = intervalId;
 
 		await _trendingGiphyBotContext.SaveChangesAsync();
 
