@@ -82,7 +82,6 @@ builder.Services
 	.AddSingleton(interactionService)
 	.AddSingleton(intervalConfig)
 	.AddSingleton(TimeProvider.System)
-	.AddSingleton(typeof(ILogger<>), typeof(Logger<>))
 	.AddSingleton<IChannelSettingsMessageComponentFactory, ChannelSettingsMessageComponentFactory>()
 	.AddSingleton<IDelayer, Delayer>()
 	.AddSingleton<IDiscordSocketClientHandler, DiscordSocketClientHandler>()
