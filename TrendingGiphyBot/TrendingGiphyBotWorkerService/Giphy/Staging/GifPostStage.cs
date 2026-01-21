@@ -21,7 +21,7 @@ public class GifPostStage(IServiceScopeFactory _serviceScopeFactory, IGifCache _
 
 		var trendingGiphyBotDbContext = scope.ServiceProvider.GetRequiredService<ITrendingGiphyBotDbContext>();
 
-		var activeChannels = await trendingGiphyBotDbContext.ChannelSettings.Where(s => s.HowOften != null).ToListAsync();
+		var activeChannels = await trendingGiphyBotDbContext.ChannelSettings.Where(s => s.Frequency > 0).ToListAsync();
 
 		foreach (var channel in activeChannels)
 		{

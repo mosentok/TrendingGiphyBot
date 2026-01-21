@@ -2,6 +2,7 @@ using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using TrendingGiphyBotWorkerService.Database;
+using TrendingGiphyBotWorkerService.Intervals;
 
 namespace TrendingGiphyBotWorkerService.ChannelSettings;
 
@@ -37,12 +38,23 @@ public class ChannelSettingsInteractionModule(IChannelSettingsMessageComponentFa
 	{
 		ThisShouldBeImpossibleException.ThrowIf(selectedValues.Length != 1);
 
-		_channelSettings!.HowOften = selectedValues[0];
+		var howOftenPieces = selectedValues[0].Split('-');
+
+		if (howOftenPieces.Length != 2)
+			throw new ThisShouldBeImpossibleException();
+
+		var frequencyString = howOftenPieces[0];
+		var intervalDescriptionString = howOftenPieces[1];
+
+		var frequency = int.Parse(frequencyString);
+		var intervalDescription = Enum.Parse<IntervalDescription>(intervalDescriptionString);
+
+		_channelSettings!.Frequency = frequency;
+		_channelSettings.IntervalId = (int)intervalDescription;
 
 		await _trendingGiphyBotContext.SaveChangesAsync();
 
 		_shouldUpdateInteraction = true;
-
     }
 
 	[ComponentInteraction("trending-gifs-only-button")]

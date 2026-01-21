@@ -7,29 +7,32 @@ public class ChannelSettingsMessageComponentFactory(IntervalConfig _intervalConf
 {
 	public MessageComponent BuildChannelSettingsMessageComponent(ChannelSettingsModel channelSettings, string channelName)
 	{
-		var neverBuilder = new SelectMenuOptionBuilder()
+        var neverBuilder = new SelectMenuOptionBuilder()
 			.WithLabel("Never")
-			.WithValue("never");
+			.WithValue($"0-{nameof(IntervalDescription.None)}");
 
 		var minutesBuilders = _intervalConfig.Minutes.Select(static minute =>
 			new SelectMenuOptionBuilder()
 				.WithLabel($"Post Gifs Every {minute} Minutes")
-				.WithValue($"every-{minute}-minutes"));
+				.WithValue($"{minute}-{nameof(IntervalDescription.Minutes)}"));
 
+		// this is a big assumption that 1 hour is both configured and the first item in the list
 		var hour1Builder = new SelectMenuOptionBuilder()
 			.WithLabel("Post Gifs Every 1 Hour")
-			.WithValue("every-1-hour");
+			.WithValue($"1-{nameof(IntervalDescription.Hours)}");
 
-		var hoursBuilders = _intervalConfig.Hours.Select(static hour =>
+		var hoursBuilders = _intervalConfig.Hours.Skip(1).Select(static hour =>
 			new SelectMenuOptionBuilder()
 				.WithLabel($"Post Gifs Every {hour} Hours")
-				.WithValue($"every-{hour}-hours"));
+				.WithValue($"{hour}-{nameof(IntervalDescription.Hours)}"));
 
 		var howOftenOptions = new[] { neverBuilder }.Concat(minutesBuilders).Append(hour1Builder).Concat(hoursBuilders).ToList();
 
-        var selectedOption = channelSettings.HowOften is null
-			? howOftenOptions.Single(s => s.Value == "every-1-hour")
-			: howOftenOptions.Single(s => s.Value == channelSettings.HowOften);
+        var intervalDescription = (IntervalDescription)channelSettings.IntervalId;
+
+        var selectedOption = intervalDescription == IntervalDescription.None
+			? neverBuilder
+            : howOftenOptions.Single(s => s.Value == $"{channelSettings.Frequency}-{intervalDescription}");
 
         selectedOption.IsDefault = true;
 

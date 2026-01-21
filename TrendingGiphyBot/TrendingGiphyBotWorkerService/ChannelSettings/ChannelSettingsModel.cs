@@ -7,7 +7,6 @@ public class ChannelSettingsModel
     public ulong ChannelId { get; set; }
     public int Frequency { get; set; }
     public int IntervalId { get; set; }
-    public string? HowOften { get; set; }
     public string? GifPostingBehavior { get; set; }
     public string? GifKeyword { get; set; }
     public string? PostingHoursFrom { get; set; }

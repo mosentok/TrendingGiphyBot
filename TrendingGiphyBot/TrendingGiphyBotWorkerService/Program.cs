@@ -45,7 +45,8 @@ var discordSocketConfig = new DiscordSocketConfig
 		GatewayIntents.Guilds | GatewayIntents.GuildBans | GatewayIntents.GuildEmojis | GatewayIntents.GuildIntegrations | GatewayIntents.GuildWebhooks |
 		GatewayIntents.GuildVoiceStates | GatewayIntents.GuildMessages | GatewayIntents.GuildMessageReactions | GatewayIntents.GuildMessageTyping | GatewayIntents.DirectMessages |
 		GatewayIntents.DirectMessageReactions | GatewayIntents.DirectMessageTyping | GatewayIntents.AutoModerationConfiguration | GatewayIntents.AutoModerationActionExecution | GatewayIntents.GuildMessagePolls |
-		GatewayIntents.DirectMessagePolls
+		GatewayIntents.DirectMessagePolls,
+    UseInteractionSnowflakeDate = false
 };
 
 var minutes = new[] { 5, 10, 15, 30 };
