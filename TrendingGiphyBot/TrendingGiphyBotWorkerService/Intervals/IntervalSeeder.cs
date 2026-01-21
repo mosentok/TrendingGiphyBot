@@ -3,9 +3,9 @@ using TrendingGiphyBotWorkerService.Database;
 
 namespace TrendingGiphyBotWorkerService.Intervals;
 
-public class IntervalSeederWorker(IServiceScopeFactory _serviceScopeFactory) : BackgroundService
+public class IntervalSeeder(IServiceScopeFactory _serviceScopeFactory) : IIntervalSeeder
 {
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    public async Task SeedIntervalsAsync()
     {
         var thereAreNewChangesToSave = false;
 
@@ -19,7 +19,7 @@ public class IntervalSeederWorker(IServiceScopeFactory _serviceScopeFactory) : B
 
         var _trendingGiphyBotDbContext = scope.ServiceProvider.GetRequiredService<ITrendingGiphyBotDbContext>();
 
-        var intervals = await _trendingGiphyBotDbContext.Intervals.ToListAsync(stoppingToken);
+        var intervals = await _trendingGiphyBotDbContext.Intervals.ToListAsync();
 
         foreach (var expectedInterval in expectedIntervals)
         {
@@ -40,6 +40,6 @@ public class IntervalSeederWorker(IServiceScopeFactory _serviceScopeFactory) : B
         }
 
         if (thereAreNewChangesToSave)
-            await _trendingGiphyBotDbContext.SaveChangesAsync(stoppingToken);
+            await _trendingGiphyBotDbContext.SaveChangesAsync();
     }
 }

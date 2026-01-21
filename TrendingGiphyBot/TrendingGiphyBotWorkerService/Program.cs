@@ -68,7 +68,6 @@ var interactionService = new InteractionService(discordSocketClient.Rest, new() 
 builder.Services
 	.AddHostedService<DiscordPostingWorker>()
 	.AddHostedService<GiphyCacheWorker>()
-	.AddHostedService<IntervalSeederWorker>()
 	.AddLogging(builder => builder.AddConsole())
 	.AddDbContext<ITrendingGiphyBotDbContext, TrendingGiphyBotDbContext>(builder =>
 		builder
@@ -90,7 +89,8 @@ builder.Services
 	.AddSingleton<IDiscordSocketClientWrapper, DiscordSocketClientWrapper>()
 	.AddSingleton<IGifCache, GifCache>()
 	.AddSingleton<IGifPostStage, GifPostStage>()
-	.AddHttpClient<IGiphyClient, GiphyClient>(httpClient =>
+	.AddSingleton<IIntervalSeeder, IntervalSeeder>()
+    .AddHttpClient<IGiphyClient, GiphyClient>(httpClient =>
 	{
 		httpClient.BaseAddress = new(giphyBaseAddress);
 
@@ -99,6 +99,10 @@ builder.Services
 	.AddStandardResilienceHandler();
 
 var host = builder.Build();
+var intervalSeeder = host.Services.GetRequiredService<IIntervalSeeder>();
+
+await intervalSeeder.SeedIntervalsAsync();
+
 var discordSocketClientHandler = host.Services.GetRequiredService<IDiscordSocketClientHandler>();
 
 discordSocketClient.ButtonExecuted += discordSocketClientHandler.OnComponentExecutedAsync;
