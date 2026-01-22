@@ -65,6 +65,7 @@ var gifCacheConfig = new GifCacheConfig([], 1_000, maxPageCount, maxGiphyCacheLo
 var giphyCacheWorkerConfig = new GiphyCacheWorkerConfig(timeSpanBetweenCacheRefreshes);
 var gifStagingWorkerConfig = new GifStagingWorkerConfig(timeSpanBetweenStageRefreshes);
 var gifPostStageConfig = new GifPostStageConfig(maxRandomGifAttempts);
+var giphyClientConfig = new GiphyClientConfig(giphyApiKey);
 var interactionService = new InteractionService(discordSocketClient.Rest, new() { UseCompiledLambda = true, LogLevel = discordLogLevel, DefaultRunMode = RunMode.Async });
 
 builder.Services
@@ -83,6 +84,7 @@ builder.Services
 	.AddSingleton(gifPostStageConfig )
     .AddSingleton(gifStagingWorkerConfig)
 	.AddSingleton(giphyCacheWorkerConfig)
+	.AddSingleton(giphyClientConfig)
 	.AddSingleton(interactionService)
 	.AddSingleton(intervalConfig)
 	.AddSingleton(TimeProvider.System)
@@ -95,12 +97,7 @@ builder.Services
 	.AddSingleton<IGifPostingBehaviorSeeder, GifPostingBehaviorSeeder>()
     .AddSingleton<IGifPostStage, GifPostStage>()
 	.AddSingleton<IIntervalSeeder, IntervalSeeder>()
-    .AddHttpClient<IGiphyClient, GiphyClient>(httpClient =>
-	{
-		httpClient.BaseAddress = new(giphyBaseAddress);
-
-		return new(httpClient, giphyApiKey);
-	})
+    .AddHttpClient<IGiphyClient, GiphyClient>(s => s.BaseAddress = new(giphyBaseAddress))
 	.AddStandardResilienceHandler();
 
 var host = builder.Build();
