@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TrendingGiphyBotWorkerService.ChannelSettings;
+using TrendingGiphyBotWorkerService.GifPostingBehavior;
 using TrendingGiphyBotWorkerService.Intervals;
 
 namespace TrendingGiphyBotWorkerService.Database;
@@ -7,6 +8,7 @@ namespace TrendingGiphyBotWorkerService.Database;
 public interface ITrendingGiphyBotDbContext
 {
     DbSet<ChannelSettingsModel> ChannelSettings { get; set; }
+    DbSet<GifPostingBehaviorModel> GifPostingBehaviors { get; set; }
     DbSet<GifPost> GifPosts { get; set; }
     DbSet<Interval> Intervals { get; set; }
 	Task SaveChangesAsync(CancellationToken cancellation = default);

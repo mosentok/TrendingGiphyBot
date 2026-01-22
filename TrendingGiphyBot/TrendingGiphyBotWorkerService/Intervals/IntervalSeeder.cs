@@ -19,21 +19,21 @@ public class IntervalSeeder(IServiceScopeFactory _serviceScopeFactory) : IInterv
 
         var _trendingGiphyBotDbContext = scope.ServiceProvider.GetRequiredService<ITrendingGiphyBotDbContext>();
 
-        var intervals = await _trendingGiphyBotDbContext.Intervals.ToListAsync();
+        var intervals = await _trendingGiphyBotDbContext.Intervals.ToDictionaryAsync(s => s.IntervalId, s => s);
 
         foreach (var expectedInterval in expectedIntervals)
         {
-            var existingInterval = intervals.SingleOrDefault(s => s.IntervalId == expectedInterval.IntervalId);
+            var intervalAlreadyExists = intervals.ContainsKey(expectedInterval.IntervalId);
 
-            if (existingInterval is null)
+            if (!intervalAlreadyExists)
             {
                 _trendingGiphyBotDbContext.Intervals.Add(expectedInterval);
 
                 thereAreNewChangesToSave = true;
             }
-            else if (existingInterval.Description != expectedInterval.Description)
+            else if (intervals[expectedInterval.IntervalId].Description != expectedInterval.Description)
             {
-                existingInterval.Description = expectedInterval.Description;
+                intervals[expectedInterval.IntervalId].Description = expectedInterval.Description;
 
                 thereAreNewChangesToSave = true;
             }

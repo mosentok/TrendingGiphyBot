@@ -6,6 +6,6 @@ namespace TrendingGiphyBotWorkerService.Giphy.Staging;
 public interface IGifPostStage
 {
     IImmutableDictionary<ulong, GiphyData> GetChannelGifPostStage();
-    Task RefreshAsync();
+    Task RefreshAsync(CancellationToken cancellationToken = default);
     void Evict(ulong channelId);
 }

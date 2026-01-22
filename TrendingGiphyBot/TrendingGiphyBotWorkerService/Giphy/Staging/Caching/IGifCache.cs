@@ -5,6 +5,6 @@ namespace TrendingGiphyBotWorkerService.Giphy.Staging.Caching;
 public interface IGifCache
 {
     Task RefreshAsync(CancellationToken cancellationToken = default);
-    GiphyData? GetFirstUnseenGif();
-    GiphyData? GetFirstUnseenGif(ICollection<string> idsAlreadySeen);
+    GiphyData? GetFirstGif();
+    GiphyData? GetFirstUnseenGif(string[] idsAlreadySeen);
 }

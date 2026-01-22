@@ -3,20 +3,22 @@ using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Database;
+using TrendingGiphyBotWorkerService.GifPostingBehavior;
 
 namespace TrendingGiphyBotWorkerService.Interactions;
 
-public class ChannelSettingsInteractionModule(IChannelSettingsMessageComponentFactory _settingsMessageComponentFactory, ITrendingGiphyBotDbContext _trendingGiphyBotContext) : InteractionModuleBase<SocketInteractionContext<SocketMessageComponent>>
+public class ChannelSettingsInteractionModule(
+    IChannelSettingsMessageComponentFactory _settingsMessageComponentFactory,
+    ITrendingGiphyBotDbContext _trendingGiphyBotContext,
+    IGifPostingBehaviorHelper _gifPostingBehaviorHelper) : InteractionModuleBase<SocketInteractionContext<SocketMessageComponent>>
 {
 	ChannelSettingsModel? _channelSettings;
 	bool? _shouldUpdateInteraction;
 
-	public override async Task BeforeExecuteAsync(ICommandInfo command)
-	{
+	public override async Task BeforeExecuteAsync(ICommandInfo command) =>
 		_channelSettings = await _trendingGiphyBotContext.ChannelSettings.SingleAsync(s => s.ChannelId == Context.Channel.Id);
-    }
 
-	public override async Task AfterExecuteAsync(ICommandInfo command)
+    public override async Task AfterExecuteAsync(ICommandInfo command)
 	{
 		if (_shouldUpdateInteraction is null)
 			throw new ThisShouldBeImpossibleException();
@@ -28,7 +30,9 @@ public class ChannelSettingsInteractionModule(IChannelSettingsMessageComponentFa
 			return;
 		}
 
-		var settingsMessageComponent = _settingsMessageComponentFactory.BuildChannelSettingsMessageComponent(_channelSettings!, Context.Channel.Name);
+        await _trendingGiphyBotContext.SaveChangesAsync();
+
+        var settingsMessageComponent = _settingsMessageComponentFactory.BuildChannelSettingsMessageComponent(_channelSettings!, Context.Channel.Name);
 
 		await Context.Interaction.UpdateAsync(messageProperties => messageProperties.Components = settingsMessageComponent);
 	}
@@ -52,54 +56,16 @@ public class ChannelSettingsInteractionModule(IChannelSettingsMessageComponentFa
 		_channelSettings!.Frequency = frequency;
 		_channelSettings.IntervalId = intervalId;
 
-		await _trendingGiphyBotContext.SaveChangesAsync();
-
 		_shouldUpdateInteraction = true;
     }
 
 	[ComponentInteraction("trending-gifs-only-button")]
-	public async Task SetTrendingGifsOnlyAsync()
-	{
-		if (_channelSettings!.GifPostingBehavior == "trending-gifs-only-button")
-		{
-			_shouldUpdateInteraction = false;
-
-			return;
-		}
-
-		_channelSettings.GifPostingBehavior = "trending-gifs-only-button";
-
-		await _trendingGiphyBotContext.SaveChangesAsync();
-
-		_shouldUpdateInteraction = true;
-    }
+	public async Task SetTrendingGifsOnlyAsync() =>
+		_shouldUpdateInteraction = await _gifPostingBehaviorHelper.SetBehaviorAsync(_channelSettings!, GifPostingBehaviorKind.TrendingGifsOnly);
 
     [ComponentInteraction("trending-gifs-with-random-button")]
-	public async Task SetTrendingGifsWithRandomAsync()
-	{
-		if (_channelSettings!.GifPostingBehavior == "trending-gifs-with-random-button")
-		{
-			_shouldUpdateInteraction = false;
-
-			return;
-		}
-
-		_channelSettings.GifPostingBehavior = "trending-gifs-with-random-button";
-
-		await _trendingGiphyBotContext.SaveChangesAsync();
-
-		_shouldUpdateInteraction = true;
-    }
-
-    [ComponentInteraction("trending-gifs-with-keyword-button")]
-	public async Task SetTrendingGifsWithKeywordAsync()
-	{
-		_channelSettings!.GifPostingBehavior = "trending-gifs-with-keyword-button";
-
-		await _trendingGiphyBotContext.SaveChangesAsync();
-
-		_shouldUpdateInteraction = true;
-    }
+	public async Task SetTrendingGifsWithRandomAsync() =>
+		_shouldUpdateInteraction = await _gifPostingBehaviorHelper.SetBehaviorAsync(_channelSettings!, GifPostingBehaviorKind.TrendingGifsWithRandomGifs);
 
     [ComponentInteraction("posting-hours-from")]
 	public async Task SetPostingHoursFromAsync(string postingHoursFrom)
@@ -107,8 +73,6 @@ public class ChannelSettingsInteractionModule(IChannelSettingsMessageComponentFa
 		//TODO validation of input
 
 		_channelSettings!.PostingHoursFrom = postingHoursFrom;
-
-		await _trendingGiphyBotContext.SaveChangesAsync();
 
 		_shouldUpdateInteraction = true;
     }
@@ -120,8 +84,6 @@ public class ChannelSettingsInteractionModule(IChannelSettingsMessageComponentFa
 
 		_channelSettings!.PostingHoursTo = postingHoursTo;
 
-		await _trendingGiphyBotContext.SaveChangesAsync();
-
 		_shouldUpdateInteraction = true;
     }
 
@@ -129,8 +91,6 @@ public class ChannelSettingsInteractionModule(IChannelSettingsMessageComponentFa
 	public async Task SetTimeZoneAsync(string timeZone)
 	{
 		//TODO validation of input
-
-		await _trendingGiphyBotContext.SaveChangesAsync();
 
 		_shouldUpdateInteraction = true;
     }

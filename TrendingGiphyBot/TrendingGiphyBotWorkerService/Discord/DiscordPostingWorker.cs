@@ -58,7 +58,7 @@ public class DiscordPostingWorker(
 
                     trendingGiphyBotDbContext.GifPosts.Add(gifPost);
 
-                    await trendingGiphyBotDbContext.SaveChangesAsync();
+                    await trendingGiphyBotDbContext.SaveChangesAsync(stoppingToken);
 
                     try
                     {

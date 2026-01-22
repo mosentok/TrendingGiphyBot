@@ -42,7 +42,7 @@ public class GifCache(
         }
     }
 
-    public GiphyData? GetFirstUnseenGif() => Items.FirstOrDefault();
+    public GiphyData? GetFirstGif() => Items.FirstOrDefault();
 
-    public GiphyData? GetFirstUnseenGif(ICollection<string> idsAlreadySeen) => Items.FirstOrDefault(s => !idsAlreadySeen.Contains(s.Id));
+    public GiphyData? GetFirstUnseenGif(string[] idsAlreadySeen) => Items.FirstOrDefault(s => !idsAlreadySeen.Contains(s.Id));
 }

@@ -8,7 +8,7 @@ public class GifStagingWorker(IGifPostStage _gifPostStage, GifStagingWorkerConfi
         {
             await Task.Delay(_gifStagingWorkerConfig.TimeSpanBetweenStageRefreshes, stoppingToken);
 
-            await _gifPostStage.RefreshAsync();
+            await _gifPostStage.RefreshAsync(stoppingToken);
         }
     }
 }
