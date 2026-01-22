@@ -1,7 +1,7 @@
 using Discord;
 using Discord.WebSocket;
 
-namespace TrendingGiphyBotWorkerService.Discord.Interactions;
+namespace TrendingGiphyBotWorkerService.Discord;
 
 public interface IDiscordSocketClientHandler
 {

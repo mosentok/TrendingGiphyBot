@@ -21,15 +21,13 @@ public class GifPostStage(IServiceScopeFactory _serviceScopeFactory, IGifCache _
 
 		var trendingGiphyBotDbContext = scope.ServiceProvider.GetRequiredService<ITrendingGiphyBotDbContext>();
 
-		var activeChannels = await trendingGiphyBotDbContext.ChannelSettings.Where(s => s.Frequency > 0).ToListAsync();
+		var activeChannels = await trendingGiphyBotDbContext.ChannelSettings
+			.Include(s => s.GifPosts)
+			.Where(s => !_channelGifPostStage.Keys.Contains(s.ChannelId) && s.Frequency > 0)
+			.ToListAsync();
 
 		foreach (var channel in activeChannels)
 		{
-			var channelIsAlreadyStaged = _channelGifPostStage.ContainsKey(channel.ChannelId);
-
-			if (channelIsAlreadyStaged)
-				continue;
-
 			var firstUnseenGif = DetermineFirstUnseenGif(channel);
 
 			if (firstUnseenGif is null)

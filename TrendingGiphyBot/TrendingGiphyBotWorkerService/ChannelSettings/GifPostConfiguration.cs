@@ -8,7 +8,7 @@ public class GifPostConfiguration : IEntityTypeConfiguration<GifPost>
     public void Configure(EntityTypeBuilder<GifPost> builder)
     {
         builder
-            .HasOne(s => s.ChannelSettingsModel)
+            .HasOne(s => s.ChannelSettings)
             .WithMany(s => s.GifPosts)
             .HasForeignKey(s => s.ChannelId)
             .HasPrincipalKey(s => s.ChannelId);

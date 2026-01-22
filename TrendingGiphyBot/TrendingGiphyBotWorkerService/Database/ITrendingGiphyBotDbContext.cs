@@ -6,7 +6,8 @@ namespace TrendingGiphyBotWorkerService.Database;
 
 public interface ITrendingGiphyBotDbContext
 {
-    DbSet<Interval> Intervals { get; set; }
     DbSet<ChannelSettingsModel> ChannelSettings { get; set; }
+    DbSet<GifPost> GifPosts { get; set; }
+    DbSet<Interval> Intervals { get; set; }
 	Task SaveChangesAsync(CancellationToken cancellation = default);
 }

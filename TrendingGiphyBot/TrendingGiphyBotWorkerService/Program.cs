@@ -7,12 +7,11 @@ using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Configuration;
 using TrendingGiphyBotWorkerService.Database;
 using TrendingGiphyBotWorkerService.Delaying;
-using TrendingGiphyBotWorkerService.Discord.Api;
-using TrendingGiphyBotWorkerService.Discord.Interactions;
-using TrendingGiphyBotWorkerService.Discord.Posting;
+using TrendingGiphyBotWorkerService.Discord;
 using TrendingGiphyBotWorkerService.Giphy.Api;
 using TrendingGiphyBotWorkerService.Giphy.Staging;
 using TrendingGiphyBotWorkerService.Giphy.Staging.Caching;
+using TrendingGiphyBotWorkerService.Interactions;
 using TrendingGiphyBotWorkerService.Intervals;
 using TrendingGiphyBotWorkerService.Logging;
 
@@ -60,13 +59,14 @@ var every5Minutes = CronExpression.Parse("*/5 * * * *");
 var delayerConfig = new DelayerConfig(every5Minutes);
 var discordSocketClient = new DiscordSocketClient(discordSocketConfig);
 var discordSocketClientHandlerConfig = new DiscordSocketClientHandlerConfig(playingGame, guildToRegisterCommands, assembly);
-var gifCacheConfig = new GifCacheConfig([], 1_000);
-var giphyCacheWorkerConfig = new GiphyCacheWorkerConfig(maxPageCount, timeSpanBetweenCacheRefreshes, maxGiphyCacheLoops);
+var gifCacheConfig = new GifCacheConfig([], 1_000, maxPageCount, maxGiphyCacheLoops);
+var giphyCacheWorkerConfig = new GiphyCacheWorkerConfig(timeSpanBetweenCacheRefreshes);
 var gifStagingWorkerConfig = new GifStagingWorkerConfig(timeSpanBetweenStageRefreshes);
 var interactionService = new InteractionService(discordSocketClient.Rest, new() { UseCompiledLambda = true, LogLevel = discordLogLevel, DefaultRunMode = RunMode.Async });
 
 builder.Services
 	.AddHostedService<DiscordPostingWorker>()
+	.AddHostedService<GifStagingWorker>()
 	.AddHostedService<GiphyCacheWorker>()
 	.AddLogging(builder => builder.AddConsole())
 	.AddDbContext<ITrendingGiphyBotDbContext, TrendingGiphyBotDbContext>(builder =>
@@ -98,11 +98,11 @@ builder.Services
 	.AddStandardResilienceHandler();
 
 var host = builder.Build();
-var intervalSeeder = host.Services.GetRequiredService<IIntervalSeeder>();
-
-await intervalSeeder.SeedIntervalsAsync();
 
 var discordSocketClientHandler = host.Services.GetRequiredService<IDiscordSocketClientHandler>();
+var intervalSeeder = host.Services.GetRequiredService<IIntervalSeeder>();
+var gifCache = host.Services.GetRequiredService<IGifCache>();
+var gifPostStage = host.Services.GetRequiredService<IGifPostStage>();
 
 discordSocketClient.ButtonExecuted += discordSocketClientHandler.OnComponentExecutedAsync;
 discordSocketClient.InteractionCreated += discordSocketClientHandler.OnInteractionCreatedAsync;
@@ -117,7 +117,13 @@ interactionService.Log += discordSocketClientHandler.OnLogAsync;
 
 try
 {
-	await discordSocketClient.LoginAsync(TokenType.Bot, discordToken);
+    await intervalSeeder.SeedIntervalsAsync();
+
+    await gifCache.RefreshAsync();
+
+    await gifPostStage.RefreshAsync();
+
+    await discordSocketClient.LoginAsync(TokenType.Bot, discordToken);
 	await discordSocketClient.StartAsync();
 
 	await host.RunAsync();

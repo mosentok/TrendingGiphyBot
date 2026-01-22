@@ -6,9 +6,9 @@ public class GifStagingWorker(IGifPostStage _gifPostStage, GifStagingWorkerConfi
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            await _gifPostStage.RefreshAsync();
-
             await Task.Delay(_gifStagingWorkerConfig.TimeSpanBetweenStageRefreshes, stoppingToken);
+
+            await _gifPostStage.RefreshAsync();
         }
     }
 }

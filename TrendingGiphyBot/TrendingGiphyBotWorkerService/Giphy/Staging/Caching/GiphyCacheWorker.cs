@@ -1,11 +1,9 @@
-using TrendingGiphyBotWorkerService.Giphy.Api;
 using TrendingGiphyBotWorkerService.Logging;
 
 namespace TrendingGiphyBotWorkerService.Giphy.Staging.Caching;
 
 public class GiphyCacheWorker(
     ILogger<GiphyCacheWorker> _logger,
-    IGiphyClient _giphyClient,
     IGifCache _gifCache,
 	GiphyCacheWorkerConfig _giphyCacheWorkerConfig
 ) : BackgroundService
@@ -16,25 +14,9 @@ public class GiphyCacheWorker(
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                try
-                {
-                    var numberOfResponses = 0;
-
-                    for (var numberOfLoops = 0; numberOfLoops < _giphyCacheWorkerConfig.MaxGiphyCacheLoops && numberOfResponses % _giphyCacheWorkerConfig.MaxPageCount == 0; numberOfLoops++)
-                    {
-                        var giphyResponse = await _giphyClient.GetTrendingGifsAsync(offset: numberOfResponses, cancellationToken: stoppingToken);
-
-                        _gifCache.Add(giphyResponse.Data);
-
-                        numberOfResponses += giphyResponse.Data.Count;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogGifCacheRefreshException(ex);
-				}
-
                 await Task.Delay(_giphyCacheWorkerConfig.TimeSpanBetweenCacheRefreshes, stoppingToken);
+
+                await _gifCache.RefreshAsync(stoppingToken);
             }
         }
         catch (Exception exception)

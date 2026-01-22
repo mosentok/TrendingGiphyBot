@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Database;
 
-namespace TrendingGiphyBotWorkerService.Discord.Interactions;
+namespace TrendingGiphyBotWorkerService.Interactions;
 
 public class KeywordModalInteractionModule(IChannelSettingsMessageComponentFactory _settingsMessageComponentFactory, ITrendingGiphyBotDbContext _trendingGiphyBotContext) : InteractionModuleBase<SocketInteractionContext<SocketModal>>
 {

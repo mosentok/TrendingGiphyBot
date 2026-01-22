@@ -1,6 +1,6 @@
 ﻿using Discord;
 
-namespace TrendingGiphyBotWorkerService.Discord.Api;
+namespace TrendingGiphyBotWorkerService.Discord;
 
 public interface IDiscordSocketClientWrapper
 {

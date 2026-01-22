@@ -94,7 +94,7 @@ public class ChannelSettingsMessageComponentFactory(IntervalConfig _intervalConf
             .WithDisabled(channelSettings.GifKeyword is null);
 
         return new ComponentBuilderV2()
-			.WithTextDisplay($"# Trending Giphy Bot Settings for {channelName}")
+			.WithTextDisplay($"# Trending Giphy Bot Settings for: **{channelName}**")
 			.WithSeparator()
 			.WithTextDisplay("## Main Settings")
 			.WithActionRow([howOftenSelectMenu])

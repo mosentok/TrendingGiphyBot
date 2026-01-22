@@ -7,6 +7,7 @@ namespace TrendingGiphyBotWorkerService.Database;
 public class TrendingGiphyBotDbContext : DbContext, ITrendingGiphyBotDbContext
 {
 	public virtual DbSet<ChannelSettingsModel> ChannelSettings { get; set; }
+	public virtual DbSet<GifPost> GifPosts { get; set; }
 	public virtual DbSet<Interval> Intervals { get; set; }
 
 	public TrendingGiphyBotDbContext() { }
