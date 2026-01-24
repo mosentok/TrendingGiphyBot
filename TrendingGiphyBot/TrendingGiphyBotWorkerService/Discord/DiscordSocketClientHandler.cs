@@ -79,17 +79,10 @@ public class DiscordSocketClientHandler(
 		await _interactionService.ExecuteCommandAsync(socketInteractionContext, _services);
 	}
 
-	public async Task OnComponentExecutedAsync(SocketMessageComponent interaction)
-	{
-		var socketInteractionContext = new SocketInteractionContext<SocketMessageComponent>(_discordSocketClient, interaction);
+	public async Task OnSocketInteractionAsync<T>(T interaction) where T : SocketInteraction
+    {
+        var socketInteractionContext = new SocketInteractionContext<T>(_discordSocketClient, interaction);
 
-		await _interactionService.ExecuteCommandAsync(socketInteractionContext, _services);
-	}
-
-	public async Task OnModalSubmittedAsync(SocketModal arg)
-	{
-		var socketInteractionContext = new SocketInteractionContext<SocketModal>(_discordSocketClient, arg);
-
-		await _interactionService.ExecuteCommandAsync(socketInteractionContext, _services);
-	}
+        await _interactionService.ExecuteCommandAsync(socketInteractionContext, _services);
+    }
 }

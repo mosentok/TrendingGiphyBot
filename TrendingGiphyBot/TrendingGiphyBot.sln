@@ -14,9 +14,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrendingGiphyBotWorkerService", "TrendingGiphyBotWorkerService\TrendingGiphyBotWorkerService.csproj", "{A6390F3D-D33F-4BC0-97ED-40B2590D2A45}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D1B7ABCC-C502-45D8-8839-7A51107A434F}"
-	ProjectSection(SolutionItems) = preProject
-		.editorconfig = .editorconfig
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

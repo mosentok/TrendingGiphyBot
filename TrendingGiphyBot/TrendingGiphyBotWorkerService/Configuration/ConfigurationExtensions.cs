@@ -1,9 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics.CodeAnalysis;
 
 namespace TrendingGiphyBotWorkerService.Configuration;
 
-[SuppressMessage("", "S2325", Justification = "SonarQube hasn't been updated to handle the extensions keyword. SonarQube thinks these methods don't access instance data.")]
 public static class ConfigurationExtensions
 {
     extension(IConfiguration configuration)

@@ -3,6 +3,7 @@ using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics.CodeAnalysis;
 using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Configuration;
 using TrendingGiphyBotWorkerService.Database;
@@ -15,6 +16,8 @@ using TrendingGiphyBotWorkerService.Giphy.Staging.Caching;
 using TrendingGiphyBotWorkerService.Interactions;
 using TrendingGiphyBotWorkerService.Intervals;
 using TrendingGiphyBotWorkerService.Logging;
+
+[assembly: SuppressMessage("Roslynator", "RCS1001:Add braces (when expression spans over multiple lines)", Justification = "Less is more.")]
 
 var builder = Host.CreateApplicationBuilder(args);
 
@@ -51,6 +54,8 @@ var discordSocketConfig = new DiscordSocketConfig
     UseInteractionSnowflakeDate = false
 };
 
+await using var discordSocketClient = new DiscordSocketClient(discordSocketConfig);
+
 var minutes = new[] { 5, 10, 15, 30 };
 var hours = new[] { 1, 2, 3, 4, 6, 8, 12, 24 };
 
@@ -59,7 +64,6 @@ var intervalConfig = new IntervalConfig(minutes, hours);
 var every5Minutes = CronExpression.Parse("*/5 * * * *");
 
 var delayerConfig = new DelayerConfig(every5Minutes);
-var discordSocketClient = new DiscordSocketClient(discordSocketConfig);
 var discordSocketClientHandlerConfig = new DiscordSocketClientHandlerConfig(playingGame, guildToRegisterCommands, assembly);
 var gifCacheConfig = new GifCacheConfig([], 1_000, maxPageCount, maxGiphyCacheLoops);
 var giphyCacheWorkerConfig = new GiphyCacheWorkerConfig(timeSpanBetweenCacheRefreshes);
@@ -93,6 +97,7 @@ builder.Services
 	.AddSingleton<IDiscordSocketClientHandler, DiscordSocketClientHandler>()
 	.AddSingleton<IDiscordSocketClientWrapper, DiscordSocketClientWrapper>()
     .AddSingleton<IGifCache, GifCache>()
+    .AddSingleton<IGifPoster, GifPoster>()
 	.AddSingleton<IGifPostingBehaviorHelper, GifPostingBehaviorHelper>()
 	.AddSingleton<IGifPostingBehaviorSeeder, GifPostingBehaviorSeeder>()
     .AddSingleton<IGifPostStage, GifPostStage>()
@@ -108,14 +113,14 @@ var gifCache = host.Services.GetRequiredService<IGifCache>();
 var gifPostStage = host.Services.GetRequiredService<IGifPostStage>();
 var gifPostingBehaviorSeeder = host.Services.GetRequiredService<IGifPostingBehaviorSeeder>();
 
-discordSocketClient.ButtonExecuted += discordSocketClientHandler.OnComponentExecutedAsync;
+discordSocketClient.ButtonExecuted += discordSocketClientHandler.OnSocketInteractionAsync;
 discordSocketClient.InteractionCreated += discordSocketClientHandler.OnInteractionCreatedAsync;
 discordSocketClient.JoinedGuild += discordSocketClientHandler.OnJoinedGuildAsync;
 discordSocketClient.LeftGuild += discordSocketClientHandler.OnLeftGuildAsync;
 discordSocketClient.Log += discordSocketClientHandler.OnLogAsync;
-discordSocketClient.ModalSubmitted += discordSocketClientHandler.OnModalSubmittedAsync;
+discordSocketClient.ModalSubmitted += discordSocketClientHandler.OnSocketInteractionAsync;
 discordSocketClient.Ready += discordSocketClientHandler.OnReadyAsync;
-discordSocketClient.SelectMenuExecuted += discordSocketClientHandler.OnComponentExecutedAsync;
+discordSocketClient.SelectMenuExecuted += discordSocketClientHandler.OnSocketInteractionAsync;
 
 interactionService.Log += discordSocketClientHandler.OnLogAsync;
 
@@ -141,5 +146,4 @@ catch (Exception exception)
 finally
 {
     await discordSocketClient.LogoutAsync();
-	await discordSocketClient.DisposeAsync();
 }

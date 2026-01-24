@@ -4,26 +4,35 @@ using TrendingGiphyBotWorkerService.Database;
 using TrendingGiphyBotWorkerService.GifPostingBehavior;
 using TrendingGiphyBotWorkerService.Giphy.Api;
 using TrendingGiphyBotWorkerService.Giphy.Staging.Caching;
+using TrendingGiphyBotWorkerService.Logging;
 
 namespace TrendingGiphyBotWorkerService.Giphy.Staging;
 
-public class GifPostStage(IServiceScopeFactory _serviceScopeFactory, IGifCache _gifCache, IGiphyClient _giphyClient, GifPostStageConfig _gifPostStageConfig) : IGifPostStage
+public class GifPostStage(
+    ILogger<GifPostStage> _logger,
+    IServiceScopeFactory _serviceScopeFactory,
+    IGifCache _gifCache,
+    IGiphyClient _giphyClient,
+    GifPostStageConfig _gifPostStageConfig
+) : IGifPostStage
 {
-    readonly Dictionary<ulong, GiphyData> _channelGifPostStage = [];
+    readonly Dictionary<ulong, GiphyData> _items = [];
 
-    public IImmutableDictionary<ulong, GiphyData> GetChannelGifPostStage() => _channelGifPostStage.ToImmutableDictionary();
+    public IImmutableDictionary<ulong, GiphyData> GetChannelGifPostStage() => _items.ToImmutableDictionary();
 
-    public void Evict(ulong channelId) => _channelGifPostStage.Remove(channelId);
+    public void Evict(ulong channelId) => _items.Remove(channelId);
 
     public async Task RefreshAsync(CancellationToken cancellationToken = default)
     {
+        _logger.LogGifStageIsRefreshing();
+
         using var scope = _serviceScopeFactory.CreateScope();
 
         var trendingGiphyBotDbContext = scope.ServiceProvider.GetRequiredService<ITrendingGiphyBotDbContext>();
 
         var activeChannels = await trendingGiphyBotDbContext.ChannelSettings
             .Include(s => s.GifPosts)
-            .Where(s => !_channelGifPostStage.Keys.Contains(s.ChannelId) && s.Frequency > 0)
+            .Where(s => !_items.Keys.Contains(s.ChannelId) && s.Frequency > 0)
             .ToListAsync(cancellationToken);
 
         foreach (var channel in activeChannels)
@@ -35,7 +44,7 @@ public class GifPostStage(IServiceScopeFactory _serviceScopeFactory, IGifCache _
                 if (firstGif is null)
                     continue;
 
-                _channelGifPostStage[channel.ChannelId] = firstGif;
+                _items[channel.ChannelId] = firstGif;
 
                 continue;
             }
@@ -45,7 +54,7 @@ public class GifPostStage(IServiceScopeFactory _serviceScopeFactory, IGifCache _
 
             if (firstUnseenGif is not null)
             {
-                _channelGifPostStage[channel.ChannelId] = firstUnseenGif;
+                _items[channel.ChannelId] = firstUnseenGif;
 
                 continue;
             }
@@ -63,7 +72,7 @@ public class GifPostStage(IServiceScopeFactory _serviceScopeFactory, IGifCache _
 
                 if (!randomGifHasAlreadyBeenSeen)
                 {
-                    _channelGifPostStage[channel.ChannelId] = randomGif.Data;
+                    _items[channel.ChannelId] = randomGif.Data;
 
                     break;
                 }
@@ -72,5 +81,7 @@ public class GifPostStage(IServiceScopeFactory _serviceScopeFactory, IGifCache _
             }
             while (attempts < _gifPostStageConfig.MaxRandomGifAttempts);
         }
+
+        _logger.LogGifStageHasRefreshed(_items.Count);
     }
 }

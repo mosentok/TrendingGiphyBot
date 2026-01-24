@@ -3,16 +3,18 @@ using TrendingGiphyBotWorkerService.Logging;
 
 namespace TrendingGiphyBotWorkerService.Giphy.Staging.Caching;
 
-// TODO get rid of _items? unless we expect to seed the values somehow. that ought to be done post-DI by the worker already anyway tho
 public class GifCache(
-    ILogger<IGifCache> _logger,
+    ILogger<GifCache> _logger,
     GifCacheConfig _gifCacheConfig,
-    IGiphyClient _giphyClient) : IGifCache
+    IGiphyClient _giphyClient
+) : IGifCache
 {
-    public List<GiphyData> Items { get; } = [.. _gifCacheConfig.Items.OrderByDescending(s => s.TrendingDatetime)];
+    readonly List<GiphyData> _items = [.. _gifCacheConfig.Items.OrderByDescending(s => s.TrendingDatetime)];
 
     public async Task RefreshAsync(CancellationToken cancellationToken = default)
     {
+        _logger.LogGifCacheIsRefreshing();
+
         try
         {
             var numberOfResponses = 0;
@@ -21,20 +23,25 @@ public class GifCache(
             {
                 var giphyResponse = await _giphyClient.GetTrendingGifsAsync(offset: numberOfResponses, cancellationToken: cancellationToken);
 
-                var notInListYet = giphyResponse.Data.Where(s => !Items.Contains(s));
+                var notInListYet = giphyResponse.Data.Where(s => !_items.Contains(s)).ToArray();
 
-                Items.AddRange(notInListYet);
-                Items.Sort((left, right) => string.Compare(left.TrendingDatetime, right.TrendingDatetime));
+                _items.AddRange(notInListYet);
+                _items.Sort((left, right) => string.Compare(left.TrendingDatetime, right.TrendingDatetime));
 
-                if (Items.Count <= _gifCacheConfig.MaxCount)
-                    return;
-
-                var excessCount = Items.Count - _gifCacheConfig.MaxCount;
-
-                Items.RemoveRange(_gifCacheConfig.MaxCount, excessCount);
+                _logger.LogGifCacheCount(notInListYet.Length);
 
                 numberOfResponses += giphyResponse.Data.Count;
             }
+
+            if (_items.Count > _gifCacheConfig.MaxCount)
+            {
+                var excessCount = _items.Count - _gifCacheConfig.MaxCount;
+
+                _items.RemoveRange(_gifCacheConfig.MaxCount, excessCount);
+            }
+
+            _logger.LogGifCacheHasRefreshed(_items.Count);
+
         }
         catch (Exception ex)
         {
@@ -42,7 +49,7 @@ public class GifCache(
         }
     }
 
-    public GiphyData? GetFirstGif() => Items.FirstOrDefault();
+    public GiphyData? GetFirstGif() => _items.FirstOrDefault();
 
-    public GiphyData? GetFirstUnseenGif(string[] idsAlreadySeen) => Items.FirstOrDefault(s => !idsAlreadySeen.Contains(s.Id));
+    public GiphyData? GetFirstUnseenGif(string[] idsAlreadySeen) => _items.FirstOrDefault(s => !idsAlreadySeen.Contains(s.Id));
 }
