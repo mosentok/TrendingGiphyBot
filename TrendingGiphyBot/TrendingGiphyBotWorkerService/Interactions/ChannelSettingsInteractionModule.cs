@@ -70,9 +70,17 @@ public class ChannelSettingsInteractionModule(
     [ComponentInteraction("posting-hours-from")]
 	public async Task SetPostingHoursFromAsync(string postingHoursFrom)
 	{
-		//TODO validation of input
+		// parse input into nullable int (hours 0-23). empty or whitespace clears the value.
+		if (string.IsNullOrWhiteSpace(postingHoursFrom))
+			_channelSettings!.PostingHoursFrom = null;
+		else
+		{
+			var success = int.TryParse(postingHoursFrom, out var parsed);
+			if (!success || parsed < 0 || parsed > 23)
+				throw new ThisShouldBeImpossibleException();
 
-		_channelSettings!.PostingHoursFrom = postingHoursFrom;
+			_channelSettings!.PostingHoursFrom = parsed;
+		}
 
 		_shouldUpdateInteraction = true;
     }
@@ -80,9 +88,17 @@ public class ChannelSettingsInteractionModule(
     [ComponentInteraction("posting-hours-to")]
 	public async Task SetPostingHoursToAsync(string postingHoursTo)
 	{
-		//TODO validation of input
+		// parse input into nullable int (hours 0-23). empty or whitespace clears the value.
+		if (string.IsNullOrWhiteSpace(postingHoursTo))
+			_channelSettings!.PostingHoursTo = null;
+		else
+		{
+			var success = int.TryParse(postingHoursTo, out var parsed);
+			if (!success || parsed < 0 || parsed > 23)
+				throw new ThisShouldBeImpossibleException();
 
-		_channelSettings!.PostingHoursTo = postingHoursTo;
+			_channelSettings!.PostingHoursTo = parsed;
+		}
 
 		_shouldUpdateInteraction = true;
     }

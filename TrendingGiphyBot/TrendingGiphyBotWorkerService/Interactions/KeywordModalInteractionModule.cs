@@ -6,19 +6,22 @@ using TrendingGiphyBotWorkerService.Database;
 
 namespace TrendingGiphyBotWorkerService.Interactions;
 
-public class KeywordModalInteractionModule(IChannelSettingsMessageComponentFactory _settingsMessageComponentFactory, ITrendingGiphyBotDbContext _trendingGiphyBotContext) : InteractionModuleBase<SocketInteractionContext<SocketModal>>
+public class KeywordModalInteractionModule(
+    IChannelSettingsMessageComponentFactory _settingsMessageComponentFactory,
+    ITrendingGiphyBotDbContext _trendingGiphyBotContext
+) : InteractionModuleBase<SocketInteractionContext<SocketModal>>
 {
-	[ModalInteraction("trending-gifs-with-keyword-modal")]
-	public async Task SetKeywordAsync(FeedbackModal modal)
-	{
-		var channelSettings = await _trendingGiphyBotContext.ChannelSettings.SingleAsync(s => s.ChannelId == Context.Channel.Id);
+    [ModalInteraction("trending-gifs-with-keyword-modal")]
+    public async Task SetKeywordAsync(KeyboardModal keyboardModal)
+    {
+        var channelSettings = await _trendingGiphyBotContext.ChannelSettings.SingleAsync(s => s.ChannelId == Context.Channel.Id);
 
-		channelSettings.GifKeyword = modal.Keyword;
+        channelSettings.GifKeyword = keyboardModal.Keyword;
 
-		await _trendingGiphyBotContext.SaveChangesAsync();
+        await _trendingGiphyBotContext.SaveChangesAsync();
 
-		var settingsMessageComponent = _settingsMessageComponentFactory.BuildChannelSettingsMessageComponent(channelSettings, Context.Channel.Name);
+        var settingsMessageComponent = _settingsMessageComponentFactory.BuildChannelSettingsMessageComponent(channelSettings, Context.Channel.Name);
 
-		await Context.Interaction.UpdateAsync(async messageProperties => messageProperties.Components = settingsMessageComponent);
-	}
+        await Context.Interaction.UpdateAsync(async messageProperties => messageProperties.Components = settingsMessageComponent);
+    }
 }

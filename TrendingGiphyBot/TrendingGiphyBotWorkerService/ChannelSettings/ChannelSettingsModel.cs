@@ -10,8 +10,8 @@ public class ChannelSettingsModel
     public int IntervalId { get; set; }
     public int GifPostingBehaviorId { get; set; }
     public string? GifKeyword { get; set; }
-    public string? PostingHoursFrom { get; set; }
-    public string? PostingHoursTo { get; set; }
+    public int? PostingHoursFrom { get; set; }
+    public int? PostingHoursTo { get; set; }
     public decimal? UtcOffset { get; set; }
     public virtual Interval Interval { get; set; } = null!;
     public virtual GifPostingBehaviorModel GifPostingBehavior { get; set; } = null!;

@@ -72,27 +72,13 @@ public class ChannelSettingsMessageComponentFactory(IntervalConfig _intervalConf
             .WithLabel("Set Posting Hours")
             .WithStyle(ButtonStyle.Secondary);
 
-        string postingHoursDisplay;
-
-        if (channelSettings.PostingHoursFrom is null and not "" || channelSettings.PostingHoursTo is null and not "" || channelSettings.UtcOffset is null)
-            postingHoursDisplay = "<none>";
-        else
-        {
-            var utcOffsetIndicator = channelSettings.UtcOffset.Value switch
-            {
-                0 => "",
-                > 0 => "+",
-                < 0 => "-"
-            };
-
-            postingHoursDisplay = $"{channelSettings.PostingHoursFrom} - {channelSettings.PostingHoursTo} ({utcOffsetIndicator}{channelSettings.UtcOffset})";
-        }
+        var postingHoursDisplay = DeterminePostingHoursDisplay();
 
         var clearPostingHoursButton = new ButtonBuilder()
             .WithCustomId("clear-posting-hours-modal-button")
             .WithLabel($"""Clear Posting Hours (Currently "{postingHoursDisplay}")""")
             .WithStyle(ButtonStyle.Danger)
-            .WithDisabled(channelSettings.GifKeyword is null);
+            .WithDisabled(channelSettings.PostingHoursFrom is null || channelSettings.PostingHoursTo is null);
 
         return new ComponentBuilderV2()
             .WithTextDisplay($"# Trending Giphy Bot Settings for: **{channelName}**")
@@ -105,5 +91,20 @@ public class ChannelSettingsMessageComponentFactory(IntervalConfig _intervalConf
             .WithActionRow([gifKeywordButton, clearGifKeywordButton])
             .WithActionRow([setPostingHoursButton, clearPostingHoursButton])
             .Build();
+
+        string DeterminePostingHoursDisplay()
+        {
+            if (channelSettings.PostingHoursFrom is null || channelSettings.PostingHoursTo is null)
+                return "<none>";
+
+            if (channelSettings.UtcOffset is null or 0)
+                return $"{channelSettings.PostingHoursFrom} - {channelSettings.PostingHoursTo}";
+
+            var utcOffsetIndicator = channelSettings.UtcOffset.Value > 0
+                ? "+"
+                : "-";
+
+            return $"{channelSettings.PostingHoursFrom} - {channelSettings.PostingHoursTo} ({utcOffsetIndicator}{channelSettings.UtcOffset})";
+        }
     }
 }
