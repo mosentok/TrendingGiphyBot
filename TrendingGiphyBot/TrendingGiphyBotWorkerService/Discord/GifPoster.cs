@@ -16,14 +16,14 @@ public class GifPoster(
     IDiscordSocketClientWrapper _discordSocketClientWrapper
 ) : IGifPoster
 {
-    public async Task PostGifsAsync(IImmutableDictionary<ulong, GiphyData> stagedChannelGifPosts, List<ulong> activeChannelIds, CancellationToken stoppingToken)
+    public async Task PostGifsAsync(IImmutableDictionary<ulong, GiphyData> stagedChannelGifPosts, List<ulong> channelIds, CancellationToken stoppingToken)
     {
         using var scope = _serviceScopeFactory.CreateScope();
 
         var trendingGiphyBotDbContext = scope.ServiceProvider.GetRequiredService<ITrendingGiphyBotDbContext>();
 
         // TODO parallelize this loop?
-        foreach (var channelId in activeChannelIds)
+        foreach (var channelId in channelIds)
         {
             var gifPost = new GifPost { ChannelId = channelId, GiphyDataId = stagedChannelGifPosts[channelId].Id };
 

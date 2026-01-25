@@ -39,21 +39,19 @@ public class DiscordPostingWorker(
 
             var trendingGiphyBotDbContext = scope.ServiceProvider.GetRequiredService<ITrendingGiphyBotDbContext>();
 
-            var candidateSettings = await trendingGiphyBotDbContext.ChannelSettings
+            var candidateChannelSettings = await trendingGiphyBotDbContext.ChannelSettings
                 .Where(channelSettings =>
                     stagedChannelGifPosts.Keys.Contains(channelSettings.ChannelId) &&
                     ((channelSettings.IntervalId == (int)IntervalDescription.Minutes && validMinutes.Contains(channelSettings.Frequency)) ||
                     (channelSettings.IntervalId == (int)IntervalDescription.Hours && validHours.Contains(channelSettings.Frequency))))
                 .ToListAsync(stoppingToken);
 
-            // Filter candidates by their configured posting hours (in their local time represented by UtcOffset).
-            // UtcOffset is stored as a decimal where the fractional part encodes minutes as two digits (e.g. 12.45 -> 12 hours 45 minutes).
-            var activeChannelIds = candidateSettings
+            var channelIdsInPostingHours = candidateChannelSettings
                 .Where(channelSettings => _channelSettingsFilter.InPostingHours(channelSettings, now))
                 .Select(channelSettings => channelSettings.ChannelId)
                 .ToList();
 
-            await _gifPoster.PostGifsAsync(stagedChannelGifPosts, activeChannelIds, stoppingToken);
+            await _gifPoster.PostGifsAsync(stagedChannelGifPosts, channelIdsInPostingHours, stoppingToken);
 
             _logger.LogPostedGifs();
         }

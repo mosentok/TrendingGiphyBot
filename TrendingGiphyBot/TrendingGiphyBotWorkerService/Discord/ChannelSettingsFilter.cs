@@ -9,26 +9,25 @@ public class ChannelSettingsFilter : IChannelSettingsFilter
         if (!channelSettings.PostingHoursFrom.HasValue || !channelSettings.PostingHoursTo.HasValue)
             return true;
 
-        var from = channelSettings.PostingHoursFrom.Value;
-        var to = channelSettings.PostingHoursTo.Value;
+        var from = TimeSpan.FromHours(channelSettings.PostingHoursFrom.Value);
+        var to = TimeSpan.FromHours(channelSettings.PostingHoursTo.Value);
 
-        var hour = DetermineLocalHour();
+        var localTimeOfDay = DetermineLocalTimeOfDay();
 
-        // TODO i don't think this is 100% correct. just because the hour passes the check doesn't mean the minutes do
         return from <= to
-            ? hour >= from && hour <= to
-            : hour >= from ^ hour <= to;
+            ? localTimeOfDay >= from && localTimeOfDay <= to
+            : localTimeOfDay >= from ^ localTimeOfDay <= to;
 
-        int DetermineLocalHour()
+        TimeSpan DetermineLocalTimeOfDay()
         {
             if (channelSettings.UtcOffset is null or "")
-                return now.Hour;
+                return now.TimeOfDay;
 
             var offset = TimeSpan.Parse(channelSettings.UtcOffset);
 
-            var local = now + offset;
+            var nowLocal = now + offset;
 
-            return local.Hour;
+            return nowLocal.TimeOfDay;
         }
     }
 }
