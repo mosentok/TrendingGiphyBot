@@ -15,7 +15,7 @@ public class PostingHoursModalInteractionModule(
 {
     const string _utcOffsetErrorMessage = "Please input your time zone UTC offset in the format '+ab:xy' or '-ab:xy', like -03:00, +05:30, or 1245.";
 
-    [ModalInteraction("trending-posting-hours-modal")]
+    [ModalInteraction(InteractionId.TrendingPostingHoursModal)]
     public async Task SetPostingHoursAsync(PostingHoursModal postingHoursModal)
     {
         var channelSettings = await _trendingGiphyBotContext.ChannelSettings.SingleAsync(s => s.ChannelId == Context.Channel.Id);

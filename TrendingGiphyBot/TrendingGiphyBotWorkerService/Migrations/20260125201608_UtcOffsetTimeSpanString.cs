@@ -2,21 +2,20 @@
 
 #nullable disable
 
-namespace TrendingGiphyBotWorkerService.Migrations
+namespace TrendingGiphyBotWorkerService.Migrations;
+
+/// <inheritdoc />
+public partial class UtcOffsetTimeSpanString : Migration
 {
     /// <inheritdoc />
-    public partial class UtcOffsetTimeSpanString : Migration
+    protected override void Up(MigrationBuilder migrationBuilder)
     {
-        /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
 
-        }
+    }
 
-        /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
+    /// <inheritdoc />
+    protected override void Down(MigrationBuilder migrationBuilder)
+    {
 
-        }
     }
 }

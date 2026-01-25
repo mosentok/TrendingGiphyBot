@@ -1,5 +1,6 @@
 using Discord;
 using TrendingGiphyBotWorkerService.GifPostingBehavior;
+using TrendingGiphyBotWorkerService.Interactions;
 using TrendingGiphyBotWorkerService.Intervals;
 using TrendingGiphyBotWorkerService.Utc;
 
@@ -37,7 +38,7 @@ public class ChannelSettingsMessageComponentFactory(IntervalConfig _intervalConf
         selectedOption.IsDefault = true;
 
         var howOftenSelectMenu = new SelectMenuBuilder()
-            .WithCustomId("how-often-select-menu")
+            .WithCustomId(InteractionId.HowOftenSelectMenu)
             .WithPlaceholder("How often gifs get posted")
             .WithOptions(howOftenOptions);
 
@@ -48,35 +49,35 @@ public class ChannelSettingsMessageComponentFactory(IntervalConfig _intervalConf
         };
 
         var trendingGifsOnlyButton = new ButtonBuilder()
-            .WithCustomId("trending-gifs-only-button")
+            .WithCustomId(InteractionId.TrendingGifsOnlyButton)
             .WithLabel(gifsOnlyButtonLabel)
             .WithStyle(gifsOnlyButtonStyle);
 
         var trendingGifsWithRandomButton = new ButtonBuilder()
-            .WithCustomId("trending-gifs-with-random-button")
+            .WithCustomId(InteractionId.TrendingGifsWithRandomButton)
             .WithLabel(randomGifsButtonLabel)
             .WithStyle(randomGifsButtonStyle);
 
         var gifKeywordButton = new ButtonBuilder()
-            .WithCustomId("trending-gifs-with-keyword-modal-button")
+            .WithCustomId(InteractionId.TrendingGifsWithKeywordModalButton)
             .WithLabel("Set Random Gif Keywords")
             .WithStyle(ButtonStyle.Secondary);
 
         var clearGifKeywordButton = new ButtonBuilder()
-            .WithCustomId("clear-keyword-modal-button")
+            .WithCustomId(InteractionId.ClearKeywordModalButton)
             .WithLabel($"""Clear Random Gif Keywords (Currently "{channelSettings.GifKeyword ?? "<none>"}")""")
             .WithStyle(ButtonStyle.Danger)
             .WithDisabled(channelSettings.GifKeyword is null);
 
         var setPostingHoursButton = new ButtonBuilder()
-            .WithCustomId("trending-posting-hours-modal-button")
+            .WithCustomId(InteractionId.TrendingPostingHoursModalButton)
             .WithLabel("Set Posting Hours")
             .WithStyle(ButtonStyle.Secondary);
 
         var postingHoursDisplay = DeterminePostingHoursDisplay();
 
         var clearPostingHoursButton = new ButtonBuilder()
-            .WithCustomId("clear-posting-hours-modal-button")
+            .WithCustomId(InteractionId.ClearPostingHoursModalButton)
             .WithLabel($"""Clear Posting Hours (Currently "{postingHoursDisplay}")""")
             .WithStyle(ButtonStyle.Danger)
             .WithDisabled(channelSettings.PostingHoursFrom is null || channelSettings.PostingHoursTo is null);

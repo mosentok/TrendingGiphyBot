@@ -37,7 +37,7 @@ public class ChannelSettingsInteractionModule(
 		await Context.Interaction.UpdateAsync(messageProperties => messageProperties.Components = settingsMessageComponent);
 	}
 
-	[ComponentInteraction("how-often-select-menu")]
+	[ComponentInteraction(InteractionId.HowOftenSelectMenu)]
 	public async Task SetHowOftenAsync(string[] selectedValues)
 	{
 		ThisShouldBeImpossibleException.ThrowIf(selectedValues.Length != 1);
@@ -59,11 +59,11 @@ public class ChannelSettingsInteractionModule(
 		_shouldUpdateInteraction = true;
     }
 
-	[ComponentInteraction("trending-gifs-only-button")]
+	[ComponentInteraction(InteractionId.TrendingGifsOnlyButton)]
 	public async Task SetTrendingGifsOnlyAsync() =>
 		_shouldUpdateInteraction = await _gifPostingBehaviorHelper.SetBehaviorAsync(_channelSettings!, GifPostingBehaviorKind.TrendingGifsOnly);
 
-    [ComponentInteraction("trending-gifs-with-random-button")]
+    [ComponentInteraction(InteractionId.TrendingGifsWithRandomButton)]
     public async Task SetTrendingGifsWithRandomAsync() =>
         _shouldUpdateInteraction = await _gifPostingBehaviorHelper.SetBehaviorAsync(_channelSettings!, GifPostingBehaviorKind.TrendingGifsWithRandomGifs);
 }

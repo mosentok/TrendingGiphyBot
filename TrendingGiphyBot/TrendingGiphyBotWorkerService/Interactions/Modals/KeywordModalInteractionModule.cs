@@ -11,7 +11,7 @@ public class KeywordModalInteractionModule(
     ITrendingGiphyBotDbContext _trendingGiphyBotContext
 ) : InteractionModuleBase<SocketInteractionContext<SocketModal>>
 {
-    [ModalInteraction("trending-gifs-with-keyword-modal")]
+    [ModalInteraction(InteractionId.TrendingGifsWithKeywordModal)]
     public async Task SetKeywordAsync(KeyboardModal keyboardModal)
     {
         var channelSettings = await _trendingGiphyBotContext.ChannelSettings.SingleAsync(s => s.ChannelId == Context.Channel.Id);
