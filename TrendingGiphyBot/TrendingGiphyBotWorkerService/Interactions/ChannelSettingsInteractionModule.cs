@@ -64,50 +64,6 @@ public class ChannelSettingsInteractionModule(
 		_shouldUpdateInteraction = await _gifPostingBehaviorHelper.SetBehaviorAsync(_channelSettings!, GifPostingBehaviorKind.TrendingGifsOnly);
 
     [ComponentInteraction("trending-gifs-with-random-button")]
-	public async Task SetTrendingGifsWithRandomAsync() =>
-		_shouldUpdateInteraction = await _gifPostingBehaviorHelper.SetBehaviorAsync(_channelSettings!, GifPostingBehaviorKind.TrendingGifsWithRandomGifs);
-
-    [ComponentInteraction("posting-hours-from")]
-	public async Task SetPostingHoursFromAsync(string postingHoursFrom)
-	{
-		// parse input into nullable int (hours 0-23). empty or whitespace clears the value.
-		if (string.IsNullOrWhiteSpace(postingHoursFrom))
-			_channelSettings!.PostingHoursFrom = null;
-		else
-		{
-			var success = int.TryParse(postingHoursFrom, out var parsed);
-			if (!success || parsed < 0 || parsed > 23)
-				throw new ThisShouldBeImpossibleException();
-
-			_channelSettings!.PostingHoursFrom = parsed;
-		}
-
-		_shouldUpdateInteraction = true;
-    }
-
-    [ComponentInteraction("posting-hours-to")]
-	public async Task SetPostingHoursToAsync(string postingHoursTo)
-	{
-		// parse input into nullable int (hours 0-23). empty or whitespace clears the value.
-		if (string.IsNullOrWhiteSpace(postingHoursTo))
-			_channelSettings!.PostingHoursTo = null;
-		else
-		{
-			var success = int.TryParse(postingHoursTo, out var parsed);
-			if (!success || parsed < 0 || parsed > 23)
-				throw new ThisShouldBeImpossibleException();
-
-			_channelSettings!.PostingHoursTo = parsed;
-		}
-
-		_shouldUpdateInteraction = true;
-    }
-
-    [ComponentInteraction("time-zone")]
-	public async Task SetTimeZoneAsync(string timeZone)
-	{
-		//TODO validation of input
-
-		_shouldUpdateInteraction = true;
-    }
+    public async Task SetTrendingGifsWithRandomAsync() =>
+        _shouldUpdateInteraction = await _gifPostingBehaviorHelper.SetBehaviorAsync(_channelSettings!, GifPostingBehaviorKind.TrendingGifsWithRandomGifs);
 }
