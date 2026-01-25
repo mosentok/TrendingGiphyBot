@@ -6,7 +6,6 @@ public class KeyboardModal : IModal
 {
     public string Title => "Set keyword to post gifs of when up-to-date";
 
-    [InputLabel("Keyword")]
-    [ModalTextInput(InteractionId.TrendingGifsWithKeywordTextInput, placeholder: "cats")]
+    [ModalTextInput(InteractionId.TrendingGifsWithKeywordTextInput)]
     public required string Keyword { get; set; }
 }
