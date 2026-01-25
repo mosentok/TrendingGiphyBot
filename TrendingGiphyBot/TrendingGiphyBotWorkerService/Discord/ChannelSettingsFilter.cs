@@ -6,7 +6,6 @@ public class ChannelSettingsFilter : IChannelSettingsFilter
 {
     public bool InPostingHours(ChannelSettingsModel channelSettings, DateTimeOffset now)
     {
-        // If either boundary isn't set, treat as unrestricted
         if (!channelSettings.PostingHoursFrom.HasValue || !channelSettings.PostingHoursTo.HasValue)
             return true;
 
@@ -15,10 +14,9 @@ public class ChannelSettingsFilter : IChannelSettingsFilter
 
         var hour = DetermineLocalHour();
 
-        // Handle ranges that don't wrap and those that wrap across midnight
         return from <= to
             ? hour >= from && hour <= to
-            : hour >= from || hour <= to;
+            : hour >= from ^ hour <= to;
 
         int DetermineLocalHour()
         {

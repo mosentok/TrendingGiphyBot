@@ -68,7 +68,7 @@ public class ChannelSettingsMessageComponentFactory(IntervalConfig _intervalConf
             .WithDisabled(channelSettings.GifKeyword is null);
 
         var setPostingHoursButton = new ButtonBuilder()
-            .WithCustomId("set-posting-hours-modal-button")
+            .WithCustomId("trending-posting-hours-modal-button")
             .WithLabel("Set Posting Hours")
             .WithStyle(ButtonStyle.Secondary);
 

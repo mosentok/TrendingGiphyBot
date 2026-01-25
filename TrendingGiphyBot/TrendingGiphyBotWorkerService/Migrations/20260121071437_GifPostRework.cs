@@ -32,8 +32,8 @@ public partial class GifPostRework : Migration
 
         migrationBuilder.RenameIndex(
             name: "IX_GifPost_ChannelId",
-            table: "GifPosts",
-            newName: "IX_GifPosts_ChannelId");
+            newName: "IX_GifPosts_ChannelId",
+            table: "GifPosts");
 
         migrationBuilder.AlterColumn<long>(
             name: "GifPostId",
@@ -75,8 +75,8 @@ public partial class GifPostRework : Migration
 
         migrationBuilder.RenameIndex(
             name: "IX_GifPosts_ChannelId",
-            table: "GifPost",
-            newName: "IX_GifPost_ChannelId");
+            newName: "IX_GifPost_ChannelId",
+            table: "GifPost");
 
         migrationBuilder.AlterColumn<Guid>(
             name: "GifPostId",

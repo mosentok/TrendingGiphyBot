@@ -6,145 +6,144 @@ using TrendingGiphyBotWorkerService.Database;
 
 #nullable disable
 
-namespace TrendingGiphyBotWorkerService.Migrations
+namespace TrendingGiphyBotWorkerService.Migrations;
+
+[DbContext(typeof(TrendingGiphyBotDbContext))]
+partial class TrendingGiphyBotDbContextModelSnapshot : ModelSnapshot
 {
-    [DbContext(typeof(TrendingGiphyBotDbContext))]
-    partial class TrendingGiphyBotDbContextModelSnapshot : ModelSnapshot
+    protected override void BuildModel(ModelBuilder modelBuilder)
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
-        {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "10.0.2");
+        modelBuilder.HasAnnotation("ProductVersion", "10.0.2");
 
-            modelBuilder.Entity("TrendingGiphyBotWorkerService.ChannelSettings.ChannelSettingsModel", b =>
-                {
-                    b.Property<ulong>("ChannelId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+        modelBuilder.Entity("TrendingGiphyBotWorkerService.ChannelSettings.ChannelSettingsModel", b =>
+            {
+                b.Property<ulong>("ChannelId")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("INTEGER");
 
-                    b.Property<int>("Frequency")
-                        .HasColumnType("INTEGER");
+                b.Property<int>("Frequency")
+                    .HasColumnType("INTEGER");
 
-                    b.Property<string>("GifKeyword")
-                        .HasColumnType("TEXT");
+                b.Property<string>("GifKeyword")
+                    .HasColumnType("TEXT");
 
-                    b.Property<int>("GifPostingBehaviorId")
-                        .HasColumnType("INTEGER");
+                b.Property<int>("GifPostingBehaviorId")
+                    .HasColumnType("INTEGER");
 
-                    b.Property<int>("IntervalId")
-                        .HasColumnType("INTEGER");
+                b.Property<int>("IntervalId")
+                    .HasColumnType("INTEGER");
 
-                    b.Property<int?>("PostingHoursFrom")
-                        .HasColumnType("INTEGER");
+                b.Property<int?>("PostingHoursFrom")
+                    .HasColumnType("INTEGER");
 
-                    b.Property<int?>("PostingHoursTo")
-                        .HasColumnType("INTEGER");
+                b.Property<int?>("PostingHoursTo")
+                    .HasColumnType("INTEGER");
 
-                    b.Property<decimal?>("UtcOffset")
-                        .HasColumnType("TEXT");
+                b.Property<decimal?>("UtcOffset")
+                    .HasColumnType("TEXT");
 
-                    b.HasKey("ChannelId");
+                b.HasKey("ChannelId");
 
-                    b.HasIndex("GifPostingBehaviorId");
+                b.HasIndex("GifPostingBehaviorId");
 
-                    b.HasIndex("IntervalId");
+                b.HasIndex("IntervalId");
 
-                    b.ToTable("ChannelSettings", (string)null);
-                });
+                b.ToTable("ChannelSettings", (string)null);
+            });
 
-            modelBuilder.Entity("TrendingGiphyBotWorkerService.ChannelSettings.GifPost", b =>
-                {
-                    b.Property<long>("GifPostId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+        modelBuilder.Entity("TrendingGiphyBotWorkerService.ChannelSettings.GifPost", b =>
+            {
+                b.Property<long>("GifPostId")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("INTEGER");
 
-                    b.Property<ulong>("ChannelId")
-                        .HasColumnType("INTEGER");
+                b.Property<ulong>("ChannelId")
+                    .HasColumnType("INTEGER");
 
-                    b.Property<string>("GiphyDataId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                b.Property<string>("GiphyDataId")
+                    .IsRequired()
+                    .HasColumnType("TEXT");
 
-                    b.HasKey("GifPostId");
+                b.HasKey("GifPostId");
 
-                    b.HasIndex("ChannelId");
+                b.HasIndex("ChannelId");
 
-                    b.ToTable("GifPosts");
-                });
+                b.ToTable("GifPosts");
+            });
 
-            modelBuilder.Entity("TrendingGiphyBotWorkerService.GifPostingBehavior.GifPostingBehaviorModel", b =>
-                {
-                    b.Property<int>("GifPostingBehaviorId")
-                        .HasColumnType("INTEGER");
+        modelBuilder.Entity("TrendingGiphyBotWorkerService.GifPostingBehavior.GifPostingBehaviorModel", b =>
+            {
+                b.Property<int>("GifPostingBehaviorId")
+                    .HasColumnType("INTEGER");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                b.Property<string>("Description")
+                    .IsRequired()
+                    .HasColumnType("TEXT");
 
-                    b.HasKey("GifPostingBehaviorId");
+                b.HasKey("GifPostingBehaviorId");
 
-                    b.ToTable("GifPostingBehaviors");
-                });
+                b.ToTable("GifPostingBehaviors");
+            });
 
-            modelBuilder.Entity("TrendingGiphyBotWorkerService.Intervals.Interval", b =>
-                {
-                    b.Property<int>("IntervalId")
-                        .HasColumnType("INTEGER");
+        modelBuilder.Entity("TrendingGiphyBotWorkerService.Intervals.Interval", b =>
+            {
+                b.Property<int>("IntervalId")
+                    .HasColumnType("INTEGER");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                b.Property<string>("Description")
+                    .IsRequired()
+                    .HasColumnType("TEXT");
 
-                    b.HasKey("IntervalId");
+                b.HasKey("IntervalId");
 
-                    b.ToTable("Intervals");
-                });
+                b.ToTable("Intervals");
+            });
 
-            modelBuilder.Entity("TrendingGiphyBotWorkerService.ChannelSettings.ChannelSettingsModel", b =>
-                {
-                    b.HasOne("TrendingGiphyBotWorkerService.GifPostingBehavior.GifPostingBehaviorModel", "GifPostingBehavior")
-                        .WithMany("ChannelSettings")
-                        .HasForeignKey("GifPostingBehaviorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+        modelBuilder.Entity("TrendingGiphyBotWorkerService.ChannelSettings.ChannelSettingsModel", b =>
+            {
+                b.HasOne("TrendingGiphyBotWorkerService.GifPostingBehavior.GifPostingBehaviorModel", "GifPostingBehavior")
+                    .WithMany("ChannelSettings")
+                    .HasForeignKey("GifPostingBehaviorId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.HasOne("TrendingGiphyBotWorkerService.Intervals.Interval", "Interval")
-                        .WithMany("ChannelSettings")
-                        .HasForeignKey("IntervalId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                b.HasOne("TrendingGiphyBotWorkerService.Intervals.Interval", "Interval")
+                    .WithMany("ChannelSettings")
+                    .HasForeignKey("IntervalId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.Navigation("GifPostingBehavior");
+                b.Navigation("GifPostingBehavior");
 
-                    b.Navigation("Interval");
-                });
+                b.Navigation("Interval");
+            });
 
-            modelBuilder.Entity("TrendingGiphyBotWorkerService.ChannelSettings.GifPost", b =>
-                {
-                    b.HasOne("TrendingGiphyBotWorkerService.ChannelSettings.ChannelSettingsModel", "ChannelSettings")
-                        .WithMany("GifPosts")
-                        .HasForeignKey("ChannelId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+        modelBuilder.Entity("TrendingGiphyBotWorkerService.ChannelSettings.GifPost", b =>
+            {
+                b.HasOne("TrendingGiphyBotWorkerService.ChannelSettings.ChannelSettingsModel", "ChannelSettings")
+                    .WithMany("GifPosts")
+                    .HasForeignKey("ChannelId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.Navigation("ChannelSettings");
-                });
+                b.Navigation("ChannelSettings");
+            });
 
-            modelBuilder.Entity("TrendingGiphyBotWorkerService.ChannelSettings.ChannelSettingsModel", b =>
-                {
-                    b.Navigation("GifPosts");
-                });
+        modelBuilder.Entity("TrendingGiphyBotWorkerService.ChannelSettings.ChannelSettingsModel", b =>
+            {
+                b.Navigation("GifPosts");
+            });
 
-            modelBuilder.Entity("TrendingGiphyBotWorkerService.GifPostingBehavior.GifPostingBehaviorModel", b =>
-                {
-                    b.Navigation("ChannelSettings");
-                });
+        modelBuilder.Entity("TrendingGiphyBotWorkerService.GifPostingBehavior.GifPostingBehaviorModel", b =>
+            {
+                b.Navigation("ChannelSettings");
+            });
 
-            modelBuilder.Entity("TrendingGiphyBotWorkerService.Intervals.Interval", b =>
-                {
-                    b.Navigation("ChannelSettings");
-                });
+        modelBuilder.Entity("TrendingGiphyBotWorkerService.Intervals.Interval", b =>
+            {
+                b.Navigation("ChannelSettings");
+            });
 #pragma warning restore 612, 618
-        }
     }
 }

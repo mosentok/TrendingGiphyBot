@@ -118,6 +118,7 @@ builder.Services
 	.AddSingleton<IGifPostingBehaviorSeeder, GifPostingBehaviorSeeder>()
     .AddSingleton<IGifPostStage, GifPostStage>()
 	.AddSingleton<IIntervalSeeder, IntervalSeeder>()
+	.AddSingleton<IUtcOffsetParser, UtcOffsetParser>()
     .AddHttpClient<IGiphyClient, GiphyClient>(s => s.BaseAddress = new(giphyBaseAddress))
 	.AddStandardResilienceHandler();
 
