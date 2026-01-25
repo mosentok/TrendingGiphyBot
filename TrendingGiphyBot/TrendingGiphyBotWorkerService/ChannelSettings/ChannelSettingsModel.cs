@@ -12,7 +12,7 @@ public class ChannelSettingsModel
     public string? GifKeyword { get; set; }
     public int? PostingHoursFrom { get; set; }
     public int? PostingHoursTo { get; set; }
-    public decimal? UtcOffset { get; set; }
+    public string? UtcOffset { get; set; }
     public virtual Interval Interval { get; set; } = null!;
     public virtual GifPostingBehaviorModel GifPostingBehavior { get; set; } = null!;
     public virtual ICollection<GifPost>? GifPosts { get; set; }

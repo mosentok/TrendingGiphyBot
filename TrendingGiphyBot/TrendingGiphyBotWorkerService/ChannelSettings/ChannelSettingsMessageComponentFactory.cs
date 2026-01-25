@@ -1,10 +1,11 @@
 using Discord;
 using TrendingGiphyBotWorkerService.GifPostingBehavior;
+using TrendingGiphyBotWorkerService.Interactions;
 using TrendingGiphyBotWorkerService.Intervals;
 
 namespace TrendingGiphyBotWorkerService.ChannelSettings;
 
-public class ChannelSettingsMessageComponentFactory(IntervalConfig _intervalConfig) : IChannelSettingsMessageComponentFactory
+public class ChannelSettingsMessageComponentFactory(IntervalConfig _intervalConfig, IUtcOffsetParser _utcOffsetParser) : IChannelSettingsMessageComponentFactory
 {
     public MessageComponent BuildChannelSettingsMessageComponent(ChannelSettingsModel channelSettings, string channelName)
     {
@@ -97,14 +98,12 @@ public class ChannelSettingsMessageComponentFactory(IntervalConfig _intervalConf
             if (channelSettings.PostingHoursFrom is null || channelSettings.PostingHoursTo is null)
                 return "<none>";
 
-            if (channelSettings.UtcOffset is null or 0)
-                return $"{channelSettings.PostingHoursFrom} - {channelSettings.PostingHoursTo}";
+            if (channelSettings.UtcOffset is null or "")
+                return $"{channelSettings.PostingHoursFrom}-{channelSettings.PostingHoursTo}";
 
-            var utcOffsetIndicator = channelSettings.UtcOffset.Value > 0
-                ? "+"
-                : "-";
+            var formattedUtcOffset = _utcOffsetParser.FormatUtcOffsetString(channelSettings.UtcOffset);
 
-            return $"{channelSettings.PostingHoursFrom} - {channelSettings.PostingHoursTo} ({utcOffsetIndicator}{channelSettings.UtcOffset})";
+            return $"{channelSettings.PostingHoursFrom}-{channelSettings.PostingHoursTo} ({formattedUtcOffset})";
         }
     }
 }

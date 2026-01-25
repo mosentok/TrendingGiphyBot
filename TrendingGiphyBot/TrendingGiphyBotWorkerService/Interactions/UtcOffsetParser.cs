@@ -2,23 +2,36 @@ namespace TrendingGiphyBotWorkerService.Interactions;
 
 public class UtcOffsetParser : IUtcOffsetParser
 {
-    public async Task<(bool Success, decimal? UtcOffset)> TryParseUtcOffsetAsync(string stringWithSign)
+    public async Task<(bool Success, TimeSpan? UtcOffset)> TryParseUtcOffsetAsync(string utcOffsetString)
     {
         short sign;
 
-        switch (stringWithSign[0])
+        switch (utcOffsetString[0])
         {
             case '+':
                 sign = 1;
+
                 break;
+
             case '-':
                 sign = -1;
+
                 break;
+
             default:
-                return (false, null);
+                if (utcOffsetString.Length != 5)
+                    return (false, null);
+
+                sign = 1;
+
+                break;
         }
 
-        var split = stringWithSign[1..].Split([':'], 2);
+        var utcOffsetWithoutSignString = utcOffsetString.Length == 5
+            ? utcOffsetString
+            : utcOffsetString[1..];
+
+        var split = utcOffsetWithoutSignString.Split([':'], 2);
 
         if (split.Length != 2)
             return (false, null);
@@ -36,8 +49,17 @@ public class UtcOffsetParser : IUtcOffsetParser
         if (hours < 0 || hours > 14 || minutes < 0 || minutes > 59)
             return (false, null);
 
-        var decimalOffset = hours + (minutes / 100m);
+        var utcOffset = new TimeSpan(hours, minutes, 0) * sign;
 
-        return (true, decimalOffset * sign);
+        return (true, utcOffset);
+    }
+
+    public string FormatUtcOffsetString(string utcOffsetString)
+    {
+        var utcOffset = TimeSpan.Parse(utcOffsetString);
+
+        return utcOffset >= TimeSpan.Zero
+            ? $"+{utcOffset:hh\\:mm}"
+            : $"-{utcOffset:hh\\:mm}";
     }
 }

@@ -14,25 +14,17 @@ public class ChannelSettingsFilter : IChannelSettingsFilter
 
         var hour = DetermineLocalHour();
 
+        // TODO i don't think this is 100% correct. just because the hour passes the check doesn't mean the minutes do
         return from <= to
             ? hour >= from && hour <= to
             : hour >= from ^ hour <= to;
 
         int DetermineLocalHour()
         {
-            if (channelSettings.UtcOffset is null)
+            if (channelSettings.UtcOffset is null or "")
                 return now.Hour;
 
-            var offsetDecimal = channelSettings.UtcOffset.Value;
-            var sign = Math.Sign(offsetDecimal);
-            var abs = Math.Abs(offsetDecimal);
-            var offsetHours = (int)Math.Truncate(abs);
-            var offsetMinutes = (int)Math.Round((abs - offsetHours) * 100);
-
-            var offset = TimeSpan.FromHours(offsetHours) + TimeSpan.FromMinutes(offsetMinutes);
-
-            if (sign < 0)
-                offset = -offset;
+            var offset = TimeSpan.Parse(channelSettings.UtcOffset);
 
             var local = now + offset;
 

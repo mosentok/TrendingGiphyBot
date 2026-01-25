@@ -57,7 +57,7 @@ public class PostingHoursModalInteractionModule(
                 return;
             }
 
-            channelSettings.UtcOffset = utcOffset;
+            channelSettings.UtcOffset = utcOffset.ToString();
         }
 
         await _trendingGiphyBotContext.SaveChangesAsync();

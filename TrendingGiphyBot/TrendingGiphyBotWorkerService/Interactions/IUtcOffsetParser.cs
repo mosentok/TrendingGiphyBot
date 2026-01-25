@@ -3,5 +3,6 @@ namespace TrendingGiphyBotWorkerService.Interactions;
 
 public interface IUtcOffsetParser
 {
-    Task<(bool Success, decimal? UtcOffset)> TryParseUtcOffsetAsync(string stringWithSign);
+    string FormatUtcOffsetString(string utcOffsetString);
+    Task<(bool Success, TimeSpan? UtcOffset)> TryParseUtcOffsetAsync(string utcOffsetString);
 }
