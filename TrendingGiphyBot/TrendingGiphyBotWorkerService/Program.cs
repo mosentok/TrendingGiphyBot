@@ -142,9 +142,21 @@ discordSocketClient.SelectMenuExecuted += discordSocketClientHandler.OnSocketInt
 
 interactionService.Log += discordSocketClientHandler.OnLogAsync;
 
+var loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
+var logger = loggerFactory.CreateLogger("Top Level");
+
 try
 {
-	await gifPostingBehaviorSeeder.SeedGifPostingBehaviorsAsync();
+	logger.LogInformation("Initializing.");
+
+	if (builder.Environment.IsDevelopment())
+	{
+		var debugView = Environment.NewLine + builder.Configuration.GetDebugView().TrimEnd();
+
+		logger.LogInformation("Configuration:{DebugView}", debugView);
+	}
+
+    await gifPostingBehaviorSeeder.SeedGifPostingBehaviorsAsync();
     await intervalSeeder.SeedIntervalsAsync();
     await gifCache.RefreshAsync();
     await gifPostStage.RefreshAsync();
@@ -152,13 +164,12 @@ try
     await discordSocketClient.LoginAsync(TokenType.Bot, discordToken);
 	await discordSocketClient.StartAsync();
 
-	await host.RunAsync();
+    logger.LogInformation("Initialized.");
+
+    await host.RunAsync();
 }
 catch (Exception exception)
 {
-	var loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
-    var logger = loggerFactory.CreateLogger("Top Level");
-
     logger.LogTopLevelException(exception);
 }
 finally
