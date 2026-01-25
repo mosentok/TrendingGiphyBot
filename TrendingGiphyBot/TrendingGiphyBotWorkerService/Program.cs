@@ -4,7 +4,7 @@ using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-using Serilog.Enrichers.ShortTypeName;
+using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
 using System.Diagnostics.CodeAnalysis;
 using TrendingGiphyBotWorkerService.ChannelSettings;
@@ -85,9 +85,11 @@ builder.Services
 		loggingBuilder.ClearProviders();
 
         var logger = new LoggerConfiguration()
-			.Enrich.WithShortTypeName()
+            .MinimumLevel.Override("TrendingGiphyBotWorkerService", LogEventLevel.Verbose)
+            .MinimumLevel.Override("Discord", LogEventLevel.Verbose)
+            .MinimumLevel.Information()
 			.WriteTo.Console(
-				outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] [{ShortTypeName}] {Message:lj}{NewLine}{Exception}",
+				outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] [{SourceContext}] {Message:lj}{NewLine}{Exception}",
 				theme: AnsiConsoleTheme.Code)
 			.CreateLogger();
 
