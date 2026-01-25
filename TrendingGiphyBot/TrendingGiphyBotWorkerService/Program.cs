@@ -19,6 +19,7 @@ using TrendingGiphyBotWorkerService.Giphy.Staging.Caching;
 using TrendingGiphyBotWorkerService.Interactions;
 using TrendingGiphyBotWorkerService.Intervals;
 using TrendingGiphyBotWorkerService.Logging;
+using TrendingGiphyBotWorkerService.Utc;
 
 [assembly: SuppressMessage("Roslynator", "RCS1001:Add braces (when expression spans over multiple lines)", Justification = "Less is more.")]
 

@@ -1,4 +1,4 @@
-namespace TrendingGiphyBotWorkerService.Interactions;
+namespace TrendingGiphyBotWorkerService.Utc;
 
 public class UtcOffsetParser : IUtcOffsetParser
 {

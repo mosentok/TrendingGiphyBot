@@ -1,7 +1,7 @@
 using Discord;
 using TrendingGiphyBotWorkerService.GifPostingBehavior;
-using TrendingGiphyBotWorkerService.Interactions;
 using TrendingGiphyBotWorkerService.Intervals;
+using TrendingGiphyBotWorkerService.Utc;
 
 namespace TrendingGiphyBotWorkerService.ChannelSettings;
 

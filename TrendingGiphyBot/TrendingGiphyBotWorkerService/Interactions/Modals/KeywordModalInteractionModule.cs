@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Database;
 
-namespace TrendingGiphyBotWorkerService.Interactions;
+namespace TrendingGiphyBotWorkerService.Interactions.Modals;
 
 public class KeywordModalInteractionModule(
     IChannelSettingsMessageComponentFactory _settingsMessageComponentFactory,

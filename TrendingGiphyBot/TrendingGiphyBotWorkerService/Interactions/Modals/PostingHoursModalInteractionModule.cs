@@ -3,8 +3,9 @@ using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Database;
+using TrendingGiphyBotWorkerService.Utc;
 
-namespace TrendingGiphyBotWorkerService.Interactions;
+namespace TrendingGiphyBotWorkerService.Interactions.Modals;
 
 public class PostingHoursModalInteractionModule(
     IChannelSettingsMessageComponentFactory _settingsMessageComponentFactory,

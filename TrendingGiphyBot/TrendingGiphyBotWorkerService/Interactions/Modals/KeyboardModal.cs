@@ -1,6 +1,6 @@
 using Discord.Interactions;
 
-namespace TrendingGiphyBotWorkerService.Interactions;
+namespace TrendingGiphyBotWorkerService.Interactions.Modals;
 
 public class KeyboardModal : IModal
 {
