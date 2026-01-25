@@ -1,13 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TrendingGiphyBotWorkerService.Database;
+using TrendingGiphyBotWorkerService.Logging;
 
 namespace TrendingGiphyBotWorkerService.GifPostingBehavior;
 
-public class GifPostingBehaviorSeeder(IServiceScopeFactory _serviceScopeFactory) : IGifPostingBehaviorSeeder
+public class GifPostingBehaviorSeeder(ILogger<GifPostingBehaviorSeeder> _logger, IServiceScopeFactory _serviceScopeFactory) : IGifPostingBehaviorSeeder
 {
     public async Task SeedGifPostingBehaviorsAsync()
     {
-        var thereAreNewChangesToSave = false;
+        _logger.LogSeedingGifPostingBehaviors();
 
         var expectedGifPostingBehaviors = Enum.GetValues<GifPostingBehaviorKind>().Select(gifPostingBehavior => new GifPostingBehaviorModel
         {
@@ -26,20 +27,13 @@ public class GifPostingBehaviorSeeder(IServiceScopeFactory _serviceScopeFactory)
             var gifPostingBehaviorAlreadyExists = gifPostingBehaviorModels.ContainsKey(expectedGifPostingBehavior.GifPostingBehaviorId);
 
             if (!gifPostingBehaviorAlreadyExists)
-            {
                 _trendingGiphyBotDbContext.GifPostingBehaviors.Add(expectedGifPostingBehavior);
-
-                thereAreNewChangesToSave = true;
-            }
-            else if (gifPostingBehaviorModels[expectedGifPostingBehavior.GifPostingBehaviorId].Description != expectedGifPostingBehavior.Description)
-            {
+            else
                 gifPostingBehaviorModels[expectedGifPostingBehavior.GifPostingBehaviorId].Description = expectedGifPostingBehavior.Description;
-
-                thereAreNewChangesToSave = true;
-            }
         }
 
-        if (thereAreNewChangesToSave)
-            await _trendingGiphyBotDbContext.SaveChangesAsync();
+        await _trendingGiphyBotDbContext.SaveChangesAsync();
+
+        _logger.LogSeededGifPostingBehaviors();
     }
 }

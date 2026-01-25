@@ -26,12 +26,13 @@ public class GifCache(
                 var notInListYet = giphyResponse.Data.Where(s => !_items.Contains(s)).ToArray();
 
                 _items.AddRange(notInListYet);
-                _items.Sort((left, right) => string.Compare(left.TrendingDatetime, right.TrendingDatetime));
 
                 _logger.LogGifCacheCount(notInListYet.Length);
 
                 numberOfResponses += giphyResponse.Data.Count;
             }
+
+            _items.Sort((left, right) => string.Compare(left.TrendingDatetime, right.TrendingDatetime));
 
             if (_items.Count > _gifCacheConfig.MaxCount)
             {
@@ -41,7 +42,6 @@ public class GifCache(
             }
 
             _logger.LogGifCacheHasRefreshed(_items.Count);
-
         }
         catch (Exception ex)
         {

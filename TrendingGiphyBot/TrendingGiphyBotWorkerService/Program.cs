@@ -3,6 +3,9 @@ using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
+using Serilog.Enrichers.ShortTypeName;
+using Serilog.Sinks.SystemConsole.Themes;
 using System.Diagnostics.CodeAnalysis;
 using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Configuration;
@@ -76,9 +79,21 @@ builder.Services
 	.AddHostedService<DiscordPostingWorker>()
 	.AddHostedService<GifStagingWorker>()
 	.AddHostedService<GiphyCacheWorker>()
-	.AddLogging(builder => builder.AddConsole())
-	.AddDbContext<ITrendingGiphyBotDbContext, TrendingGiphyBotDbContext>(builder =>
-		builder
+	.AddLogging(loggingBuilder =>
+    {
+		loggingBuilder.ClearProviders();
+
+        var logger = new LoggerConfiguration()
+			.Enrich.WithShortTypeName()
+			.WriteTo.Console(
+				outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] [{ShortTypeName}] {Message:lj}{NewLine}{Exception}",
+				theme: AnsiConsoleTheme.Code)
+			.CreateLogger();
+
+        loggingBuilder.AddSerilog(logger);
+    })
+	.AddDbContext<ITrendingGiphyBotDbContext, TrendingGiphyBotDbContext>(dbContextOptionsBuilder =>
+		dbContextOptionsBuilder
             .EnableSensitiveDataLogging()
             .UseSqlite(connectionString))
 	.AddSingleton(delayerConfig)
@@ -92,6 +107,7 @@ builder.Services
 	.AddSingleton(interactionService)
 	.AddSingleton(intervalConfig)
 	.AddSingleton(TimeProvider.System)
+	.AddSingleton<IChannelSettingsFilter, ChannelSettingsFilter>()
 	.AddSingleton<IChannelSettingsMessageComponentFactory, ChannelSettingsMessageComponentFactory>()
 	.AddSingleton<IDelayer, Delayer>()
 	.AddSingleton<IDiscordSocketClientHandler, DiscordSocketClientHandler>()

@@ -1,13 +1,14 @@
 using Microsoft.EntityFrameworkCore;
 using TrendingGiphyBotWorkerService.Database;
+using TrendingGiphyBotWorkerService.Logging;
 
 namespace TrendingGiphyBotWorkerService.Intervals;
 
-public class IntervalSeeder(IServiceScopeFactory _serviceScopeFactory) : IIntervalSeeder
+public class IntervalSeeder(ILogger<IntervalSeeder> _logger, IServiceScopeFactory _serviceScopeFactory) : IIntervalSeeder
 {
     public async Task SeedIntervalsAsync()
     {
-        var thereAreNewChangesToSave = false;
+        _logger.LogSeedingIntervals();
 
         var expectedIntervals = Enum.GetValues<IntervalDescription>().Select(intervalDescription => new Interval
         {
@@ -26,20 +27,13 @@ public class IntervalSeeder(IServiceScopeFactory _serviceScopeFactory) : IInterv
             var intervalAlreadyExists = intervals.ContainsKey(expectedInterval.IntervalId);
 
             if (!intervalAlreadyExists)
-            {
                 _trendingGiphyBotDbContext.Intervals.Add(expectedInterval);
-
-                thereAreNewChangesToSave = true;
-            }
-            else if (intervals[expectedInterval.IntervalId].Description != expectedInterval.Description)
-            {
+            else
                 intervals[expectedInterval.IntervalId].Description = expectedInterval.Description;
-
-                thereAreNewChangesToSave = true;
-            }
         }
 
-        if (thereAreNewChangesToSave)
-            await _trendingGiphyBotDbContext.SaveChangesAsync();
+        await _trendingGiphyBotDbContext.SaveChangesAsync();
+
+        _logger.LogSeededIntervals();
     }
 }

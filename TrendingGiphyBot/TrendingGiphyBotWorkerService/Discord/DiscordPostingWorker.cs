@@ -3,10 +3,12 @@ using TrendingGiphyBotWorkerService.Database;
 using TrendingGiphyBotWorkerService.Delaying;
 using TrendingGiphyBotWorkerService.Giphy.Staging;
 using TrendingGiphyBotWorkerService.Intervals;
+using TrendingGiphyBotWorkerService.Logging;
 
 namespace TrendingGiphyBotWorkerService.Discord;
 
 public class DiscordPostingWorker(
+    ILogger<DiscordPostingWorker> _logger,
     IServiceScopeFactory _serviceScopeFactory,
     IGifPostStage _gifPostStage,
     IDelayer _delayer,
@@ -21,6 +23,8 @@ public class DiscordPostingWorker(
         while (!stoppingToken.IsCancellationRequested)
         {
             await _delayer.DelayUntilNextPostingTimeAsync(stoppingToken);
+
+            _logger.LogPostingGifs();
 
             var now = _timeProvider.GetUtcNow();
             var validMinutes = _intervalConfig.Minutes.Where(s => now.Minute % s == 0);
@@ -50,6 +54,8 @@ public class DiscordPostingWorker(
                 .ToList();
 
             await _gifPoster.PostGifsAsync(stagedChannelGifPosts, activeChannelIds, stoppingToken);
+
+            _logger.LogPostedGifs();
         }
     }
 }
