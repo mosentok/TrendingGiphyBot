@@ -1,5 +1,5 @@
-using System.Collections.Immutable;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Immutable;
 using TrendingGiphyBotWorkerService.Database;
 using TrendingGiphyBotWorkerService.GifPostingBehavior;
 using TrendingGiphyBotWorkerService.Giphy.Api;
@@ -11,7 +11,7 @@ namespace TrendingGiphyBotWorkerService.Giphy.Staging;
 public class GifPostStage(
     ILogger<GifPostStage> _logger,
     IServiceScopeFactory _serviceScopeFactory,
-    IGifCache _gifCache,
+    IGiphyTrendingCache _giphyTrendingCache,
     IGiphyClient _giphyClient,
     GifPostStageConfig _gifPostStageConfig
 ) : IGifPostStage
@@ -39,7 +39,7 @@ public class GifPostStage(
         {
             if (channel.GifPosts is null or { Count: 0 })
             {
-                var firstGif = _gifCache.GetFirstGif();
+                var firstGif = _giphyTrendingCache.GetFirstGif();
 
                 if (firstGif is null)
                     continue;
@@ -50,7 +50,7 @@ public class GifPostStage(
             }
 
             var seenGiphyDataIds = channel.GifPosts.Select(s => s.GiphyDataId).ToArray();
-            var firstUnseenGif = _gifCache.GetFirstUnseenGif(seenGiphyDataIds);
+            var firstUnseenGif = _giphyTrendingCache.GetFirstUnseenGif(seenGiphyDataIds);
 
             if (firstUnseenGif is not null)
             {
@@ -66,7 +66,7 @@ public class GifPostStage(
 
             do
             {
-                var randomGif = await _giphyClient.GetRandomGifAsync(channel.GifKeyword, cancellationToken: cancellationToken);
+                var randomGif = await _giphyClient.GetRandomGifAsync(cancellationToken: cancellationToken);
 
                 var randomGifHasAlreadyBeenSeen = seenGiphyDataIds.Contains(randomGif.Data.Id);
 

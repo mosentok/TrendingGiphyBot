@@ -2,3 +2,6 @@
 
 # RCS1003: Add braces to if-else (when expression spans over multiple lines)
 dotnet_diagnostic.RCS1003.severity = none
+
+# RCS1124: Inline local variable
+dotnet_diagnostic.RCS1124.severity = none

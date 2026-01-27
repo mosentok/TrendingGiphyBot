@@ -1,0 +1,40 @@
+using TrendingGiphyBotWorkerService.Giphy.Api;
+using TrendingGiphyBotWorkerService.Giphy.Api.Paging;
+using TrendingGiphyBotWorkerService.Logging;
+
+namespace TrendingGiphyBotWorkerService.Giphy.Staging.Caching;
+
+public class GiphyTrendingCache
+(
+    ILogger<GiphyTrendingCache> _logger,
+    GifCacheConfig _gifCacheConfig,
+    IGiphyDataListHelper _giphyDataListHelper,
+    IGiphyTrendingPager _giphyTrendingPager
+) : IGiphyTrendingCache
+{
+    readonly List<GiphyData> _trendingGiphyDatas = [];
+
+    public async Task RefreshTrendingGifsAsync(CancellationToken cancellationToken = default)
+    {
+        // log start
+
+        try
+        {
+            var itemsToAdd = await _giphyTrendingPager.GetTrendingGifsAsync(cancellationToken);
+
+            _giphyDataListHelper.SortToMaxSize(_trendingGiphyDatas, itemsToAdd, _gifCacheConfig.MaxCount);
+
+            _logger.LogGifCacheHasRefreshed(_trendingGiphyDatas.Count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogGifCacheRefreshException(ex);
+        }
+
+        // log end
+    }
+
+    public GiphyData? GetFirstGif() => _trendingGiphyDatas.FirstOrDefault();
+
+    public GiphyData? GetFirstUnseenGif(string[] idsAlreadySeen) => _trendingGiphyDatas.FirstOrDefault(s => !idsAlreadySeen.Contains(s.Id));
+}

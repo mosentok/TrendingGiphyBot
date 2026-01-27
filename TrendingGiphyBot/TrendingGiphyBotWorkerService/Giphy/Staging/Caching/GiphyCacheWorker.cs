@@ -4,7 +4,7 @@ namespace TrendingGiphyBotWorkerService.Giphy.Staging.Caching;
 
 public class GiphyCacheWorker(
     ILogger<GiphyCacheWorker> _logger,
-    IGifCache _gifCache,
+    IGiphyTrendingCache _giphyTrendingCache,
 	GiphyCacheWorkerConfig _giphyCacheWorkerConfig
 ) : BackgroundService
 {
@@ -16,7 +16,7 @@ public class GiphyCacheWorker(
             {
                 await Task.Delay(_giphyCacheWorkerConfig.TimeSpanBetweenCacheRefreshes, stoppingToken);
 
-                await _gifCache.RefreshAsync(stoppingToken);
+                await _giphyTrendingCache.RefreshTrendingGifsAsync(stoppingToken);
             }
         }
         catch (Exception exception)

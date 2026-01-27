@@ -14,11 +14,13 @@ using TrendingGiphyBotWorkerService.Delaying;
 using TrendingGiphyBotWorkerService.Discord;
 using TrendingGiphyBotWorkerService.GifPostingBehavior;
 using TrendingGiphyBotWorkerService.Giphy.Api;
+using TrendingGiphyBotWorkerService.Giphy.Api.Paging;
 using TrendingGiphyBotWorkerService.Giphy.Staging;
 using TrendingGiphyBotWorkerService.Giphy.Staging.Caching;
 using TrendingGiphyBotWorkerService.Interactions;
 using TrendingGiphyBotWorkerService.Intervals;
 using TrendingGiphyBotWorkerService.Logging;
+using TrendingGiphyBotWorkerService.Paging;
 using TrendingGiphyBotWorkerService.Utc;
 
 [assembly: SuppressMessage("Roslynator", "RCS1001:Add braces (when expression spans over multiple lines)", Justification = "Less is more.")]
@@ -39,7 +41,7 @@ builder.Configuration
 var discordToken = builder.Configuration.GetRequiredConfiguration("DiscordToken");
 var giphyApiKey = builder.Configuration.GetRequiredConfiguration("GiphyApiKey");
 var maxPageCount = builder.Configuration.GetRequiredConfiguration<int>("MaxPageCount");
-var maxGiphyCacheLoops = builder.Configuration.GetRequiredConfiguration<int>("MaxGiphyCacheLoops");
+var maxCacheLoops = builder.Configuration.GetRequiredConfiguration<int>("MaxCacheLoops");
 var playingGame = builder.Configuration.GetRequiredConfiguration("PlayingGame");
 var guildToRegisterCommands = builder.Configuration.GetOptionalConfiguration<ulong?>("RegisterCommandsToGuild");
 var timeSpanBetweenCacheRefreshes = builder.Configuration.GetRequiredConfiguration<TimeSpan>("TimeSpanBetweenCacheRefreshes");
@@ -69,7 +71,8 @@ var every5Minutes = CronExpression.Parse("*/5 * * * *");
 
 var delayerConfig = new DelayerConfig(every5Minutes);
 var discordSocketClientHandlerConfig = new DiscordSocketClientHandlerConfig(playingGame, guildToRegisterCommands, assembly);
-var gifCacheConfig = new GifCacheConfig([], 1_000, maxPageCount, maxGiphyCacheLoops);
+var gifCacheConfig = new GifCacheConfig(1_000);
+var pagerConfig = new PagerConfig(maxPageCount, maxCacheLoops);
 var giphyCacheWorkerConfig = new GiphyCacheWorkerConfig(timeSpanBetweenCacheRefreshes);
 var gifStagingWorkerConfig = new GifStagingWorkerConfig(timeSpanBetweenStageRefreshes);
 var gifPostStageConfig = new GifPostStageConfig(maxRandomGifAttempts);
@@ -109,15 +112,20 @@ builder.Services
 	.AddSingleton(giphyClientConfig)
 	.AddSingleton(interactionService)
 	.AddSingleton(intervalConfig)
-	.AddSingleton(TimeProvider.System)
+	.AddSingleton(pagerConfig)
+    .AddSingleton(TimeProvider.System)
 	.AddSingleton<IChannelSettingsFilter, ChannelSettingsFilter>()
 	.AddSingleton<IChannelSettingsMessageComponentFactory, ChannelSettingsMessageComponentFactory>()
 	.AddSingleton<IDelayer, Delayer>()
 	.AddSingleton<IDiscordSocketClientHandler, DiscordSocketClientHandler>()
 	.AddSingleton<IDiscordSocketClientWrapper, DiscordSocketClientWrapper>()
-    .AddSingleton<IGifCache, GifCache>()
+    .AddSingleton<IPager, Pager>()
+    .AddSingleton<IGiphySearchCache, GiphySearchCache>()
+    .AddSingleton<IGiphySearchPager, GiphySearchPager>()
+    .AddSingleton<IGiphyTrendingCache, GiphyTrendingCache>()
+    .AddSingleton<IGiphyTrendingPager, GiphyTrendingPager>()
     .AddSingleton<IGifPoster, GifPoster>()
-	.AddSingleton<IGifPostingBehaviorHelper, GifPostingBehaviorHelper>()
+    .AddSingleton<IGifPostingBehaviorHelper, GifPostingBehaviorHelper>()
 	.AddSingleton<IGifPostingBehaviorSeeder, GifPostingBehaviorSeeder>()
     .AddSingleton<IGifPostStage, GifPostStage>()
 	.AddSingleton<IIntervalSeeder, IntervalSeeder>()
@@ -129,7 +137,7 @@ var host = builder.Build();
 
 var discordSocketClientHandler = host.Services.GetRequiredService<IDiscordSocketClientHandler>();
 var intervalSeeder = host.Services.GetRequiredService<IIntervalSeeder>();
-var gifCache = host.Services.GetRequiredService<IGifCache>();
+var giphyTrendingCache = host.Services.GetRequiredService<IGiphyTrendingCache>();
 var gifPostStage = host.Services.GetRequiredService<IGifPostStage>();
 var gifPostingBehaviorSeeder = host.Services.GetRequiredService<IGifPostingBehaviorSeeder>();
 
@@ -160,7 +168,7 @@ try
 
     await gifPostingBehaviorSeeder.SeedGifPostingBehaviorsAsync();
     await intervalSeeder.SeedIntervalsAsync();
-    await gifCache.RefreshAsync();
+    await giphyTrendingCache.RefreshTrendingGifsAsync();
     await gifPostStage.RefreshAsync();
 
     await discordSocketClient.LoginAsync(TokenType.Bot, discordToken);

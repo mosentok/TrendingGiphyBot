@@ -10,6 +10,7 @@ public class GiphyData
     [JsonPropertyName("url")]
     public required string Url { get; set; }
 
+    // some results have 0000's for their TrendingDateTime
     [JsonPropertyName("trending_datetime")]
     public required string TrendingDatetime { get; set; }
 }
