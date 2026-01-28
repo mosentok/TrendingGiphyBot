@@ -1,14 +1,13 @@
 using System.Text.Json.Serialization;
 
-namespace TrendingGiphyBotWorkerService.Giphy.Api
+namespace TrendingGiphyBotWorkerService.Giphy.Api;
+
+public class Pagination
 {
-    public class Pagination
-    {
-        public int Offset { get; set; }
+    public int Offset { get; set; }
 
-        [JsonPropertyName("total_count")]
-        public int TotalCount { get; set; }
+    [JsonPropertyName("total_count")]
+    public int TotalCount { get; set; }
 
-        public int Count { get; set; }
-    }
+    public int Count { get; set; }
 }

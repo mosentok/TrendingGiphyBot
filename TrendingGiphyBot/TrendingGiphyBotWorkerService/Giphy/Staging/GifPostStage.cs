@@ -3,7 +3,6 @@ using System.Collections.Immutable;
 using TrendingGiphyBotWorkerService.Database;
 using TrendingGiphyBotWorkerService.GifPostingBehavior;
 using TrendingGiphyBotWorkerService.Giphy.Api;
-using TrendingGiphyBotWorkerService.Giphy.Staging.Caching;
 using TrendingGiphyBotWorkerService.Logging;
 
 namespace TrendingGiphyBotWorkerService.Giphy.Staging;
@@ -11,10 +10,7 @@ namespace TrendingGiphyBotWorkerService.Giphy.Staging;
 public class GifPostStage(
     ILogger<GifPostStage> _logger,
     IServiceScopeFactory _serviceScopeFactory,
-    IGiphyTrendingCache _giphyTrendingCache,
-    IGiphySearchCache _giphySearchCache,
-    IGiphyClient _giphyClient,
-    GifPostStageConfig _gifPostStageConfig
+    IGifFinder _gifFinder
 ) : IGifPostStage
 {
     readonly Dictionary<ulong, GiphyData> _items = [];
@@ -38,59 +34,10 @@ public class GifPostStage(
 
         foreach (var channel in activeChannels)
         {
-            if (channel.GifPosts is null or { Count: 0 })
-            {
-                var firstGif = _giphyTrendingCache.GetFirstGif();
+            var maybe = await _gifFinder.TryGetUnseenGifAsync(channel, cancellationToken);
 
-                if (firstGif is null)
-                    continue;
-
-                _items[channel.ChannelId] = firstGif;
-
-                continue;
-            }
-
-            var seenGiphyDataIds = channel.GifPosts.Select(s => s.GiphyDataId).ToArray();
-            var firstUnseenGif = _giphyTrendingCache.GetFirstUnseenGif(seenGiphyDataIds);
-
-            if (firstUnseenGif is not null)
-            {
-                _items[channel.ChannelId] = firstUnseenGif;
-
-                continue;
-            }
-
-            if (channel.GifPostingBehaviorId != GifPostingBehaviorKind.TrendingGifsWithRandomGifs.AsInt())
-                continue;
-
-            if (channel.GifKeyword is not null or "")
-            {
-                var keywordGif = _giphySearchCache.GetFirstUnseenGif(channel.GifKeyword, seenGiphyDataIds);
-
-                if (keywordGif is not null)
-                    _items[channel.ChannelId] = keywordGif;
-
-                continue;
-            }
-
-            var attempts = 0;
-
-            do
-            {
-                var randomGif = await _giphyClient.GetRandomGifAsync(cancellationToken: cancellationToken);
-
-                var randomGifHasAlreadyBeenSeen = seenGiphyDataIds.Contains(randomGif.Data.Id);
-
-                if (!randomGifHasAlreadyBeenSeen)
-                {
-                    _items[channel.ChannelId] = randomGif.Data;
-
-                    break;
-                }
-
-                attempts++;
-            }
-            while (attempts < _gifPostStageConfig.MaxRandomGifAttempts);
+            if (maybe is { Success: true, Result: { } result })
+                _items[channel.ChannelId] = result;
         }
 
         _logger.LogGifStageHasRefreshed(_items.Count);
