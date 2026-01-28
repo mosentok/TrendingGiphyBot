@@ -1,21 +1,28 @@
+using TrendingGiphyBotWorkerService.Giphy.Api;
+
 namespace TrendingGiphyBotWorkerService.Paging;
 
 public class Pager(PagerConfig _pagerConfig) : IPager
 {
-    public async Task<List<T>> PageAsync<T>(SearchWithOffset<T> searchWithOffsetAsync)
+    public async Task<List<GiphyData>> PageAsync(SearchWithOffsetAsync searchWithOffsetAsync)
     {
-        var allResults = new List<T>();
-
+        int totalCount;
+        var numberOfLoops = 0;
         var numberOfResponses = 0;
+        var allResults = new List<GiphyData>();
 
-        for (var numberOfLoops = 0; numberOfLoops < _pagerConfig.MaxCacheLoops && numberOfResponses % _pagerConfig.MaxPageCount == 0; numberOfLoops++)
+        do
         {
             var searchResults = await searchWithOffsetAsync(numberOfResponses);
 
-            allResults.AddRange(searchResults);
+            totalCount = searchResults.Pagination.TotalCount;
+            numberOfResponses += searchResults.Pagination.Count;
 
-            numberOfResponses += searchResults.Count;
-        }
+            allResults.AddRange(searchResults.Data);
+
+            numberOfLoops++;
+
+        } while (numberOfResponses < totalCount && numberOfLoops < _pagerConfig.MaxCacheLoops);
 
         return allResults;
     }

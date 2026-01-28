@@ -1,3 +1,5 @@
+using TrendingGiphyBotWorkerService.Giphy.Api;
+
 namespace TrendingGiphyBotWorkerService.Paging;
 
-public delegate Task<List<T>> SearchWithOffset<T>(int offset);
+public delegate Task<GiphyResponse> SearchWithOffsetAsync(int offset);

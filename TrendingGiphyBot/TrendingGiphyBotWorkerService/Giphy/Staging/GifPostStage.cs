@@ -12,6 +12,7 @@ public class GifPostStage(
     ILogger<GifPostStage> _logger,
     IServiceScopeFactory _serviceScopeFactory,
     IGiphyTrendingCache _giphyTrendingCache,
+    IGiphySearchCache _giphySearchCache,
     IGiphyClient _giphyClient,
     GifPostStageConfig _gifPostStageConfig
 ) : IGifPostStage
@@ -61,6 +62,16 @@ public class GifPostStage(
 
             if (channel.GifPostingBehaviorId != GifPostingBehaviorKind.TrendingGifsWithRandomGifs.AsInt())
                 continue;
+
+            if (channel.GifKeyword is not null or "")
+            {
+                var keywordGif = _giphySearchCache.GetFirstUnseenGif(channel.GifKeyword, seenGiphyDataIds);
+
+                if (keywordGif is not null)
+                    _items[channel.ChannelId] = keywordGif;
+
+                continue;
+            }
 
             var attempts = 0;
 

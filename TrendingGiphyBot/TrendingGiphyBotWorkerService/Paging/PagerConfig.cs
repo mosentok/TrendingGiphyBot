@@ -1,3 +1,3 @@
 namespace TrendingGiphyBotWorkerService.Paging;
 
-public record PagerConfig(int MaxPageCount, int MaxCacheLoops);
+public record PagerConfig(int MaxCacheLoops);

@@ -40,7 +40,6 @@ builder.Configuration
 
 var discordToken = builder.Configuration.GetRequiredConfiguration("DiscordToken");
 var giphyApiKey = builder.Configuration.GetRequiredConfiguration("GiphyApiKey");
-var maxPageCount = builder.Configuration.GetRequiredConfiguration<int>("MaxPageCount");
 var maxCacheLoops = builder.Configuration.GetRequiredConfiguration<int>("MaxCacheLoops");
 var playingGame = builder.Configuration.GetRequiredConfiguration("PlayingGame");
 var guildToRegisterCommands = builder.Configuration.GetOptionalConfiguration<ulong?>("RegisterCommandsToGuild");
@@ -72,7 +71,7 @@ var every5Minutes = CronExpression.Parse("*/5 * * * *");
 var delayerConfig = new DelayerConfig(every5Minutes);
 var discordSocketClientHandlerConfig = new DiscordSocketClientHandlerConfig(playingGame, guildToRegisterCommands, assembly);
 var gifCacheConfig = new GifCacheConfig(1_000);
-var pagerConfig = new PagerConfig(maxPageCount, maxCacheLoops);
+var pagerConfig = new PagerConfig(maxCacheLoops);
 var giphyCacheWorkerConfig = new GiphyCacheWorkerConfig(timeSpanBetweenCacheRefreshes);
 var gifStagingWorkerConfig = new GifStagingWorkerConfig(timeSpanBetweenStageRefreshes);
 var gifPostStageConfig = new GifPostStageConfig(maxRandomGifAttempts);
@@ -120,6 +119,7 @@ builder.Services
 	.AddSingleton<IDiscordSocketClientHandler, DiscordSocketClientHandler>()
 	.AddSingleton<IDiscordSocketClientWrapper, DiscordSocketClientWrapper>()
     .AddSingleton<IPager, Pager>()
+    .AddSingleton<IGiphyDataListHelper, GiphyDataListHelper>()
     .AddSingleton<IGiphySearchCache, GiphySearchCache>()
     .AddSingleton<IGiphySearchPager, GiphySearchPager>()
     .AddSingleton<IGiphyTrendingCache, GiphyTrendingCache>()
