@@ -124,7 +124,7 @@ builder.Services
     .AddSingleton<IGiphySearchPager, GiphySearchPager>()
     .AddSingleton<IGiphyTrendingCache, GiphyTrendingCache>()
     .AddSingleton<IGiphyTrendingPager, GiphyTrendingPager>()
-    .AddSingleton<IGifPoster, GifPoster>()
+    .AddSingleton<IDiscordChannelGifPoster, DiscordChannelGifPoster>()
     .AddSingleton<IGifPostingBehaviorHelper, GifPostingBehaviorHelper>()
 	.AddSingleton<IGifPostingBehaviorSeeder, GifPostingBehaviorSeeder>()
     .AddSingleton<IGifPostStage, GifPostStage>()

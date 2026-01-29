@@ -1,6 +1,6 @@
-using TrendingGiphyBotWorkerService.ChannelSettings;
+using TrendingGiphyBotWorkerService.Discord;
 
-namespace TrendingGiphyBotWorkerService.Discord;
+namespace TrendingGiphyBotWorkerService.ChannelSettings;
 
 public class ChannelSettingsFilter : IChannelSettingsFilter
 {

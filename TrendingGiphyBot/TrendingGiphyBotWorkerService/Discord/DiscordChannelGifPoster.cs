@@ -9,12 +9,12 @@ using TrendingGiphyBotWorkerService.Logging;
 
 namespace TrendingGiphyBotWorkerService.Discord;
 
-public class GifPoster(
+public class DiscordChannelGifPoster(
     ILogger<DiscordPostingWorker> _logger,
     IServiceScopeFactory _serviceScopeFactory,
     IGifPostStage _gifPostStage,
     IDiscordSocketClientWrapper _discordSocketClientWrapper
-) : IGifPoster
+) : IDiscordChannelGifPoster
 {
     public async Task PostGifsAsync(IImmutableDictionary<ulong, GiphyData> stagedChannelGifPosts, List<ulong> channelIds, CancellationToken stoppingToken)
     {

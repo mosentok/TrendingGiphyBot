@@ -12,7 +12,7 @@ public class DiscordPostingWorker(
     IServiceScopeFactory _serviceScopeFactory,
     IGifPostStage _gifPostStage,
     IDelayer _delayer,
-    IGifPoster _gifPoster,
+    IDiscordChannelGifPoster _discordChannelGifPoster,
     IChannelSettingsFilter _channelSettingsFilter,
     IntervalConfig _intervalConfig,
     TimeProvider _timeProvider
@@ -51,7 +51,7 @@ public class DiscordPostingWorker(
                 .Select(channelSettings => channelSettings.ChannelId)
                 .ToList();
 
-            await _gifPoster.PostGifsAsync(stagedChannelGifPosts, channelIdsInPostingHours, stoppingToken);
+            await _discordChannelGifPoster.PostGifsAsync(stagedChannelGifPosts, channelIdsInPostingHours, stoppingToken);
 
             _logger.LogPostedGifs();
         }
