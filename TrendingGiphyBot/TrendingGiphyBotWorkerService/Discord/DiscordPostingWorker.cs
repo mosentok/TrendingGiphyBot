@@ -1,21 +1,18 @@
 using Microsoft.EntityFrameworkCore;
-using TrendingGiphyBotWorkerService.Database;
+using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Delaying;
 using TrendingGiphyBotWorkerService.Giphy.Staging;
-using TrendingGiphyBotWorkerService.Intervals;
 using TrendingGiphyBotWorkerService.Logging;
 
 namespace TrendingGiphyBotWorkerService.Discord;
 
-public class DiscordPostingWorker(
+public class DiscordPostingWorker
+(
     ILogger<DiscordPostingWorker> _logger,
-    IServiceScopeFactory _serviceScopeFactory,
     IGifPostStage _gifPostStage,
     IDelayer _delayer,
     IDiscordChannelGifPoster _discordChannelGifPoster,
-    IChannelSettingsFilter _channelSettingsFilter,
-    IntervalConfig _intervalConfig,
-    TimeProvider _timeProvider
+    IChannelSettingsFinder _channelFinder
 ) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -26,30 +23,9 @@ public class DiscordPostingWorker(
 
             _logger.LogPostingGifs();
 
-            var now = _timeProvider.GetUtcNow();
-            var validMinutes = _intervalConfig.Minutes.Where(s => now.Minute % s == 0);
-
-            var validHours = now.Minute == 0
-                ? _intervalConfig.Hours.Where(s => now.Hour % s == 0).ToArray()
-                : [];
-
             var stagedChannelGifPosts = _gifPostStage.GetChannelGifPostStage();
 
-            using var scope = _serviceScopeFactory.CreateScope();
-
-            var trendingGiphyBotDbContext = scope.ServiceProvider.GetRequiredService<ITrendingGiphyBotDbContext>();
-
-            var candidateChannelSettings = await trendingGiphyBotDbContext.ChannelSettings
-                .Where(channelSettings =>
-                    stagedChannelGifPosts.Keys.Contains(channelSettings.ChannelId) &&
-                    ((channelSettings.IntervalId == (int)IntervalDescription.Minutes && validMinutes.Contains(channelSettings.Frequency)) ||
-                    (channelSettings.IntervalId == (int)IntervalDescription.Hours && validHours.Contains(channelSettings.Frequency))))
-                .ToListAsync(stoppingToken);
-
-            var channelIdsInPostingHours = candidateChannelSettings
-                .Where(channelSettings => _channelSettingsFilter.InPostingHours(channelSettings, now))
-                .Select(channelSettings => channelSettings.ChannelId)
-                .ToList();
+            var channelIdsInPostingHours = await _channelFinder.GetChannelSettingsIdsReadyToPostAsync(stagedChannelGifPosts.Keys, stoppingToken);
 
             await _discordChannelGifPoster.PostGifsAsync(stagedChannelGifPosts, channelIdsInPostingHours, stoppingToken);
 
