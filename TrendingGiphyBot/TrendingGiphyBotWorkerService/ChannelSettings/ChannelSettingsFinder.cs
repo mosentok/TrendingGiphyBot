@@ -1,11 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using TrendingGiphyBotWorkerService.Database;
 using TrendingGiphyBotWorkerService.Intervals;
+using TrendingGiphyBotWorkerService.Logging;
 
 namespace TrendingGiphyBotWorkerService.ChannelSettings;
 
 public class ChannelSettingsFinder
 (
+    ILogger<ChannelSettingsFinder> _logger,
     IServiceScopeFactory _serviceScopeFactory,
     IChannelSettingsFilter _channelSettingsFilter,
     IntervalConfig _intervalConfig,
@@ -15,11 +17,15 @@ public class ChannelSettingsFinder
     public async Task<List<ulong>> GetChannelSettingsIdsReadyToPostAsync(IEnumerable<ulong> availableChannelIds, CancellationToken stoppingToken)
     {
         var now = _timeProvider.GetUtcNow();
-        var validMinutes = _intervalConfig.Minutes.Where(s => now.Minute % s == 0);
+        var validMinutes = _intervalConfig.Minutes.Where(s => now.Minute % s == 0).ToArray();
+
+        _logger.LogValidMinutes(validMinutes);
 
         var validHours = now.Minute == 0
             ? _intervalConfig.Hours.Where(s => now.Hour % s == 0).ToArray()
             : [];
+
+        _logger.LogValidHours(validHours);
 
         using var scope = _serviceScopeFactory.CreateScope();
 

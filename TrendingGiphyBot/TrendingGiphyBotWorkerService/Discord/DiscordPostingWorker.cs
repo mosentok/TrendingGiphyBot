@@ -26,7 +26,11 @@ public class DiscordPostingWorker
 
                 var stagedChannelGifPosts = _gifPostStage.GetChannelGifPostStage();
 
+                _logger.LogStagedChannelGifPosts(stagedChannelGifPosts);
+
                 var channelIdsInPostingHours = await _channelFinder.GetChannelSettingsIdsReadyToPostAsync(stagedChannelGifPosts.Keys, stoppingToken);
+
+                _logger.LogChannelIdsInPostingHours(channelIdsInPostingHours);
 
                 await _discordChannelGifPoster.PostGifsAsync(stagedChannelGifPosts, channelIdsInPostingHours, stoppingToken);
             }

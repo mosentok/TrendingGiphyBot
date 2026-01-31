@@ -1,6 +1,10 @@
+using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using Discord;
+using Serilog.Core;
+using Serilog.Events;
 using TrendingGiphyBotWorkerService.ChannelSettings;
+using TrendingGiphyBotWorkerService.Giphy.Api;
 
 namespace TrendingGiphyBotWorkerService.Logging;
 
@@ -56,4 +60,16 @@ public static partial class LoggerExtensions
 
     [LoggerMessage(Level = LogLevel.Information, Message = "<{Method}> Seeded intervals.")]
     public static partial void LogSeededIntervals(this ILogger logger, [CallerMemberName] string method = "");
+
+    [LoggerMessage(Level = LogLevel.Trace, Message = "<{Method}> Valid minutes {ValidMinutes}.")]
+    public static partial void LogValidMinutes(this ILogger logger, int[] validMinutes, [CallerMemberName] string method = "");
+
+    [LoggerMessage(Level = LogLevel.Trace, Message = "<{Method}> Valid hours {ValidHours}.")]
+    public static partial void LogValidHours(this ILogger logger, int[] validHours, [CallerMemberName] string method = "");
+
+    [LoggerMessage(Level = LogLevel.Trace, Message = "<{Method}> Channel IDs in posting hours {ChannelIdsInPostingHours}.")]
+    public static partial void LogChannelIdsInPostingHours(this ILogger logger, List<ulong> channelIdsInPostingHours, [CallerMemberName] string method = "");
+
+    [LoggerMessage(Level = LogLevel.Trace, Message = "<{Method}> Staged channel gif posts {StagedChannelGifPosts}.")]
+    public static partial void LogStagedChannelGifPosts(this ILogger logger, IImmutableDictionary<ulong, GiphyData> stagedChannelGifPosts, [CallerMemberName] string method = "");
 }

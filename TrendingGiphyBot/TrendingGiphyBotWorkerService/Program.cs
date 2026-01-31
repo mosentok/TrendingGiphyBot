@@ -33,10 +33,10 @@ var connectionString = $"Data Source={databasePath}";
 var assembly = typeof(TgbSlashInteractionModule).Assembly;
 
 builder.Configuration
-	.SetBasePath(currentDirectory)
-	.AddJsonFile("appsettings.json")
-	.AddJsonFile("appsettings.Development.json", optional: true)
-	.AddEnvironmentVariables("Tgb__");
+    .SetBasePath(currentDirectory)
+    .AddJsonFile("appsettings.json")
+    .AddJsonFile("appsettings.Development.json", optional: true)
+    .AddEnvironmentVariables("Tgb__");
 
 var discordToken = builder.Configuration.GetRequiredConfiguration("DiscordToken");
 var giphyApiKey = builder.Configuration.GetRequiredConfiguration("GiphyApiKey");
@@ -51,11 +51,11 @@ var maxRandomGifAttempts = builder.Configuration.GetRequiredConfiguration<int>("
 
 var discordSocketConfig = new DiscordSocketConfig
 {
-	GatewayIntents =
-		GatewayIntents.Guilds | GatewayIntents.GuildBans | GatewayIntents.GuildEmojis | GatewayIntents.GuildIntegrations | GatewayIntents.GuildWebhooks |
-		GatewayIntents.GuildVoiceStates | GatewayIntents.GuildMessages | GatewayIntents.GuildMessageReactions | GatewayIntents.GuildMessageTyping | GatewayIntents.DirectMessages |
-		GatewayIntents.DirectMessageReactions | GatewayIntents.DirectMessageTyping | GatewayIntents.AutoModerationConfiguration | GatewayIntents.AutoModerationActionExecution | GatewayIntents.GuildMessagePolls |
-		GatewayIntents.DirectMessagePolls,
+    GatewayIntents =
+        GatewayIntents.Guilds | GatewayIntents.GuildBans | GatewayIntents.GuildEmojis | GatewayIntents.GuildIntegrations | GatewayIntents.GuildWebhooks |
+        GatewayIntents.GuildVoiceStates | GatewayIntents.GuildMessages | GatewayIntents.GuildMessageReactions | GatewayIntents.GuildMessageTyping | GatewayIntents.DirectMessages |
+        GatewayIntents.DirectMessageReactions | GatewayIntents.DirectMessageTyping | GatewayIntents.AutoModerationConfiguration | GatewayIntents.AutoModerationActionExecution | GatewayIntents.GuildMessagePolls |
+        GatewayIntents.DirectMessagePolls,
     UseInteractionSnowflakeDate = false
 };
 
@@ -77,63 +77,71 @@ var gifStagingWorkerConfig = new GifStagingWorkerConfig(timeSpanBetweenStageRefr
 var gifPostStageConfig = new GifPostStageConfig(maxRandomGifAttempts);
 var giphyClientConfig = new GiphyClientConfig(giphyApiKey);
 var interactionService = new InteractionService(discordSocketClient.Rest, new() { UseCompiledLambda = true, LogLevel = discordLogLevel, DefaultRunMode = RunMode.Async });
+var logPath = Path.Combine(currentDirectory, "logs", "log.log");
+
+const string outputTemplate = "[{Timestamp:HH:mm:ss} {Level:u4}] [{SourceContext}] {Message:lj}{NewLine}{Exception}";
 
 builder.Services
-	.AddHostedService<DiscordPostingWorker>()
-	.AddHostedService<GifStagingWorker>()
-	.AddHostedService<GiphyCacheWorker>()
-	.AddLogging(loggingBuilder =>
+    .AddHostedService<DiscordPostingWorker>()
+    .AddHostedService<GifStagingWorker>()
+    .AddHostedService<GiphyCacheWorker>()
+    .AddLogging(loggingBuilder =>
     {
-		loggingBuilder.ClearProviders();
+        loggingBuilder.ClearProviders();
 
         var logger = new LoggerConfiguration()
             .MinimumLevel.Override("TrendingGiphyBotWorkerService", LogEventLevel.Verbose)
             .MinimumLevel.Override("Discord", LogEventLevel.Verbose)
             .MinimumLevel.Information()
-			.WriteTo.Console(
-				outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] [{SourceContext}] {Message:lj}{NewLine}{Exception}",
-				theme: AnsiConsoleTheme.Code)
-			.CreateLogger();
+            .WriteTo.Console(
+                outputTemplate: outputTemplate,
+                theme: AnsiConsoleTheme.Code)
+            .WriteTo.File(
+                logPath,
+                outputTemplate: outputTemplate,
+                rollingInterval: RollingInterval.Day
+            )
+            .CreateLogger();
 
         loggingBuilder.AddSerilog(logger);
     })
-	.AddDbContext<ITrendingGiphyBotDbContext, TrendingGiphyBotDbContext>(dbContextOptionsBuilder =>
-		dbContextOptionsBuilder
+    .AddDbContext<ITrendingGiphyBotDbContext, TrendingGiphyBotDbContext>(dbContextOptionsBuilder =>
+        dbContextOptionsBuilder
             .EnableSensitiveDataLogging()
             .UseSqlite(connectionString))
-	.AddSingleton(delayerConfig)
-	.AddSingleton(discordSocketClient)
-	.AddSingleton(discordSocketClientHandlerConfig)
-	.AddSingleton(gifCacheConfig)
-	.AddSingleton(gifPostStageConfig )
+    .AddSingleton(delayerConfig)
+    .AddSingleton(discordSocketClient)
+    .AddSingleton(discordSocketClientHandlerConfig)
+    .AddSingleton(gifCacheConfig)
+    .AddSingleton(gifPostStageConfig)
     .AddSingleton(gifStagingWorkerConfig)
-	.AddSingleton(giphyCacheWorkerConfig)
-	.AddSingleton(giphyClientConfig)
-	.AddSingleton(interactionService)
-	.AddSingleton(intervalConfig)
-	.AddSingleton(pagerConfig)
+    .AddSingleton(giphyCacheWorkerConfig)
+    .AddSingleton(giphyClientConfig)
+    .AddSingleton(interactionService)
+    .AddSingleton(intervalConfig)
+    .AddSingleton(pagerConfig)
     .AddSingleton(TimeProvider.System)
-	.AddSingleton<IChannelSettingsFilter, ChannelSettingsFilter>()
-	.AddSingleton<IChannelSettingsFinder, ChannelSettingsFinder>()
-	.AddSingleton<IChannelSettingsMessageComponentFactory, ChannelSettingsMessageComponentFactory>()
-	.AddSingleton<IDelayer, Delayer>()
+    .AddSingleton<IChannelSettingsFilter, ChannelSettingsFilter>()
+    .AddSingleton<IChannelSettingsFinder, ChannelSettingsFinder>()
+    .AddSingleton<IChannelSettingsMessageComponentFactory, ChannelSettingsMessageComponentFactory>()
+    .AddSingleton<IDelayer, Delayer>()
     .AddSingleton<IDiscordChannelGifPoster, DiscordChannelGifPoster>()
-	.AddSingleton<IDiscordSocketClientHandler, DiscordSocketClientHandler>()
-	.AddSingleton<IDiscordSocketClientWrapper, DiscordSocketClientWrapper>()
+    .AddSingleton<IDiscordSocketClientHandler, DiscordSocketClientHandler>()
+    .AddSingleton<IDiscordSocketClientWrapper, DiscordSocketClientWrapper>()
     .AddSingleton<IGifFinder, GifFinder>()
     .AddSingleton<IGifPostingBehaviorHelper, GifPostingBehaviorHelper>()
-	.AddSingleton<IGifPostingBehaviorSeeder, GifPostingBehaviorSeeder>()
+    .AddSingleton<IGifPostingBehaviorSeeder, GifPostingBehaviorSeeder>()
     .AddSingleton<IGifPostStage, GifPostStage>()
     .AddSingleton<IGiphyDataListHelper, GiphyDataListHelper>()
     .AddSingleton<IGiphySearchCache, GiphySearchCache>()
     .AddSingleton<IGiphySearchPager, GiphySearchPager>()
     .AddSingleton<IGiphyTrendingCache, GiphyTrendingCache>()
     .AddSingleton<IGiphyTrendingPager, GiphyTrendingPager>()
-	.AddSingleton<IIntervalSeeder, IntervalSeeder>()
+    .AddSingleton<IIntervalSeeder, IntervalSeeder>()
     .AddSingleton<IPager, Pager>()
-	.AddSingleton<IUtcOffsetParser, UtcOffsetParser>()
+    .AddSingleton<IUtcOffsetParser, UtcOffsetParser>()
     .AddHttpClient<IGiphyClient, GiphyClient>(s => s.BaseAddress = new(giphyBaseAddress))
-	.AddStandardResilienceHandler();
+    .AddStandardResilienceHandler();
 
 var host = builder.Build();
 
@@ -159,14 +167,14 @@ var logger = loggerFactory.CreateLogger("Top Level");
 
 try
 {
-	logger.LogInformation("Initializing.");
+    logger.LogInformation("Initializing.");
 
-	if (builder.Environment.IsDevelopment())
-	{
-		var debugView = Environment.NewLine + builder.Configuration.GetDebugView().TrimEnd();
+    if (builder.Environment.IsDevelopment())
+    {
+        var debugView = Environment.NewLine + builder.Configuration.GetDebugView().TrimEnd();
 
-		logger.LogInformation("Configuration:{DebugView}", debugView);
-	}
+        logger.LogInformation("Configuration:{DebugView}", debugView);
+    }
 
     await gifPostingBehaviorSeeder.SeedGifPostingBehaviorsAsync();
     await intervalSeeder.SeedIntervalsAsync();
@@ -174,7 +182,7 @@ try
     await gifPostStage.RefreshAsync();
 
     await discordSocketClient.LoginAsync(TokenType.Bot, discordToken);
-	await discordSocketClient.StartAsync();
+    await discordSocketClient.StartAsync();
 
     logger.LogInformation("Initialized.");
 
