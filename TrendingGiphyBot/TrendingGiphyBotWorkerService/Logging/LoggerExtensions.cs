@@ -72,4 +72,13 @@ public static partial class LoggerExtensions
 
     [LoggerMessage(Level = LogLevel.Trace, Message = "<{Method}> Staged channel gif posts {StagedChannelGifPosts}.")]
     public static partial void LogStagedChannelGifPosts(this ILogger logger, IImmutableDictionary<ulong, GiphyData> stagedChannelGifPosts, [CallerMemberName] string method = "");
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "<{Method}> Initializing.")]
+    public static partial void LogInitializing(this ILogger logger, [CallerMemberName] string method = "");
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "<{Method}> Initialized.")]
+    public static partial void LogInitialized(this ILogger logger, [CallerMemberName] string method = "");
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "<{Method}> Configuration:{DebugView}.")]
+    public static partial void LogDebugView(this ILogger logger, string debugView, [CallerMemberName] string method = "");
 }
