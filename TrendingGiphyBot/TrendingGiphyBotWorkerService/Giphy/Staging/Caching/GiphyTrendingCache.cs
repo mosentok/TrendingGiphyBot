@@ -16,22 +16,10 @@ public class GiphyTrendingCache
 
     public async Task RefreshTrendingGifsAsync(CancellationToken cancellationToken = default)
     {
-        // log start
+        var itemsToAdd = await _giphyTrendingPager.GetTrendingGifsAsync(cancellationToken);
 
-        try
-        {
-            var itemsToAdd = await _giphyTrendingPager.GetTrendingGifsAsync(cancellationToken);
-
-            _giphyDataListHelper.SortToMaxSize(_trendingGiphyDatas, itemsToAdd, _gifCacheConfig.MaxCount);
-
-            _logger.LogGifCacheHasRefreshed(_trendingGiphyDatas.Count);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogGifCacheRefreshException(ex);
-        }
-
-        // log end
+        _giphyDataListHelper.SortToMaxSize(_trendingGiphyDatas, itemsToAdd, _gifCacheConfig.MaxCount);
+        _logger.LogGifTrendingCacheCount(_trendingGiphyDatas.Count);
     }
 
     public GiphyData? GetFirstGif() => _trendingGiphyDatas.FirstOrDefault();

@@ -21,8 +21,6 @@ public class GifPostStage(
 
     public async Task RefreshAsync(CancellationToken cancellationToken = default)
     {
-        _logger.LogGifStageIsRefreshing();
-
         using var scope = _serviceScopeFactory.CreateScope();
 
         var trendingGiphyBotDbContext = scope.ServiceProvider.GetRequiredService<ITrendingGiphyBotDbContext>();
@@ -40,6 +38,6 @@ public class GifPostStage(
                 _items[channel.ChannelId] = result;
         }
 
-        _logger.LogGifStageHasRefreshed(_items.Count);
+        _logger.LogGifStageCount(_items.Count);
     }
 }

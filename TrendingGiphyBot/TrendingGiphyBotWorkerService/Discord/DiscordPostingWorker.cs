@@ -18,18 +18,25 @@ public class DiscordPostingWorker
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
-        {
-            await _delayer.DelayUntilNextPostingTimeAsync(stoppingToken);
+            try
+            {
+                await _delayer.DelayUntilNextPostingTimeAsync(stoppingToken);
 
-            _logger.LogPostingGifs();
+                _logger.LogPostingGifs();
 
-            var stagedChannelGifPosts = _gifPostStage.GetChannelGifPostStage();
+                var stagedChannelGifPosts = _gifPostStage.GetChannelGifPostStage();
 
-            var channelIdsInPostingHours = await _channelFinder.GetChannelSettingsIdsReadyToPostAsync(stagedChannelGifPosts.Keys, stoppingToken);
+                var channelIdsInPostingHours = await _channelFinder.GetChannelSettingsIdsReadyToPostAsync(stagedChannelGifPosts.Keys, stoppingToken);
 
-            await _discordChannelGifPoster.PostGifsAsync(stagedChannelGifPosts, channelIdsInPostingHours, stoppingToken);
-
-            _logger.LogPostedGifs();
-        }
+                await _discordChannelGifPoster.PostGifsAsync(stagedChannelGifPosts, channelIdsInPostingHours, stoppingToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogTopLevelException(ex);
+            }
+            finally
+            {
+                _logger.LogPostedGifs();
+            }
     }
 }

@@ -32,7 +32,6 @@ public class ChannelSettingsFinder
                 (channelSettings.IntervalId == (int)IntervalDescription.Hours && validHours.Contains(channelSettings.Frequency))))
             .ToListAsync(stoppingToken);
 
-
         return [.. candidateChannelSettings
             .Where(channelSettings => _channelSettingsFilter.InPostingHours(channelSettings, now))
             .Select(channelSettings => channelSettings.ChannelId)];
