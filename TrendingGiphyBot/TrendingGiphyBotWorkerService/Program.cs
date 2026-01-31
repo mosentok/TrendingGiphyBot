@@ -48,6 +48,9 @@ var timeSpanBetweenStageRefreshes = builder.Configuration.GetRequiredConfigurati
 var giphyBaseAddress = builder.Configuration.GetRequiredConfiguration("GiphyBaseAddress");
 var discordLogLevel = builder.Configuration.GetRequiredConfiguration<LogSeverity>("DiscordLogLevel");
 var maxRandomGifAttempts = builder.Configuration.GetRequiredConfiguration<int>("MaxRandomGifAttempts");
+var enableTrendingGifs = builder.Configuration.GetRequiredConfiguration<bool>("EnableTrendingGifs");
+var enableSearchGifs = builder.Configuration.GetRequiredConfiguration<bool>("EnableSearchGifs");
+var enableRandomGifs = builder.Configuration.GetRequiredConfiguration<bool>("EnableRandomGifs");
 
 var discordSocketConfig = new DiscordSocketConfig
 {
@@ -74,7 +77,7 @@ var gifCacheConfig = new GifCacheConfig(1_000);
 var pagerConfig = new PagerConfig(maxCacheLoops);
 var giphyCacheWorkerConfig = new GiphyCacheWorkerConfig(timeSpanBetweenCacheRefreshes);
 var gifStagingWorkerConfig = new GifStagingWorkerConfig(timeSpanBetweenStageRefreshes);
-var gifPostStageConfig = new GifPostStageConfig(maxRandomGifAttempts);
+var gifPostStageConfig = new GifPostStageConfig(maxRandomGifAttempts, enableTrendingGifs, enableSearchGifs, enableRandomGifs);
 var giphyClientConfig = new GiphyClientConfig(giphyApiKey);
 var interactionService = new InteractionService(discordSocketClient.Rest, new() { UseCompiledLambda = true, LogLevel = discordLogLevel, DefaultRunMode = RunMode.Async });
 var logPath = Path.Combine(currentDirectory, "logs", "log.log");

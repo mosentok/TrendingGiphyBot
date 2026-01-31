@@ -27,5 +27,7 @@ public class GiphySearchCache
         _logger.LogGifSearchCacheCount(_searchedGiphyDatas[searchTerms].Count);
     }
 
+    public GiphyData? GetFirstGif(string searchTerm) => _searchedGiphyDatas[searchTerm].FirstOrDefault();
+
     public GiphyData? GetFirstUnseenGif(string searchTerm, string[] idsAlreadySeen) => _searchedGiphyDatas[searchTerm].FirstOrDefault(s => !idsAlreadySeen.Contains(s.Id));
 }
