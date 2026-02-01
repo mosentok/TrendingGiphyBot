@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Options;
 using TrendingGiphyBotWorkerService.Giphy.Api;
 using TrendingGiphyBotWorkerService.Giphy.Api.Paging;
 using TrendingGiphyBotWorkerService.Logging;
@@ -7,7 +8,7 @@ namespace TrendingGiphyBotWorkerService.Giphy.Staging.Caching;
 public class GiphySearchCache
 (
     ILogger<GiphySearchCache> _logger,
-    GifCacheConfig _gifCacheConfig,
+    IOptions<AppConfig> _appConfig,
     IGiphyDataListHelper _giphyDataListHelper,
     IGiphySearchPager _giphySearchPager
 ) : IGiphySearchCache
@@ -23,7 +24,7 @@ public class GiphySearchCache
 
         var itemsToAdd = await _giphySearchPager.SearchAsync(searchTerms, cancellationToken);
 
-        _giphyDataListHelper.SortToMaxSize(_searchedGiphyDatas[searchTerms], itemsToAdd, _gifCacheConfig.MaxCount);
+        _giphyDataListHelper.SortToMaxSize(_searchedGiphyDatas[searchTerms], itemsToAdd, _appConfig.Value.Giphy.Staging.Caching.CacheCapacity.Value);
         _logger.LogGifSearchCacheCount(_searchedGiphyDatas[searchTerms].Count);
     }
 

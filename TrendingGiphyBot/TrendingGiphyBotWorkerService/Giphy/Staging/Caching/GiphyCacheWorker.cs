@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Options;
 using TrendingGiphyBotWorkerService.Logging;
 
 namespace TrendingGiphyBotWorkerService.Giphy.Staging.Caching;
@@ -5,7 +6,7 @@ namespace TrendingGiphyBotWorkerService.Giphy.Staging.Caching;
 public class GiphyCacheWorker(
     ILogger<GiphyCacheWorker> _logger,
     IGiphyTrendingCache _giphyTrendingCache,
-    GiphyCacheWorkerConfig _giphyCacheWorkerConfig
+    IOptions<AppConfig> _appConfig
 ) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -13,7 +14,7 @@ public class GiphyCacheWorker(
         while (!stoppingToken.IsCancellationRequested)
             try
             {
-                await Task.Delay(_giphyCacheWorkerConfig.TimeSpanBetweenCacheRefreshes, stoppingToken);
+                await Task.Delay(_appConfig.Value.Giphy.Staging.Caching.TimeSpanBetweenRefreshes.Value, stoppingToken);
 
                 _logger.LogGifTrendingCacheIsRefreshing();
 

@@ -1,8 +1,9 @@
+using Microsoft.Extensions.Options;
 using TrendingGiphyBotWorkerService.Giphy.Api;
 
 namespace TrendingGiphyBotWorkerService.Paging;
 
-public class Pager(PagerConfig _pagerConfig) : IPager
+public class Pager(IOptions<AppConfig> _appConfig) : IPager
 {
     public async Task<List<GiphyData>> PageAsync(SearchWithOffsetAsync searchWithOffsetAsync)
     {
@@ -22,7 +23,7 @@ public class Pager(PagerConfig _pagerConfig) : IPager
 
             numberOfLoops++;
 
-        } while (numberOfResponses < totalCount && numberOfLoops < _pagerConfig.MaxCacheLoops);
+        } while (numberOfResponses < totalCount && numberOfLoops < _appConfig.Value.Pager.MaxCacheLoops);
 
         return allResults;
     }

@@ -1,6 +1,7 @@
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
+using Microsoft.Extensions.Options;
 using TrendingGiphyBotWorkerService.Logging;
 
 namespace TrendingGiphyBotWorkerService.Discord;
@@ -9,7 +10,7 @@ public class DiscordSocketClientHandler(
 	ILogger<DiscordSocketClientHandler> _logger,
 	DiscordSocketClient _discordSocketClient,
 	InteractionService _interactionService,
-	DiscordSocketClientHandlerConfig _discordSocketClientHandlerConfig,
+    IOptions<AppConfig> _appConfig,
 	IServiceProvider _services
 ) : IDiscordSocketClientHandler
 {
@@ -60,11 +61,14 @@ public class DiscordSocketClientHandler(
 
 	public async Task OnReadyAsync()
 	{
-		await _discordSocketClient.SetGameAsync(_discordSocketClientHandlerConfig.PlayingGame);
-		await _interactionService.AddModulesAsync(_discordSocketClientHandlerConfig.Assembly, _services);
+		await _discordSocketClient.SetGameAsync(_appConfig.Value.Discord.SocketClientHandler.PlayingGame);
 
-		if (_discordSocketClientHandlerConfig.GuildToRegisterCommands is not null)
-			await _interactionService.RegisterCommandsToGuildAsync(_discordSocketClientHandlerConfig.GuildToRegisterCommands.Value);
+        var type = GetType();
+
+        await _interactionService.AddModulesAsync(type.Assembly, _services);
+
+		if (_appConfig.Value.Discord.SocketClientHandler.GuildToRegisterCommands is { } guildToRegisterCommands)
+			await _interactionService.RegisterCommandsToGuildAsync(guildToRegisterCommands);
 		else
 			await _interactionService.RegisterCommandsGloballyAsync();
 	}

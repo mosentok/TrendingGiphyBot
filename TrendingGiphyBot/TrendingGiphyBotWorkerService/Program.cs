@@ -1,12 +1,13 @@
-using Cronos;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
 using System.Diagnostics.CodeAnalysis;
+using TrendingGiphyBotWorkerService;
 using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Configuration;
 using TrendingGiphyBotWorkerService.Database;
@@ -17,7 +18,6 @@ using TrendingGiphyBotWorkerService.Giphy.Api;
 using TrendingGiphyBotWorkerService.Giphy.Api.Paging;
 using TrendingGiphyBotWorkerService.Giphy.Staging;
 using TrendingGiphyBotWorkerService.Giphy.Staging.Caching;
-using TrendingGiphyBotWorkerService.Interactions;
 using TrendingGiphyBotWorkerService.Intervals;
 using TrendingGiphyBotWorkerService.Logging;
 using TrendingGiphyBotWorkerService.Paging;
@@ -30,27 +30,12 @@ var builder = Host.CreateApplicationBuilder(args);
 var currentDirectory = Directory.GetCurrentDirectory();
 var databasePath = Path.Combine(currentDirectory, "app.db");
 var connectionString = $"Data Source={databasePath}";
-var assembly = typeof(TgbSlashInteractionModule).Assembly;
 
 builder.Configuration
     .SetBasePath(currentDirectory)
     .AddJsonFile("appsettings.json")
     .AddJsonFile("appsettings.Development.json", optional: true)
-    .AddEnvironmentVariables("Tgb__");
-
-var discordToken = builder.Configuration.GetRequiredConfiguration("DiscordToken");
-var giphyApiKey = builder.Configuration.GetRequiredConfiguration("GiphyApiKey");
-var maxCacheLoops = builder.Configuration.GetRequiredConfiguration<int>("MaxCacheLoops");
-var playingGame = builder.Configuration.GetRequiredConfiguration("PlayingGame");
-var guildToRegisterCommands = builder.Configuration.GetOptionalConfiguration<ulong?>("RegisterCommandsToGuild");
-var timeSpanBetweenCacheRefreshes = builder.Configuration.GetRequiredConfiguration<TimeSpan>("TimeSpanBetweenCacheRefreshes");
-var timeSpanBetweenStageRefreshes = builder.Configuration.GetRequiredConfiguration<TimeSpan>("TimeSpanBetweenStageRefreshes");
-var giphyBaseAddress = builder.Configuration.GetRequiredConfiguration("GiphyBaseAddress");
-var discordLogLevel = builder.Configuration.GetRequiredConfiguration<LogSeverity>("DiscordLogLevel");
-var maxRandomGifAttempts = builder.Configuration.GetRequiredConfiguration<int>("MaxRandomGifAttempts");
-var enableTrendingGifs = builder.Configuration.GetRequiredConfiguration<bool>("EnableTrendingGifs");
-var enableSearchGifs = builder.Configuration.GetRequiredConfiguration<bool>("EnableSearchGifs");
-var enableRandomGifs = builder.Configuration.GetRequiredConfiguration<bool>("EnableRandomGifs");
+    .AddEnvironmentVariables("Tgb2__");
 
 var discordSocketConfig = new DiscordSocketConfig
 {
@@ -64,27 +49,12 @@ var discordSocketConfig = new DiscordSocketConfig
 
 await using var discordSocketClient = new DiscordSocketClient(discordSocketConfig);
 
-var minutes = new[] { 5, 10, 15, 30 };
-var hours = new[] { 1, 2, 3, 4, 6, 8, 12, 24 };
-
-var intervalConfig = new IntervalConfig(minutes, hours);
-
-var every5Minutes = CronExpression.Parse("*/5 * * * *");
-
-var delayerConfig = new DelayerConfig(every5Minutes);
-var discordSocketClientHandlerConfig = new DiscordSocketClientHandlerConfig(playingGame, guildToRegisterCommands, assembly);
-var gifCacheConfig = new GifCacheConfig(1_000);
-var pagerConfig = new PagerConfig(maxCacheLoops);
-var giphyCacheWorkerConfig = new GiphyCacheWorkerConfig(timeSpanBetweenCacheRefreshes);
-var gifStagingWorkerConfig = new GifStagingWorkerConfig(timeSpanBetweenStageRefreshes);
-var gifPostStageConfig = new GifPostStageConfig(maxRandomGifAttempts, enableTrendingGifs, enableSearchGifs, enableRandomGifs);
-var giphyClientConfig = new GiphyClientConfig(giphyApiKey);
-var interactionService = new InteractionService(discordSocketClient.Rest, new() { UseCompiledLambda = true, LogLevel = discordLogLevel, DefaultRunMode = RunMode.Async });
 var logPath = Path.Combine(currentDirectory, "logs", "log.log");
 
 const string outputTemplate = "[{Timestamp:HH:mm:ss} {Level:u4}] [{SourceContext}] {Message:lj}{NewLine}{Exception}";
 
 builder.Services
+    .Configure<AppConfig>(builder.Configuration)
     .AddHostedService<DiscordPostingWorker>()
     .AddHostedService<GifStagingWorker>()
     .AddHostedService<GiphyCacheWorker>()
@@ -112,17 +82,13 @@ builder.Services
         dbContextOptionsBuilder
             .EnableSensitiveDataLogging()
             .UseSqlite(connectionString))
-    .AddSingleton(delayerConfig)
     .AddSingleton(discordSocketClient)
-    .AddSingleton(discordSocketClientHandlerConfig)
-    .AddSingleton(gifCacheConfig)
-    .AddSingleton(gifPostStageConfig)
-    .AddSingleton(gifStagingWorkerConfig)
-    .AddSingleton(giphyCacheWorkerConfig)
-    .AddSingleton(giphyClientConfig)
-    .AddSingleton(interactionService)
-    .AddSingleton(intervalConfig)
-    .AddSingleton(pagerConfig)
+    .AddSingleton(services =>
+    {
+        var appConfig = services.GetRequiredService<IOptions<AppConfig>>();
+
+        return new InteractionService(discordSocketClient, new() { UseCompiledLambda = true, LogLevel = appConfig.Value.Discord.LogSeverity, DefaultRunMode = RunMode.Async });
+    })
     .AddSingleton(TimeProvider.System)
     .AddSingleton<IChannelSettingsFilter, ChannelSettingsFilter>()
     .AddSingleton<IChannelSettingsFinder, ChannelSettingsFinder>()
@@ -139,11 +105,19 @@ builder.Services
     .AddSingleton<IGiphySearchCache, GiphySearchCache>()
     .AddSingleton<IGiphySearchPager, GiphySearchPager>()
     .AddSingleton<IGiphyTrendingCache, GiphyTrendingCache>()
+    .AddSingleton<IGiphyRandomGifFinder, GiphyRandomGifFinder>()
+    .AddSingleton<IGiphySearchGifFinder, GiphySearchGifFinder>()
+    .AddSingleton<IGiphyTrendingGifFinder, GiphyTrendingGifFinder>()
     .AddSingleton<IGiphyTrendingPager, GiphyTrendingPager>()
     .AddSingleton<IIntervalSeeder, IntervalSeeder>()
     .AddSingleton<IPager, Pager>()
     .AddSingleton<IUtcOffsetParser, UtcOffsetParser>()
-    .AddHttpClient<IGiphyClient, GiphyClient>(s => s.BaseAddress = new(giphyBaseAddress))
+    .AddHttpClient<IGiphyClient, GiphyClient>((services, httpClilent) =>
+    {
+        var appConfig = services.GetRequiredService<IOptions<AppConfig>>();
+
+        httpClilent.BaseAddress = new(appConfig.Value.Giphy.BaseAddress);
+    })
     .AddStandardResilienceHandler();
 
 var host = builder.Build();
@@ -162,6 +136,9 @@ discordSocketClient.Log += discordSocketClientHandler.OnLogAsync;
 discordSocketClient.ModalSubmitted += discordSocketClientHandler.OnSocketInteractionAsync;
 discordSocketClient.Ready += discordSocketClientHandler.OnReadyAsync;
 discordSocketClient.SelectMenuExecuted += discordSocketClientHandler.OnSocketInteractionAsync;
+
+var appConfig = host.Services.GetRequiredService<IOptions<AppConfig>>();
+var interactionService = host.Services.GetRequiredService<InteractionService>();
 
 interactionService.Log += discordSocketClientHandler.OnLogAsync;
 
@@ -183,7 +160,7 @@ try
     await giphyTrendingCache.RefreshTrendingGifsAsync();
     await gifPostStage.RefreshAsync();
 
-    await discordSocketClient.LoginAsync(TokenType.Bot, discordToken);
+    await discordSocketClient.LoginAsync(TokenType.Bot, appConfig.Value.Discord.Token);
     await discordSocketClient.StartAsync();
 
     logger.LogInitialized();

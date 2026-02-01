@@ -1,8 +1,6 @@
 using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using Discord;
-using Serilog.Core;
-using Serilog.Events;
 using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Giphy.Api;
 

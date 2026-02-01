@@ -1,11 +1,13 @@
+using Microsoft.Extensions.Options;
+
 namespace TrendingGiphyBotWorkerService.Delaying;
 
-public class Delayer(TimeProvider _timeProvider, DelayerConfig _delayerConfig) : IDelayer
+public class Delayer(TimeProvider _timeProvider, IOptions<AppConfig> _appConfig) : IDelayer
 {
     public async Task DelayUntilNextPostingTimeAsync(CancellationToken cancellationToken)
     {
         var utcNow = _timeProvider.GetUtcNow();
-        var utcNext = _delayerConfig.CronExpression.GetNextOccurrence(utcNow.UtcDateTime);
+        var utcNext = _appConfig.Value.Delayer.CronExpression.GetNextOccurrence(utcNow.UtcDateTime);
 
         if (!utcNext.HasValue)
             throw new ThisShouldBeImpossibleException();

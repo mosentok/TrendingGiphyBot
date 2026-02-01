@@ -1,3 +1,0 @@
-namespace TrendingGiphyBotWorkerService.Giphy.Staging.Caching;
-
-public record GiphyCacheWorkerConfig(TimeSpan TimeSpanBetweenCacheRefreshes);

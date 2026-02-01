@@ -1,10 +1,9 @@
 ﻿using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Giphy.Api;
 
-namespace TrendingGiphyBotWorkerService.Giphy.Staging
+namespace TrendingGiphyBotWorkerService.Giphy.Staging;
+
+public interface IGiphySearchGifFinder
 {
-    public interface IGiphySearchGifFinder
-    {
-        Maybe<GiphyData> TryGetSearchGif(ChannelSettingsModel channel);
-    }
+    Maybe<GiphyData> TryGetSearchGif(ChannelSettingsModel channel);
 }

@@ -1,15 +1,21 @@
+using Microsoft.Extensions.Options;
 using TrendingGiphyBotWorkerService.Logging;
 
 namespace TrendingGiphyBotWorkerService.Giphy.Staging;
 
-public class GifStagingWorker(ILogger<GifStagingWorker> _logger, IGifPostStage _gifPostStage, GifStagingWorkerConfig _gifStagingWorkerConfig) : BackgroundService
+public class GifStagingWorker
+(
+    ILogger<GifStagingWorker> _logger,
+    IGifPostStage _gifPostStage,
+    IOptions<AppConfig> _appConfig
+) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
             try
             {
-                await Task.Delay(_gifStagingWorkerConfig.TimeSpanBetweenStageRefreshes, stoppingToken);
+                await Task.Delay(_appConfig.Value.Giphy.Staging.TimeSpanBetweenRefreshes, stoppingToken);
 
                 _logger.LogGifStageIsRefreshing();
 
