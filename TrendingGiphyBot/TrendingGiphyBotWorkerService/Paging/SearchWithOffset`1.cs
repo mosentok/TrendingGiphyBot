@@ -1,4 +1,4 @@
-using TrendingGiphyBotWorkerService.Giphy.Api;
+using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Api;
 
 namespace TrendingGiphyBotWorkerService.Paging;
 

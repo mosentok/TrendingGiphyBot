@@ -2,7 +2,7 @@ using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using Discord;
 using TrendingGiphyBotWorkerService.ChannelSettings;
-using TrendingGiphyBotWorkerService.Giphy.Api;
+using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Api;
 
 namespace TrendingGiphyBotWorkerService.Logging;
 

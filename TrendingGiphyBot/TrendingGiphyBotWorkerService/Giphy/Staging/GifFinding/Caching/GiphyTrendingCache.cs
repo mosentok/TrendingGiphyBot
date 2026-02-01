@@ -1,0 +1,29 @@
+using Microsoft.Extensions.Options;
+using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Api;
+using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Caching.Paging;
+using TrendingGiphyBotWorkerService.Logging;
+
+namespace TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Caching;
+
+public class GiphyTrendingCache
+(
+    ILogger<GiphyTrendingCache> _logger,
+    IOptions<AppConfig> _appConfig,
+    IGiphyDataListHelper _giphyDataListHelper,
+    IGiphyTrendingPager _giphyTrendingPager
+) : IGiphyTrendingCache
+{
+    readonly List<GiphyData> _trendingGiphyDatas = [];
+
+    public async Task RefreshTrendingGifsAsync(CancellationToken cancellationToken = default)
+    {
+        var itemsToAdd = await _giphyTrendingPager.GetTrendingGifsAsync(cancellationToken);
+
+        _giphyDataListHelper.SortToMaxSize(_trendingGiphyDatas, itemsToAdd, _appConfig.Value.Giphy.Staging.Caching.CacheCapacity);
+        _logger.LogGifTrendingCacheCount(_trendingGiphyDatas.Count);
+    }
+
+    public GiphyData? GetFirstGif() => _trendingGiphyDatas.FirstOrDefault();
+
+    public GiphyData? GetFirstUnseenGif(string[] idsAlreadySeen) => _trendingGiphyDatas.FirstOrDefault(s => !idsAlreadySeen.Contains(s.Id));
+}

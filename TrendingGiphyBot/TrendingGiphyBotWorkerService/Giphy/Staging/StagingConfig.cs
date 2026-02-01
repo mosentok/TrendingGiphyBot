@@ -1,4 +1,4 @@
-using TrendingGiphyBotWorkerService.Giphy.Staging.Caching;
+using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Caching;
 
 namespace TrendingGiphyBotWorkerService.Giphy.Staging;
 

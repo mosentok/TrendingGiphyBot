@@ -3,8 +3,8 @@ using Discord;
 using Microsoft.EntityFrameworkCore;
 using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Database;
-using TrendingGiphyBotWorkerService.Giphy.Api;
 using TrendingGiphyBotWorkerService.Giphy.Staging;
+using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Api;
 using TrendingGiphyBotWorkerService.Logging;
 
 namespace TrendingGiphyBotWorkerService.Discord;

@@ -1,5 +1,6 @@
 using TrendingGiphyBotWorkerService.Delaying;
-using TrendingGiphyBotWorkerService.Giphy.Staging;
+using TrendingGiphyBotWorkerService.Discord;
+using TrendingGiphyBotWorkerService.Giphy;
 using TrendingGiphyBotWorkerService.Intervals;
 using TrendingGiphyBotWorkerService.Paging;
 
