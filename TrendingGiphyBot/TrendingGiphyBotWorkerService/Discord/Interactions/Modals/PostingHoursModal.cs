@@ -1,6 +1,7 @@
 using Discord.Interactions;
+using TrendingGiphyBotWorkerService.Discord.Interactions;
 
-namespace TrendingGiphyBotWorkerService.Interactions.Modals;
+namespace TrendingGiphyBotWorkerService.Discord.Interactions.Modals;
 
 public class PostingHoursModal : IModal
 {

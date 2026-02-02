@@ -4,7 +4,7 @@ using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using TrendingGiphyBotWorkerService.Database;
 
-namespace TrendingGiphyBotWorkerService.Interactions;
+namespace TrendingGiphyBotWorkerService.Discord.Interactions;
 
 public class KeywordButtonInteractionModule(ITrendingGiphyBotDbContext _trendingGiphyBotContext) : InteractionModuleBase<SocketInteractionContext<SocketMessageComponent>>
 {

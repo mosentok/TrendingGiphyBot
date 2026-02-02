@@ -1,4 +1,4 @@
-﻿namespace TrendingGiphyBotWorkerService.Interactions;
+﻿namespace TrendingGiphyBotWorkerService.Discord.Interactions;
 
 public static class InteractionId
 {

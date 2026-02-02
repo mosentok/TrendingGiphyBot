@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using TrendingGiphyBotWorkerService.Database;
 using TrendingGiphyBotWorkerService.Utc;
 
-namespace TrendingGiphyBotWorkerService.Interactions;
+namespace TrendingGiphyBotWorkerService.Discord.Interactions;
 
 public class PostingHoursButtonInteractionModule(ITrendingGiphyBotDbContext _trendingGiphyBotContext, IUtcOffsetParser _utcOffsetParser) : InteractionModuleBase<SocketInteractionContext<SocketMessageComponent>>
 {

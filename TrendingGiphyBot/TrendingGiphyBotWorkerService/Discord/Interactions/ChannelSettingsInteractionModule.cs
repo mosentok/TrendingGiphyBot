@@ -5,7 +5,7 @@ using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Database;
 using TrendingGiphyBotWorkerService.GifPostingBehavior;
 
-namespace TrendingGiphyBotWorkerService.Interactions;
+namespace TrendingGiphyBotWorkerService.Discord.Interactions;
 
 public class ChannelSettingsInteractionModule(
     IChannelSettingsMessageComponentFactory _settingsMessageComponentFactory,
