@@ -26,12 +26,12 @@ public class GifPostStage(
 
         var trendingGiphyBotDbContext = scope.ServiceProvider.GetRequiredService<ITrendingGiphyBotDbContext>();
 
-        var activeChannels = await trendingGiphyBotDbContext.ChannelSettings
+        var activeChannels = trendingGiphyBotDbContext.ChannelSettings
             .Include(s => s.GifPosts)
             .Where(s => !_items.Keys.Contains(s.ChannelId) && s.Frequency > 0)
-            .ToListAsync(cancellationToken);
+            .ToAsyncEnumerable();
 
-        foreach (var channel in activeChannels)
+        await foreach (var channel in activeChannels)
         {
             var maybe = await _gifFinder.TryGetUnseenGifAsync(channel, cancellationToken);
 
