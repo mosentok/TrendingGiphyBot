@@ -10,6 +10,7 @@ using TrendingGiphyBotWorkerService.Logging;
 
 namespace TrendingGiphyBotWorkerService.Discord.GifPosting;
 
+[RegisterSingleton]
 public class GifPoster
 (
     ILogger<GifPoster> _logger,
