@@ -2,10 +2,12 @@ using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.Options;
+using TrendingGiphyBotWorkerService.Configuration;
 using TrendingGiphyBotWorkerService.Logging;
 
 namespace TrendingGiphyBotWorkerService.Discord;
 
+[RegisterSingleton]
 public class DiscordSocketClientHandler(
 	ILogger<DiscordSocketClientHandler> _logger,
 	DiscordSocketClient _discordSocketClient,

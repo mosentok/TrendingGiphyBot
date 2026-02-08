@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
@@ -6,13 +7,12 @@ using Microsoft.Extensions.Options;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
-using System.Diagnostics.CodeAnalysis;
 using TrendingGiphyBotWorkerService;
 using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Configuration;
 using TrendingGiphyBotWorkerService.Database;
-using TrendingGiphyBotWorkerService.Delaying;
 using TrendingGiphyBotWorkerService.Discord;
+using TrendingGiphyBotWorkerService.Discord.Delaying;
 using TrendingGiphyBotWorkerService.GifPostingBehavior;
 using TrendingGiphyBotWorkerService.Giphy.Staging;
 using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding;
@@ -20,8 +20,11 @@ using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Api;
 using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Caching;
 using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Caching.Paging;
 using TrendingGiphyBotWorkerService.Intervals;
+using TrendingGiphyBotWorkerService.Klipy.Staging;
+using TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding;
+using TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding.Api;
+using TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding.Caching;
 using TrendingGiphyBotWorkerService.Logging;
-using TrendingGiphyBotWorkerService.Paging;
 using TrendingGiphyBotWorkerService.Utc;
 
 [assembly: SuppressMessage("Roslynator", "RCS1001:Add braces (when expression spans over multiple lines)", Justification = "Less is more.")]
@@ -59,6 +62,7 @@ builder.Services
     .AddHostedService<DiscordPostingWorker>()
     .AddHostedService<GifStagingWorker>()
     .AddHostedService<GiphyCacheWorker>()
+    .AddHostedService<KlipyCacheWorker>()
     .AddLogging(loggingBuilder =>
     {
         loggingBuilder.ClearProviders();
@@ -91,43 +95,32 @@ builder.Services
         return new InteractionService(discordSocketClient, new() { UseCompiledLambda = true, LogLevel = appConfig.Value.Discord.LogSeverity, DefaultRunMode = RunMode.Async });
     })
     .AddSingleton(TimeProvider.System)
-    .AddSingleton<IChannelSettingsFilter, ChannelSettingsFilter>()
-    .AddSingleton<IChannelSettingsFinder, ChannelSettingsFinder>()
-    .AddSingleton<IChannelSettingsMessageComponentFactory, ChannelSettingsMessageComponentFactory>()
-    .AddSingleton<IDelayer, Delayer>()
-    .AddSingleton<IDiscordChannelGifPoster, DiscordChannelGifPoster>()
-    .AddSingleton<IDiscordSocketClientHandler, DiscordSocketClientHandler>()
-    .AddSingleton<IDiscordSocketClientWrapper, DiscordSocketClientWrapper>()
-    .AddSingleton<IGifFinder, GifFinder>()
-    .AddSingleton<IGifPostingBehaviorHelper, GifPostingBehaviorHelper>()
-    .AddSingleton<IGifPostingBehaviorSeeder, GifPostingBehaviorSeeder>()
-    .AddSingleton<IGifPostStage, GifPostStage>()
-    .AddSingleton<IGiphyDataListHelper, GiphyDataListHelper>()
-    .AddSingleton<IGiphySearchCache, GiphySearchCache>()
-    .AddSingleton<IGiphySearchPager, GiphySearchPager>()
-    .AddSingleton<IGiphyTrendingCache, GiphyTrendingCache>()
-    .AddSingleton<IGiphyRandomGifFinder, GiphyRandomGifFinder>()
-    .AddSingleton<IGiphySearchGifFinder, GiphySearchGifFinder>()
-    .AddSingleton<IGiphyTrendingGifFinder, GiphyTrendingGifFinder>()
-    .AddSingleton<IGiphyTrendingPager, GiphyTrendingPager>()
-    .AddSingleton<IIntervalSeeder, IntervalSeeder>()
-    .AddSingleton<IPager, Pager>()
-    .AddSingleton<IUtcOffsetParser, UtcOffsetParser>()
+    .AddTrendingGiphyBotWorkerService()
     .AddHttpClient<IGiphyClient, GiphyClient>((services, httpClilent) =>
     {
         var appConfig = services.GetRequiredService<IOptions<AppConfig>>();
 
         httpClilent.BaseAddress = new(appConfig.Value.Giphy.BaseAddress);
     })
+    .AddStandardResilienceHandler()
+    .Services
+    .AddHttpClient<IKlipyClient, KlipyClient>((services, httpClient) =>
+    {
+        var appConfig = services.GetRequiredService<IOptions<AppConfig>>();
+
+        httpClient.BaseAddress = new(appConfig.Value.Klipy.BaseAddress);
+    })
     .AddStandardResilienceHandler();
 
 var host = builder.Build();
 
 var discordSocketClientHandler = host.Services.GetRequiredService<IDiscordSocketClientHandler>();
-var intervalSeeder = host.Services.GetRequiredService<IIntervalSeeder>();
-var giphyTrendingCache = host.Services.GetRequiredService<IGiphyTrendingCache>();
-var gifPostStage = host.Services.GetRequiredService<IGifPostStage>();
 var gifPostingBehaviorSeeder = host.Services.GetRequiredService<IGifPostingBehaviorSeeder>();
+var giphyDataStage = host.Services.GetRequiredService<IGiphyDataStage>();
+var giphyTrendingCache = host.Services.GetRequiredService<IGiphyTrendingCache>();
+var intervalSeeder = host.Services.GetRequiredService<IIntervalSeeder>();
+var klipyDataStage = host.Services.GetRequiredService<IKlipyDataStage>();
+var klipyTrendingCache = host.Services.GetRequiredService<IKlipyTrendingCache>();
 
 discordSocketClient.ButtonExecuted += discordSocketClientHandler.OnSocketInteractionAsync;
 discordSocketClient.InteractionCreated += discordSocketClientHandler.OnInteractionCreatedAsync;
@@ -159,7 +152,9 @@ try
     await gifPostingBehaviorSeeder.SeedGifPostingBehaviorsAsync();
     await intervalSeeder.SeedIntervalsAsync();
     await giphyTrendingCache.RefreshTrendingGifsAsync();
-    await gifPostStage.RefreshAsync();
+    await klipyTrendingCache.RefreshTrendingGifsAsync();
+    await giphyDataStage.RefreshAsync();
+    await klipyDataStage.RefreshAsync();
 
     await discordSocketClient.LoginAsync(TokenType.Bot, appConfig.Value.Discord.Token);
     await discordSocketClient.StartAsync();

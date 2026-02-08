@@ -15,4 +15,5 @@ public static class InteractionId
     public const string TrendingPostingHoursToTextInput = "trending-posting-hours-to-text-input";
     public const string TrendingPostingHoursUtcOffsetTextInput = "trending-posting-hours-utc-offset-text-input";
     public const string ClearPostingHoursModalButton = "clear-posting-hours-modal-button";
+    public const string GifSourcesSelectMenu = "gif-sources-select-menu";
 }

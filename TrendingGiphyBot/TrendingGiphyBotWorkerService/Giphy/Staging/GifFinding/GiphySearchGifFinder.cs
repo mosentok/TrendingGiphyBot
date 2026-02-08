@@ -1,16 +1,19 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using TrendingGiphyBotWorkerService.ChannelSettings;
+using TrendingGiphyBotWorkerService.Configuration;
 using TrendingGiphyBotWorkerService.GifPostingBehavior;
 using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Api;
 using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Caching;
+using TrendingGiphyBotWorkerService.Results;
 
 namespace TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding;
 
+[RegisterSingleton]
 public class GiphySearchGifFinder
 (
-IGiphySearchCache _giphySearchCache,
-IOptions<AppConfig> _appConfig
+    IGiphySearchCache _giphySearchCache,
+    IOptions<AppConfig> _appConfig
 ) : IGiphySearchGifFinder
 {
     public Maybe<GiphyData> TryGetSearchGif(ChannelSettingsModel channel)
@@ -18,7 +21,7 @@ IOptions<AppConfig> _appConfig
         if (!_appConfig.Value.Giphy.Staging.EnableSearchGifs || channel.GifKeyword is null or "")
             return new();
 
-        if (channel.GifPosts is null or { Count: 0 })
+        if (channel.GiphyPosts is null or { Count: 0 })
         {
             var firstGif = _giphySearchCache.GetFirstGif(channel.GifKeyword);
 
@@ -27,7 +30,7 @@ IOptions<AppConfig> _appConfig
                 : new();
         }
 
-        var seenGiphyDataIds = channel.GifPosts.Select(s => s.GiphyDataId).ToArray();
+        var seenGiphyDataIds = channel.GiphyPosts.Select(s => s.GiphyDataId).ToArray();
         var keywordGif = _giphySearchCache.GetFirstUnseenGif(channel.GifKeyword, seenGiphyDataIds);
 
         return keywordGif is not null

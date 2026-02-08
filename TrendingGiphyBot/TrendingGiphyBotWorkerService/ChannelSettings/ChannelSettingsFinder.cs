@@ -1,11 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using TrendingGiphyBotWorkerService.Configuration;
 using TrendingGiphyBotWorkerService.Database;
 using TrendingGiphyBotWorkerService.Intervals;
 using TrendingGiphyBotWorkerService.Logging;
 
 namespace TrendingGiphyBotWorkerService.ChannelSettings;
 
+[RegisterSingleton]
 public class ChannelSettingsFinder
 (
     ILogger<ChannelSettingsFinder> _logger,

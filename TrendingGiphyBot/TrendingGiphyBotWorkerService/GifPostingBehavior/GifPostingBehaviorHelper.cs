@@ -2,6 +2,7 @@
 
 namespace TrendingGiphyBotWorkerService.GifPostingBehavior;
 
+[RegisterSingleton]
 public class GifPostingBehaviorHelper : IGifPostingBehaviorHelper
 {
     public async Task<bool> SetBehaviorAsync(ChannelSettingsModel channelSettings, GifPostingBehaviorKind kind)

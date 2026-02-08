@@ -66,4 +66,20 @@ public class ChannelSettingsInteractionModule(
     [ComponentInteraction(InteractionId.TrendingGifsWithRandomButton)]
     public async Task SetTrendingGifsWithRandomAsync() =>
         _shouldUpdateInteraction = await _gifPostingBehaviorHelper.SetBehaviorAsync(_channelSettings!, GifPostingBehaviorKind.TrendingGifsWithRandomGifs);
+
+	[ComponentInteraction(InteractionId.GifSourcesSelectMenu)]
+	public async Task SetGifSourcesAsync(string[] selectedValues)
+	{
+		// selectedValues contains chosen option values like "Giphy" and/or "Klipy"
+		GifSourceKind sources = GifSourceKind.None;
+
+		foreach (var v in selectedValues)
+		{
+			if (v == "Giphy") sources |= GifSourceKind.Giphy;
+			else if (v == "Klipy") sources |= GifSourceKind.Klipy;
+		}
+
+		_channelSettings!.GifSource = sources;
+		_shouldUpdateInteraction = true;
+	}
 }

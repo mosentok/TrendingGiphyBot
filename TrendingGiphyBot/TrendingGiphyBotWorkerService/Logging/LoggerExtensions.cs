@@ -12,13 +12,13 @@ public static partial class LoggerExtensions
 	public static partial void LogTopLevelException(this ILogger logger, Exception exception, [CallerMemberName] string method = "");
 
 	[LoggerMessage(Level = LogLevel.Error, Message = "<{Method}> Exception caught when attempting to save GifPost {GifPost} to the database.")]
-	public static partial void LogGifPostingException(this ILogger logger, Exception exception, [LogProperties] GifPost gifPost, [CallerMemberName] string method = "");
+	public static partial void LogGifPostingException(this ILogger logger, Exception exception, [LogProperties] GiphyPost gifPost, [CallerMemberName] string method = "");
 
 	[LoggerMessage(Message = "<{Method}> Discord.Net LogMessage: {LogMessage}")]
 	public static partial void LogDiscordMessage(this ILogger logger, LogLevel logLevel, LogMessage logMessage, [CallerMemberName] string method = "");
 
     [LoggerMessage(Level = LogLevel.Error, Message = "<{Method}> An exception caught when posting GiphyDataId {GiphyDataId} to ChannelId {ChannelId}. Removing GifPost {GifPost}.")]
-    public static partial void LogErrorPostingGif(this ILogger logger, Exception exception, string giphyDataId, ulong channelId, [LogProperties] GifPost gifPost, [CallerMemberName] string method = "");
+    public static partial void LogErrorPostingGif(this ILogger logger, Exception exception, string giphyDataId, ulong channelId, [LogProperties] GiphyPost gifPost, [CallerMemberName] string method = "");
 
     [LoggerMessage(Level = LogLevel.Information, Message = "<{Method}> The search gif cache contains {SearchGifCacheCount} gifs.")]
     public static partial void LogGifSearchCacheCount(this ILogger logger, int searchGifCacheCount, [CallerMemberName] string method = "");

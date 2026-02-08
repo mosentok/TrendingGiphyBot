@@ -1,5 +1,6 @@
 using Discord;
 using Microsoft.Extensions.Options;
+using TrendingGiphyBotWorkerService.Configuration;
 using TrendingGiphyBotWorkerService.Discord.Interactions;
 using TrendingGiphyBotWorkerService.GifPostingBehavior;
 using TrendingGiphyBotWorkerService.Intervals;
@@ -7,6 +8,7 @@ using TrendingGiphyBotWorkerService.Utc;
 
 namespace TrendingGiphyBotWorkerService.ChannelSettings;
 
+[RegisterSingleton]
 public class ChannelSettingsMessageComponentFactory(IOptions<AppConfig> _appConfig, IUtcOffsetParser _utcOffsetParser) : IChannelSettingsMessageComponentFactory
 {
     public MessageComponent BuildChannelSettingsMessageComponent(ChannelSettingsModel channelSettings, string channelName)
@@ -83,6 +85,55 @@ public class ChannelSettingsMessageComponentFactory(IOptions<AppConfig> _appConf
             .WithStyle(ButtonStyle.Danger)
             .WithDisabled(channelSettings.PostingHoursFrom is null || channelSettings.PostingHoursTo is null);
 
+        //var giphyOptionBuilder = new SelectMenuOptionBuilder()
+        //    .WithLabel(nameof(GifSourceKind.Giphy))
+        //    .WithValue(nameof(GifSourceKind.Giphy));
+
+        //var klipyOptionBuilder = new SelectMenuOptionBuilder()
+        //    .WithLabel(nameof(GifSourceKind.Klipy))
+        //    .WithValue(nameof(GifSourceKind.Klipy));
+
+        var allGifSources = Enum.GetValues<GifSourceKind>();
+
+        var channelGifSource = channelSettings.GifSource ?? allGifSources.Aggregate((left, right) => left | right);
+
+        var gifSourcesBuilders = allGifSources
+            .Except([GifSourceKind.None])
+            .Select(gifSource =>
+            {
+                var gifSourceString = gifSource.ToString();
+
+                return new SelectMenuOptionBuilder()
+                    .WithLabel(gifSourceString)
+                    .WithValue(gifSourceString)
+                    .WithDefault(channelGifSource.HasFlag(gifSource));
+            })
+            .ToList();
+
+        //var allOptionBuilder = new SelectMenuOptionBuilder()
+        //    .WithLabel(allGifSources)
+        //    .WithValue(allGifSources);
+
+        //var gifSourcesBuilders = new List<SelectMenuOptionBuilder>
+        //{
+        //    giphyOptionBuilder,
+        //    klipyOptionBuilder,
+        //    allOptionBuilder
+        //};
+
+        //var selectedGifSources = channelSettings.GifSource is { } gifSource
+        //    ? gifSourcesBuilders.Where(s => s.Value == channelGifSource.ToString())
+        //    : [allOptionBuilder];
+
+        //selectedGifSources.IsDefault = true;
+
+        var gifSourcesSelectMenu = new SelectMenuBuilder()
+            .WithCustomId(InteractionId.GifSourcesSelectMenu)
+            .WithPlaceholder("Which gif sources to use")
+            .WithOptions(gifSourcesBuilders)
+            .WithMinValues(0)
+            .WithMaxValues(2);
+
         return new ComponentBuilderV2()
             .WithTextDisplay($"# Trending Giphy Bot Settings for: **{channelName}**")
             .WithSeparator()
@@ -92,6 +143,7 @@ public class ChannelSettingsMessageComponentFactory(IOptions<AppConfig> _appConf
             .WithSeparator()
             .WithTextDisplay("## Optional Settings")
             .WithActionRow([gifKeywordButton, clearGifKeywordButton])
+            .WithActionRow([gifSourcesSelectMenu])
             .WithActionRow([setPostingHoursButton, clearPostingHoursButton])
             .Build();
 

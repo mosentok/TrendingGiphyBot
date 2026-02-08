@@ -3,7 +3,6 @@ using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Database;
-using TrendingGiphyBotWorkerService.Discord.Interactions;
 using TrendingGiphyBotWorkerService.Utc;
 
 namespace TrendingGiphyBotWorkerService.Discord.Interactions.Modals;

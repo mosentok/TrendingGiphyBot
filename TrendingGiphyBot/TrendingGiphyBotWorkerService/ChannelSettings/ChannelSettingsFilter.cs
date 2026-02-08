@@ -1,5 +1,6 @@
 namespace TrendingGiphyBotWorkerService.ChannelSettings;
 
+[RegisterSingleton]
 public class ChannelSettingsFilter : IChannelSettingsFilter
 {
     public bool InPostingHours(ChannelSettingsModel channelSettings, DateTimeOffset now)

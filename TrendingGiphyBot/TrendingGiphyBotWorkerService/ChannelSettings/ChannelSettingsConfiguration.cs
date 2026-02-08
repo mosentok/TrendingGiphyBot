@@ -5,10 +5,8 @@ namespace TrendingGiphyBotWorkerService.ChannelSettings;
 
 public class ChannelSettingsConfiguration : IEntityTypeConfiguration<ChannelSettingsModel>
 {
-	public void Configure(EntityTypeBuilder<ChannelSettingsModel> builder)
-	{
+	public void Configure(EntityTypeBuilder<ChannelSettingsModel> builder) =>
 		builder
 			.ToTable("ChannelSettings")
 			.HasKey(s => s.ChannelId);
-	}
 }

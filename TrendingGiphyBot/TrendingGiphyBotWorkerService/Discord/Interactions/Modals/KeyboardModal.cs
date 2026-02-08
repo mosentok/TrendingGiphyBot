@@ -1,5 +1,4 @@
 using Discord.Interactions;
-using TrendingGiphyBotWorkerService.Discord.Interactions;
 
 namespace TrendingGiphyBotWorkerService.Discord.Interactions.Modals;
 

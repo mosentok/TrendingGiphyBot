@@ -1,9 +1,9 @@
 using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Api;
-using TrendingGiphyBotWorkerService.Paging;
 
 namespace TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Caching.Paging;
 
-public class GiphySearchPager(IPager _pager, IGiphyClient _giphyClient) : IGiphySearchPager
+[RegisterSingleton]
+public class GiphySearchPager(IGiphyPager _pager, IGiphyClient _giphyClient) : IGiphySearchPager
 {
     public async Task<List<GiphyData>> SearchAsync(string searchTerms, CancellationToken cancellationToken) =>
         await _pager.PageAsync(

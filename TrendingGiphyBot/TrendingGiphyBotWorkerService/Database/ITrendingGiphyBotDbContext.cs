@@ -9,7 +9,8 @@ public interface ITrendingGiphyBotDbContext
 {
     DbSet<ChannelSettingsModel> ChannelSettings { get; set; }
     DbSet<GifPostingBehaviorModel> GifPostingBehaviors { get; set; }
-    DbSet<GifPost> GifPosts { get; set; }
+    DbSet<GiphyPost> GifPosts { get; set; }
+    DbSet<KlipyPost> KlipyPosts { get; set; }
     DbSet<Interval> Intervals { get; set; }
 	Task SaveChangesAsync(CancellationToken cancellation = default);
 }

@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Options;
+using TrendingGiphyBotWorkerService.Configuration;
 using TrendingGiphyBotWorkerService.Logging;
 
 namespace TrendingGiphyBotWorkerService.Giphy.Staging;
@@ -6,7 +7,7 @@ namespace TrendingGiphyBotWorkerService.Giphy.Staging;
 public class GifStagingWorker
 (
     ILogger<GifStagingWorker> _logger,
-    IGifPostStage _gifPostStage,
+    IGiphyDataStage _gifPostStage,
     IOptions<AppConfig> _appConfig
 ) : BackgroundService
 {

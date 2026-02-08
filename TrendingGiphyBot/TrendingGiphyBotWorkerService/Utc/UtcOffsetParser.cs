@@ -1,5 +1,6 @@
 namespace TrendingGiphyBotWorkerService.Utc;
 
+[RegisterSingleton]
 public class UtcOffsetParser : IUtcOffsetParser
 {
     public async Task<(bool Success, TimeSpan? UtcOffset)> TryParseUtcOffsetAsync(string utcOffsetString)

@@ -4,6 +4,7 @@ using TrendingGiphyBotWorkerService.Logging;
 
 namespace TrendingGiphyBotWorkerService.Intervals;
 
+[RegisterSingleton]
 public class IntervalSeeder(ILogger<IntervalSeeder> _logger, IServiceScopeFactory _serviceScopeFactory) : IIntervalSeeder
 {
     public async Task SeedIntervalsAsync()
