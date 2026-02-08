@@ -1,7 +1,9 @@
+using TrendingGiphyBotWorkerService.Logging;
+
 namespace TrendingGiphyBotWorkerService.ChannelSettings;
 
 [RegisterSingleton]
-public class ChannelSettingsFilter : IChannelSettingsFilter
+public class ChannelSettingsFilter(ILogger<ChannelSettingsFilter> _logger) : IChannelSettingsFilter
 {
     public bool InPostingHours(ChannelSettingsModel channelSettings, DateTimeOffset now)
     {
@@ -13,9 +15,13 @@ public class ChannelSettingsFilter : IChannelSettingsFilter
 
         var localTimeOfDay = DetermineLocalTimeOfDay();
 
-        return from <= to
+        var result = from <= to
             ? localTimeOfDay >= from && localTimeOfDay <= to
             : localTimeOfDay >= from ^ localTimeOfDay <= to;
+
+        _logger.LogChannelInPostingHours(channelSettings.ChannelId, result);
+
+        return result;
 
         TimeSpan DetermineLocalTimeOfDay()
         {

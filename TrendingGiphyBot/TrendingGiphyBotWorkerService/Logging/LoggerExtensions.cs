@@ -90,6 +90,9 @@ public static partial class LoggerExtensions
     [LoggerMessage(Level = LogLevel.Trace, Message = "<{Method}> Channel IDs in posting hours {ChannelIdsInPostingHours}.")]
     public static partial void LogChannelIdsInPostingHours(this ILogger logger, List<ulong> channelIdsInPostingHours, [CallerMemberName] string method = "");
 
+    [LoggerMessage(Level = LogLevel.Debug, Message = "<{Method}> Channel {ChannelId}: InPostingHours={InPostingHours}.")]
+    public static partial void LogChannelInPostingHours(this ILogger logger, ulong channelId, bool inPostingHours, [CallerMemberName] string method = "");
+
     [LoggerMessage(Level = LogLevel.Trace, Message = "<{Method}> Staged channel Giphy posts {StagedChannelGiphyPosts}.")]
     public static partial void LogStagedChannelGiphyPosts(this ILogger logger, IImmutableDictionary<ulong, GiphyData> stagedChannelGiphyPosts, [CallerMemberName] string method = "");
 
