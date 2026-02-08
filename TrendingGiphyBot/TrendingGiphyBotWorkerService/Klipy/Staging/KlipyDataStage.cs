@@ -7,7 +7,6 @@ using TrendingGiphyBotWorkerService.Logging;
 
 namespace TrendingGiphyBotWorkerService.Klipy.Staging;
 
-
 // TODO combine this into one stage so the database doesn't have to be requeried
 [RegisterSingleton]
 public class KlipyDataStage(
@@ -18,7 +17,7 @@ public class KlipyDataStage(
 {
     readonly Dictionary<ulong, KlipyData> _items = [];
 
-    public IImmutableDictionary<ulong, KlipyData> GetChannelGifPostStage() => _items.ToImmutableDictionary();
+    public IImmutableDictionary<ulong, KlipyData> GetChannelKlipyPostStage() => _items.ToImmutableDictionary();
 
     public void Evict(ulong channelId) => _items.Remove(channelId);
 
@@ -41,6 +40,6 @@ public class KlipyDataStage(
                 _items[channel.ChannelId] = result;
         }
 
-        _logger.LogGifStageCount(_items.Count);
+        _logger.LogKlipyStageCount(_items.Count);
     }
 }

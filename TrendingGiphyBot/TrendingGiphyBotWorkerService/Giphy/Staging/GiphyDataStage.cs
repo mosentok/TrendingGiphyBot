@@ -8,7 +8,6 @@ using TrendingGiphyBotWorkerService.Logging;
 
 namespace TrendingGiphyBotWorkerService.Giphy.Staging;
 
-
 // TODO combine this into one stage so the database doesn't have to be requeried
 [RegisterSingleton]
 public class GiphyDataStage(
@@ -19,7 +18,7 @@ public class GiphyDataStage(
 {
     readonly Dictionary<ulong, GiphyData> _items = [];
 
-    public IImmutableDictionary<ulong, GiphyData> GetChannelGifPostStage() => _items.ToImmutableDictionary();
+    public IImmutableDictionary<ulong, GiphyData> GetChannelGiphyPostStage() => _items.ToImmutableDictionary();
 
     public void Evict(ulong channelId) => _items.Remove(channelId);
 
@@ -42,6 +41,6 @@ public class GiphyDataStage(
                 _items[channel.ChannelId] = result;
         }
 
-        _logger.LogGifStageCount(_items.Count);
+        _logger.LogGiphyStageCount(_items.Count);
     }
 }

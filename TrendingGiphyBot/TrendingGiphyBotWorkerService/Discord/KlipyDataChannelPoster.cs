@@ -5,6 +5,7 @@ using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Database;
 using TrendingGiphyBotWorkerService.Klipy.Staging;
 using TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding.Api;
+using TrendingGiphyBotWorkerService.Logging;
 
 namespace TrendingGiphyBotWorkerService.Discord;
 
@@ -47,8 +48,7 @@ public class KlipyDataChannelPoster(
                 }
                 catch (Exception innerException)
                 {
-                    // TODO klipy log
-                    //_logger.LogErrorPostingGif(innerException, stagedChannelGifPosts[channelId].Id.ToString(), channelId, klipyPost);
+                    _logger.LogErrorPostingKlipy(innerException, stagedChannelGifPosts[channelId].Id, channelId, klipyPost);
 
                     trendingGiphyBotDbContext.KlipyPosts.Remove(klipyPost);
 
@@ -57,8 +57,7 @@ public class KlipyDataChannelPoster(
             }
             catch (Exception ex)
             {
-                // TODO klipy log
-                //_logger.LogGifPostingException(ex, klipyPost);
+                _logger.LogKlipyPostingException(ex, klipyPost);
             }
         }
     }

@@ -5,7 +5,7 @@ namespace TrendingGiphyBotWorkerService.Klipy.Staging;
 
 public interface IKlipyDataStage
 {
-    IImmutableDictionary<ulong, KlipyData> GetChannelGifPostStage();
+    IImmutableDictionary<ulong, KlipyData> GetChannelKlipyPostStage();
     Task RefreshAsync(CancellationToken cancellationToken = default);
     void Evict(ulong channelId);
 }

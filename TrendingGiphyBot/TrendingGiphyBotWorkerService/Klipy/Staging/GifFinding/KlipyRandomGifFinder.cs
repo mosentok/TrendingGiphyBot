@@ -15,7 +15,7 @@ public class KlipyRandomGifFinder
 {
     public async Task<Maybe<KlipyData>> TryGetRandomGifAsync(ChannelSettingsModel channel, CancellationToken cancellationToken)
     {
-        if (!_appConfig.Value.Giphy.Staging.EnableRandomGifs)
+        if (!_appConfig.Value.Klipy.Staging.EnableRandomGifs)
             return new();
 
         var randomGif = await _klipyClient.GetRandomGifsAsync(cancellationToken: cancellationToken);
@@ -23,7 +23,7 @@ public class KlipyRandomGifFinder
         if (randomGif.Data.Data.Length == 0)
             return new();
 
-        if (channel.GiphyPosts.Count == 0)
+        if (channel.KlipyPosts.Count == 0)
             return new(randomGif.Data.Data[0]);
 
         var seenKlipyDataIds = channel.KlipyPosts.Select(s => s.KlipyDataId).ToArray();

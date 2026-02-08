@@ -2,7 +2,6 @@
 using TrendingGiphyBotWorkerService.Configuration;
 using TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding.Api;
 using TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding.Caching.Paging;
-using TrendingGiphyBotWorkerService.Logging;
 
 namespace TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding.Caching;
 
@@ -22,10 +21,10 @@ public class KlipyRandomCache
     {
         var itemsToAdd = await _klipyPager.PageAsync(async (page, ct) => await _klipyClient.GetRandomGifsAsync(page, cancellationToken: ct), cancellationToken);
 
-        _klipyDataListHelper.TrimToMaxSize(_trendingKlipyDatas, itemsToAdd, _appConfig.Value.Giphy.Staging.Caching.CacheCapacity);
+        _klipyDataListHelper.TrimToMaxSize(_trendingKlipyDatas, itemsToAdd, _appConfig.Value.Klipy.Staging.Caching.CacheCapacity);
 
-        // TODO klipy specific logs
-        _logger.LogGifTrendingCacheCount(_trendingKlipyDatas.Count);
+        // TODO this should be a random log
+        //_logger.LogKlipyTrendingCacheCount(_trendingKlipyDatas.Count);
     }
 
     public KlipyData? GetFirstGif() => _trendingKlipyDatas.FirstOrDefault();

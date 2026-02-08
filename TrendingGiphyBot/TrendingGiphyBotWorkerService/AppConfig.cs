@@ -1,5 +1,5 @@
 using TrendingGiphyBotWorkerService.Discord;
-using TrendingGiphyBotWorkerService.Discord.Delaying;
+using TrendingGiphyBotWorkerService.Discord.GifPosting.Delaying;
 using TrendingGiphyBotWorkerService.Giphy;
 using TrendingGiphyBotWorkerService.Intervals;
 using TrendingGiphyBotWorkerService.Klipy;

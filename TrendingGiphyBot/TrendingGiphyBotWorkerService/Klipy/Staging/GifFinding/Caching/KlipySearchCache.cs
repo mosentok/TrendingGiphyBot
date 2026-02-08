@@ -27,10 +27,9 @@ public class KlipySearchCache
 
         var itemsToAdd = await _klipyPager.PageAsync(async (page, ct) => await _klipyClient.SearchGifsAsync(searchTerms, page, cancellationToken: ct), cancellationToken);
 
-        _klipyDataListHelper.TrimToMaxSize(_trendingKlipyDatas[searchTerms], itemsToAdd, _appConfig.Value.Giphy.Staging.Caching.CacheCapacity);
+        _klipyDataListHelper.TrimToMaxSize(_trendingKlipyDatas[searchTerms], itemsToAdd, _appConfig.Value.Klipy.Staging.Caching.CacheCapacity);
 
-        // TODO klipy specific logs
-        _logger.LogGifTrendingCacheCount(_trendingKlipyDatas.Count);
+        _logger.LogKlipySearchCacheCount(_trendingKlipyDatas.Count);
     }
 
     public KlipyData? GetFirstGif(string searchTerm) => _trendingKlipyDatas[searchTerm].FirstOrDefault();

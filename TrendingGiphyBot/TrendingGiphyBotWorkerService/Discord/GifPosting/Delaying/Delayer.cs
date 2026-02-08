@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Options;
 
-namespace TrendingGiphyBotWorkerService.Discord.Delaying;
+namespace TrendingGiphyBotWorkerService.Discord.GifPosting.Delaying;
 
 [RegisterSingleton]
 public class Delayer(TimeProvider _timeProvider, IOptions<AppConfig> _appConfig) : IDelayer

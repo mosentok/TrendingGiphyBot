@@ -22,7 +22,7 @@ public class GiphyTrendingCache
         var itemsToAdd = await _giphyTrendingPager.GetTrendingGifsAsync(cancellationToken);
 
         _giphyDataListHelper.SortToMaxSize(_trendingGiphyDatas, itemsToAdd, _appConfig.Value.Giphy.Staging.Caching.CacheCapacity);
-        _logger.LogGifTrendingCacheCount(_trendingGiphyDatas.Count);
+        _logger.LogGiphyTrendingCacheCount(_trendingGiphyDatas.Count);
     }
 
     public GiphyData? GetFirstGif() => _trendingGiphyDatas.FirstOrDefault();

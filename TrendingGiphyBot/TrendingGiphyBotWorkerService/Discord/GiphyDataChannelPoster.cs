@@ -3,6 +3,7 @@ using Discord;
 using Microsoft.EntityFrameworkCore;
 using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Database;
+using TrendingGiphyBotWorkerService.Discord.GifPosting;
 using TrendingGiphyBotWorkerService.Giphy.Staging;
 using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Api;
 using TrendingGiphyBotWorkerService.Logging;
@@ -17,7 +18,7 @@ public class GiphyDataChannelPoster(
     IDiscordSocketClientWrapper _discordSocketClientWrapper
 ) : IGiphyDataChannelPoster
 {
-    public async Task PostGifsAsync(IImmutableDictionary<ulong, GiphyData> stagedChannelGifPosts, List<ulong> channelIds, CancellationToken stoppingToken)
+    public async Task PostGiphyGifsAsync(IImmutableDictionary<ulong, GiphyData> stagedChannelGifPosts, List<ulong> channelIds, CancellationToken stoppingToken)
     {
         using var scope = _serviceScopeFactory.CreateScope();
 
@@ -47,7 +48,7 @@ public class GiphyDataChannelPoster(
                 }
                 catch (Exception innerException)
                 {
-                    _logger.LogErrorPostingGif(innerException, stagedChannelGifPosts[channelId].Id, channelId, gifPost);
+                    _logger.LogErrorPostingGiphy(innerException, stagedChannelGifPosts[channelId].Id, channelId, gifPost);
 
                     trendingGiphyBotDbContext.GifPosts.Remove(gifPost);
 
@@ -56,7 +57,7 @@ public class GiphyDataChannelPoster(
             }
             catch (Exception ex)
             {
-                _logger.LogGifPostingException(ex, gifPost);
+                _logger.LogGiphyPostingException(ex, gifPost);
             }
         }
     }

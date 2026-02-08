@@ -16,7 +16,7 @@ public class GiphyCacheWorker(
             {
                 await Task.Delay(_appConfig.Value.Giphy.Staging.Caching.TimeSpanBetweenRefreshes, stoppingToken);
 
-                _logger.LogGifTrendingCacheIsRefreshing();
+                _logger.LogGiphyTrendingCacheIsRefreshing();
 
                 await _giphyTrendingCache.RefreshTrendingGifsAsync(stoppingToken);
             }
@@ -26,7 +26,7 @@ public class GiphyCacheWorker(
             }
             finally
             {
-                _logger.LogGifTrendingCacheHasRefreshed();
+                _logger.LogGiphyTrendingCacheHasRefreshed();
             }
     }
 }

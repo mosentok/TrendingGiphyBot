@@ -22,10 +22,9 @@ public class KlipyTrendingCache
     {
         var itemsToAdd = await _klipyPager.PageAsync(async (page, ct) => await _klipyClient.GetTrendingGifsAsync(page, cancellationToken: ct), cancellationToken);
 
-        _klipyDataListHelper.TrimToMaxSize(_trendingKlipyDatas, itemsToAdd, _appConfig.Value.Giphy.Staging.Caching.CacheCapacity);
+        _klipyDataListHelper.TrimToMaxSize(_trendingKlipyDatas, itemsToAdd, _appConfig.Value.Klipy.Staging.Caching.CacheCapacity);
 
-        // TODO klipy specific logs
-        _logger.LogGifTrendingCacheCount(_trendingKlipyDatas.Count);
+        _logger.LogKlipyTrendingCacheCount(_trendingKlipyDatas.Count);
     }
 
     public KlipyData? GetFirstGif() => _trendingKlipyDatas.FirstOrDefault();

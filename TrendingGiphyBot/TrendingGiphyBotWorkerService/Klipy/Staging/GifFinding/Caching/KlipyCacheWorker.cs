@@ -16,9 +16,9 @@ public class KlipyCacheWorker
         while (!stoppingToken.IsCancellationRequested)
             try
             {
-                await Task.Delay(_appConfig.Value.Giphy.Staging.Caching.TimeSpanBetweenRefreshes, stoppingToken);
+                await Task.Delay(_appConfig.Value.Klipy.Staging.Caching.TimeSpanBetweenRefreshes, stoppingToken);
 
-                _logger.LogGifTrendingCacheIsRefreshing();
+                _logger.LogKlipyTrendingCacheIsRefreshing();
 
                 await _klipyTrendingCache.RefreshTrendingGifsAsync(stoppingToken);
             }
@@ -28,7 +28,7 @@ public class KlipyCacheWorker
             }
             finally
             {
-                _logger.LogGifTrendingCacheHasRefreshed();
+                _logger.LogKlipyTrendingCacheHasRefreshed();
             }
     }
 }

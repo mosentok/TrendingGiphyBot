@@ -8,24 +8,19 @@ using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
 using TrendingGiphyBotWorkerService;
-using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Configuration;
 using TrendingGiphyBotWorkerService.Database;
 using TrendingGiphyBotWorkerService.Discord;
-using TrendingGiphyBotWorkerService.Discord.Delaying;
+using TrendingGiphyBotWorkerService.Discord.GifPosting;
 using TrendingGiphyBotWorkerService.GifPostingBehavior;
 using TrendingGiphyBotWorkerService.Giphy.Staging;
-using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding;
 using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Api;
 using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Caching;
-using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Caching.Paging;
 using TrendingGiphyBotWorkerService.Intervals;
 using TrendingGiphyBotWorkerService.Klipy.Staging;
-using TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding;
 using TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding.Api;
 using TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding.Caching;
 using TrendingGiphyBotWorkerService.Logging;
-using TrendingGiphyBotWorkerService.Utc;
 
 [assembly: SuppressMessage("Roslynator", "RCS1001:Add braces (when expression spans over multiple lines)", Justification = "Less is more.")]
 

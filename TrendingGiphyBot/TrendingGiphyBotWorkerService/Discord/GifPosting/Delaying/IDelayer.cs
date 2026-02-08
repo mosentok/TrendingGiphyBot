@@ -1,4 +1,4 @@
-namespace TrendingGiphyBotWorkerService.Discord.Delaying;
+namespace TrendingGiphyBotWorkerService.Discord.GifPosting.Delaying;
 
 public interface IDelayer
 {

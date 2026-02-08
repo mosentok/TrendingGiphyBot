@@ -5,5 +5,5 @@ namespace TrendingGiphyBotWorkerService.Discord;
 
 public interface IGiphyDataChannelPoster
 {
-    Task PostGifsAsync(IImmutableDictionary<ulong, GiphyData> stagedChannelGifPosts, List<ulong> channelIds, CancellationToken stoppingToken);
+    Task PostGiphyGifsAsync(IImmutableDictionary<ulong, GiphyData> stagedChannelGifPosts, List<ulong> channelIds, CancellationToken stoppingToken);
 }

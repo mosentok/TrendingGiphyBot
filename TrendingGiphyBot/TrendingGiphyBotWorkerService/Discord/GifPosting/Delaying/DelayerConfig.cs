@@ -1,6 +1,6 @@
 using Cronos;
 
-namespace TrendingGiphyBotWorkerService.Discord.Delaying;
+namespace TrendingGiphyBotWorkerService.Discord.GifPosting.Delaying;
 
 public record DelayerConfig(string CronExpressionString)
 {

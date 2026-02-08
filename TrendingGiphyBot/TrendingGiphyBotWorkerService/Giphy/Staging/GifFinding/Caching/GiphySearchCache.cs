@@ -27,7 +27,7 @@ public class GiphySearchCache
         var itemsToAdd = await _giphySearchPager.SearchAsync(searchTerms, cancellationToken);
 
         _giphyDataListHelper.SortToMaxSize(_searchedGiphyDatas[searchTerms], itemsToAdd, _appConfig.Value.Giphy.Staging.Caching.CacheCapacity);
-        _logger.LogGifSearchCacheCount(_searchedGiphyDatas[searchTerms].Count);
+        _logger.LogGiphySearchCacheCount(_searchedGiphyDatas[searchTerms].Count);
     }
 
     public GiphyData? GetFirstGif(string searchTerm) => _searchedGiphyDatas[searchTerm].FirstOrDefault();
