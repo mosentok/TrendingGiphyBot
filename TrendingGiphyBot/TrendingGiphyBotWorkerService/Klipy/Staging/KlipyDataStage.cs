@@ -34,7 +34,7 @@ public class KlipyDataStage(
 
         await foreach (var channel in activeChannels)
         {
-            var maybe = await _klipyDataFinder.TryGetUnseenGifAsync(channel, cancellationToken);
+            var maybe = _klipyDataFinder.TryGetUnseenGif(channel, cancellationToken);
 
             if (maybe is { Success: true, Result: { } result })
                 _items[channel.ChannelId] = result;

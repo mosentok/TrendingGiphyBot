@@ -6,7 +6,9 @@ using TrendingGiphyBotWorkerService.Database;
 
 namespace TrendingGiphyBotWorkerService.Discord.Interactions;
 
-public class KeywordButtonInteractionModule(ITrendingGiphyBotDbContext _trendingGiphyBotContext) : InteractionModuleBase<SocketInteractionContext<SocketMessageComponent>>
+public class KeywordButtonInteractionModule(
+    ITrendingGiphyBotDbContext _trendingGiphyBotContext
+) : InteractionModuleBase<SocketInteractionContext<SocketMessageComponent>>
 {
     [ComponentInteraction(InteractionId.TrendingGifsWithKeywordModalButton)]
     public async Task OpenKeywordModalAsync()

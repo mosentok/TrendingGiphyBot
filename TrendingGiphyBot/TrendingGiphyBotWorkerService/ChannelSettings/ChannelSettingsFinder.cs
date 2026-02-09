@@ -13,19 +13,19 @@ public class ChannelSettingsFinder
     ILogger<ChannelSettingsFinder> _logger,
     IServiceScopeFactory _serviceScopeFactory,
     IChannelSettingsFilter _channelSettingsFilter,
-    IOptions<AppConfig> _appConfig,
+    IOptionsMonitor<AppConfig> _appConfig,
     TimeProvider _timeProvider
 ) : IChannelSettingsFinder
 {
     public async Task<List<ulong>> GetChannelSettingsIdsReadyToPostAsync(IEnumerable<ulong> availableChannelIds, CancellationToken stoppingToken)
     {
         var now = _timeProvider.GetUtcNow();
-        var validMinutes = _appConfig.Value.Intervals.Minutes.Where(s => now.Minute % s == 0).ToArray();
+        var validMinutes = _appConfig.CurrentValue.Intervals.Minutes.Where(s => now.Minute % s == 0).ToArray();
 
         _logger.LogValidMinutes(validMinutes);
 
         var validHours = now.Minute == 0
-            ? _appConfig.Value.Intervals.Hours.Where(s => now.Hour % s == 0).ToArray()
+            ? _appConfig.CurrentValue.Intervals.Hours.Where(s => now.Hour % s == 0).ToArray()
             : [];
 
         _logger.LogValidHours(validHours);

@@ -5,7 +5,10 @@ using TrendingGiphyBotWorkerService.Logging;
 namespace TrendingGiphyBotWorkerService.GifPostingBehavior;
 
 [RegisterSingleton]
-public class GifPostingBehaviorSeeder(ILogger<GifPostingBehaviorSeeder> _logger, IServiceScopeFactory _serviceScopeFactory) : IGifPostingBehaviorSeeder
+public class GifPostingBehaviorSeeder(
+    ILogger<GifPostingBehaviorSeeder> _logger,
+    IServiceScopeFactory _serviceScopeFactory
+) : IGifPostingBehaviorSeeder
 {
     public async Task SeedGifPostingBehaviorsAsync()
     {

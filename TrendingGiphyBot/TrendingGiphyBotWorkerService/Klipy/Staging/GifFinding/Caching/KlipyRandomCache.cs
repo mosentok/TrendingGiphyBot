@@ -2,32 +2,32 @@
 using TrendingGiphyBotWorkerService.Configuration;
 using TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding.Api;
 using TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding.Caching.Paging;
+using TrendingGiphyBotWorkerService.Logging;
 
 namespace TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding.Caching;
 
 [RegisterSingleton]
 public class KlipyRandomCache
 (
-    ILogger<KlipySearchCache> _logger,
-    IOptions<AppConfig> _appConfig,
+    ILogger<KlipyRandomCache> _logger,
+    IOptionsMonitor<AppConfig> _appConfig,
     IKlipyPager _klipyPager,
     IKlipyClient _klipyClient,
     IKlipyDataListHelper _klipyDataListHelper
 ) : IKlipyRandomCache
 {
-    readonly List<KlipyData> _trendingKlipyDatas = [];
+    readonly List<KlipyData> _randomKlipyDatas = [];
 
-    public async Task RefreshSearchGifsAsync(CancellationToken cancellationToken = default)
+    public async Task RefreshRandomGifsAsync(CancellationToken cancellationToken = default)
     {
         var itemsToAdd = await _klipyPager.PageAsync(async (page, ct) => await _klipyClient.GetRandomGifsAsync(page, cancellationToken: ct), cancellationToken);
 
-        _klipyDataListHelper.TrimToMaxSize(_trendingKlipyDatas, itemsToAdd, _appConfig.Value.Klipy.Staging.Caching.CacheCapacity);
+        _klipyDataListHelper.TrimToMaxSize(_randomKlipyDatas, itemsToAdd, _appConfig.CurrentValue.Klipy.Staging.RandomCaching.CacheCapacity);
 
-        // TODO this should be a random log
-        //_logger.LogKlipyTrendingCacheCount(_trendingKlipyDatas.Count);
+        _logger.LogKlipyRandomCacheCount(_randomKlipyDatas.Count);
     }
 
-    public KlipyData? GetFirstGif() => _trendingKlipyDatas.FirstOrDefault();
+    public KlipyData? GetFirstGif() => _randomKlipyDatas.FirstOrDefault();
 
-    public KlipyData? GetFirstUnseenGif(ulong[] idsAlreadySeen) => _trendingKlipyDatas.FirstOrDefault(s => !idsAlreadySeen.Contains(s.Id));
+    public KlipyData? GetFirstUnseenGif(ulong[] idsAlreadySeen) => _randomKlipyDatas.FirstOrDefault(s => !idsAlreadySeen.Contains(s.Id));
 }

@@ -10,29 +10,29 @@ namespace TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding.Caching;
 public class KlipySearchCache
 (
     ILogger<KlipySearchCache> _logger,
-    IOptions<AppConfig> _appConfig,
+    IOptionsMonitor<AppConfig> _appConfig,
     IKlipyPager _klipyPager,
     IKlipyClient _klipyClient,
     IKlipyDataListHelper _klipyDataListHelper
 ) : IKlipySearchCache
 {
-    readonly Dictionary<string, List<KlipyData>> _trendingKlipyDatas = [];
+    readonly Dictionary<string, List<KlipyData>> _searchedKlipyDatas = new();
 
     public async Task RefreshSearchGifsAsync(string searchTerms, CancellationToken cancellationToken = default)
     {
-        var containsSearchTermsKey = _trendingKlipyDatas.ContainsKey(searchTerms);
+        var containsSearchTermsKey = _searchedKlipyDatas.ContainsKey(searchTerms);
 
         if (!containsSearchTermsKey)
-            _trendingKlipyDatas.Add(searchTerms, []);
+            _searchedKlipyDatas.Add(searchTerms, []);
 
         var itemsToAdd = await _klipyPager.PageAsync(async (page, ct) => await _klipyClient.SearchGifsAsync(searchTerms, page, cancellationToken: ct), cancellationToken);
 
-        _klipyDataListHelper.TrimToMaxSize(_trendingKlipyDatas[searchTerms], itemsToAdd, _appConfig.Value.Klipy.Staging.Caching.CacheCapacity);
+        _klipyDataListHelper.TrimToMaxSize(_searchedKlipyDatas[searchTerms], itemsToAdd, _appConfig.CurrentValue.Klipy.Staging.SearchCaching.CacheCapacity);
 
-        _logger.LogKlipySearchCacheCount(_trendingKlipyDatas.Count);
+        _logger.LogKlipySearchCacheCount(_searchedKlipyDatas[searchTerms].Count);
     }
 
-    public KlipyData? GetFirstGif(string searchTerm) => _trendingKlipyDatas[searchTerm].FirstOrDefault();
+    public KlipyData? GetFirstGif(string searchTerm) => _searchedKlipyDatas[searchTerm].FirstOrDefault();
 
-    public KlipyData? GetFirstUnseenGif(string searchTerm, ulong[] idsAlreadySeen) => _trendingKlipyDatas[searchTerm].FirstOrDefault(s => !idsAlreadySeen.Contains(s.Id));
+    public KlipyData? GetFirstUnseenGif(string searchTerm, ulong[] idsAlreadySeen) => _searchedKlipyDatas[searchTerm].FirstOrDefault(s => !idsAlreadySeen.Contains(s.Id));
 }

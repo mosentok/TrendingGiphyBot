@@ -4,7 +4,9 @@ using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Api;
 namespace TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Caching.Paging;
 
 [RegisterSingleton]
-public class GiphyPager(IOptions<AppConfig> _appConfig) : IGiphyPager
+public class GiphyPager(
+    IOptionsMonitor<AppConfig> _appConfig
+) : IGiphyPager
 {
     // TODO cancellation token
     public async Task<List<GiphyData>> PageAsync(SearchWithOffsetAsync searchWithOffsetAsync)
@@ -25,7 +27,7 @@ public class GiphyPager(IOptions<AppConfig> _appConfig) : IGiphyPager
 
             numberOfLoops++;
 
-        } while (numberOfResponses < totalCount && numberOfLoops < _appConfig.Value.Pager.MaxCacheLoops);
+        } while (numberOfResponses < totalCount && numberOfLoops < _appConfig.CurrentValue.Pager.MaxCacheLoops);
 
         return allResults;
     }

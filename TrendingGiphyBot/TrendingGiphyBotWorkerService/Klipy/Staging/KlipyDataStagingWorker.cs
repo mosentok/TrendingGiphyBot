@@ -2,13 +2,13 @@ using Microsoft.Extensions.Options;
 using TrendingGiphyBotWorkerService.Configuration;
 using TrendingGiphyBotWorkerService.Logging;
 
-namespace TrendingGiphyBotWorkerService.Giphy.Staging;
+namespace TrendingGiphyBotWorkerService.Klipy.Staging;
 
-public class GifStagingWorker
+public class KlipyDataStagingWorker
 (
-    ILogger<GifStagingWorker> _logger,
-    IGiphyDataStage _gifPostStage,
-    IOptions<AppConfig> _appConfig
+    ILogger<KlipyDataStagingWorker> _logger,
+    IKlipyDataStage _klipyDataStage,
+    IOptionsMonitor<AppConfig> _appConfig
 ) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -16,11 +16,11 @@ public class GifStagingWorker
         while (!stoppingToken.IsCancellationRequested)
             try
             {
-                await Task.Delay(_appConfig.Value.Giphy.Staging.TimeSpanBetweenRefreshes, stoppingToken);
+                await Task.Delay(_appConfig.CurrentValue.Klipy.Staging.TimeSpanBetweenRefreshes, stoppingToken);
 
                 _logger.LogGifStageIsRefreshing();
 
-                await _gifPostStage.RefreshAsync(stoppingToken);
+                await _klipyDataStage.RefreshAsync(stoppingToken);
             }
             catch (Exception ex)
             {

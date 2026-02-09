@@ -12,7 +12,7 @@ public class KlipyDataFinder
     IKlipyRandomGifFinder _giphyRandomGifFinder
 ) : IKlipyDataFinder
 {
-    public async Task<Maybe<KlipyData>> TryGetUnseenGifAsync(ChannelSettingsModel channel, CancellationToken cancellationToken)
+    public Maybe<KlipyData> TryGetUnseenGif(ChannelSettingsModel channel, CancellationToken cancellationToken)
     {
         var trendingResult = _giphyTrendingGifFinder.TryGetTrendingGif(channel);
 
@@ -24,7 +24,7 @@ public class KlipyDataFinder
         if (searchResult.Success)
             return searchResult;
 
-        var randomResult = await _giphyRandomGifFinder.TryGetRandomGifAsync(channel, cancellationToken);
+        var randomResult = _giphyRandomGifFinder.TryGetRandomGif(channel, cancellationToken);
 
         if (randomResult.Success)
             return randomResult;

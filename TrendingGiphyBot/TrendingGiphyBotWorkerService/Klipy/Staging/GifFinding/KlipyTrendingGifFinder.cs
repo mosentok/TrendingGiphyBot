@@ -10,29 +10,29 @@ namespace TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding;
 [RegisterSingleton]
 public class KlipyTrendingGifFinder
 (
-    IKlipyTrendingCache _klipyTrendingCache,
-    IOptions<AppConfig> _appConfig
+    IKlipyTrendingCache _giphyTrendingCache,
+    IOptionsMonitor<AppConfig> _appConfig
 ) : IKlipyTrendingGifFinder
 {
     public Maybe<KlipyData> TryGetTrendingGif(ChannelSettingsModel channel)
     {
-        if (!_appConfig.Value.Klipy.Staging.EnableTrendingGifs)
+        if (!_appConfig.CurrentValue.Klipy.Staging.EnableTrendingGifs)
             return new();
 
         if (channel.KlipyPosts.Count == 0)
         {
-            var firstKlipy = _klipyTrendingCache.GetFirstGif();
+            var firstGif = _giphyTrendingCache.GetFirstGif();
 
-            return firstKlipy is not null
-                ? new(firstKlipy)
+            return firstGif is not null
+                ? new(firstGif)
                 : new();
         }
 
         var seenKlipyDataIds = channel.KlipyPosts.Select(s => s.KlipyDataId).ToArray();
-        var firstUnseenKlipy = _klipyTrendingCache.GetFirstUnseenGif(seenKlipyDataIds);
+        var firstUnseenGif = _giphyTrendingCache.GetFirstUnseenGif(seenKlipyDataIds);
 
-        if (firstUnseenKlipy is not null)
-            return new(firstUnseenKlipy);
+        if (firstUnseenGif is not null)
+            return new(firstUnseenGif);
 
         return new();
     }

@@ -13,12 +13,12 @@ namespace TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding;
 public class GiphyTrendingGifFinder
 (
     IGiphyTrendingCache _giphyTrendingCache,
-    IOptions<AppConfig> _appConfig
+    IOptionsMonitor<AppConfig> _appConfig
 ) : IGiphyTrendingGifFinder
 {
     public Maybe<GiphyData> TryGetTrendingGif(ChannelSettingsModel channel)
     {
-        if (!_appConfig.Value.Giphy.Staging.EnableTrendingGifs)
+        if (!_appConfig.CurrentValue.Giphy.Staging.EnableTrendingGifs)
             return new();
 
         if (channel.GiphyPosts is null or { Count: 0 })

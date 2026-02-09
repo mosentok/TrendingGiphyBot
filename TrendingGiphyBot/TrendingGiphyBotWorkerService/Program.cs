@@ -32,9 +32,8 @@ var connectionString = $"Data Source={databasePath}";
 
 builder.Configuration
     .SetBasePath(currentDirectory)
-    .AddJsonFile("appsettings.json")
-    .AddJsonFile("appsettings.Development.json", optional: true)
-    .AddEnvironmentVariables("Tgb2__");
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true);
 
 var discordSocketConfig = new DiscordSocketConfig
 {
@@ -52,12 +51,17 @@ var logPath = Path.Combine(currentDirectory, "logs", "log.log");
 
 const string outputTemplate = "[{Timestamp:HH:mm:ss} {Level:u4}] [{SourceContext}] {Message:lj}{NewLine}{Exception}";
 
+var appConfigSection = builder.Configuration.GetSection("Tgb");
+
 builder.Services
-    .Configure<AppConfig>(builder.Configuration)
+    .Configure<AppConfig>(appConfigSection)
     .AddHostedService<DiscordPostingWorker>()
-    .AddHostedService<GifStagingWorker>()
+    .AddHostedService<GiphyDataStagingWorker>()
     .AddHostedService<GiphyCacheWorker>()
+    .AddHostedService<GiphyRandomCacheWorker>()
+    .AddHostedService<KlipyDataStagingWorker>()
     .AddHostedService<KlipyCacheWorker>()
+    .AddHostedService<KlipyRandomCacheWorker>()
     .AddLogging(loggingBuilder =>
     {
         loggingBuilder.ClearProviders();
@@ -85,37 +89,42 @@ builder.Services
     .AddSingleton(discordSocketClient)
     .AddSingleton(services =>
     {
-        var appConfig = services.GetRequiredService<IOptions<AppConfig>>();
+        var appConfig = services.GetRequiredService<IOptionsMonitor<AppConfig>>();
 
-        return new InteractionService(discordSocketClient, new() { UseCompiledLambda = true, LogLevel = appConfig.Value.Discord.LogSeverity, DefaultRunMode = RunMode.Async });
+        return new InteractionService(discordSocketClient, new() { UseCompiledLambda = true, LogLevel = appConfig.CurrentValue.Discord.LogSeverity, DefaultRunMode = RunMode.Async });
     })
     .AddSingleton(TimeProvider.System)
     .AddTrendingGiphyBotWorkerService()
     .AddHttpClient<IGiphyClient, GiphyClient>((services, httpClilent) =>
     {
-        var appConfig = services.GetRequiredService<IOptions<AppConfig>>();
+        var appConfig = services.GetRequiredService<IOptionsMonitor<AppConfig>>();
 
-        httpClilent.BaseAddress = new(appConfig.Value.Giphy.BaseAddress);
+        httpClilent.BaseAddress = new(appConfig.CurrentValue.Giphy.BaseAddress);
     })
     .AddStandardResilienceHandler()
     .Services
     .AddHttpClient<IKlipyClient, KlipyClient>((services, httpClient) =>
     {
-        var appConfig = services.GetRequiredService<IOptions<AppConfig>>();
+        var appConfig = services.GetRequiredService<IOptionsMonitor<AppConfig>>();
 
-        httpClient.BaseAddress = new(appConfig.Value.Klipy.BaseAddress);
+        httpClient.BaseAddress = new(appConfig.CurrentValue.Klipy.BaseAddress);
     })
     .AddStandardResilienceHandler();
 
 var host = builder.Build();
 
+var appConfig = host.Services.GetRequiredService<IOptions<AppConfig>>();
 var discordSocketClientHandler = host.Services.GetRequiredService<IDiscordSocketClientHandler>();
 var gifPostingBehaviorSeeder = host.Services.GetRequiredService<IGifPostingBehaviorSeeder>();
 var giphyDataStage = host.Services.GetRequiredService<IGiphyDataStage>();
+var giphyRandomCache = host.Services.GetRequiredService<IGiphyRandomCache>();
 var giphyTrendingCache = host.Services.GetRequiredService<IGiphyTrendingCache>();
+var interactionService = host.Services.GetRequiredService<InteractionService>();
 var intervalSeeder = host.Services.GetRequiredService<IIntervalSeeder>();
 var klipyDataStage = host.Services.GetRequiredService<IKlipyDataStage>();
+var klipyRandomCache = host.Services.GetRequiredService<IKlipyRandomCache>();
 var klipyTrendingCache = host.Services.GetRequiredService<IKlipyTrendingCache>();
+var logger = host.Services.GetRequiredService<ILogger<Program>>();
 
 discordSocketClient.ButtonExecuted += discordSocketClientHandler.OnSocketInteractionAsync;
 discordSocketClient.InteractionCreated += discordSocketClientHandler.OnInteractionCreatedAsync;
@@ -126,12 +135,8 @@ discordSocketClient.ModalSubmitted += discordSocketClientHandler.OnSocketInterac
 discordSocketClient.Ready += discordSocketClientHandler.OnReadyAsync;
 discordSocketClient.SelectMenuExecuted += discordSocketClientHandler.OnSocketInteractionAsync;
 
-var appConfig = host.Services.GetRequiredService<IOptions<AppConfig>>();
-var interactionService = host.Services.GetRequiredService<InteractionService>();
-
 interactionService.Log += discordSocketClientHandler.OnLogAsync;
 
-var logger = host.Services.GetRequiredService<ILogger<Program>>();
 
 try
 {
@@ -146,8 +151,13 @@ try
 
     await gifPostingBehaviorSeeder.SeedGifPostingBehaviorsAsync();
     await intervalSeeder.SeedIntervalsAsync();
+
     await giphyTrendingCache.RefreshTrendingGifsAsync();
     await klipyTrendingCache.RefreshTrendingGifsAsync();
+
+    await giphyRandomCache.RefreshRandomGifsAsync();
+    await klipyRandomCache.RefreshRandomGifsAsync();
+
     await giphyDataStage.RefreshAsync();
     await klipyDataStage.RefreshAsync();
 

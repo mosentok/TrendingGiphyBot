@@ -13,12 +13,12 @@ namespace TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding;
 public class GiphySearchGifFinder
 (
     IGiphySearchCache _giphySearchCache,
-    IOptions<AppConfig> _appConfig
+    IOptionsMonitor<AppConfig> _appConfig
 ) : IGiphySearchGifFinder
 {
     public Maybe<GiphyData> TryGetSearchGif(ChannelSettingsModel channel)
     {
-        if (!_appConfig.Value.Giphy.Staging.EnableSearchGifs || channel.GifKeyword is null or "")
+        if (!_appConfig.CurrentValue.Giphy.Staging.EnableSearchGifs || channel.GifKeyword is null or "")
             return new();
 
         if (channel.GiphyPosts is null or { Count: 0 })

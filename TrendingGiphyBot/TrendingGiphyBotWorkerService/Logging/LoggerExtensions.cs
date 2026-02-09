@@ -33,6 +33,18 @@ public static partial class LoggerExtensions
     [LoggerMessage(Level = LogLevel.Information, Message = "<{Method}> The search klipy cache contains {SearchKlipyCacheCount} klipy items.")]
     public static partial void LogKlipySearchCacheCount(this ILogger logger, int searchKlipyCacheCount, [CallerMemberName] string method = "");
 
+    [LoggerMessage(Level = LogLevel.Information, Message = "<{Method}> The random Giphy cache is refreshing.")]
+    public static partial void LogGiphyRandomCacheIsRefreshing(this ILogger logger, [CallerMemberName] string method = "");
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "<{Method}> The random klipy cache is refreshing.")]
+    public static partial void LogKlipyRandomCacheIsRefreshing(this ILogger logger, [CallerMemberName] string method = "");
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "<{Method}> The random Giphy cache has refreshed.")]
+    public static partial void LogGiphyRandomCacheHasRefreshed(this ILogger logger, [CallerMemberName] string method = "");
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "<{Method}> The random klipy cache has refreshed.")]
+    public static partial void LogKlipyRandomCacheHasRefreshed(this ILogger logger, [CallerMemberName] string method = "");
+
     [LoggerMessage(Level = LogLevel.Information, Message = "<{Method}> The trending Giphy cache is refreshing.")]
     public static partial void LogGiphyTrendingCacheIsRefreshing(this ILogger logger, [CallerMemberName] string method = "");
 
@@ -50,6 +62,12 @@ public static partial class LoggerExtensions
 
     [LoggerMessage(Level = LogLevel.Information, Message = "<{Method}> The trending klipy cache contains {TrendingKlipyCacheCount} items.")]
     public static partial void LogKlipyTrendingCacheCount(this ILogger logger, int trendingKlipyCacheCount, [CallerMemberName] string method = "");
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "<{Method}> The random Giphy cache contains {RandomGiphyCacheCount} items.")]
+    public static partial void LogGiphyRandomCacheCount(this ILogger logger, int randomGiphyCacheCount, [CallerMemberName] string method = "");
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "<{Method}> The random klipy cache contains {RandomKlipyCacheCount} items.")]
+    public static partial void LogKlipyRandomCacheCount(this ILogger logger, int randomKlipyCacheCount, [CallerMemberName] string method = "");
 
     [LoggerMessage(Level = LogLevel.Information, Message = "<{Method}> The gif stage is refreshing.")]
     public static partial void LogGifStageIsRefreshing(this ILogger logger, [CallerMemberName] string method = "");

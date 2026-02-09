@@ -6,5 +6,5 @@ namespace TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding;
 
 public interface IGiphyRandomGifFinder
 {
-    Task<Maybe<GiphyData>> TryGetRandomGifAsync(ChannelSettingsModel channel, CancellationToken cancellationToken);
+    Maybe<GiphyData> TryGetRandomGif(ChannelSettingsModel channel);
 }

@@ -10,7 +10,7 @@ namespace TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Caching;
 public class GiphyTrendingCache
 (
     ILogger<GiphyTrendingCache> _logger,
-    IOptions<AppConfig> _appConfig,
+    IOptionsMonitor<AppConfig> _appConfig,
     IGiphyDataListHelper _giphyDataListHelper,
     IGiphyTrendingPager _giphyTrendingPager
 ) : IGiphyTrendingCache
@@ -21,7 +21,7 @@ public class GiphyTrendingCache
     {
         var itemsToAdd = await _giphyTrendingPager.GetTrendingGifsAsync(cancellationToken);
 
-        _giphyDataListHelper.SortToMaxSize(_trendingGiphyDatas, itemsToAdd, _appConfig.Value.Giphy.Staging.Caching.CacheCapacity);
+        _giphyDataListHelper.SortToMaxSize(_trendingGiphyDatas, itemsToAdd, _appConfig.CurrentValue.Giphy.Staging.TrendingCaching.CacheCapacity);
         _logger.LogGiphyTrendingCacheCount(_trendingGiphyDatas.Count);
     }
 

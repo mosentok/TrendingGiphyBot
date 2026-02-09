@@ -19,4 +19,14 @@ public class GiphyDataListHelper : IGiphyDataListHelper
             listToSort.RemoveRange(maxCount, excessCount);
         }
     }
+
+    public void TrimToMaxSize(List<GiphyData> items, int maxCount)
+    {
+        if (items.Count <= maxCount)
+            return;
+
+        var excessCount = items.Count - maxCount;
+
+        items.RemoveRange(0, excessCount);
+    }
 }

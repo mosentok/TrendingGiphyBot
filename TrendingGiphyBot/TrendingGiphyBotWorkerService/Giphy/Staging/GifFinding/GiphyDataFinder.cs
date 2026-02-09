@@ -23,7 +23,7 @@ public class GiphyDataFinder(
         if (searchResult.Success)
             return searchResult;
 
-        var randomResult = await _giphyRandomGifFinder.TryGetRandomGifAsync(channel, cancellationToken);
+        var randomResult = _giphyRandomGifFinder.TryGetRandomGif(channel);
 
         if (randomResult.Success)
             return randomResult;

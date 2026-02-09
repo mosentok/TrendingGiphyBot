@@ -9,7 +9,7 @@ using TrendingGiphyBotWorkerService.Utc;
 namespace TrendingGiphyBotWorkerService.ChannelSettings;
 
 [RegisterSingleton]
-public class ChannelSettingsMessageComponentFactory(IOptions<AppConfig> _appConfig, IUtcOffsetParser _utcOffsetParser) : IChannelSettingsMessageComponentFactory
+public class ChannelSettingsMessageComponentFactory(IOptionsMonitor<AppConfig> _appConfig, IUtcOffsetParser _utcOffsetParser) : IChannelSettingsMessageComponentFactory
 {
     public MessageComponent BuildChannelSettingsMessageComponent(ChannelSettingsModel channelSettings, string channelName)
     {
@@ -17,7 +17,7 @@ public class ChannelSettingsMessageComponentFactory(IOptions<AppConfig> _appConf
             .WithLabel("Never")
             .WithValue($"0-{(int)IntervalDescription.None}");
 
-        var minutesBuilders = _appConfig.Value.Intervals.Minutes.Select(static minute =>
+        var minutesBuilders = _appConfig.CurrentValue.Intervals.Minutes.Select(static minute =>
             new SelectMenuOptionBuilder()
                 .WithLabel($"Post Gifs Every {minute} Minutes")
                 .WithValue($"{minute}-{(int)IntervalDescription.Minutes}"));
@@ -27,7 +27,7 @@ public class ChannelSettingsMessageComponentFactory(IOptions<AppConfig> _appConf
             .WithLabel("Post Gifs Every 1 Hour")
             .WithValue($"1-{(int)IntervalDescription.Hours}");
 
-        var hoursBuilders = _appConfig.Value.Intervals.Hours.Skip(1).Select(static hour =>
+        var hoursBuilders = _appConfig.CurrentValue.Intervals.Hours.Skip(1).Select(static hour =>
             new SelectMenuOptionBuilder()
                 .WithLabel($"Post Gifs Every {hour} Hours")
                 .WithValue($"{hour}-{(int)IntervalDescription.Hours}"));

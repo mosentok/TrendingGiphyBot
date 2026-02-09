@@ -4,7 +4,9 @@ using TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding.Api;
 namespace TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding.Caching.Paging;
 
 [RegisterSingleton]
-public class KlipyPager(IOptions<AppConfig> _appConfig) : IKlipyPager
+public class KlipyPager(
+    IOptionsMonitor<AppConfig> _appConfig
+) : IKlipyPager
 {
     // TODO cancellation token
     public async Task<List<KlipyData>> PageAsync(SearchKlipyByPageAsync searchKlipyByPageAsync, CancellationToken cancellationToken = default)
@@ -28,7 +30,7 @@ public class KlipyPager(IOptions<AppConfig> _appConfig) : IKlipyPager
             numberOfLoops++;
             page++;
 
-        } while (hasNext && numberOfLoops < _appConfig.Value.Pager.MaxCacheLoops);
+        } while (hasNext && numberOfLoops < _appConfig.CurrentValue.Pager.MaxCacheLoops);
 
         return allResults;
     }

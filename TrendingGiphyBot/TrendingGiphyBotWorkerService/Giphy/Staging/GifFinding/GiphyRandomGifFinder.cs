@@ -1,10 +1,7 @@
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using System.Collections.Immutable;
 using TrendingGiphyBotWorkerService.ChannelSettings;
-using TrendingGiphyBotWorkerService.Configuration;
-using TrendingGiphyBotWorkerService.GifPostingBehavior;
 using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Api;
+using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Caching;
 using TrendingGiphyBotWorkerService.Results;
 
 namespace TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding;
@@ -12,33 +9,29 @@ namespace TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding;
 [RegisterSingleton]
 public class GiphyRandomGifFinder
 (
-    IGiphyClient _giphyClient,
-    IOptions<AppConfig> _appConfig
+    IGiphyRandomCache _giphyRandomCache,
+    IOptionsMonitor<AppConfig> _appConfig
 ) : IGiphyRandomGifFinder
 {
-    public async Task<Maybe<GiphyData>> TryGetRandomGifAsync(ChannelSettingsModel channel, CancellationToken cancellationToken)
+    public Maybe<GiphyData> TryGetRandomGif(ChannelSettingsModel channel)
     {
-        if (!_appConfig.Value.Giphy.Staging.EnableRandomGifs)
+        if (!_appConfig.CurrentValue.Giphy.Staging.EnableRandomGifs)
             return new();
 
-        var seenGiphyDataIds = channel.GiphyPosts.Select(s => s.GiphyDataId).ToArray();
-        var attempts = 0;
-
-        do
+        if (channel.GiphyPosts is null or { Count: 0 })
         {
-            var randomGif = await _giphyClient.GetRandomGifAsync(cancellationToken: cancellationToken);
+            var firstGif = _giphyRandomCache.GetFirstGif();
 
-            if (channel.GiphyPosts is null or { Count: 0 })
-                return new(randomGif.Data);
+            return firstGif is not null
+                ? new(firstGif)
+                : new();
+        }
 
-            var randomGifHasAlreadyBeenSeen = seenGiphyDataIds.Contains(randomGif.Data.Id);
+        var seenGiphyDataIds = channel.GiphyPosts.Select(s => s.GiphyDataId).ToArray();
+        var firstUnseenGif = _giphyRandomCache.GetFirstUnseenGif(seenGiphyDataIds);
 
-            if (!randomGifHasAlreadyBeenSeen)
-                return new(randomGif.Data);
-
-            attempts++;
-        } while (attempts < _appConfig.Value.Giphy.Staging.MaxRandomGifAttempts);
-
-        return new();
+        return firstUnseenGif is not null
+            ? new(firstUnseenGif)
+            : new();
     }
 }

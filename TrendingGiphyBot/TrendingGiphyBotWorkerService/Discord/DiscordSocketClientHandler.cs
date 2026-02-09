@@ -12,7 +12,7 @@ public class DiscordSocketClientHandler(
 	ILogger<DiscordSocketClientHandler> _logger,
 	DiscordSocketClient _discordSocketClient,
 	InteractionService _interactionService,
-    IOptions<AppConfig> _appConfig,
+	IOptionsMonitor<AppConfig> _appConfig,
 	IServiceProvider _services
 ) : IDiscordSocketClientHandler
 {
@@ -63,13 +63,13 @@ public class DiscordSocketClientHandler(
 
 	public async Task OnReadyAsync()
 	{
-		await _discordSocketClient.SetGameAsync(_appConfig.Value.Discord.SocketClientHandler.PlayingGame);
+		await _discordSocketClient.SetGameAsync(_appConfig.CurrentValue.Discord.SocketClientHandler.PlayingGame);
 
         var type = GetType();
 
         await _interactionService.AddModulesAsync(type.Assembly, _services);
 
-		if (_appConfig.Value.Discord.SocketClientHandler.GuildToRegisterCommands is { } guildToRegisterCommands)
+		if (_appConfig.CurrentValue.Discord.SocketClientHandler.GuildToRegisterCommands is { } guildToRegisterCommands)
 			await _interactionService.RegisterCommandsToGuildAsync(guildToRegisterCommands);
 		else
 			await _interactionService.RegisterCommandsGloballyAsync();

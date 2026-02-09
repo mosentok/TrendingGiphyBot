@@ -6,5 +6,5 @@ namespace TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding;
 
 public interface IKlipyRandomGifFinder
 {
-    Task<Maybe<KlipyData>> TryGetRandomGifAsync(ChannelSettingsModel channel, CancellationToken cancellationToken);
+    Maybe<KlipyData> TryGetRandomGif(ChannelSettingsModel channel, CancellationToken cancellationToken);
 }

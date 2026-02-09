@@ -6,5 +6,5 @@ public interface IKlipyRandomCache
 {
     KlipyData? GetFirstGif();
     KlipyData? GetFirstUnseenGif(ulong[] idsAlreadySeen);
-    Task RefreshSearchGifsAsync(CancellationToken cancellationToken = default);
+    Task RefreshRandomGifsAsync(CancellationToken cancellationToken = default);
 }

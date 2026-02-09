@@ -3,9 +3,9 @@ using TrendingGiphyBotWorkerService.Logging;
 
 namespace TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Caching;
 
-public class GiphyCacheWorker(
-    ILogger<GiphyCacheWorker> _logger,
-    IGiphyTrendingCache _giphyTrendingCache,
+public class GiphyRandomCacheWorker(
+    ILogger<GiphyRandomCacheWorker> _logger,
+    IGiphyRandomCache _giphyRandomCache,
     IOptionsMonitor<AppConfig> _appConfig
 ) : BackgroundService
 {
@@ -14,11 +14,11 @@ public class GiphyCacheWorker(
         while (!stoppingToken.IsCancellationRequested)
             try
             {
-                await Task.Delay(_appConfig.CurrentValue.Giphy.Staging.TrendingCaching.TimeSpanBetweenRefreshes, stoppingToken);
+                await Task.Delay(_appConfig.CurrentValue.Giphy.Staging.RandomCaching.TimeSpanBetweenRefreshes, stoppingToken);
 
-                _logger.LogGiphyTrendingCacheIsRefreshing();
+                _logger.LogGiphyRandomCacheIsRefreshing();
 
-                await _giphyTrendingCache.RefreshTrendingGifsAsync(stoppingToken);
+                await _giphyRandomCache.RefreshRandomGifsAsync(stoppingToken);
             }
             catch (Exception exception)
             {
@@ -26,7 +26,7 @@ public class GiphyCacheWorker(
             }
             finally
             {
-                _logger.LogGiphyTrendingCacheHasRefreshed();
+                _logger.LogGiphyRandomCacheHasRefreshed();
             }
     }
 }

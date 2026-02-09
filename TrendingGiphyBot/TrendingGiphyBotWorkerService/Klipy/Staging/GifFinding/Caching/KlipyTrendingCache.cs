@@ -10,7 +10,7 @@ namespace TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding.Caching;
 public class KlipyTrendingCache
 (
     ILogger<KlipyTrendingCache> _logger,
-    IOptions<AppConfig> _appConfig,
+    IOptionsMonitor<AppConfig> _appConfig,
     IKlipyPager _klipyPager,
     IKlipyClient _klipyClient,
     IKlipyDataListHelper _klipyDataListHelper
@@ -22,7 +22,7 @@ public class KlipyTrendingCache
     {
         var itemsToAdd = await _klipyPager.PageAsync(async (page, ct) => await _klipyClient.GetTrendingGifsAsync(page, cancellationToken: ct), cancellationToken);
 
-        _klipyDataListHelper.TrimToMaxSize(_trendingKlipyDatas, itemsToAdd, _appConfig.Value.Klipy.Staging.Caching.CacheCapacity);
+        _klipyDataListHelper.TrimToMaxSize(_trendingKlipyDatas, itemsToAdd, _appConfig.CurrentValue.Klipy.Staging.TrendingCaching.CacheCapacity);
 
         _logger.LogKlipyTrendingCacheCount(_trendingKlipyDatas.Count);
     }

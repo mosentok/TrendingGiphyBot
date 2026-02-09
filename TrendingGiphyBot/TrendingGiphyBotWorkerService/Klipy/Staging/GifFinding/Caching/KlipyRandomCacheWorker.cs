@@ -1,13 +1,11 @@
-﻿using Microsoft.Extensions.Options;
-using TrendingGiphyBotWorkerService.Configuration;
+using Microsoft.Extensions.Options;
 using TrendingGiphyBotWorkerService.Logging;
 
 namespace TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding.Caching;
 
-public class KlipyCacheWorker
-(
-    ILogger<KlipyCacheWorker> _logger,
-    KlipyTrendingCache _klipyTrendingCache,
+public class KlipyRandomCacheWorker(
+    ILogger<KlipyRandomCacheWorker> _logger,
+    IKlipyRandomCache _klipyRandomCache,
     IOptionsMonitor<AppConfig> _appConfig
 ) : BackgroundService
 {
@@ -16,11 +14,11 @@ public class KlipyCacheWorker
         while (!stoppingToken.IsCancellationRequested)
             try
             {
-                await Task.Delay(_appConfig.CurrentValue.Klipy.Staging.TrendingCaching.TimeSpanBetweenRefreshes, stoppingToken);
+                await Task.Delay(_appConfig.CurrentValue.Klipy.Staging.RandomCaching.TimeSpanBetweenRefreshes, stoppingToken);
 
-                _logger.LogKlipyTrendingCacheIsRefreshing();
+                _logger.LogKlipyRandomCacheIsRefreshing();
 
-                await _klipyTrendingCache.RefreshTrendingGifsAsync(stoppingToken);
+                await _klipyRandomCache.RefreshRandomGifsAsync(stoppingToken);
             }
             catch (Exception exception)
             {
@@ -28,7 +26,7 @@ public class KlipyCacheWorker
             }
             finally
             {
-                _logger.LogKlipyTrendingCacheHasRefreshed();
+                _logger.LogKlipyRandomCacheHasRefreshed();
             }
     }
 }
