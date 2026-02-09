@@ -85,14 +85,6 @@ public class ChannelSettingsMessageComponentFactory(IOptionsMonitor<AppConfig> _
             .WithStyle(ButtonStyle.Danger)
             .WithDisabled(channelSettings.PostingHoursFrom is null || channelSettings.PostingHoursTo is null);
 
-        //var giphyOptionBuilder = new SelectMenuOptionBuilder()
-        //    .WithLabel(nameof(GifSourceKind.Giphy))
-        //    .WithValue(nameof(GifSourceKind.Giphy));
-
-        //var klipyOptionBuilder = new SelectMenuOptionBuilder()
-        //    .WithLabel(nameof(GifSourceKind.Klipy))
-        //    .WithValue(nameof(GifSourceKind.Klipy));
-
         var allGifSources = Enum.GetValues<GifSourceKind>();
 
         var channelGifSource = channelSettings.GifSource ?? allGifSources.Aggregate((left, right) => left | right);
@@ -110,23 +102,6 @@ public class ChannelSettingsMessageComponentFactory(IOptionsMonitor<AppConfig> _
             })
             .ToList();
 
-        //var allOptionBuilder = new SelectMenuOptionBuilder()
-        //    .WithLabel(allGifSources)
-        //    .WithValue(allGifSources);
-
-        //var gifSourcesBuilders = new List<SelectMenuOptionBuilder>
-        //{
-        //    giphyOptionBuilder,
-        //    klipyOptionBuilder,
-        //    allOptionBuilder
-        //};
-
-        //var selectedGifSources = channelSettings.GifSource is { } gifSource
-        //    ? gifSourcesBuilders.Where(s => s.Value == channelGifSource.ToString())
-        //    : [allOptionBuilder];
-
-        //selectedGifSources.IsDefault = true;
-
         var gifSourcesSelectMenu = new SelectMenuBuilder()
             .WithCustomId(InteractionId.GifSourcesSelectMenu)
             .WithPlaceholder("Which gif sources to use")
@@ -142,8 +117,9 @@ public class ChannelSettingsMessageComponentFactory(IOptionsMonitor<AppConfig> _
             .WithActionRow([trendingGifsOnlyButton, trendingGifsWithRandomButton])
             .WithSeparator()
             .WithTextDisplay("## Optional Settings")
-            .WithActionRow([gifKeywordButton, clearGifKeywordButton])
+            .WithTextDisplay("### Gif sources")
             .WithActionRow([gifSourcesSelectMenu])
+            .WithActionRow([gifKeywordButton, clearGifKeywordButton])
             .WithActionRow([setPostingHoursButton, clearPostingHoursButton])
             .Build();
 

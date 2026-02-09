@@ -82,4 +82,22 @@ public class ChannelSettingsInteractionModule(
 		_channelSettings!.GifSource = sources;
 		_shouldUpdateInteraction = true;
 	}
+
+	[ComponentInteraction(InteractionId.ClearKeywordModalButton)]
+	public async Task ClearKeywordAsync()
+	{
+		_channelSettings!.GifKeyword = null;
+
+		_shouldUpdateInteraction = true;
+	}
+
+	[ComponentInteraction(InteractionId.ClearPostingHoursModalButton)]
+	public async Task ClearPostingHoursAsync()
+	{
+		_channelSettings!.PostingHoursFrom = null;
+		_channelSettings.PostingHoursTo = null;
+		_channelSettings.UtcOffset = null;
+
+		_shouldUpdateInteraction = true;
+	}
 }
