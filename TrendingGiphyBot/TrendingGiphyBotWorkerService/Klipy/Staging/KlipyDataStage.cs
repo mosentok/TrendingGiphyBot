@@ -36,8 +36,8 @@ public class KlipyDataStage(
         {
             var maybe = _klipyDataFinder.TryGetUnseenGif(channel, cancellationToken);
 
-            if (maybe is { Success: true, Result: { } result })
-                _items[channel.ChannelId] = result;
+            if (maybe is not null)
+                _items[channel.ChannelId] = maybe;
         }
 
         _logger.LogKlipyStageCount(_items.Count);

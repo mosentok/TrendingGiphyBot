@@ -5,7 +5,6 @@ using TrendingGiphyBotWorkerService.Configuration;
 using TrendingGiphyBotWorkerService.GifPostingBehavior;
 using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Api;
 using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Caching;
-using TrendingGiphyBotWorkerService.Results;
 
 namespace TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding;
 
@@ -16,26 +15,26 @@ public class GiphyTrendingGifFinder
     IOptionsMonitor<AppConfig> _appConfig
 ) : IGiphyTrendingGifFinder
 {
-    public Maybe<GiphyData> TryGetTrendingGif(ChannelSettingsModel channel)
+    public GiphyData? TryGetTrendingGif(ChannelSettingsModel channel)
     {
         if (!_appConfig.CurrentValue.Giphy.Staging.EnableTrendingGifs)
-            return new();
+            return null;
 
         if (channel.GiphyPosts is null or { Count: 0 })
         {
             var firstGif = _giphyTrendingCache.GetFirstGif();
 
             return firstGif is not null
-                ? new(firstGif)
-                : new();
+                ? firstGif
+                : null;
         }
 
         var seenGiphyDataIds = channel.GiphyPosts.Select(s => s.GiphyDataId).ToArray();
         var firstUnseenGif = _giphyTrendingCache.GetFirstUnseenGif(seenGiphyDataIds);
 
         if (firstUnseenGif is not null)
-            return new(firstUnseenGif);
+            return firstUnseenGif;
 
-        return new();
+        return null;
     }
 }

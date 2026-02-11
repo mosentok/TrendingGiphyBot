@@ -1,10 +1,9 @@
 ﻿using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding.Api;
-using TrendingGiphyBotWorkerService.Results;
 
 namespace TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding;
 
 public interface IKlipySearchGifFinder
 {
-    Maybe<KlipyData> TryGetSearchGif(ChannelSettingsModel channel);
+    KlipyData? TryGetSearchGif(ChannelSettingsModel channel);
 }

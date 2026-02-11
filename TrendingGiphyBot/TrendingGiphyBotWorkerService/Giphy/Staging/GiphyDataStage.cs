@@ -37,8 +37,8 @@ public class GiphyDataStage(
         {
             var maybe = await _giphyDataFinder.TryGetUnseenGifAsync(channel, cancellationToken);
 
-            if (maybe is { Success: true, Result: { } result })
-                _items[channel.ChannelId] = result;
+            if (maybe is not null)
+                _items[channel.ChannelId] = maybe;
         }
 
         _logger.LogGiphyStageCount(_items.Count);
