@@ -100,4 +100,16 @@ public class ChannelSettingsInteractionModule(
 
 		_shouldUpdateInteraction = true;
 	}
+
+	[ComponentInteraction(InteractionId.GiphyRatingSelectMenu)]
+	public async Task SetGiphyRatingAsync(string[] selectedValues)
+	{
+		ThisShouldBeImpossibleException.ThrowIf(selectedValues.Length != 1);
+
+		var rating = selectedValues[0];
+
+		_channelSettings!.GiphyRating = rating;
+
+		_shouldUpdateInteraction = true;
+	}
 }

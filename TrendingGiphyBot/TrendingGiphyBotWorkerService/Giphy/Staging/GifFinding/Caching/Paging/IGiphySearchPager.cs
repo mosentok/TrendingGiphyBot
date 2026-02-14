@@ -4,5 +4,5 @@ namespace TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Caching.Paging;
 
 public interface IGiphySearchPager
 {
-    Task<List<GiphyData>> SearchAsync(string searchTerms, CancellationToken cancellationToken);
+    Task<List<GiphyData>> SearchAsync(string searchTerms, string rating, CancellationToken cancellationToken);
 }

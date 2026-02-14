@@ -22,7 +22,7 @@ public class PostingHoursButtonInteractionModule(ITrendingGiphyBotDbContext _tre
             : _utcOffsetParser.FormatUtcOffsetString(channelSettings.UtcOffset);
 
         var postingHooursModal = new ModalBuilder()
-            .WithTitle("Set keyword to post gifs of when up-to-date")
+            .WithTitle("Set the hours and timezone in which the bot should post")
             .WithCustomId(InteractionId.TrendingPostingHoursModal)
             .AddTextInput("From (24 hour time)", InteractionId.TrendingPostingHoursFromTextInput, placeholder: "10", maxLength: 2, required: false, value: channelSettings.PostingHoursFrom?.ToString() ?? string.Empty)
             .AddTextInput("To (24 hour time)", InteractionId.TrendingPostingHoursToTextInput, placeholder: "22", maxLength: 2, required: false, value: channelSettings.PostingHoursTo?.ToString() ?? string.Empty)

@@ -8,8 +8,8 @@ public class GiphySearchPager(
     IGiphyClient _giphyClient
 ) : IGiphySearchPager
 {
-    public async Task<List<GiphyData>> SearchAsync(string searchTerms, CancellationToken cancellationToken) =>
+    public async Task<List<GiphyData>> SearchAsync(string searchTerms, string rating, CancellationToken cancellationToken) =>
         await _pager.PageAsync(
             searchWithOffsetAsync:
-                async offset => await _giphyClient.SearchAsync(searchTerms, offset, cancellationToken: cancellationToken));
+                async offset => await _giphyClient.SearchAsync(searchTerms, rating, offset, cancellationToken: cancellationToken));
 }

@@ -15,17 +15,38 @@ public class GiphyTrendingCache
     IGiphyTrendingPager _giphyTrendingPager
 ) : IGiphyTrendingCache
 {
-    readonly List<GiphyData> _trendingGiphyDatas = [];
+    readonly Dictionary<string, List<GiphyData>> _trendingGiphyDatasByRating = [];
 
     public async Task RefreshTrendingGifsAsync(CancellationToken cancellationToken = default)
     {
-        var itemsToAdd = await _giphyTrendingPager.GetTrendingGifsAsync(cancellationToken);
+        foreach (var rating in _appConfig.CurrentValue.Giphy.Staging.Ratings)
+        {
+            var cachedTrendingGifs = GetCachedTrendingGifs();
 
-        _giphyDataListHelper.SortToMaxSize(_trendingGiphyDatas, itemsToAdd, _appConfig.CurrentValue.Giphy.Staging.TrendingCaching.CacheCapacity);
-        _logger.LogGiphyTrendingCacheCount(_trendingGiphyDatas.Count);
+            var itemsToAdd = await _giphyTrendingPager.GetTrendingGifsAsync(rating, cancellationToken);
+
+            _giphyDataListHelper.SortToMaxSize(cachedTrendingGifs, itemsToAdd, _appConfig.CurrentValue.Giphy.Staging.TrendingCaching.CacheCapacity);
+            _logger.LogGiphyTrendingCacheCount(cachedTrendingGifs.Count);
+
+            List<GiphyData> GetCachedTrendingGifs()
+            {
+                if (_trendingGiphyDatasByRating.TryGetValue(rating, out var cachedTrendingGifs))
+                    return cachedTrendingGifs;
+
+                _trendingGiphyDatasByRating[rating] = [];
+
+                return _trendingGiphyDatasByRating[rating];
+            }
+        }
     }
 
-    public GiphyData? GetFirstGif() => _trendingGiphyDatas.FirstOrDefault();
+    public GiphyData? GetFirstGif(string rating) =>
+        _trendingGiphyDatasByRating.TryGetValue(rating, out var cachedTrendingGifs)
+            ? cachedTrendingGifs.FirstOrDefault()
+            : null;
 
-    public GiphyData? GetFirstUnseenGif(string[] idsAlreadySeen) => _trendingGiphyDatas.FirstOrDefault(s => !idsAlreadySeen.Contains(s.Id));
+    public GiphyData? GetFirstUnseenGif(string[] idsAlreadySeen, string rating) =>
+        _trendingGiphyDatasByRating.TryGetValue(rating, out var cachedTrendingGifs)
+            ? cachedTrendingGifs.FirstOrDefault(s => !idsAlreadySeen.Contains(s.Id))
+            : null;
 }

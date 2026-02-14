@@ -109,6 +109,43 @@ public class ChannelSettingsMessageComponentFactory(IOptionsMonitor<AppConfig> _
             .WithMinValues(0)
             .WithMaxValues(2);
 
+        var gRatingOptionBuilder = new SelectMenuOptionBuilder()
+            .WithLabel("G")
+            .WithValue("g")
+            .WithDefault(channelSettings.GiphyRating == "g");
+
+        var pgRatingOptionBuilder = new SelectMenuOptionBuilder()
+            .WithLabel("PG")
+            .WithValue("pg")
+            .WithDefault(channelSettings.GiphyRating is null or "pg");
+
+        var pg13RatingOptionBuilder = new SelectMenuOptionBuilder()
+            .WithLabel("PG-13")
+            .WithValue("pg-13")
+            .WithDefault(channelSettings.GiphyRating == "pg-13");
+
+        var rRatingOptionBuilder = new SelectMenuOptionBuilder()
+            .WithLabel("R")
+            .WithValue("r")
+            .WithDefault(channelSettings.GiphyRating == "r");
+
+        var allRatingOptionBuilder = new SelectMenuOptionBuilder()
+            .WithLabel("All")
+            .WithValue("all")
+            .WithDefault(channelSettings.GiphyRating == "all");
+
+        var giphyRatingSelectMenu = new SelectMenuBuilder()
+            .WithCustomId(InteractionId.GiphyRatingSelectMenu)
+            .WithPlaceholder("Giphy rating (Klipy doesn't support ratings)")
+            .WithOptions(
+            [
+                gRatingOptionBuilder,
+                pgRatingOptionBuilder,
+                pg13RatingOptionBuilder,
+                rRatingOptionBuilder,
+                allRatingOptionBuilder
+            ]);
+
         return new ComponentBuilderV2()
             .WithTextDisplay($"# Trending Giphy Bot Settings for: **{channelName}**")
             .WithSeparator()
@@ -119,6 +156,9 @@ public class ChannelSettingsMessageComponentFactory(IOptionsMonitor<AppConfig> _
             .WithTextDisplay("## Optional Settings")
             .WithTextDisplay("### Gif sources")
             .WithActionRow([gifSourcesSelectMenu])
+            .WithTextDisplay("### Giphy rating")
+            .WithTextDisplay("Klipy does not support rating selection")
+            .WithActionRow([giphyRatingSelectMenu])
             .WithActionRow([gifKeywordButton, clearGifKeywordButton])
             .WithActionRow([setPostingHoursButton, clearPostingHoursButton])
             .Build();

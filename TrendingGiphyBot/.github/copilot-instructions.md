@@ -101,11 +101,11 @@ Tgb:
 ## C# Files
 
 ### Variable Declaration and Naming
-- Always use `var` for variable declarations
+- Always use `var` for local variable declarations
+- Use target-typed `new` expressions except for local variables
 - Typically name variables after their type: `var person = new Person();`, `var thingDoer = new ThingDoer();`
 - Primary constructor parameters should be prepended with underscores as if they were fields: `IService _service`
-- Prefer records and constructors for POCOs, avoiding initializers and mutable properties where possible
-- Use target-typed `new` expressions except for local variables
+- Prefer records and constructors for POCOs, avoiding initializers and mutable properties
 
 ### Code Organization
 - Alphabetize groups of members (fields, methods, properties, etc.)
@@ -113,9 +113,11 @@ Tgb:
 - Group instance, async, and static calls separately
 - Group calls that return variables and side effects separately
 - Keep naming of all tokens consistent between types with consistent structures
-- One type per file, no exceptions
+- One type per file
 
 ### Syntax and Style
+- Do not nest method calls
+  - If you see a set of () open + close parenthesis, store the result in a variable
 - Always prefer the latest language syntax like primary constructors and pattern matching
 - Parameter lists containing 3 or more items should be wrapped with parenthesis following Allman style (as if they were curly braces); otherwise, keep on single line
 - When bodies are single line, prefer expression bodies, where the arrow `=>` dangles off of the first line and the expression follows on the next line

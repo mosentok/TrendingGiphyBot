@@ -20,20 +20,13 @@ public class GiphySearchGifFinder
         if (!_appConfig.CurrentValue.Giphy.Staging.EnableSearchGifs || channel.GifKeyword is null or "")
             return null;
 
-        if (channel.GiphyPosts is null or { Count: 0 })
-        {
-            var firstGif = _giphySearchCache.GetFirstGif(channel.GifKeyword);
+        var rating = channel.GiphyRating ?? "all";
 
-            return firstGif is not null
-                ? firstGif
-                : null;
-        }
+        if (channel.GiphyPosts is null or { Count: 0 })
+            return _giphySearchCache.GetFirstGif(channel.GifKeyword, rating);
 
         var seenGiphyDataIds = channel.GiphyPosts.Select(s => s.GiphyDataId).ToArray();
-        var keywordGif = _giphySearchCache.GetFirstUnseenGif(channel.GifKeyword, seenGiphyDataIds);
 
-        return keywordGif is not null
-            ? keywordGif
-            : null;
+        return _giphySearchCache.GetFirstUnseenGif(channel.GifKeyword, seenGiphyDataIds, rating);
     }
 }

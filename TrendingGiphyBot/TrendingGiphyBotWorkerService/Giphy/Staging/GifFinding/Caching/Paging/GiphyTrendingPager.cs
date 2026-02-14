@@ -8,8 +8,8 @@ public class GiphyTrendingPager(
     IGiphyClient _giphyClient
 ) : IGiphyTrendingPager
 {
-    public async Task<List<GiphyData>> GetTrendingGifsAsync(CancellationToken cancellationToken) =>
+    public async Task<List<GiphyData>> GetTrendingGifsAsync(string rating, CancellationToken cancellationToken) =>
         await _giphyPager.PageAsync(
             searchWithOffsetAsync:
-                async offset => await _giphyClient.GetTrendingGifsAsync(offset, cancellationToken: cancellationToken));
+                async offset => await _giphyClient.GetTrendingGifsAsync(rating, offset, cancellationToken: cancellationToken));
 }

@@ -9,27 +9,45 @@ public class GiphyClient(
     IOptionsMonitor<AppConfig> _appConfig
 ) : IGiphyClient
 {
-    public async Task<GiphyResponse> GetTrendingGifsAsync(int offset = 0, int limit = 1000, string rating = "pg", string bundle = "clips_grid_picker", CancellationToken cancellationToken = default)
+    public async Task<GiphyResponse> GetTrendingGifsAsync(
+        string rating,
+        int offset = 0,
+        int limit = 1000,
+        string bundle = "clips_grid_picker",
+        CancellationToken cancellationToken = default)
     {
-        var result = await _httpClient.GetAsync($"gifs/trending?api_key={_appConfig.CurrentValue.Giphy.ApiKey}&offset={offset}&limit={limit}&rating={rating}&bundle={bundle}", cancellationToken);
+        var ratingParam = rating == "all" ? "" : $"&rating={rating}";
+        var result = await _httpClient.GetAsync($"gifs/trending?api_key={_appConfig.CurrentValue.Giphy.ApiKey}&offset={offset}&limit={limit}{ratingParam}&bundle={bundle}", cancellationToken);
         var stream = await result.Content.ReadAsStreamAsync(cancellationToken);
+        var deserialized = await JsonSerializer.DeserializeAsync(stream, GiphySourceGenerationContext.Default.GiphyResponse, cancellationToken);
 
-        return await JsonSerializer.DeserializeAsync(stream, GiphySourceGenerationContext.Default.GiphyResponse, cancellationToken) ?? throw new ThisShouldBeImpossibleException();
+        return deserialized ?? throw new ThisShouldBeImpossibleException();
     }
 
-    public async Task<GiphyResponse> SearchAsync(string searchTerms, int offset = 0, int limit = 50, string rating = "pg", string lang ="en", string bundle = "clips_grid_picker", CancellationToken cancellationToken = default)
+    public async Task<GiphyResponse> SearchAsync(
+        string searchTerms,
+        string rating,
+        int offset = 0,
+        int limit = 50,
+        string lang = "en",
+        string bundle = "clips_grid_picker",
+        CancellationToken cancellationToken = default)
     {
-        var result = await _httpClient.GetAsync($"gifs/trending?api_key={_appConfig.CurrentValue.Giphy.ApiKey}&q={searchTerms}&offset={offset}&limit={limit}&rating={rating}&lang={lang}&bundle={bundle}", cancellationToken);
+        var ratingParam = rating == "all" ? "" : $"&rating={rating}";
+        var result = await _httpClient.GetAsync($"gifs/trending?api_key={_appConfig.CurrentValue.Giphy.ApiKey}&q={searchTerms}&offset={offset}&limit={limit}{ratingParam}&lang={lang}&bundle={bundle}", cancellationToken);
         var stream = await result.Content.ReadAsStreamAsync(cancellationToken);
+        var deserialized = await JsonSerializer.DeserializeAsync(stream, GiphySourceGenerationContext.Default.GiphyResponse, cancellationToken);
 
-        return await JsonSerializer.DeserializeAsync(stream, GiphySourceGenerationContext.Default.GiphyResponse, cancellationToken) ?? throw new ThisShouldBeImpossibleException();
+        return deserialized ?? throw new ThisShouldBeImpossibleException();
     }
 
-    public async Task<RandomResponse> GetRandomGifAsync(string rating = "pg", CancellationToken cancellationToken = default)
+    public async Task<RandomResponse> GetRandomGifAsync(string rating, CancellationToken cancellationToken = default)
     {
-        var result = await _httpClient.GetAsync($"gifs/random?api_key={_appConfig.CurrentValue.Giphy.ApiKey}&rating={rating}", cancellationToken);
+        var ratingParam = rating == "all" ? "" : $"&rating={rating}";
+        var result = await _httpClient.GetAsync($"gifs/random?api_key={_appConfig.CurrentValue.Giphy.ApiKey}{ratingParam}", cancellationToken);
         var stream = await result.Content.ReadAsStreamAsync(cancellationToken);
+        var deserialized = await JsonSerializer.DeserializeAsync(stream, GiphySourceGenerationContext.Default.RandomResponse, cancellationToken);
 
-        return await JsonSerializer.DeserializeAsync(stream, GiphySourceGenerationContext.Default.RandomResponse, cancellationToken) ?? throw new ThisShouldBeImpossibleException();
+        return deserialized ?? throw new ThisShouldBeImpossibleException();
     }
 }

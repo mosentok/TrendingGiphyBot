@@ -4,5 +4,5 @@ namespace TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Caching.Paging;
 
 public interface IGiphyTrendingPager
 {
-    Task<List<GiphyData>> GetTrendingGifsAsync(CancellationToken cancellationToken);
+    Task<List<GiphyData>> GetTrendingGifsAsync(string rating, CancellationToken cancellationToken);
 }

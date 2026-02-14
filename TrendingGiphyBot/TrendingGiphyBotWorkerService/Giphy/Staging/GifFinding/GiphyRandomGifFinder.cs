@@ -17,20 +17,13 @@ public class GiphyRandomGifFinder
         if (!_appConfig.CurrentValue.Giphy.Staging.EnableRandomGifs)
             return null;
 
-        if (channel.GiphyPosts is null or { Count: 0 })
-        {
-            var firstGif = _giphyRandomCache.GetFirstGif();
+        var rating = channel.GiphyRating ?? "all";
 
-            return firstGif is not null
-                ? firstGif
-                : null;
-        }
+        if (channel.GiphyPosts is null or { Count: 0 })
+            return _giphyRandomCache.GetFirstGif(rating);
 
         var seenGiphyDataIds = channel.GiphyPosts.Select(s => s.GiphyDataId).ToArray();
-        var firstUnseenGif = _giphyRandomCache.GetFirstUnseenGif(seenGiphyDataIds);
 
-        return firstUnseenGif is not null
-            ? firstUnseenGif
-            : null;
+        return _giphyRandomCache.GetFirstUnseenGif(seenGiphyDataIds, rating);
     }
 }

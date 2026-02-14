@@ -19,21 +19,38 @@ public class GiphySearchCache
 
     public async Task RefreshSearchedGiphyDatasAsync(string searchTerms, CancellationToken cancellationToken = default)
     {
-        var containsSearchTermsKey = _searchedGiphyDatas.ContainsKey(searchTerms);
+        foreach (var rating in _appConfig.CurrentValue.Giphy.Staging.Ratings)
+        {
+            var cachedSearchGifs = GetCachedSearchGifs();
 
-        if (!containsSearchTermsKey)
-            _searchedGiphyDatas.Add(searchTerms, []);
+            var itemsToAdd = await _giphySearchPager.SearchAsync(searchTerms, rating, cancellationToken);
 
-        var itemsToAdd = await _giphySearchPager.SearchAsync(searchTerms, cancellationToken);
+            _giphyDataListHelper.SortToMaxSize(cachedSearchGifs, itemsToAdd, _appConfig.CurrentValue.Giphy.Staging.SearchCaching.CacheCapacity);
+            _logger.LogGiphySearchCacheCount(cachedSearchGifs.Count);
 
-        _giphyDataListHelper.SortToMaxSize(_searchedGiphyDatas[searchTerms], itemsToAdd, _appConfig.CurrentValue.Giphy.Staging.SearchCaching.CacheCapacity);
-        _logger.LogGiphySearchCacheCount(_searchedGiphyDatas[searchTerms].Count);
+            List<GiphyData> GetCachedSearchGifs()
+            {
+                var key = $"{searchTerms}:{rating}";
+
+                if (_searchedGiphyDatas.TryGetValue(key, out var cachedSearchGifs))
+                    return cachedSearchGifs;
+
+                _searchedGiphyDatas[key] = [];
+
+                return _searchedGiphyDatas[key];
+            }
+        }
     }
 
-    public GiphyData? GetFirstGif(string searchTerm) => _searchedGiphyDatas[searchTerm].FirstOrDefault();
-
-    public GiphyData? GetFirstUnseenGif(string searchTerm, string[] idsAlreadySeen) =>
-        _searchedGiphyDatas.TryGetValue(searchTerm, out var result)
-            ? result.FirstOrDefault(s => !idsAlreadySeen.Contains(s.Id))
+    public GiphyData? GetFirstGif(string searchTerm, string rating) =>
+        _searchedGiphyDatas.TryGetValue(BuildKey(searchTerm, rating), out var cachedSearchGifs)
+            ? cachedSearchGifs.FirstOrDefault()
             : null;
+
+    public GiphyData? GetFirstUnseenGif(string searchTerm, string[] idsAlreadySeen, string rating) =>
+        _searchedGiphyDatas.TryGetValue(BuildKey(searchTerm, rating), out var cachedSearchGifs)
+            ? cachedSearchGifs.FirstOrDefault(s => !idsAlreadySeen.Contains(s.Id))
+            : null;
+
+    static string BuildKey(string searchTerm, string rating) => $"{searchTerm}:{rating}";
 }

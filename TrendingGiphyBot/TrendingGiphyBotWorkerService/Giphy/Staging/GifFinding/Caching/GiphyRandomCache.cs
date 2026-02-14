@@ -14,22 +14,42 @@ public class GiphyRandomCache
     IGiphyDataListHelper _giphyDataListHelper
 ) : IGiphyRandomCache
 {
-    readonly List<GiphyData> _randomGiphyDatas = [];
+    readonly Dictionary<string, List<GiphyData>> _randomGiphyDatasByRating = [];
 
     public async Task RefreshRandomGifsAsync(CancellationToken cancellationToken = default)
     {
-        var randomGif = await _giphyClient.GetRandomGifAsync(cancellationToken: cancellationToken);
+        foreach (var rating in _appConfig.CurrentValue.Giphy.Staging.Ratings)
+        {
+            var cachedRandomGifs = GetCachedRandomGifs();
 
-        var isAlreadyInCache = _randomGiphyDatas.Any(existing => existing.Id == randomGif.Data.Id);
+            var randomGif = await _giphyClient.GetRandomGifAsync(rating, cancellationToken: cancellationToken);
+            var isAlreadyInCache = cachedRandomGifs.Any(existing => existing.Id == randomGif.Data.Id);
 
-        if (!isAlreadyInCache)
-            _randomGiphyDatas.Add(randomGif.Data);
+            if (!isAlreadyInCache)
+                cachedRandomGifs.Add(randomGif.Data);
 
-        _giphyDataListHelper.TrimToMaxSize(_randomGiphyDatas, _appConfig.CurrentValue.Giphy.Staging.RandomCaching.CacheCapacity);
-        _logger.LogGiphyRandomCacheCount(_randomGiphyDatas.Count);
+            _giphyDataListHelper.TrimToMaxSize(cachedRandomGifs, _appConfig.CurrentValue.Giphy.Staging.RandomCaching.CacheCapacity);
+            _logger.LogGiphyRandomCacheCount(cachedRandomGifs.Count);
+
+            List<GiphyData> GetCachedRandomGifs()
+            {
+                if (_randomGiphyDatasByRating.TryGetValue(rating, out var cachedRandomGifs))
+                    return cachedRandomGifs;
+
+                _randomGiphyDatasByRating[rating] = [];
+
+                return _randomGiphyDatasByRating[rating];
+            }
+        }
     }
 
-    public GiphyData? GetFirstGif() => _randomGiphyDatas.FirstOrDefault();
+    public GiphyData? GetFirstGif(string rating) =>
+        _randomGiphyDatasByRating.TryGetValue(rating, out var cachedRandomGifs)
+            ? cachedRandomGifs.FirstOrDefault()
+            : null;
 
-    public GiphyData? GetFirstUnseenGif(string[] idsAlreadySeen) => _randomGiphyDatas.FirstOrDefault(s => !idsAlreadySeen.Contains(s.Id));
+    public GiphyData? GetFirstUnseenGif(string[] idsAlreadySeen, string rating) =>
+        _randomGiphyDatasByRating.TryGetValue(rating, out var cachedRandomGifs)
+            ? cachedRandomGifs.FirstOrDefault(s => !idsAlreadySeen.Contains(s.Id))
+            : null;
 }

@@ -4,7 +4,7 @@ namespace TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Caching;
 
 public interface IGiphyTrendingCache
 {
-    GiphyData? GetFirstGif();
-    GiphyData? GetFirstUnseenGif(string[] idsAlreadySeen);
+    GiphyData? GetFirstGif(string rating);
+    GiphyData? GetFirstUnseenGif(string[] idsAlreadySeen, string rating);
     Task RefreshTrendingGifsAsync(CancellationToken cancellationToken = default);
 }

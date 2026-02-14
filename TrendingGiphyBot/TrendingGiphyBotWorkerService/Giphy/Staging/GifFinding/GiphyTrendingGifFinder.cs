@@ -20,21 +20,13 @@ public class GiphyTrendingGifFinder
         if (!_appConfig.CurrentValue.Giphy.Staging.EnableTrendingGifs)
             return null;
 
-        if (channel.GiphyPosts is null or { Count: 0 })
-        {
-            var firstGif = _giphyTrendingCache.GetFirstGif();
+        var rating = channel.GiphyRating ?? "all";
 
-            return firstGif is not null
-                ? firstGif
-                : null;
-        }
+        if (channel.GiphyPosts is null or { Count: 0 })
+            return _giphyTrendingCache.GetFirstGif(rating);
 
         var seenGiphyDataIds = channel.GiphyPosts.Select(s => s.GiphyDataId).ToArray();
-        var firstUnseenGif = _giphyTrendingCache.GetFirstUnseenGif(seenGiphyDataIds);
 
-        if (firstUnseenGif is not null)
-            return firstUnseenGif;
-
-        return null;
+        return _giphyTrendingCache.GetFirstUnseenGif(seenGiphyDataIds, rating);
     }
 }
