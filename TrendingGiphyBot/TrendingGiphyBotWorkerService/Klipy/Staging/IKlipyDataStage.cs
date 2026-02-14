@@ -5,7 +5,11 @@ namespace TrendingGiphyBotWorkerService.Klipy.Staging;
 
 public interface IKlipyDataStage
 {
-    IImmutableDictionary<ulong, KlipyData> GetChannelKlipyPostStage();
+    IImmutableDictionary<ulong, KlipyData> GetTrendingKlipyPostStage();
+    IImmutableDictionary<ulong, KlipyData> GetSearchKlipyPostStage();
+    IImmutableDictionary<ulong, KlipyData> GetRandomKlipyPostStage();
     Task RefreshAsync(CancellationToken cancellationToken = default);
-    void Evict(ulong channelId);
+    void EvictTrending(ulong channelId);
+    void EvictSearch(ulong channelId);
+    void EvictRandom(ulong channelId);
 }

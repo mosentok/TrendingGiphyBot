@@ -7,7 +7,6 @@ using TrendingGiphyBotWorkerService.Logging;
 
 namespace TrendingGiphyBotWorkerService.Klipy.Staging;
 
-// TODO combine this into one stage so the database doesn't have to be requeried
 [RegisterSingleton]
 public class KlipyDataStage(
     ILogger<KlipyDataStage> _logger,
@@ -15,11 +14,21 @@ public class KlipyDataStage(
     IKlipyDataFinder _klipyDataFinder
 ) : IKlipyDataStage
 {
-    readonly Dictionary<ulong, KlipyData> _items = [];
+    readonly Dictionary<ulong, KlipyData> _trendingItems = [];
+    readonly Dictionary<ulong, KlipyData> _searchItems = [];
+    readonly Dictionary<ulong, KlipyData> _randomItems = [];
 
-    public IImmutableDictionary<ulong, KlipyData> GetChannelKlipyPostStage() => _items.ToImmutableDictionary();
+    public IImmutableDictionary<ulong, KlipyData> GetTrendingKlipyPostStage() => _trendingItems.ToImmutableDictionary();
 
-    public void Evict(ulong channelId) => _items.Remove(channelId);
+    public IImmutableDictionary<ulong, KlipyData> GetSearchKlipyPostStage() => _searchItems.ToImmutableDictionary();
+
+    public IImmutableDictionary<ulong, KlipyData> GetRandomKlipyPostStage() => _randomItems.ToImmutableDictionary();
+
+    public void EvictTrending(ulong channelId) => _trendingItems.Remove(channelId);
+
+    public void EvictSearch(ulong channelId) => _searchItems.Remove(channelId);
+
+    public void EvictRandom(ulong channelId) => _randomItems.Remove(channelId);
 
     public async Task RefreshAsync(CancellationToken cancellationToken = default)
     {
@@ -29,17 +38,31 @@ public class KlipyDataStage(
 
         var activeChannels = trendingGiphyBotDbContext.ChannelSettings
             .Include(s => s.KlipyPosts)
-            .Where(s => !_items.Keys.Contains(s.ChannelId) && s.Frequency > 0)
+            .Where(s =>
+                !_trendingItems.Keys.Contains(s.ChannelId) &&
+                !_searchItems.Keys.Contains(s.ChannelId) &&
+                !_randomItems.Keys.Contains(s.ChannelId) &&
+                s.Frequency > 0)
             .ToAsyncEnumerable();
 
         await foreach (var channel in activeChannels)
         {
-            var maybe = _klipyDataFinder.TryGetUnseenGif(channel, cancellationToken);
+            var unseenGifWithSource = _klipyDataFinder.TryGetUnseenGif(channel, cancellationToken);
 
-            if (maybe is not null)
-                _items[channel.ChannelId] = maybe;
+            if (unseenGifWithSource is null)
+                continue;
+
+            var dictionary = unseenGifWithSource.SourceType switch
+            {
+                KlipySourceType.Trending => _trendingItems,
+                KlipySourceType.Search => _searchItems,
+                KlipySourceType.Random => _randomItems,
+                _ => _randomItems
+            };
+
+            dictionary[channel.ChannelId] = unseenGifWithSource.Data;
         }
 
-        _logger.LogKlipyStageCount(_items.Count);
+        _logger.LogKlipyStageCount(_trendingItems.Count + _searchItems.Count + _randomItems.Count);
     }
 }

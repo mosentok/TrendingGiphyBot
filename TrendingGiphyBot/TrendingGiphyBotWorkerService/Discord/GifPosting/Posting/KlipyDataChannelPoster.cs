@@ -3,32 +3,29 @@ using Discord;
 using Microsoft.EntityFrameworkCore;
 using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Database;
-using TrendingGiphyBotWorkerService.Discord.GifPosting;
-using TrendingGiphyBotWorkerService.Discord.GifPosting.Posting;
 using TrendingGiphyBotWorkerService.Discord.GifPosting.Posting.Eviction;
-using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Api;
+using TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding.Api;
 using TrendingGiphyBotWorkerService.Logging;
 
-namespace TrendingGiphyBotWorkerService.Discord;
+namespace TrendingGiphyBotWorkerService.Discord.GifPosting.Posting;
 
 [RegisterSingleton]
-public class GiphyDataChannelPoster(
-    ILogger<DiscordPostingWorker> _logger,
+public class KlipyDataChannelPoster(
+    ILogger<KlipyDataChannelPoster> _logger,
     IServiceScopeFactory _serviceScopeFactory,
     IDiscordSocketClientWrapper _discordSocketClientWrapper,
-    IGiphyPostingEvictionHelper _evictionHelper
-) : IGiphyDataChannelPoster
+    IKlipyPostingEvictionHelper _evictionHelper
+) : IKlipyDataChannelPoster
 {
-    public async Task PostGiphyGifsAsync(IImmutableDictionary<ulong, GiphyGifPostSelection> selections, CancellationToken stoppingToken)
+    public async Task PostKlipyGifsAsync(IImmutableDictionary<ulong, KlipyGifPostSelection> selections, CancellationToken stoppingToken)
     {
         using var scope = _serviceScopeFactory.CreateScope();
 
         var trendingGiphyBotDbContext = scope.ServiceProvider.GetRequiredService<ITrendingGiphyBotDbContext>();
 
-        // TODO parallelize this loop?
         foreach (var (channelId, selection) in selections)
         {
-            var gifPost = new GiphyPost { ChannelId = channelId, GiphyDataId = selection.Data.Id };
+            var klipyPost = new KlipyPost { ChannelId = channelId, KlipyDataId = selection.Data.Id };
 
             try
             {
@@ -37,30 +34,31 @@ public class GiphyDataChannelPoster(
                 if (channel is not IMessageChannel messageChannel)
                     throw new ThisShouldBeImpossibleException();
 
-                trendingGiphyBotDbContext.GifPosts.Add(gifPost);
+                trendingGiphyBotDbContext.KlipyPosts.Add(klipyPost);
 
                 await trendingGiphyBotDbContext.SaveChangesAsync(stoppingToken);
 
                 try
                 {
-                    var prefix = selection.SourceType == GiphySourceType.Trending ? "*Trending!* " : "";
+                    var url = selection.Data.File.Hd.Gif.Url;
+                    var prefix = selection.SourceType == KlipySourceType.Trending ? "*Trending!* " : "";
 
-                    await messageChannel.SendMessageAsync($"{prefix}{selection.Data.Url}");
+                    await messageChannel.SendMessageAsync($"{prefix}{url}");
 
                     _evictionHelper.EvictFromCorrectStage(channelId, selection.SourceType);
                 }
                 catch (Exception innerException)
                 {
-                    _logger.LogErrorPostingGiphy(innerException, selection.Data.Id, channelId, gifPost);
+                    _logger.LogErrorPostingKlipy(innerException, selection.Data.Id, channelId, klipyPost);
 
-                    trendingGiphyBotDbContext.GifPosts.Remove(gifPost);
+                    trendingGiphyBotDbContext.KlipyPosts.Remove(klipyPost);
 
                     await trendingGiphyBotDbContext.SaveChangesAsync(stoppingToken);
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogGiphyPostingException(ex, gifPost);
+                _logger.LogKlipyPostingException(ex, klipyPost);
             }
         }
     }

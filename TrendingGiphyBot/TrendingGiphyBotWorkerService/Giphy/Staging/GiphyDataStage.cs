@@ -8,7 +8,6 @@ using TrendingGiphyBotWorkerService.Logging;
 
 namespace TrendingGiphyBotWorkerService.Giphy.Staging;
 
-// TODO combine this into one stage so the database doesn't have to be requeried
 [RegisterSingleton]
 public class GiphyDataStage(
     ILogger<GiphyDataStage> _logger,
@@ -16,11 +15,21 @@ public class GiphyDataStage(
     IGiphyDataFinder _giphyDataFinder
 ) : IGiphyDataStage
 {
-    readonly Dictionary<ulong, GiphyData> _items = [];
+    readonly Dictionary<ulong, GiphyData> _trendingItems = [];
+    readonly Dictionary<ulong, GiphyData> _searchItems = [];
+    readonly Dictionary<ulong, GiphyData> _randomItems = [];
 
-    public IImmutableDictionary<ulong, GiphyData> GetChannelGiphyPostStage() => _items.ToImmutableDictionary();
+    public IImmutableDictionary<ulong, GiphyData> GetTrendingGiphyPostStage() => _trendingItems.ToImmutableDictionary();
 
-    public void Evict(ulong channelId) => _items.Remove(channelId);
+    public IImmutableDictionary<ulong, GiphyData> GetSearchGiphyPostStage() => _searchItems.ToImmutableDictionary();
+
+    public IImmutableDictionary<ulong, GiphyData> GetRandomGiphyPostStage() => _randomItems.ToImmutableDictionary();
+
+    public void EvictTrending(ulong channelId) => _trendingItems.Remove(channelId);
+
+    public void EvictSearch(ulong channelId) => _searchItems.Remove(channelId);
+
+    public void EvictRandom(ulong channelId) => _randomItems.Remove(channelId);
 
     public async Task RefreshAsync(CancellationToken cancellationToken = default)
     {
@@ -30,17 +39,32 @@ public class GiphyDataStage(
 
         var activeChannels = trendingGiphyBotDbContext.ChannelSettings
             .Include(s => s.GiphyPosts)
-            .Where(s => !_items.Keys.Contains(s.ChannelId) && s.Frequency > 0)
+            .Where(s =>
+                !_trendingItems.Keys.Contains(s.ChannelId) &&
+                !_searchItems.Keys.Contains(s.ChannelId) &&
+                !_randomItems.Keys.Contains(s.ChannelId) &&
+                s.Frequency > 0)
             .ToAsyncEnumerable();
 
         await foreach (var channel in activeChannels)
         {
-            var maybe = await _giphyDataFinder.TryGetUnseenGifAsync(channel, cancellationToken);
+            var unseenGifWithSource = await _giphyDataFinder.TryGetUnseenGifAsync(channel, cancellationToken);
 
-            if (maybe is not null)
-                _items[channel.ChannelId] = maybe;
+            if (unseenGifWithSource is null)
+                continue;
+
+            var dictionary = unseenGifWithSource.SourceType switch
+            {
+                GiphySourceType.Trending => _trendingItems,
+                GiphySourceType.Search => _searchItems,
+                GiphySourceType.Random => _randomItems,
+                _ => _randomItems
+            };
+
+            dictionary[channel.ChannelId] = unseenGifWithSource.Data;
         }
 
-        _logger.LogGiphyStageCount(_items.Count);
+        _logger.LogGiphyStageCount(_trendingItems.Count + _searchItems.Count + _randomItems.Count);
     }
 }
+

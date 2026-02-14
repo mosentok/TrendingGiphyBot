@@ -3,8 +3,8 @@ using TrendingGiphyBotWorkerService.Logging;
 
 namespace TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Caching;
 
-public class GiphyCacheWorker(
-    ILogger<GiphyCacheWorker> _logger,
+public class GiphyTrendingCacheWorker(
+    ILogger<GiphyTrendingCacheWorker> _logger,
     IGiphyTrendingCache _giphyTrendingCache,
     IOptionsMonitor<AppConfig> _appConfig
 ) : BackgroundService

@@ -3,7 +3,9 @@ using Discord;
 using Microsoft.EntityFrameworkCore;
 using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Database;
-using TrendingGiphyBotWorkerService.Klipy.Staging;
+using TrendingGiphyBotWorkerService.Discord.GifPosting;
+using TrendingGiphyBotWorkerService.Discord.GifPosting.Posting;
+using TrendingGiphyBotWorkerService.Discord.GifPosting.Posting.Eviction;
 using TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding.Api;
 using TrendingGiphyBotWorkerService.Logging;
 
@@ -13,19 +15,19 @@ namespace TrendingGiphyBotWorkerService.Discord;
 public class KlipyDataChannelPoster(
     ILogger<KlipyDataChannelPoster> _logger,
     IServiceScopeFactory _serviceScopeFactory,
-    IKlipyDataStage _klipyDataStage,
-    IDiscordSocketClientWrapper _discordSocketClientWrapper
+    IDiscordSocketClientWrapper _discordSocketClientWrapper,
+    IKlipyPostingEvictionHelper _evictionHelper
 ) : IKlipyDataChannelPoster
 {
-    public async Task PostKlipyGifsAsync(IImmutableDictionary<ulong, KlipyData> stagedChannelGifPosts, List<ulong> channelIds, CancellationToken stoppingToken)
+    public async Task PostKlipyGifsAsync(IImmutableDictionary<ulong, KlipyGifPostSelection> selections, CancellationToken stoppingToken)
     {
         using var scope = _serviceScopeFactory.CreateScope();
 
         var trendingGiphyBotDbContext = scope.ServiceProvider.GetRequiredService<ITrendingGiphyBotDbContext>();
 
-        foreach (var channelId in channelIds)
+        foreach (var (channelId, selection) in selections)
         {
-            var klipyPost = new KlipyPost { ChannelId = channelId, KlipyDataId = stagedChannelGifPosts[channelId].Id };
+            var klipyPost = new KlipyPost { ChannelId = channelId, KlipyDataId = selection.Data.Id };
 
             try
             {
@@ -40,15 +42,16 @@ public class KlipyDataChannelPoster(
 
                 try
                 {
-                    var url = stagedChannelGifPosts[channelId].File.Hd.Gif.Url;
+                    var url = selection.Data.File.Hd.Gif.Url;
+                    var prefix = selection.SourceType == KlipySourceType.Trending ? "*Trending!* " : "";
 
-                    await messageChannel.SendMessageAsync($"*Trending!* {url}");
+                    await messageChannel.SendMessageAsync($"{prefix}{url}");
 
-                    _klipyDataStage.Evict(channelId);
+                    _evictionHelper.EvictFromCorrectStage(channelId, selection.SourceType);
                 }
                 catch (Exception innerException)
                 {
-                    _logger.LogErrorPostingKlipy(innerException, stagedChannelGifPosts[channelId].Id, channelId, klipyPost);
+                    _logger.LogErrorPostingKlipy(innerException, selection.Data.Id, channelId, klipyPost);
 
                     trendingGiphyBotDbContext.KlipyPosts.Remove(klipyPost);
 
@@ -61,9 +64,4 @@ public class KlipyDataChannelPoster(
             }
         }
     }
-}
-
-public interface IKlipyDataChannelPoster
-{
-    Task PostKlipyGifsAsync(IImmutableDictionary<ulong, KlipyData> stagedChannelGifPosts, List<ulong> channelIds, CancellationToken stoppingToken);
 }

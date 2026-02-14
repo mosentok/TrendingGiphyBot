@@ -104,6 +104,8 @@ Tgb:
 - Always use `var` for variable declarations
 - Typically name variables after their type: `var person = new Person();`, `var thingDoer = new ThingDoer();`
 - Primary constructor parameters should be prepended with underscores as if they were fields: `IService _service`
+- Prefer records and constructors for POCOs, avoiding initializers and mutable properties where possible
+- Use target-typed `new` expressions except for local variables
 
 ### Code Organization
 - Alphabetize groups of members (fields, methods, properties, etc.)
@@ -111,6 +113,7 @@ Tgb:
 - Group instance, async, and static calls separately
 - Group calls that return variables and side effects separately
 - Keep naming of all tokens consistent between types with consistent structures
+- One type per file, no exceptions
 
 ### Syntax and Style
 - Always prefer the latest language syntax like primary constructors and pattern matching
@@ -121,6 +124,7 @@ Tgb:
 ### Dependency Injection and Design Patterns
 - Do not use private or static methods because they break dependency injection and mocking in unit tests
 - All typical interface:implementation dependencies should use Injectio's attributes (like `[RegisterSingleton]`, `[RegisterTransient]`, `[RegisterScoped]`)
+- Dependencies should never call themselves - a public method should not call a sibling public method
 - Always use SLAP (Single Layer of Abstraction Principle)
 - Always follow Single Responsibility Principle, even if you end up with many types containing only 1 method each
 - Typically name classes as "ThingDoer" where the method name is "DoThing" (substitute reasonable nouns and actions)
@@ -128,6 +132,25 @@ Tgb:
 ### Project Structure
 - Always use folder by feature organization
 - Never use periods in file names (except for the extension)
+- **Namespace Dependency DAG**: Within each feature folder, organize dependencies as a Directed Acyclic Graph (DAG) using hierarchical nesting
+  - Types can only reference types in child namespaces (deeper folders), never siblings or parents
+  - Each subfolder "owns" its dependencies - they live as child folders within it
+  - Sibling folders at the same level cannot reference each other
+  - Leaf folders (deepest level) contain no subfolders - pure implementations only
+  - Example: `Giphy/Staging/GifFinding/` owns both `Api/` and `Caching/` as siblings
+    - `GifFinding/` can reference both `Api/` and `Caching/`
+    - `Api/` and `Caching/` cannot reference each other (siblings)
+    - `Caching/` can reference its own child `Paging/`, but `Api/` cannot
+  - Enforcing this strict downward dependency flow prevents circular references and leaves top level references narrow and singular
+  - Example: So far as posting Giphy gifs goes, `Discord.GifPosting.GifPoster` only needs `Giphy.Staging`. It needs no other implementation details
+    - Same with Klipy: it only needs `Klipy.Staging`, nothing else
+  - This same concept should apply at every level within a feature's namespace
+- **When to Create New Namespace Levels**
+  - Create a child namespace when you have 2+ concrete types with similar responsibilities
+  - Note: interfaces are always siblings with their implementations (1:1 ratio), so visualize the folder as doubled when deciding if the grouping is warranted
+  - Similar responsibilities are indicated by shared naming suffixes (e.g., `*Merger`, `*Resolver`, `*Applier`, `*Finder`) and changing for the same reason
+  - If a folder has only 1 concrete type (and its interface), do not create a new namespace
+  - Apply this rule recursively after creating a child namespace
 
 ### Quality Assurance
 - Always build the code, run all unit tests, and fix any errors when iterating in agent mode
@@ -181,4 +204,3 @@ dotnet ef database update
 - **No private/static methods**: Enforced for testability and dependency injection compliance
 - **Configuration is data-driven**: Posting behavior, intervals, and cache settings are fully configurable via `appsettings.json`
 - **Async-first**: Most operations are async (cache refreshes, Discord interactions, database queries)
-- **Error handling**: Use `Maybe<T>` and `Result<T>` types for null-safe and error-safe operations

@@ -3,7 +3,9 @@ using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
@@ -31,7 +33,7 @@ var databasePath = Path.Combine(currentDirectory, "app.db");
 var connectionString = $"Data Source={databasePath}";
 
 builder.Configuration
-    .SetBasePath(currentDirectory)
+    .SetBasePath(AppContext.BaseDirectory)
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
     .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true);
 
@@ -57,10 +59,10 @@ builder.Services
     .Configure<AppConfig>(appConfigSection)
     .AddHostedService<DiscordPostingWorker>()
     .AddHostedService<GiphyDataStagingWorker>()
-    .AddHostedService<GiphyCacheWorker>()
+    .AddHostedService<GiphyTrendingCacheWorker>()
     .AddHostedService<GiphyRandomCacheWorker>()
     .AddHostedService<KlipyDataStagingWorker>()
-    .AddHostedService<KlipyCacheWorker>()
+    .AddHostedService<KlipyTrendingCacheWorker>()
     .AddHostedService<KlipyRandomCacheWorker>()
     .AddLogging(loggingBuilder =>
     {
@@ -137,6 +139,23 @@ discordSocketClient.SelectMenuExecuted += discordSocketClientHandler.OnSocketInt
 
 interactionService.Log += discordSocketClientHandler.OnLogAsync;
 
+var configuration = builder.Configuration as IConfiguration;
+
+ChangeToken.OnChange
+(
+    configuration.GetReloadToken,
+    () =>
+    {
+        logger.LogInformation("Configuration has changed");
+
+        if (builder.Environment.IsDevelopment())
+        {
+            var debugView = Environment.NewLine + builder.Configuration.GetDebugView().TrimEnd();
+
+            logger.LogDebugView(debugView);
+        }
+    }
+);
 
 try
 {

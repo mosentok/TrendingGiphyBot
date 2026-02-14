@@ -4,9 +4,9 @@ using TrendingGiphyBotWorkerService.Logging;
 
 namespace TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding.Caching;
 
-public class KlipyCacheWorker
+public class KlipyTrendingCacheWorker
 (
-    ILogger<KlipyCacheWorker> _logger,
+    ILogger<KlipyTrendingCacheWorker> _logger,
     KlipyTrendingCache _klipyTrendingCache,
     IOptionsMonitor<AppConfig> _appConfig
 ) : BackgroundService

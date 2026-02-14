@@ -1,9 +1,9 @@
 ﻿using System.Collections.Immutable;
-using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Api;
+using TrendingGiphyBotWorkerService.Discord.GifPosting;
 
 namespace TrendingGiphyBotWorkerService.Discord;
 
 public interface IGiphyDataChannelPoster
 {
-    Task PostGiphyGifsAsync(IImmutableDictionary<ulong, GiphyData> stagedChannelGifPosts, List<ulong> channelIds, CancellationToken stoppingToken);
+    Task PostGiphyGifsAsync(IImmutableDictionary<ulong, GiphyGifPostSelection> selections, CancellationToken stoppingToken);
 }

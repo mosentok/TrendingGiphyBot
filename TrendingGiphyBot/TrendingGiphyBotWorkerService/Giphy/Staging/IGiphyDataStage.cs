@@ -5,7 +5,11 @@ namespace TrendingGiphyBotWorkerService.Giphy.Staging;
 
 public interface IGiphyDataStage
 {
-    IImmutableDictionary<ulong, GiphyData> GetChannelGiphyPostStage();
+    IImmutableDictionary<ulong, GiphyData> GetTrendingGiphyPostStage();
+    IImmutableDictionary<ulong, GiphyData> GetSearchGiphyPostStage();
+    IImmutableDictionary<ulong, GiphyData> GetRandomGiphyPostStage();
     Task RefreshAsync(CancellationToken cancellationToken = default);
-    void Evict(ulong channelId);
+    void EvictTrending(ulong channelId);
+    void EvictSearch(ulong channelId);
+    void EvictRandom(ulong channelId);
 }
