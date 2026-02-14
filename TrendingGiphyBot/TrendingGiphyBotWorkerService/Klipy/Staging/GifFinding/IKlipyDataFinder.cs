@@ -5,5 +5,5 @@ namespace TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding;
 
 public interface IKlipyDataFinder
 {
-    KlipyDataWithSource? TryGetUnseenGif(ChannelSettingsModel channel, CancellationToken cancellationToken);
+    KlipyDataWithSource? TryGetUnseenGif(ChannelSettingsModel channel);
 }

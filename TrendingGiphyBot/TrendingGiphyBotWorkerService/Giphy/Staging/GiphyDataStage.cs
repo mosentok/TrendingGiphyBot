@@ -44,11 +44,12 @@ public class GiphyDataStage(
                 !_searchItems.Keys.Contains(s.ChannelId) &&
                 !_randomItems.Keys.Contains(s.ChannelId) &&
                 s.Frequency > 0)
-            .ToAsyncEnumerable();
+            .ToAsyncEnumerable()
+            .WithCancellation(cancellationToken);
 
         await foreach (var channel in activeChannels)
         {
-            var unseenGifWithSource = await _giphyDataFinder.TryGetUnseenGifAsync(channel, cancellationToken);
+            var unseenGifWithSource = _giphyDataFinder.TryGetUnseenGif(channel);
 
             if (unseenGifWithSource is null)
                 continue;

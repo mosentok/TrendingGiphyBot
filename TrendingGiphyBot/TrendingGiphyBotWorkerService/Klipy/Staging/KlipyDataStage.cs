@@ -43,11 +43,12 @@ public class KlipyDataStage(
                 !_searchItems.Keys.Contains(s.ChannelId) &&
                 !_randomItems.Keys.Contains(s.ChannelId) &&
                 s.Frequency > 0)
-            .ToAsyncEnumerable();
+            .ToAsyncEnumerable()
+            .WithCancellation(cancellationToken);
 
         await foreach (var channel in activeChannels)
         {
-            var unseenGifWithSource = _klipyDataFinder.TryGetUnseenGif(channel, cancellationToken);
+            var unseenGifWithSource = _klipyDataFinder.TryGetUnseenGif(channel);
 
             if (unseenGifWithSource is null)
                 continue;

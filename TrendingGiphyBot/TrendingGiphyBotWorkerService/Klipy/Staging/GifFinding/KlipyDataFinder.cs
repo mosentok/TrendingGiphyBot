@@ -11,7 +11,7 @@ public class KlipyDataFinder
     IKlipyRandomGifFinder _giphyRandomGifFinder
 ) : IKlipyDataFinder
 {
-    public KlipyDataWithSource? TryGetUnseenGif(ChannelSettingsModel channel, CancellationToken cancellationToken)
+    public KlipyDataWithSource? TryGetUnseenGif(ChannelSettingsModel channel)
     {
         var trendingResult = _giphyTrendingGifFinder.TryGetTrendingGif(channel);
 
@@ -23,7 +23,7 @@ public class KlipyDataFinder
         if (searchResult is not null)
             return new KlipyDataWithSource(searchResult, KlipySourceType.Search);
 
-        var randomResult = _giphyRandomGifFinder.TryGetRandomGif(channel, cancellationToken);
+        var randomResult = _giphyRandomGifFinder.TryGetRandomGif(channel);
 
         if (randomResult is not null)
             return new KlipyDataWithSource(randomResult, KlipySourceType.Random);

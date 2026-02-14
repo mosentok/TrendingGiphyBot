@@ -5,5 +5,5 @@ namespace TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding;
 
 public interface IGiphyDataFinder
 {
-    Task<GiphyDataWithSource?> TryGetUnseenGifAsync(ChannelSettingsModel channel, CancellationToken cancellationToken);
+    GiphyDataWithSource? TryGetUnseenGif(ChannelSettingsModel channel);
 }

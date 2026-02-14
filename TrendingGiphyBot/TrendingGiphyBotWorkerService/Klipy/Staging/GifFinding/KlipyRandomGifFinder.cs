@@ -12,7 +12,7 @@ public class KlipyRandomGifFinder
     IOptionsMonitor<AppConfig> _appConfig
 ) : IKlipyRandomGifFinder
 {
-    public KlipyData? TryGetRandomGif(ChannelSettingsModel channel, CancellationToken cancellationToken)
+    public KlipyData? TryGetRandomGif(ChannelSettingsModel channel)
     {
         if (!_appConfig.CurrentValue.Klipy.Staging.EnableRandomGifs)
             return null;

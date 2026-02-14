@@ -4,13 +4,14 @@ using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Api;
 namespace TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding;
 
 [RegisterSingleton]
-public class GiphyDataFinder(
+public class GiphyDataFinder
+(
     IGiphyTrendingGifFinder _giphyTrendingGifFinder,
     IGiphySearchGifFinder _giphySearchGifFinder,
     IGiphyRandomGifFinder _giphyRandomGifFinder
 ) : IGiphyDataFinder
 {
-    public async Task<GiphyDataWithSource?> TryGetUnseenGifAsync(ChannelSettingsModel channel, CancellationToken cancellationToken)
+    public GiphyDataWithSource? TryGetUnseenGif(ChannelSettingsModel channel)
     {
         var trendingResult = _giphyTrendingGifFinder.TryGetTrendingGif(channel);
 
