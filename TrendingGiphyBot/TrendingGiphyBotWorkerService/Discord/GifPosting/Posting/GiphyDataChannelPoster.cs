@@ -35,7 +35,7 @@ public class GiphyDataChannelPoster(
                 if (channel is not IMessageChannel messageChannel)
                     throw new ThisShouldBeImpossibleException();
 
-                trendingGiphyBotDbContext.GifPosts.Add(gifPost);
+                trendingGiphyBotDbContext.GiphyPosts.Add(gifPost);
 
                 await trendingGiphyBotDbContext.SaveChangesAsync(stoppingToken);
 
@@ -52,7 +52,7 @@ public class GiphyDataChannelPoster(
                 {
                     _logger.LogErrorPostingGiphy(innerException, stagedChannelGifPosts[channelId].Id, channelId, gifPost);
 
-                    trendingGiphyBotDbContext.GifPosts.Remove(gifPost);
+                    trendingGiphyBotDbContext.GiphyPosts.Remove(gifPost);
 
                     await trendingGiphyBotDbContext.SaveChangesAsync(stoppingToken);
                 }

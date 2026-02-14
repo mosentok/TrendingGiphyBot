@@ -32,5 +32,8 @@ public class GiphySearchCache
 
     public GiphyData? GetFirstGif(string searchTerm) => _searchedGiphyDatas[searchTerm].FirstOrDefault();
 
-    public GiphyData? GetFirstUnseenGif(string searchTerm, string[] idsAlreadySeen) => _searchedGiphyDatas[searchTerm].FirstOrDefault(s => !idsAlreadySeen.Contains(s.Id));
+    public GiphyData? GetFirstUnseenGif(string searchTerm, string[] idsAlreadySeen) =>
+        _searchedGiphyDatas.TryGetValue(searchTerm, out var result)
+            ? result.FirstOrDefault(s => !idsAlreadySeen.Contains(s.Id))
+            : null;
 }

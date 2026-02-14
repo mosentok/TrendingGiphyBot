@@ -9,7 +9,7 @@ public class TrendingGiphyBotDbContext : DbContext, ITrendingGiphyBotDbContext
 {
 	public virtual DbSet<ChannelSettingsModel> ChannelSettings { get; set; }
 	public virtual DbSet<GifPostingBehaviorModel> GifPostingBehaviors { get; set; }
-	public virtual DbSet<GiphyPost> GifPosts { get; set; }
+	public virtual DbSet<GiphyPost> GiphyPosts { get; set; }
     public virtual DbSet<KlipyPost> KlipyPosts { get; set; }
 	public virtual DbSet<Interval> Intervals { get; set; }
 
@@ -22,13 +22,11 @@ public class TrendingGiphyBotDbContext : DbContext, ITrendingGiphyBotDbContext
 		if (optionsBuilder.IsConfigured)
 			return;
 
-		var currentDirectory = Directory.GetCurrentDirectory();
-		var databasePath = Path.Combine(currentDirectory, "app.db");
-		var connectionString = $"Data Source={databasePath}";
+		var databasePath = Path.Combine(AppContext.BaseDirectory, "app.db");
 
 		optionsBuilder
 			.EnableSensitiveDataLogging()
-			.UseSqlite(connectionString);
+			.UseSqlite($"Data Source={databasePath}");
 	}
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

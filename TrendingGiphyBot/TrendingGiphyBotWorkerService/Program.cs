@@ -3,7 +3,6 @@ using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using Serilog;
@@ -28,10 +27,6 @@ using TrendingGiphyBotWorkerService.Logging;
 
 var builder = Host.CreateApplicationBuilder(args);
 
-var currentDirectory = Directory.GetCurrentDirectory();
-var databasePath = Path.Combine(currentDirectory, "app.db");
-var connectionString = $"Data Source={databasePath}";
-
 builder.Configuration
     .SetBasePath(AppContext.BaseDirectory)
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
@@ -49,7 +44,7 @@ var discordSocketConfig = new DiscordSocketConfig
 
 await using var discordSocketClient = new DiscordSocketClient(discordSocketConfig);
 
-var logPath = Path.Combine(currentDirectory, "logs", "log.log");
+var logPath = Path.Combine(AppContext.BaseDirectory, "logs", "log.log");
 
 const string outputTemplate = "[{Timestamp:HH:mm:ss} {Level:u4}] [{SourceContext}] {Message:lj}{NewLine}{Exception}";
 
@@ -85,9 +80,13 @@ builder.Services
         loggingBuilder.AddSerilog(logger);
     })
     .AddDbContext<ITrendingGiphyBotDbContext, TrendingGiphyBotDbContext>(dbContextOptionsBuilder =>
+    {
+        var databasePath = Path.Combine(AppContext.BaseDirectory, "app.db");
+
         dbContextOptionsBuilder
             .EnableSensitiveDataLogging()
-            .UseSqlite(connectionString))
+            .UseSqlite($"Data Source={databasePath}");
+    })
     .AddSingleton(discordSocketClient)
     .AddSingleton(services =>
     {
