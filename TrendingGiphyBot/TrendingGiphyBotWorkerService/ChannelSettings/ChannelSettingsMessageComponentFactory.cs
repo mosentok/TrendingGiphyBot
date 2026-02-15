@@ -147,7 +147,7 @@ public class ChannelSettingsMessageComponentFactory(IOptionsMonitor<AppConfig> _
             ]);
 
         return new ComponentBuilderV2()
-            .WithTextDisplay($"# Trending Giphy Bot Settings for: **{channelName}**")
+            .WithTextDisplay($"# Settings for: **{channelName}**")
             .WithSeparator()
             .WithTextDisplay("## Main Settings")
             .WithActionRow([howOftenSelectMenu])
@@ -157,7 +157,7 @@ public class ChannelSettingsMessageComponentFactory(IOptionsMonitor<AppConfig> _
             .WithTextDisplay("### Gif sources")
             .WithActionRow([gifSourcesSelectMenu])
             .WithTextDisplay("### Giphy rating")
-            .WithTextDisplay("Klipy does not support rating selection")
+            .WithTextDisplay("-# (Klipy doesn't support rating selection)")
             .WithActionRow([giphyRatingSelectMenu])
             .WithActionRow([gifKeywordButton, clearGifKeywordButton])
             .WithActionRow([setPostingHoursButton, clearPostingHoursButton])
