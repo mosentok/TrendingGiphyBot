@@ -11,5 +11,6 @@ public class GiphyTrendingPager(
     public async Task<List<GiphyData>> GetTrendingGifsAsync(string rating, CancellationToken cancellationToken) =>
         await _giphyPager.PageAsync(
             searchWithOffsetAsync:
-                async offset => await _giphyClient.GetTrendingGifsAsync(rating, offset, cancellationToken: cancellationToken));
+                async offset =>
+                    await _giphyClient.GetTrendingGifsAsync(rating, offset, cancellationToken: cancellationToken));
 }

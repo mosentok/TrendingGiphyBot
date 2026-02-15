@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
@@ -8,6 +7,7 @@ using Microsoft.Extensions.Primitives;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
+using System.Diagnostics.CodeAnalysis;
 using TrendingGiphyBotWorkerService;
 using TrendingGiphyBotWorkerService.Configuration;
 using TrendingGiphyBotWorkerService.Database;
@@ -54,11 +54,13 @@ builder.Services
     .Configure<AppConfig>(appConfigSection)
     .AddHostedService<DiscordPostingWorker>()
     .AddHostedService<GiphyDataStagingWorker>()
-    .AddHostedService<GiphyTrendingCacheWorker>()
     .AddHostedService<GiphyRandomCacheWorker>()
+    .AddHostedService<GiphySearchCacheWorker>()
+    .AddHostedService<GiphyTrendingCacheWorker>()
     .AddHostedService<KlipyDataStagingWorker>()
-    .AddHostedService<KlipyTrendingCacheWorker>()
     .AddHostedService<KlipyRandomCacheWorker>()
+    .AddHostedService<KlipySearchCacheWorker>()
+    .AddHostedService<KlipyTrendingCacheWorker>()
     .AddLogging(loggingBuilder =>
     {
         loggingBuilder.ClearProviders();
@@ -119,11 +121,13 @@ var discordSocketClientHandler = host.Services.GetRequiredService<IDiscordSocket
 var gifPostingBehaviorSeeder = host.Services.GetRequiredService<IGifPostingBehaviorSeeder>();
 var giphyDataStage = host.Services.GetRequiredService<IGiphyDataStage>();
 var giphyRandomCache = host.Services.GetRequiredService<IGiphyRandomCache>();
+var giphySearchCacheRefresher = host.Services.GetRequiredService<IGiphySearchCacheRefresher>();
 var giphyTrendingCache = host.Services.GetRequiredService<IGiphyTrendingCache>();
 var interactionService = host.Services.GetRequiredService<InteractionService>();
 var intervalSeeder = host.Services.GetRequiredService<IIntervalSeeder>();
 var klipyDataStage = host.Services.GetRequiredService<IKlipyDataStage>();
 var klipyRandomCache = host.Services.GetRequiredService<IKlipyRandomCache>();
+var klipySearchCacheRefresher = host.Services.GetRequiredService<IKlipySearchCacheRefresher>();
 var klipyTrendingCache = host.Services.GetRequiredService<IKlipyTrendingCache>();
 var logger = host.Services.GetRequiredService<ILogger<Program>>();
 
@@ -175,6 +179,9 @@ try
 
     await giphyRandomCache.RefreshRandomGifsAsync();
     await klipyRandomCache.RefreshRandomGifsAsync();
+
+    await giphySearchCacheRefresher.RefreshSearchCachesForActiveKeywordsAsync();
+    await klipySearchCacheRefresher.RefreshSearchCachesForActiveKeywordsAsync();
 
     await giphyDataStage.RefreshAsync();
     await klipyDataStage.RefreshAsync();
