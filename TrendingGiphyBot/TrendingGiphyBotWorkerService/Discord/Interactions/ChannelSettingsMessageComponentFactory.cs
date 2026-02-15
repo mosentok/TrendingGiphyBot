@@ -1,13 +1,13 @@
 using Discord;
 using Microsoft.Extensions.Options;
+using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Configuration;
-using TrendingGiphyBotWorkerService.Discord.Interactions;
 using TrendingGiphyBotWorkerService.Discord.Interactions.ToggleModal;
 using TrendingGiphyBotWorkerService.GifPostingBehavior;
 using TrendingGiphyBotWorkerService.Intervals;
 using TrendingGiphyBotWorkerService.Utc;
 
-namespace TrendingGiphyBotWorkerService.ChannelSettings;
+namespace TrendingGiphyBotWorkerService.Discord.Interactions;
 
 [RegisterSingleton]
 public class ChannelSettingsMessageComponentFactory(
