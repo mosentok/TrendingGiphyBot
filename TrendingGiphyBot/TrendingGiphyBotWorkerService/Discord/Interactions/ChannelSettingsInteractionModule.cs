@@ -1,3 +1,4 @@
+using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
@@ -34,7 +35,11 @@ public class ChannelSettingsInteractionModule(
 
         var settingsMessageComponent = _settingsMessageComponentFactory.BuildChannelSettingsMessageComponent(_channelSettings!, Context.Channel.Name);
 
-		await Context.Interaction.UpdateAsync(messageProperties => messageProperties.Components = settingsMessageComponent);
+		await Context.Interaction.UpdateAsync(messageProperties =>
+		{
+			messageProperties.Components = settingsMessageComponent;
+			messageProperties.Attachments = new[] { new FileAttachment("PoweredBy_200_Horizontal_Light-Backgrounds_With_Logo.gif"), new FileAttachment("Powered by KLIPY Horizontal - Yellow&White Logo.png") };
+		});
 	}
 
 	[ComponentInteraction(InteractionId.HowOftenSelectMenu)]

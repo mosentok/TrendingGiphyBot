@@ -161,6 +161,8 @@ public class ChannelSettingsMessageComponentFactory(IOptionsMonitor<AppConfig> _
             .WithActionRow([giphyRatingSelectMenu])
             .WithActionRow([gifKeywordButton, clearGifKeywordButton])
             .WithActionRow([setPostingHoursButton, clearPostingHoursButton])
+            .WithSeparator()
+            .WithMediaGallery(["attachment://PoweredBy_200_Horizontal_Light-Backgrounds_With_Logo.gif", "attachment://Powered by KLIPY Horizontal - Yellow&White Logo.png"])
             .Build();
 
         string DeterminePostingHoursDisplay()

@@ -1,3 +1,4 @@
+using Discord;
 using Discord.Interactions;
 using Microsoft.EntityFrameworkCore;
 using TrendingGiphyBotWorkerService.ChannelSettings;
@@ -25,6 +26,9 @@ public class TgbSlashInteractionModule(IChannelSettingsMessageComponentFactory _
 
 		var channelSettingsMessageComponent = _channelSettingsMessageComponentFactory.BuildChannelSettingsMessageComponent(channelSettings, Context.Channel.Name);
 
-		await RespondAsync(components: channelSettingsMessageComponent);
+		await RespondWithFilesAsync(
+			new[] { new FileAttachment("PoweredBy_200_Horizontal_Light-Backgrounds_With_Logo.gif"), new FileAttachment("Powered by KLIPY Horizontal - Yellow&White Logo.png") },
+			components: channelSettingsMessageComponent,
+			ephemeral: true);
 	}
 }
