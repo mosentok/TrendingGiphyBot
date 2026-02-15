@@ -122,6 +122,7 @@ Tgb:
 - Parameter lists containing 3 or more items should be wrapped with parenthesis following Allman style (as if they were curly braces); otherwise, keep on single line
 - When bodies are single line, prefer expression bodies, where the arrow `=>` dangles off of the first line and the expression follows on the next line
 - Control statements (if/else/for/foreach/do/while/return/throw) should always be preceded by a newline unless they are the first line of the body
+- **Parameter Extraction**: When a method receives an object parameter but only uses 1-2 of its properties/methods, refactor the method signature to accept those specific values as separate parameters instead of the entire object. This reduces coupling, improves testability, and clarifies dependencies. For example, instead of accepting `SocketInteractionContext` when only `Channel.Name` and `Interaction.UpdateAsync()` are needed, accept `string channelName` and a delegate for the update action.
 
 ### Dependency Injection and Design Patterns
 - Do not use private or static methods because they break dependency injection and mocking in unit tests
@@ -130,6 +131,7 @@ Tgb:
 - Always use SLAP (Single Layer of Abstraction Principle)
 - Always follow Single Responsibility Principle, even if you end up with many types containing only 1 method each
 - Typically name classes as "ThingDoer" where the method name is "DoThing" (substitute reasonable nouns and actions)
+- **Avoid "And" in Method Names**: Method names containing "And" signal multiple, unrelated responsibilities that violate SRP. If a method truly performs multiple distinct operations (e.g., `UpdateAndReturn`), either refactor it into separate methods with clear, singular responsibilities, or rename it with a verb that captures the unified primary purpose (e.g., `RefreshAsync`, `ApplyAsync`). A method should have one reason to change.
 
 ### Project Structure
 - Always use folder by feature organization

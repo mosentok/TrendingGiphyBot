@@ -67,7 +67,8 @@ public class ChannelSettingsButtonBuilder(
     public (ButtonBuilder setButton, ButtonBuilder clearButton) BuildPostingHoursButtons(ChannelSettingsModel channelSettings)
     {
         var displayText = _display.DeterminePostingHoursDisplay(channelSettings);
-        var setButtonLabel = _display.TrimLabelTo80Chars($"Set Posting Hours ({displayText})");
+        var displaySuffix = string.IsNullOrEmpty(displayText) ? string.Empty : $" ({displayText})";
+        var setButtonLabel = _display.TrimLabelTo80Chars($"Set Posting Hours{displaySuffix}");
 
         var setButton = new ButtonBuilder()
             .WithCustomId(InteractionId.TrendingPostingHoursButton)
@@ -86,7 +87,8 @@ public class ChannelSettingsButtonBuilder(
     public (ButtonBuilder setButton, ButtonBuilder resetButton) BuildPostingBehaviorButtons(ChannelSettingsModel channelSettings)
     {
         var displayText = _display.DeterminePostingBehaviorDisplay(channelSettings);
-        var setButtonLabel = _display.TrimLabelTo80Chars($"Set Posting Behavior ({displayText})");
+        var displaySuffix = string.IsNullOrEmpty(displayText) ? string.Empty : $" ({displayText})";
+        var setButtonLabel = _display.TrimLabelTo80Chars($"Set Posting Behavior{displaySuffix}");
 
         var setButton = new ButtonBuilder()
             .WithCustomId(InteractionId.PostingBehaviorOpenButton)
@@ -104,7 +106,8 @@ public class ChannelSettingsButtonBuilder(
     public (ButtonBuilder setButton, ButtonBuilder resetButton) BuildHowOftenButtons(ChannelSettingsModel channelSettings)
     {
         var displayText = _display.DetermineHowOftenDisplay(channelSettings);
-        var setButtonLabel = _display.TrimLabelTo80Chars($"Set How Often to Post Gifs ({displayText})");
+        var displaySuffix = string.IsNullOrEmpty(displayText) ? string.Empty : $" ({displayText})";
+        var setButtonLabel = _display.TrimLabelTo80Chars($"Set How Often to Post Gifs{displaySuffix}");
 
         var setButton = new ButtonBuilder()
             .WithCustomId(InteractionId.HowOftenOpenButton)

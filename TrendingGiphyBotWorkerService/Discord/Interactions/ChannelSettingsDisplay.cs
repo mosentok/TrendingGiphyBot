@@ -53,7 +53,7 @@ public class ChannelSettingsDisplay(
     public string DetermineHowOftenDisplay(ChannelSettingsModel channelSettings)
     {
         if (channelSettings.IntervalId == (int)IntervalDescription.None || channelSettings.Frequency == 0)
-            return "Never";
+            return string.Empty;
 
         var intervalDescription = (IntervalDescription)channelSettings.IntervalId;
 
@@ -82,7 +82,7 @@ public class ChannelSettingsDisplay(
     public string DeterminePostingHoursDisplay(ChannelSettingsModel channelSettings)
     {
         if (channelSettings.PostingHoursFrom is null || channelSettings.PostingHoursTo is null)
-            return "<none>";
+            return string.Empty;
 
         if (channelSettings.UtcOffset is null or "")
             return $"{channelSettings.PostingHoursFrom}-{channelSettings.PostingHoursTo}";
