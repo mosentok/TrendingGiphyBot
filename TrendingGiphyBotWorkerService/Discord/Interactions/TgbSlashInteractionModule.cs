@@ -1,6 +1,7 @@
 using Discord;
 using Discord.Interactions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Database;
 using TrendingGiphyBotWorkerService.Intervals;
@@ -8,7 +9,7 @@ using TrendingGiphyBotWorkerService.Intervals;
 namespace TrendingGiphyBotWorkerService.Discord.Interactions;
 
 [Group("tgb", "Trending Gif Bot commands for this channel")]
-public class TgbSlashInteractionModule(IChannelSettingsMessageComponentFactory _channelSettingsMessageComponentFactory, ITrendingGiphyBotDbContext _trendingGiphyBotContext) : InteractionModuleBase<SocketInteractionContext>
+public class TgbSlashInteractionModule(IChannelSettingsMessageComponentFactory _channelSettingsMessageComponentFactory, ITrendingGiphyBotDbContext _trendingGiphyBotContext, IOptionsMonitor<AppConfig> _appConfig) : InteractionModuleBase<SocketInteractionContext>
 {
 	[SlashCommand("settings", "View and change your Trending Gif Bot's settings for this channel")]
 	public async Task GetOrCreateChannelSettingsAsync()
@@ -26,8 +27,10 @@ public class TgbSlashInteractionModule(IChannelSettingsMessageComponentFactory _
 
 		var channelSettingsMessageComponent = _channelSettingsMessageComponentFactory.BuildChannelSettingsMessageComponent(channelSettings, Context.Channel.Name);
 
+        var attachments = _appConfig.CurrentValue.Attribution.AttachmentFileNames.Select(fileName => new FileAttachment(fileName)).ToArray();
+
 		await RespondWithFilesAsync(
-			new[] { new FileAttachment("PoweredBy_200_Horizontal_Light-Backgrounds_With_Logo.gif"), new FileAttachment("Powered by KLIPY Horizontal - Yellow&White Logo.png") },
+			attachments,
 			components: channelSettingsMessageComponent,
 			ephemeral: true);
 	}

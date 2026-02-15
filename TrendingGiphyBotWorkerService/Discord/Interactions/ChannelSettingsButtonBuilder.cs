@@ -117,8 +117,7 @@ public class ChannelSettingsButtonBuilder(
         var resetButton = new ButtonBuilder()
             .WithCustomId(InteractionId.ResetHowOftenButton)
             .WithLabel("Reset How Often")
-            .WithStyle(ButtonStyle.Danger)
-            .WithDisabled(channelSettings.IntervalId == (int)IntervalDescription.None);
+            .WithStyle(ButtonStyle.Danger);
 
         return (setButton, resetButton);
     }

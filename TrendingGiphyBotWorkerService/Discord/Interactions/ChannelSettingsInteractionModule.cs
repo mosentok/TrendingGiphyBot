@@ -76,7 +76,7 @@ public class ChannelSettingsInteractionModule
     [ComponentInteraction(InteractionId.ResetHowOftenButton)]
     public async Task ResetHowOftenAsync()
     {
-        PendingConfirmations[Context.Channel.Id] = (PendingClearAction.HowOften, "Are you sure you want to reset how often the bot posts gifs?");
+        PendingConfirmations[Context.Channel.Id] = (PendingClearAction.HowOften, "Are you sure you want to reset how often the bot posts gifs to 30 minutes?");
 
         var component = _settingsMessageComponentFactory.BuildConfirmationModal(PendingConfirmations[Context.Channel.Id].Message);
 
@@ -114,7 +114,7 @@ public class ChannelSettingsInteractionModule
     [ComponentInteraction(InteractionId.ResetPostingBehaviorButton)]
     public async Task ResetPostingBehaviorAsync()
     {
-        PendingConfirmations[Context.Channel.Id] = (PendingClearAction.PostingBehavior, "Are you sure you want to reset the posting behavior?");
+        PendingConfirmations[Context.Channel.Id] = (PendingClearAction.PostingBehavior, "Are you sure you want to reset the posting behavior to Trending Gifs Only?");
 
         var component = _settingsMessageComponentFactory.BuildConfirmationModal(PendingConfirmations[Context.Channel.Id].Message);
 
@@ -194,7 +194,7 @@ public class ChannelSettingsInteractionModule
     [ComponentInteraction(InteractionId.ResetRetentionPeriodButton)]
     public async Task ResetGifRetentionAsync()
     {
-        PendingConfirmations[Context.Channel.Id] = (PendingClearAction.GifRetention, "Are you sure you want to reset the retention period?");
+        PendingConfirmations[Context.Channel.Id] = (PendingClearAction.GifRetention, "Are you sure you want to reset the retention period to 14 days?");
 
         var component = _settingsMessageComponentFactory.BuildConfirmationModal(PendingConfirmations[Context.Channel.Id].Message);
 
@@ -262,7 +262,7 @@ public class ChannelSettingsInteractionModule
     [ComponentInteraction(InteractionId.ResetGiphyRatingButton)]
     public async Task ResetGiphyRatingAsync()
     {
-        PendingConfirmations[Context.Channel.Id] = (PendingClearAction.GiphyRating, "Are you sure you want to reset the giphy rating?");
+        PendingConfirmations[Context.Channel.Id] = (PendingClearAction.GiphyRating, "Are you sure you want to reset the giphy rating to PG?");
 
         var component = _settingsMessageComponentFactory.BuildConfirmationModal(PendingConfirmations[Context.Channel.Id].Message);
 

@@ -1,13 +1,15 @@
 using Discord;
 using Discord.WebSocket;
 using Injectio.Attributes;
+using Microsoft.Extensions.Options;
 using TrendingGiphyBotWorkerService.ChannelSettings;
 
 namespace TrendingGiphyBotWorkerService.Discord.Interactions.ChannelSettings;
 
 [RegisterSingleton]
 public class ChannelSettingsInteractionUpdater(
-    IChannelSettingsMessageComponentFactory _settingsMessageComponentFactory
+    IChannelSettingsMessageComponentFactory _settingsMessageComponentFactory,
+    IOptionsMonitor<AppConfig> _appConfig
 ) : IChannelSettingsInteractionUpdater
 {
     public async Task RefreshInteractionAsync(
@@ -17,10 +19,12 @@ public class ChannelSettingsInteractionUpdater(
     {
         var settingsMessageComponent = _settingsMessageComponentFactory.BuildChannelSettingsMessageComponent(channelSettings, channelName);
 
+        var attachments = _appConfig.CurrentValue.Attribution.AttachmentFileNames.Select(fileName => new FileAttachment(fileName)).ToArray();
+
         await interaction.UpdateAsync(messageProperties =>
         {
             messageProperties.Components = settingsMessageComponent;
-            messageProperties.Attachments = new[] { new FileAttachment("PoweredBy_200_Horizontal_Light-Backgrounds_With_Logo.gif"), new FileAttachment("Powered by KLIPY Horizontal - Yellow&White Logo.png") };
+            messageProperties.Attachments = attachments;
         });
     }
 }

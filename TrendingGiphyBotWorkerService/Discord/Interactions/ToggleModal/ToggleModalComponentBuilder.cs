@@ -1,9 +1,10 @@
 using Discord;
+using Microsoft.Extensions.Options;
 
 namespace TrendingGiphyBotWorkerService.Discord.Interactions.ToggleModal;
 
 [RegisterSingleton]
-public class ToggleModalComponentBuilder : IToggleModalComponentBuilder
+public class ToggleModalComponentBuilder(IOptionsMonitor<AppConfig> _appConfig) : IToggleModalComponentBuilder
 {
     public MessageComponent BuildToggleModal(string title, ButtonBuilder[] optionButtons)
     {
@@ -25,12 +26,11 @@ public class ToggleModalComponentBuilder : IToggleModalComponentBuilder
 
         componentBuilder = componentBuilder.WithActionRow([backButton]);
 
+        var attributionUrls = _appConfig.CurrentValue.Attribution.AttachmentFileNames.Select(fileName => $"attachment://{fileName}").ToArray();
+
         componentBuilder = componentBuilder
             .WithSeparator()
-            .WithMediaGallery([
-                "attachment://PoweredBy_200_Horizontal_Light-Backgrounds_With_Logo.gif",
-                "attachment://Powered by KLIPY Horizontal - Yellow&White Logo.png"
-        ]);
+            .WithMediaGallery(attributionUrls);
 
         return componentBuilder.Build();
     }

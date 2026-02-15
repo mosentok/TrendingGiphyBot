@@ -11,6 +11,7 @@ namespace TrendingGiphyBotWorkerService;
 
 public class AppConfig
 {
+    public required AttributionConfig Attribution { get; set; }
     public required DelayerConfig Delayer { get; set; }
     public required DiscordConfig Discord { get; set; }
     public required GiphyConfig Giphy { get; set; }

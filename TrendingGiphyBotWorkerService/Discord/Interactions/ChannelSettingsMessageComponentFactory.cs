@@ -25,6 +25,8 @@ public class ChannelSettingsMessageComponentFactory(
         var (gifKeywordButton, clearGifKeywordButton) = _buttonBuilder.BuildGifKeywordButtons(channelSettings);
         var (setPostingHoursButton, clearPostingHoursButton) = _buttonBuilder.BuildPostingHoursButtons(channelSettings);
 
+        var attributionUrls = _appConfig.CurrentValue.Attribution.AttachmentFileNames.Select(fileName => $"attachment://{fileName}").ToArray();
+
         var componentBuilder = new ComponentBuilderV2()
             .WithTextDisplay($"# Settings for: **{channelName}**")
             .WithSeparator()
@@ -39,10 +41,7 @@ public class ChannelSettingsMessageComponentFactory(
             .WithActionRow([gifKeywordButton, clearGifKeywordButton])
             .WithActionRow([setPostingHoursButton, clearPostingHoursButton])
             .WithSeparator()
-            .WithMediaGallery([
-                "attachment://PoweredBy_200_Horizontal_Light-Backgrounds_With_Logo.gif",
-                "attachment://Powered by KLIPY Horizontal - Yellow&White Logo.png"
-            ]);
+            .WithMediaGallery(attributionUrls);
 
         return componentBuilder.Build();
     }
@@ -59,14 +58,13 @@ public class ChannelSettingsMessageComponentFactory(
             .WithLabel("Cancel")
             .WithStyle(ButtonStyle.Secondary);
 
+        var attributionUrls = _appConfig.CurrentValue.Attribution.AttachmentFileNames.Select(fileName => $"attachment://{fileName}").ToArray();
+
         var componentBuilder = new ComponentBuilderV2()
             .WithTextDisplay(message)
             .WithActionRow([confirmButton, cancelButton])
             .WithSeparator()
-            .WithMediaGallery([
-                "attachment://PoweredBy_200_Horizontal_Light-Backgrounds_With_Logo.gif",
-                "attachment://Powered by KLIPY Horizontal - Yellow&White Logo.png"
-            ]);
+            .WithMediaGallery(attributionUrls);
 
         return componentBuilder.Build();
     }
