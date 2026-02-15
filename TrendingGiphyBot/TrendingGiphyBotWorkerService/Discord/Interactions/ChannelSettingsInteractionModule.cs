@@ -2,18 +2,17 @@ using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Database;
 using TrendingGiphyBotWorkerService.GifPostingBehavior;
 
 namespace TrendingGiphyBotWorkerService.Discord.Interactions;
 
-public class ChannelSettingsInteractionModule(
+public class ChannelSettingsInteractionModule
+(
     IChannelSettingsMessageComponentFactory _settingsMessageComponentFactory,
     ITrendingGiphyBotDbContext _trendingGiphyBotContext,
-	IGifPostingBehaviorHelper _gifPostingBehaviorHelper,
-	IOptionsMonitor<AppConfig> _appConfig
+	IGifPostingBehaviorHelper _gifPostingBehaviorHelper
 ) : InteractionModuleBase<SocketInteractionContext<SocketMessageComponent>>
 {
 	ChannelSettingsModel? _channelSettings;
