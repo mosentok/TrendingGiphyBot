@@ -1,5 +1,4 @@
 using Discord;
-using Injectio;
 
 namespace TrendingGiphyBotWorkerService.Discord.Interactions.ToggleModal;
 

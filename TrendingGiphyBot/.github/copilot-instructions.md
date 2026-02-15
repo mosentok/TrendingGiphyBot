@@ -108,7 +108,6 @@ Tgb:
 - Prefer records and constructors for POCOs, avoiding initializers and mutable properties
 
 ### Code Organization
-- Alphabetize groups of members (fields, methods, properties, etc.)
 - Keep method overload parameter orders consistent across overloads
 - Group instance, async, and static calls separately
 - Group calls that return variables and side effects separately
@@ -135,7 +134,7 @@ Tgb:
 ### Project Structure
 - Always use folder by feature organization
 - Never use periods in file names (except for the extension)
-- **Namespace Dependency DAG**: Within each feature folder, organize dependencies as a Directed Acyclic Graph (DAG) using hierarchical nesting
+- **Namespace Dependency DAG**: Within each feature folder (e.g., `Discord/**`), organize dependencies as a Directed Acyclic Graph (DAG) using hierarchical nesting. This rule governs only intra-feature namespaces; referencing other top-level feature namespaces (e.g., `ChannelSettings`, `Giphy`, `Utc`) is allowed.
   - Types can only reference types in child namespaces (deeper folders), never siblings or parents
   - Each subfolder "owns" its dependencies - they live as child folders within it
   - Sibling folders at the same level cannot reference each other

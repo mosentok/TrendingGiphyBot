@@ -1,0 +1,140 @@
+using Discord;
+using TrendingGiphyBotWorkerService.ChannelSettings;
+using TrendingGiphyBotWorkerService.Intervals;
+
+namespace TrendingGiphyBotWorkerService.Discord.Interactions;
+
+[RegisterSingleton]
+public class ChannelSettingsButtonBuilder(
+    IChannelSettingsDisplay _display
+) : IChannelSettingsButtonBuilder
+{
+    public (ButtonBuilder setButton, ButtonBuilder resetButton) BuildGifRetentionButtons(ChannelSettingsModel channelSettings)
+    {
+        var displayText = _display.DetermineGifRetentionDisplay(channelSettings);
+        var setButtonLabel = _display.TrimLabelTo80Chars($"Set Retention Period ({displayText})");
+
+        var setButton = new ButtonBuilder()
+            .WithCustomId(InteractionId.GifRetentionOpenButton)
+            .WithLabel(setButtonLabel)
+            .WithStyle(ButtonStyle.Primary);
+
+        var resetButton = new ButtonBuilder()
+            .WithCustomId(InteractionId.ResetRetentionPeriodButton)
+            .WithLabel("Reset Retention Period")
+            .WithStyle(ButtonStyle.Danger);
+
+        return (setButton, resetButton);
+    }
+
+    public (ButtonBuilder setButton, ButtonBuilder clearButton) BuildGifSourcesButtons(ChannelSettingsModel channelSettings)
+    {
+        var displayText = _display.DetermineGifSourceDisplay(channelSettings);
+        var setButtonLabel = _display.TrimLabelTo80Chars($"Set Gif Sources ({displayText})");
+
+        var setButton = new ButtonBuilder()
+            .WithCustomId(InteractionId.GifSourcesOpenButton)
+            .WithLabel(setButtonLabel)
+            .WithStyle(ButtonStyle.Primary);
+
+        var clearButton = new ButtonBuilder()
+            .WithCustomId(InteractionId.ClearGifSourcesButton)
+            .WithLabel("Clear Gif Sources")
+            .WithStyle(ButtonStyle.Danger);
+
+        return (setButton, clearButton);
+    }
+
+    public (ButtonBuilder setButton, ButtonBuilder clearButton) BuildGifKeywordButtons(ChannelSettingsModel channelSettings)
+    {
+        var keywordDisplay = channelSettings.GifKeyword ?? "<none>";
+        var setButtonLabel = _display.TrimLabelTo80Chars($"Set Random Gif Keywords ({keywordDisplay})");
+
+        var setButton = new ButtonBuilder()
+            .WithCustomId(InteractionId.TrendingGifsWithKeywordButton)
+            .WithLabel(setButtonLabel)
+            .WithStyle(ButtonStyle.Primary);
+
+        var clearButton = new ButtonBuilder()
+            .WithCustomId(InteractionId.ClearKeywordButton)
+            .WithLabel("Clear Random Gif Keywords")
+            .WithStyle(ButtonStyle.Danger)
+            .WithDisabled(channelSettings.GifKeyword is null);
+
+        return (setButton, clearButton);
+    }
+
+    public (ButtonBuilder setButton, ButtonBuilder clearButton) BuildPostingHoursButtons(ChannelSettingsModel channelSettings)
+    {
+        var displayText = _display.DeterminePostingHoursDisplay(channelSettings);
+        var setButtonLabel = _display.TrimLabelTo80Chars($"Set Posting Hours ({displayText})");
+
+        var setButton = new ButtonBuilder()
+            .WithCustomId(InteractionId.TrendingPostingHoursButton)
+            .WithLabel(setButtonLabel)
+            .WithStyle(ButtonStyle.Primary);
+
+        var clearButton = new ButtonBuilder()
+            .WithCustomId(InteractionId.ClearPostingHoursButton)
+            .WithLabel("Clear Posting Hours")
+            .WithStyle(ButtonStyle.Danger)
+            .WithDisabled(channelSettings.PostingHoursFrom is null || channelSettings.PostingHoursTo is null);
+
+        return (setButton, clearButton);
+    }
+
+    public (ButtonBuilder setButton, ButtonBuilder resetButton) BuildPostingBehaviorButtons(ChannelSettingsModel channelSettings)
+    {
+        var displayText = _display.DeterminePostingBehaviorDisplay(channelSettings);
+        var setButtonLabel = _display.TrimLabelTo80Chars($"Set Posting Behavior ({displayText})");
+
+        var setButton = new ButtonBuilder()
+            .WithCustomId(InteractionId.PostingBehaviorOpenButton)
+            .WithLabel(setButtonLabel)
+            .WithStyle(ButtonStyle.Primary);
+
+        var resetButton = new ButtonBuilder()
+            .WithCustomId(InteractionId.ResetPostingBehaviorButton)
+            .WithLabel("Reset Posting Behavior")
+            .WithStyle(ButtonStyle.Danger);
+
+        return (setButton, resetButton);
+    }
+
+    public (ButtonBuilder setButton, ButtonBuilder resetButton) BuildHowOftenButtons(ChannelSettingsModel channelSettings)
+    {
+        var displayText = _display.DetermineHowOftenDisplay(channelSettings);
+        var setButtonLabel = _display.TrimLabelTo80Chars($"Set How Often to Post Gifs ({displayText})");
+
+        var setButton = new ButtonBuilder()
+            .WithCustomId(InteractionId.HowOftenOpenButton)
+            .WithLabel(setButtonLabel)
+            .WithStyle(ButtonStyle.Primary);
+
+        var resetButton = new ButtonBuilder()
+            .WithCustomId(InteractionId.ResetHowOftenButton)
+            .WithLabel("Reset How Often")
+            .WithStyle(ButtonStyle.Danger)
+            .WithDisabled(channelSettings.IntervalId == (int)IntervalDescription.None);
+
+        return (setButton, resetButton);
+    }
+
+    public (ButtonBuilder setButton, ButtonBuilder resetButton) BuildGiphyRatingButtons(ChannelSettingsModel channelSettings)
+    {
+        var displayText = _display.DetermineGiphyRatingDisplay(channelSettings);
+        var setButtonLabel = _display.TrimLabelTo80Chars($"Set Giphy Rating ({displayText})");
+
+        var setButton = new ButtonBuilder()
+            .WithCustomId(InteractionId.GiphyRatingOpenButton)
+            .WithLabel(setButtonLabel)
+            .WithStyle(ButtonStyle.Primary);
+
+        var resetButton = new ButtonBuilder()
+            .WithCustomId(InteractionId.ResetGiphyRatingButton)
+            .WithLabel("Reset Giphy Rating")
+            .WithStyle(ButtonStyle.Danger);
+
+        return (setButton, resetButton);
+    }
+}
