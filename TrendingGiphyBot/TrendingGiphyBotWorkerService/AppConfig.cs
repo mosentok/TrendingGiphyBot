@@ -1,3 +1,4 @@
+using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Discord;
 using TrendingGiphyBotWorkerService.Discord.GifPosting.Delaying;
 using TrendingGiphyBotWorkerService.Giphy;
@@ -15,4 +16,5 @@ public class AppConfig
     public required IntervalConfig Intervals { get; set; }
     public required KlipyConfig Klipy { get; set; }
     public required PagerConfig Pager { get; set; }
+    public required RetentionDaysConfig RetentionDays { get; set; }
 }

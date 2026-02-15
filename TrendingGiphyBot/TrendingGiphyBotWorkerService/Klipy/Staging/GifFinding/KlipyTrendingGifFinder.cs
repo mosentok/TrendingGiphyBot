@@ -18,10 +18,16 @@ public class KlipyTrendingGifFinder
         if (!_appConfig.CurrentValue.Klipy.Staging.EnableTrendingGifs)
             return null;
 
+        var retentionDays = channel.RetentionDays ?? _appConfig.CurrentValue.RetentionDays.DefaultDays;
+        var cutoffDate = DateTime.UtcNow.AddDays(-retentionDays);
+
         if (channel.KlipyPosts.Count == 0)
             return _giphyTrendingCache.GetFirstGif();
 
-        var seenKlipyDataIds = channel.KlipyPosts.Select(s => s.KlipyDataId).ToArray();
+        var seenKlipyDataIds = channel.KlipyPosts
+            .Where(s => s.CreatedUtc >= cutoffDate)
+            .Select(s => s.KlipyDataId)
+            .ToArray();
 
         return _giphyTrendingCache.GetFirstUnseenGif(seenKlipyDataIds);
     }

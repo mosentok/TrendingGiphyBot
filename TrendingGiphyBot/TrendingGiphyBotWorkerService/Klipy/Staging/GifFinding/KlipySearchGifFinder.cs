@@ -18,10 +18,16 @@ public class KlipySearchGifFinder
         if (!_appConfig.CurrentValue.Klipy.Staging.EnableSearchGifs || channel.GifKeyword is null or "")
             return null;
 
+        var retentionDays = channel.RetentionDays ?? _appConfig.CurrentValue.RetentionDays.DefaultDays;
+        var cutoffDate = DateTime.UtcNow.AddDays(-retentionDays);
+
         if (channel.KlipyPosts.Count == 0)
             return _giphySearchCache.GetFirstGif(channel.GifKeyword);
 
-        var seenKlipyDataIds = channel.KlipyPosts.Select(s => s.KlipyDataId).ToArray();
+        var seenKlipyDataIds = channel.KlipyPosts
+            .Where(s => s.CreatedUtc >= cutoffDate)
+            .Select(s => s.KlipyDataId)
+            .ToArray();
 
         return _giphySearchCache.GetFirstUnseenGif(channel.GifKeyword, seenKlipyDataIds);
     }

@@ -24,7 +24,12 @@ public class KlipyDataChannelPoster(
 
         foreach (var (channelId, selection) in selections)
         {
-            var klipyPost = new KlipyPost { ChannelId = channelId, KlipyDataId = selection.Data.Id };
+            var klipyPost = new KlipyPost
+            {
+                ChannelId = channelId,
+                CreatedUtc = DateTime.UtcNow,
+                KlipyDataId = selection.Data.Id
+            };
 
             try
             {

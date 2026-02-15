@@ -85,6 +85,22 @@ public class ChannelSettingsMessageComponentFactory(IOptionsMonitor<AppConfig> _
             .WithStyle(ButtonStyle.Danger)
             .WithDisabled(channelSettings.PostingHoursFrom is null || channelSettings.PostingHoursTo is null);
 
+        var defaultRetentionDays = _appConfig.CurrentValue.RetentionDays.DefaultDays;
+        var effectiveRetentionDays = channelSettings.RetentionDays ?? defaultRetentionDays;
+
+        var retentionDaysOptions = _appConfig.CurrentValue.RetentionDays.Days
+            .Select(days =>
+                new SelectMenuOptionBuilder()
+                    .WithLabel($"{days} days")
+                    .WithValue(days.ToString())
+                    .WithDefault(effectiveRetentionDays == days))
+            .ToList();
+
+        var retentionDaysSelectMenu = new SelectMenuBuilder()
+            .WithCustomId(InteractionId.RetentionDaysSelectMenu)
+            .WithPlaceholder("How long to remember posts (to prevent duplicates)")
+            .WithOptions(retentionDaysOptions);
+
         var allGifSources = Enum.GetValues<GifSourceKind>();
 
         var channelGifSource = channelSettings.GifSource ?? allGifSources.Aggregate((left, right) => left | right);
@@ -161,6 +177,8 @@ public class ChannelSettingsMessageComponentFactory(IOptionsMonitor<AppConfig> _
             .WithActionRow([giphyRatingSelectMenu])
             .WithActionRow([gifKeywordButton, clearGifKeywordButton])
             .WithActionRow([setPostingHoursButton, clearPostingHoursButton])
+            .WithTextDisplay("### GIF post memory duration")
+            .WithActionRow([retentionDaysSelectMenu])
             .WithSeparator()
             .WithMediaGallery(["attachment://PoweredBy_200_Horizontal_Light-Backgrounds_With_Logo.gif", "attachment://Powered by KLIPY Horizontal - Yellow&White Logo.png"])
             .Build();

@@ -19,10 +19,16 @@ public class GiphyRandomGifFinder
 
         var rating = channel.GiphyRating ?? "all";
 
+        var retentionDays = channel.RetentionDays ?? _appConfig.CurrentValue.RetentionDays.DefaultDays;
+        var cutoffDate = DateTime.UtcNow.AddDays(-retentionDays);
+
         if (channel.GiphyPosts is null or { Count: 0 })
             return _giphyRandomCache.GetFirstGif(rating);
 
-        var seenGiphyDataIds = channel.GiphyPosts.Select(s => s.GiphyDataId).ToArray();
+        var seenGiphyDataIds = channel.GiphyPosts
+            .Where(s => s.CreatedUtc >= cutoffDate)
+            .Select(s => s.GiphyDataId)
+            .ToArray();
 
         return _giphyRandomCache.GetFirstUnseenGif(seenGiphyDataIds, rating);
     }

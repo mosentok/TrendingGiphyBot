@@ -7,6 +7,7 @@ public static class InteractionId
     public const string GifSourcesSelectMenu = "gif-sources-select-menu";
     public const string GiphyRatingSelectMenu = "giphy-rating-select-menu";
     public const string HowOftenSelectMenu = "how-often-select-menu";
+    public const string RetentionDaysSelectMenu = "retention-days-select-menu";
     public const string TrendingGifsOnlyButton = "trending-gifs-only-button";
     public const string TrendingGifsWithKeywordModal = "trending-gifs-with-keyword-modal";
     public const string TrendingGifsWithKeywordModalButton = "trending-gifs-with-keyword-modal-button";

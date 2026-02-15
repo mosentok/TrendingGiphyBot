@@ -25,7 +25,12 @@ public class GiphyDataChannelPoster(
         // TODO parallelize this loop?
         foreach (var channelId in channelIdToSourceType.Keys)
         {
-            var gifPost = new GiphyPost { ChannelId = channelId, GiphyDataId = stagedChannelGifPosts[channelId].Id };
+            var gifPost = new GiphyPost
+            {
+                ChannelId = channelId,
+                CreatedUtc = DateTime.UtcNow,
+                GiphyDataId = stagedChannelGifPosts[channelId].Id
+            };
 
             try
             {

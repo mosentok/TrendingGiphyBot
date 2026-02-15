@@ -2,6 +2,7 @@ using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Database;
 using TrendingGiphyBotWorkerService.GifPostingBehavior;
@@ -11,7 +12,9 @@ namespace TrendingGiphyBotWorkerService.Discord.Interactions;
 public class ChannelSettingsInteractionModule(
     IChannelSettingsMessageComponentFactory _settingsMessageComponentFactory,
     ITrendingGiphyBotDbContext _trendingGiphyBotContext,
-    IGifPostingBehaviorHelper _gifPostingBehaviorHelper) : InteractionModuleBase<SocketInteractionContext<SocketMessageComponent>>
+	IGifPostingBehaviorHelper _gifPostingBehaviorHelper,
+	IOptionsMonitor<AppConfig> _appConfig
+) : InteractionModuleBase<SocketInteractionContext<SocketMessageComponent>>
 {
 	ChannelSettingsModel? _channelSettings;
 	bool? _shouldUpdateInteraction;
@@ -102,6 +105,18 @@ public class ChannelSettingsInteractionModule(
 		_channelSettings!.PostingHoursFrom = null;
 		_channelSettings.PostingHoursTo = null;
 		_channelSettings.UtcOffset = null;
+
+		_shouldUpdateInteraction = true;
+	}
+
+	[ComponentInteraction(InteractionId.RetentionDaysSelectMenu)]
+	public async Task SetRetentionDaysAsync(string[] selectedValues)
+	{
+		ThisShouldBeImpossibleException.ThrowIf(selectedValues.Length != 1);
+
+		var selectedValue = selectedValues[0];
+
+		_channelSettings!.RetentionDays = int.Parse(selectedValue);
 
 		_shouldUpdateInteraction = true;
 	}
