@@ -18,19 +18,10 @@ public class KlipyRandomGifFinder
             return null;
 
         if (channel.KlipyPosts.Count == 0)
-        {
-            var firstGif = _klipyRandomCache.GetFirstGif();
-
-            return firstGif is not null
-                ? firstGif
-                : null;
-        }
+            return _klipyRandomCache.GetFirstGif();
 
         var seenKlipyDataIds = channel.KlipyPosts.Select(s => s.KlipyDataId).ToArray();
-        var firstUnseen = _klipyRandomCache.GetFirstUnseenGif(seenKlipyDataIds);
 
-        return firstUnseen is not null
-            ? firstUnseen
-            : null;
+        return _klipyRandomCache.GetFirstUnseenGif(seenKlipyDataIds);
     }
 }

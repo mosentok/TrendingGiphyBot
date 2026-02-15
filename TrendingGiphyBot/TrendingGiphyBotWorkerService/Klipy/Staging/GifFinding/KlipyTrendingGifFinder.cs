@@ -19,20 +19,10 @@ public class KlipyTrendingGifFinder
             return null;
 
         if (channel.KlipyPosts.Count == 0)
-        {
-            var firstGif = _giphyTrendingCache.GetFirstGif();
-
-            return firstGif is not null
-                ? firstGif
-                : null;
-        }
+            return _giphyTrendingCache.GetFirstGif();
 
         var seenKlipyDataIds = channel.KlipyPosts.Select(s => s.KlipyDataId).ToArray();
-        var firstUnseenGif = _giphyTrendingCache.GetFirstUnseenGif(seenKlipyDataIds);
 
-        if (firstUnseenGif is not null)
-            return firstUnseenGif;
-
-        return null;
+        return _giphyTrendingCache.GetFirstUnseenGif(seenKlipyDataIds);
     }
 }

@@ -19,19 +19,10 @@ public class KlipySearchGifFinder
             return null;
 
         if (channel.KlipyPosts.Count == 0)
-        {
-            var firstGif = _giphySearchCache.GetFirstGif(channel.GifKeyword);
-
-            return firstGif is not null
-                ? firstGif
-                : null;
-        }
+            return _giphySearchCache.GetFirstGif(channel.GifKeyword);
 
         var seenKlipyDataIds = channel.KlipyPosts.Select(s => s.KlipyDataId).ToArray();
-        var keywordGif = _giphySearchCache.GetFirstUnseenGif(channel.GifKeyword, seenKlipyDataIds);
 
-        return keywordGif is not null
-            ? keywordGif
-            : null;
+        return _giphySearchCache.GetFirstUnseenGif(channel.GifKeyword, seenKlipyDataIds);
     }
 }
