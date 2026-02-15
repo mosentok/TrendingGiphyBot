@@ -62,7 +62,7 @@ public class ChannelSettingsMessageComponentFactory(
 
         var componentBuilder = new ComponentBuilderV2()
             .WithTextDisplay(message)
-            .WithActionRow([confirmButton, cancelButton])
+            .WithActionRow([cancelButton, confirmButton])
             .WithSeparator()
             .WithMediaGallery(attributionUrls);
 
