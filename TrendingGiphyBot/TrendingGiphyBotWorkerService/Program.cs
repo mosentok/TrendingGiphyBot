@@ -185,14 +185,15 @@ try
     await gifPostingBehaviorSeeder.SeedGifPostingBehaviorsAsync();
     await intervalSeeder.SeedIntervalsAsync();
 
-    await giphyTrendingCache.RefreshTrendingGifsAsync();
-    await klipyTrendingCache.RefreshTrendingGifsAsync();
-
-    await giphyRandomCache.RefreshRandomGifsAsync();
-    await klipyRandomCache.RefreshRandomGifsAsync();
-
-    await giphySearchCacheRefresher.RefreshSearchCachesForActiveKeywordsAsync();
-    await klipySearchCacheRefresher.RefreshSearchCachesForActiveKeywordsAsync();
+    if (appConfig.Value.Startup.RefreshCachesOnStartup)
+    {
+        await giphyRandomCache.RefreshRandomGifsAsync();
+        await giphySearchCacheRefresher.RefreshSearchCachesForActiveKeywordsAsync();
+        await giphyTrendingCache.RefreshTrendingGifsAsync();
+        await klipyRandomCache.RefreshRandomGifsAsync();
+        await klipySearchCacheRefresher.RefreshSearchCachesForActiveKeywordsAsync();
+        await klipyTrendingCache.RefreshTrendingGifsAsync();
+    }
 
     await giphyDataStage.RefreshAsync();
     await klipyDataStage.RefreshAsync();
