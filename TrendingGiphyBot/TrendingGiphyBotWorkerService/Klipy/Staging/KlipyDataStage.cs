@@ -3,7 +3,6 @@ using System.Collections.Immutable;
 using TrendingGiphyBotWorkerService.Database;
 using TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding;
 using TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding.Api;
-using TrendingGiphyBotWorkerService.Logging;
 
 namespace TrendingGiphyBotWorkerService.Klipy.Staging;
 

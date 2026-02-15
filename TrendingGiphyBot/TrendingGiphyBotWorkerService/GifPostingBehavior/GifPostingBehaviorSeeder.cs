@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TrendingGiphyBotWorkerService.Database;
-using TrendingGiphyBotWorkerService.Logging;
 
 namespace TrendingGiphyBotWorkerService.GifPostingBehavior;
 

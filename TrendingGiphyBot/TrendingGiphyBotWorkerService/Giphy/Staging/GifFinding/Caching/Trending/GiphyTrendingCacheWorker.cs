@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Options;
 using TrendingGiphyBotWorkerService.Logging;
 
-namespace TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Caching;
+namespace TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Caching.Trending;
 
 public class GiphyTrendingCacheWorker(
     ILogger<GiphyTrendingCacheWorker> _logger,

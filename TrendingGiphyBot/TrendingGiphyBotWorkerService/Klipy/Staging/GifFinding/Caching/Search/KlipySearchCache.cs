@@ -2,9 +2,8 @@
 using TrendingGiphyBotWorkerService.Configuration;
 using TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding.Api;
 using TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding.Caching.Paging;
-using TrendingGiphyBotWorkerService.Logging;
 
-namespace TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding.Caching;
+namespace TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding.Caching.Search;
 
 [RegisterSingleton]
 public class KlipySearchCache

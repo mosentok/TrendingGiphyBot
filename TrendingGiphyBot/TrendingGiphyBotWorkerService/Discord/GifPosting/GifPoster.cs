@@ -5,7 +5,6 @@ using TrendingGiphyBotWorkerService.Discord.GifPosting.Merging;
 using TrendingGiphyBotWorkerService.Giphy.Staging;
 using TrendingGiphyBotWorkerService.GifPostingBehavior;
 using TrendingGiphyBotWorkerService.Klipy.Staging;
-using TrendingGiphyBotWorkerService.Logging;
 
 namespace TrendingGiphyBotWorkerService.Discord.GifPosting;
 

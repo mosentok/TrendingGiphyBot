@@ -1,11 +1,10 @@
 using System.Collections.Immutable;
 using TrendingGiphyBotWorkerService.Discord.GifPosting;
 
-namespace TrendingGiphyBotWorkerService.Discord
+namespace TrendingGiphyBotWorkerService.Discord;
+
+public interface IKlipyDataChannelPoster
 {
-    public interface IKlipyDataChannelPoster
-    {
-        Task PostKlipyGifsAsync(IImmutableDictionary<ulong, KlipyGifPostSelection> selections, CancellationToken stoppingToken);
-    }
+    Task PostKlipyGifsAsync(IImmutableDictionary<ulong, KlipyGifPostSelection> selections, CancellationToken stoppingToken);
 }
 

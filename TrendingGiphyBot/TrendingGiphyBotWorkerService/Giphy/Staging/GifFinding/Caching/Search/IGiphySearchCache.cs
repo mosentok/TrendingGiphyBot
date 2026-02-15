@@ -1,6 +1,6 @@
 using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Api;
 
-namespace TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Caching;
+namespace TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Caching.Search;
 
 public interface IGiphySearchCache
 {

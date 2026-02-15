@@ -1,4 +1,4 @@
-namespace TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding.Caching;
+namespace TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding.Caching.Search;
 
 public interface IKlipySearchCacheRefresher
 {

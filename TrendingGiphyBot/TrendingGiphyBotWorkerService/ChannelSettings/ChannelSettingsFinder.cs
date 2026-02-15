@@ -3,7 +3,6 @@ using Microsoft.Extensions.Options;
 using TrendingGiphyBotWorkerService.Configuration;
 using TrendingGiphyBotWorkerService.Database;
 using TrendingGiphyBotWorkerService.Intervals;
-using TrendingGiphyBotWorkerService.Logging;
 
 namespace TrendingGiphyBotWorkerService.ChannelSettings;
 

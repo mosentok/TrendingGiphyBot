@@ -2,7 +2,7 @@
 using TrendingGiphyBotWorkerService.Configuration;
 using TrendingGiphyBotWorkerService.Logging;
 
-namespace TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding.Caching;
+namespace TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding.Caching.Trending;
 
 public class KlipyTrendingCacheWorker
 (

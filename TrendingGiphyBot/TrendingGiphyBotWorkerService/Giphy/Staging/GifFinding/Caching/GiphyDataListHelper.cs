@@ -1,4 +1,6 @@
-namespace TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Api;
+using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Api;
+
+namespace TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Caching;
 
 [RegisterSingleton]
 public class GiphyDataListHelper : IGiphyDataListHelper

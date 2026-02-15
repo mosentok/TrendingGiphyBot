@@ -1,5 +1,3 @@
-using TrendingGiphyBotWorkerService.Logging;
-
 namespace TrendingGiphyBotWorkerService.ChannelSettings;
 
 [RegisterSingleton]

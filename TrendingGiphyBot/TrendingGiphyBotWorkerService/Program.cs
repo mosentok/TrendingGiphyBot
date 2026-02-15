@@ -16,11 +16,15 @@ using TrendingGiphyBotWorkerService.Discord.GifPosting;
 using TrendingGiphyBotWorkerService.GifPostingBehavior;
 using TrendingGiphyBotWorkerService.Giphy.Staging;
 using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Api;
-using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Caching;
+using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Caching.Random;
+using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Caching.Search;
+using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Caching.Trending;
 using TrendingGiphyBotWorkerService.Intervals;
 using TrendingGiphyBotWorkerService.Klipy.Staging;
 using TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding.Api;
-using TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding.Caching;
+using TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding.Caching.Random;
+using TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding.Caching.Search;
+using TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding.Caching.Trending;
 using TrendingGiphyBotWorkerService.Logging;
 
 [assembly: SuppressMessage("Roslynator", "RCS1001:Add braces (when expression spans over multiple lines)", Justification = "Less is more.")]

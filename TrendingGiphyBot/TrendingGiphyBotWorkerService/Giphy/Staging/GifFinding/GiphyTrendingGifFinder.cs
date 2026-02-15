@@ -4,7 +4,7 @@ using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Configuration;
 using TrendingGiphyBotWorkerService.GifPostingBehavior;
 using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Api;
-using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Caching;
+using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Caching.Trending;
 
 namespace TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding;
 

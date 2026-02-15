@@ -2,9 +2,8 @@ using Microsoft.Extensions.Options;
 using TrendingGiphyBotWorkerService.Configuration;
 using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Api;
 using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Caching.Paging;
-using TrendingGiphyBotWorkerService.Logging;
 
-namespace TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Caching;
+namespace TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Caching.Search;
 
 [RegisterSingleton]
 public class GiphySearchCache

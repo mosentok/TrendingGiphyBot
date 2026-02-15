@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding.Api;
-using TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding.Caching;
+using TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding.Caching.Random;
 
 namespace TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding;
 

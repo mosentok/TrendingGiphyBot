@@ -1,19 +1,19 @@
 using TrendingGiphyBotWorkerService.ChannelSettings;
 
-namespace TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Caching;
+namespace TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding.Caching.Search;
 
 [RegisterSingleton]
-public class GiphySearchCacheRefresher
+public class KlipySearchCacheRefresher
 (
     IActiveKeywordsFinder _activeKeywordsFinder,
-    IGiphySearchCache _giphySearchCache
-) : IGiphySearchCacheRefresher
+    IKlipySearchCache _klipySearchCache
+) : IKlipySearchCacheRefresher
 {
     public async Task RefreshSearchCachesForActiveKeywordsAsync(CancellationToken cancellationToken = default)
     {
         var activeKeywords = await _activeKeywordsFinder.FindActiveKeywordsAsync(cancellationToken);
 
         foreach (var keyword in activeKeywords)
-            await _giphySearchCache.RefreshSearchedGiphyDatasAsync(keyword, cancellationToken);
+            await _klipySearchCache.RefreshSearchGifsAsync(keyword, cancellationToken);
     }
 }

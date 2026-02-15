@@ -2,27 +2,26 @@
 
 #nullable disable
 
-namespace TrendingGiphyBotWorkerService.Migrations
+namespace TrendingGiphyBotWorkerService.Migrations;
+
+/// <inheritdoc />
+public partial class Rating : Migration
 {
     /// <inheritdoc />
-    public partial class Rating : Migration
+    protected override void Up(MigrationBuilder migrationBuilder)
     {
-        /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.AddColumn<string>(
-                name: "GiphyRating",
-                table: "ChannelSettings",
-                type: "TEXT",
-                nullable: true);
-        }
+        migrationBuilder.AddColumn<string>(
+            name: "GiphyRating",
+            table: "ChannelSettings",
+            type: "TEXT",
+            nullable: true);
+    }
 
-        /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.DropColumn(
-                name: "GiphyRating",
-                table: "ChannelSettings");
-        }
+    /// <inheritdoc />
+    protected override void Down(MigrationBuilder migrationBuilder)
+    {
+        migrationBuilder.DropColumn(
+            name: "GiphyRating",
+            table: "ChannelSettings");
     }
 }
