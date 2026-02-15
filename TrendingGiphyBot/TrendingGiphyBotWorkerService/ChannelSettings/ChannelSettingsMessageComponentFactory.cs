@@ -98,13 +98,19 @@ public class ChannelSettingsMessageComponentFactory(
             .WithDisabled(channelSettings.PostingHoursFrom is null || channelSettings.PostingHoursTo is null);
 
         var componentBuilder = new ComponentBuilderV2()
+            .WithTextDisplay($"# Settings for: **{channelName}**")
+            .WithSeparator()
+            .WithTextDisplay("## Main Settings")
             .WithActionRow([howOftenButton, resetHowOftenButton])
             .WithActionRow([postingBehaviorButton, resetPostingBehaviorButton])
+            .WithSeparator()
+            .WithTextDisplay("## Optional Settings")
             .WithActionRow([gifSourcesButton, clearGifSourcesButton])
             .WithActionRow([gifRetentionButton, resetGifRetentionButton])
             .WithActionRow([giphyRatingButton, resetGiphyRatingButton])
             .WithActionRow([gifKeywordButton, clearGifKeywordButton])
             .WithActionRow([setPostingHoursButton, clearPostingHoursButton])
+            .WithSeparator()
             .WithMediaGallery([
                 "attachment://PoweredBy_200_Horizontal_Light-Backgrounds_With_Logo.gif",
                 "attachment://Powered by KLIPY Horizontal - Yellow&White Logo.png"
@@ -403,6 +409,7 @@ public class ChannelSettingsMessageComponentFactory(
         var componentBuilder = new ComponentBuilderV2()
             .WithTextDisplay(message)
             .WithActionRow([confirmButton, cancelButton])
+            .WithSeparator()
             .WithMediaGallery([
                 "attachment://PoweredBy_200_Horizontal_Light-Backgrounds_With_Logo.gif",
                 "attachment://Powered by KLIPY Horizontal - Yellow&White Logo.png"

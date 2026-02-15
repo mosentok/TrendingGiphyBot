@@ -397,7 +397,7 @@ public class ChannelSettingsInteractionModule
     {
         var channelSettings = _channelSettings!;
         var postingHooursModal = new ModalBuilder()
-            .WithTitle("Set the hours during which you want the bot to post.")
+            .WithTitle("Set the hours when the bot should post")
             .WithCustomId(InteractionId.TrendingPostingHoursModal)
             .AddTextInput("From (24 hour time)", InteractionId.TrendingPostingHoursFromTextInput, placeholder: "10", maxLength: 2, required: false, value: channelSettings.PostingHoursFrom?.ToString() ?? string.Empty)
             .AddTextInput("To (24 hour time)", InteractionId.TrendingPostingHoursToTextInput, placeholder: "22", maxLength: 2, required: false, value: channelSettings.PostingHoursTo?.ToString() ?? string.Empty)

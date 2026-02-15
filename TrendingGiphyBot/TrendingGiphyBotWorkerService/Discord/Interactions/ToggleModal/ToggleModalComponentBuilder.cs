@@ -26,9 +26,11 @@ public class ToggleModalComponentBuilder : IToggleModalComponentBuilder
 
         componentBuilder = componentBuilder.WithActionRow([backButton]);
 
-        componentBuilder = componentBuilder.WithMediaGallery([
-            "attachment://PoweredBy_200_Horizontal_Light-Backgrounds_With_Logo.gif",
-            "attachment://Powered by KLIPY Horizontal - Yellow&White Logo.png"
+        componentBuilder = componentBuilder
+            .WithSeparator()
+            .WithMediaGallery([
+                "attachment://PoweredBy_200_Horizontal_Light-Backgrounds_With_Logo.gif",
+                "attachment://Powered by KLIPY Horizontal - Yellow&White Logo.png"
         ]);
 
         return componentBuilder.Build();
