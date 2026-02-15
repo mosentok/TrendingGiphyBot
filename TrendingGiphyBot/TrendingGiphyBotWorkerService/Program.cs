@@ -122,10 +122,10 @@ var host = builder.Build();
 
 var appConfig = host.Services.GetRequiredService<IOptions<AppConfig>>();
 
-if (appConfig.Value.RetentionDays is { Days.Length: 0 } or { DefaultDays: < 1})
+if (appConfig.Value.GifRetention is { Days.Length: 0 } or { DefaultDays: < 1})
     throw new MissingConfigurationException();
 
-if (!appConfig.Value.RetentionDays.Days.Contains(appConfig.Value.RetentionDays.DefaultDays))
+if (!appConfig.Value.GifRetention.Days.Contains(appConfig.Value.GifRetention.DefaultDays))
     throw new MissingConfigurationException();
 
 var discordSocketClientHandler = host.Services.GetRequiredService<IDiscordSocketClientHandler>();

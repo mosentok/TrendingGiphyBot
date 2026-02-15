@@ -118,6 +118,7 @@ Tgb:
 ### Syntax and Style
 - Do not nest method calls
   - If you see a set of () open + close parenthesis, store the result in a variable
+- Do not chain method calls unless they are part of a fluent API
 - Always prefer the latest language syntax like primary constructors and pattern matching
 - Parameter lists containing 3 or more items should be wrapped with parenthesis following Allman style (as if they were curly braces); otherwise, keep on single line
 - When bodies are single line, prefer expression bodies, where the arrow `=>` dangles off of the first line and the expression follows on the next line

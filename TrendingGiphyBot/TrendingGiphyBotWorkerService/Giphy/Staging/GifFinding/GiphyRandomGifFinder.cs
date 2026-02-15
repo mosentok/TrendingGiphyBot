@@ -19,7 +19,7 @@ public class GiphyRandomGifFinder
 
         var rating = channel.GiphyRating ?? "all";
 
-        var retentionDays = channel.RetentionDays ?? _appConfig.CurrentValue.RetentionDays.DefaultDays;
+        var retentionDays = channel.RetentionDays ?? _appConfig.CurrentValue.GifRetention.DefaultDays;
         var cutoffDate = DateTime.UtcNow.AddDays(-retentionDays);
 
         if (channel.GiphyPosts is null or { Count: 0 })

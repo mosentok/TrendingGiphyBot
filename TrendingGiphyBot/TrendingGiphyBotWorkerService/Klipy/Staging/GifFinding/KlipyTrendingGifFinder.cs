@@ -18,7 +18,7 @@ public class KlipyTrendingGifFinder
         if (!_appConfig.CurrentValue.Klipy.Staging.EnableTrendingGifs)
             return null;
 
-        var retentionDays = channel.RetentionDays ?? _appConfig.CurrentValue.RetentionDays.DefaultDays;
+        var retentionDays = channel.RetentionDays ?? _appConfig.CurrentValue.GifRetention.DefaultDays;
         var cutoffDate = DateTime.UtcNow.AddDays(-retentionDays);
 
         if (channel.KlipyPosts.Count == 0)
