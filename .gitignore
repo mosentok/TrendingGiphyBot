@@ -287,3 +287,5 @@ __pycache__/
 /TrendingGiphyBot/TrendingGiphyBotWorkerService/app.db-wal
 /TrendingGiphyBot/TrendingGiphyBotWorkerService/appsettings.Development.json
 /TrendingGiphyBot/.vscode/settings.json
+/.vscode/settings.json
+/TrendingGiphyBotWorkerService/appsettings.Development.json
