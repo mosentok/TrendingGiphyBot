@@ -28,13 +28,4 @@
 			<ExcludeAssets>compile</ExcludeAssets>
 		</PackageReference>
 	</ItemGroup>
-
-	<ItemGroup>
-		<None Include="PoweredBy_200_Horizontal_Light-Backgrounds_With_Logo.gif">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-		<None Include="Powered by KLIPY Horizontal - Yellow&amp;White Logo.png">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-	</ItemGroup>
 </Project>

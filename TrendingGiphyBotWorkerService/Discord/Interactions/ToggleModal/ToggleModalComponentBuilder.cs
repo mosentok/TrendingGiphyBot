@@ -26,11 +26,9 @@ public class ToggleModalComponentBuilder(IOptionsMonitor<AppConfig> _appConfig) 
 
         componentBuilder = componentBuilder.WithActionRow([backButton]);
 
-        var attributionUrls = _appConfig.CurrentValue.Attribution.AttachmentFileNames.Select(fileName => $"attachment://{fileName}").ToArray();
-
         componentBuilder = componentBuilder
             .WithSeparator()
-            .WithMediaGallery(attributionUrls);
+            .WithMediaGallery((IEnumerable<string>)_appConfig.CurrentValue.Attribution.Urls);
 
         return componentBuilder.Build();
     }

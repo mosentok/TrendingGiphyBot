@@ -1,6 +1,5 @@
 using Discord;
 using TrendingGiphyBotWorkerService.ChannelSettings;
-using TrendingGiphyBotWorkerService.Intervals;
 
 namespace TrendingGiphyBotWorkerService.Discord.Interactions;
 
