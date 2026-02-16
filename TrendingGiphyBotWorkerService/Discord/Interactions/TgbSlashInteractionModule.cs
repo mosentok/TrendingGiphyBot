@@ -7,7 +7,11 @@ using TrendingGiphyBotWorkerService.Intervals;
 namespace TrendingGiphyBotWorkerService.Discord.Interactions;
 
 [Group("tgb", "Trending Gif Bot commands for this channel")]
-public class TgbSlashInteractionModule(IChannelSettingsMessageComponentFactory _channelSettingsMessageComponentFactory, ITrendingGiphyBotDbContext _trendingGiphyBotContext) : InteractionModuleBase<SocketInteractionContext>
+public class TgbSlashInteractionModule(
+	IChannelSettingsMessageComponentFactory _channelSettingsMessageComponentFactory,
+	ITrendingGiphyBotDbContext _trendingGiphyBotContext,
+	IChannelSettingsDtoBuilder _dtoBuilder
+) : InteractionModuleBase<SocketInteractionContext>
 {
 	[SlashCommand("settings", "View and change your Trending Gif Bot's settings for this channel")]
 	public async Task GetOrCreateChannelSettingsAsync()
@@ -23,7 +27,9 @@ public class TgbSlashInteractionModule(IChannelSettingsMessageComponentFactory _
 			await _trendingGiphyBotContext.SaveChangesAsync();
 		}
 
-		var channelSettingsMessageComponent = _channelSettingsMessageComponentFactory.BuildChannelSettingsMessageComponent(channelSettings, Context.Channel.Name);
+		var dto = await _dtoBuilder.BuildFromChannelIdAsync(Context.Channel.Id);
+
+		var channelSettingsMessageComponent = _channelSettingsMessageComponentFactory.BuildChannelSettingsMessageComponent(dto, Context.Channel.Name);
 
 		await RespondAsync(
             ephemeral: true,

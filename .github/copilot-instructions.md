@@ -157,6 +157,8 @@ Tgb:
   - Apply this rule recursively after creating a child namespace
 
 ### Quality Assurance
+- Use the dotnet cli to manage nuget packages, and never do anything with nuget manually
+- Do not use explicit nuget package version numbers unless absolutely required on a case by case basis
 - Always build the code, run all unit tests, and fix any errors when iterating in agent mode
 
 ## JSON Files
@@ -193,13 +195,8 @@ dotnet run
 - Service runs indefinitely until stopped (Ctrl+C)
 
 ### Entity Framework Migrations
-```powershell
-cd TrendingGiphyBotWorkerService
-dotnet ef migrations add MigrationName
-dotnet ef database update
-```
-- Migrations are auto-applied on application startup
-- Use Design-Time DbContext Factory if issues occur
+- Do not create, update, or delete any migration files
+- Recommend boldly to the developer when you've made changes that warrent a new migration
 
 ## Important Notes
 

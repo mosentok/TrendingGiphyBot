@@ -9,7 +9,7 @@ public class ChannelSettingsInteractionUpdater(
 ) : IChannelSettingsInteractionUpdater
 {
     public async Task RefreshInteractionAsync(
-        ChannelSettingsModel channelSettings,
+        ChannelSettingsDto channelSettings,
         string channelName,
         SocketMessageComponent interaction)
     {

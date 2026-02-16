@@ -14,6 +14,7 @@ public class GiphyDataStagingWorker
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
+        {
             try
             {
                 await Task.Delay(_appConfig.CurrentValue.Giphy.Staging.TimeSpanBetweenRefreshes, stoppingToken);
@@ -30,5 +31,6 @@ public class GiphyDataStagingWorker
             {
                 _logger.LogGifStageHasRefreshed();
             }
+        }
     }
 }

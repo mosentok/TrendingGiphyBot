@@ -2,6 +2,7 @@ using Discord;
 using Microsoft.Extensions.Options;
 using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Configuration;
+using TrendingGiphyBotWorkerService.Discord.Interactions.CurrentSettings;
 using TrendingGiphyBotWorkerService.Discord.Interactions.ToggleModal;
 using TrendingGiphyBotWorkerService.GifPostingBehavior;
 using TrendingGiphyBotWorkerService.Intervals;
@@ -12,10 +13,13 @@ namespace TrendingGiphyBotWorkerService.Discord.Interactions;
 public class ChannelSettingsMessageComponentFactory(
     IOptionsMonitor<AppConfig> _appConfig,
     IChannelSettingsButtonBuilder _buttonBuilder,
-    IToggleModalComponentBuilder _toggleModal
+    IToggleModalComponentBuilder _toggleModal,
+    ICurrentChannelSettingsDisplayBuilder _currentSettingsDisplayBuilder
 ) : IChannelSettingsMessageComponentFactory
 {
-    public MessageComponent BuildChannelSettingsMessageComponent(ChannelSettingsModel channelSettings, string channelName)
+    public MessageComponent BuildChannelSettingsMessageComponent(
+        ChannelSettingsDto channelSettings,
+        string channelName)
     {
         var (howOftenButton, resetHowOftenButton) = _buttonBuilder.BuildHowOftenButtons(channelSettings);
         var (postingBehaviorButton, resetPostingBehaviorButton) = _buttonBuilder.BuildPostingBehaviorButtons(channelSettings);
@@ -25,8 +29,12 @@ public class ChannelSettingsMessageComponentFactory(
         var (gifKeywordButton, clearGifKeywordButton) = _buttonBuilder.BuildGifKeywordButtons(channelSettings);
         var (setPostingHoursButton, clearPostingHoursButton) = _buttonBuilder.BuildPostingHoursButtons(channelSettings);
 
+        var currentSettingsDisplay = _currentSettingsDisplayBuilder.BuildDisplay(channelSettings);
+
         var componentBuilder = new ComponentBuilderV2()
             .WithTextDisplay($"# Settings for: **{channelName}**")
+            .WithSeparator()
+            .WithTextDisplay(currentSettingsDisplay)
             .WithSeparator()
             .WithTextDisplay("## Main Settings")
             .WithActionRow([howOftenButton, resetHowOftenButton])
@@ -65,7 +73,7 @@ public class ChannelSettingsMessageComponentFactory(
         return componentBuilder.Build();
     }
 
-    public MessageComponent BuildGifRetentionToggleModal(ChannelSettingsModel channelSettings, string? selectedValue = null)
+    public MessageComponent BuildGifRetentionToggleModal(ChannelSettingsDto channelSettings, string? selectedValue = null)
     {
         var defaultRetentionDays = _appConfig.CurrentValue.GifRetention.DefaultDays;
         var effectiveRetentionDays = channelSettings.RetentionDays ?? defaultRetentionDays;
@@ -99,7 +107,7 @@ public class ChannelSettingsMessageComponentFactory(
         return _toggleModal.BuildToggleModal("Set Retention Period", buttonsArray);
     }
 
-    public MessageComponent BuildGifSourcesToggleModal(ChannelSettingsModel channelSettings, string? selectedValue = null)
+    public MessageComponent BuildGifSourcesToggleModal(ChannelSettingsDto channelSettings, string? selectedValue = null)
     {
         var allGifSources = Enum.GetValues<GifSourceKind>();
         var channelGifSource = channelSettings.GifSource ?? allGifSources.Aggregate((left, right) => left | right);
@@ -125,7 +133,7 @@ public class ChannelSettingsMessageComponentFactory(
         return _toggleModal.BuildToggleModal("Set Gif Sources", buttons);
     }
 
-    public MessageComponent BuildGiphyRatingToggleModal(ChannelSettingsModel channelSettings, string? selectedValue = null)
+    public MessageComponent BuildGiphyRatingToggleModal(ChannelSettingsDto channelSettings, string? selectedValue = null)
     {
         var effectiveRating = channelSettings.GiphyRating ?? "pg";
 
@@ -184,7 +192,7 @@ public class ChannelSettingsMessageComponentFactory(
         return _toggleModal.BuildToggleModal("Set Giphy Rating", buttonsArray);
     }
 
-    public MessageComponent BuildHowOftenToggleModal(ChannelSettingsModel channelSettings, string? selectedValue = null)
+    public MessageComponent BuildHowOftenToggleModal(ChannelSettingsDto channelSettings, string? selectedValue = null)
     {
         var buttons = new List<ButtonBuilder>();
 
@@ -244,7 +252,7 @@ public class ChannelSettingsMessageComponentFactory(
         return _toggleModal.BuildToggleModal("Post Gifs How Often? Every:", buttonsArray);
     }
 
-    public MessageComponent BuildPostingBehaviorToggleModal(ChannelSettingsModel channelSettings, string? selectedValue = null)
+    public MessageComponent BuildPostingBehaviorToggleModal(ChannelSettingsDto channelSettings, string? selectedValue = null)
     {
         var gifPostingBehaviorKind = (GifPostingBehaviorKind)channelSettings.GifPostingBehaviorId;
 

@@ -50,8 +50,6 @@ await using var discordSocketClient = new DiscordSocketClient(discordSocketConfi
 
 var logPath = Path.Combine(AppContext.BaseDirectory, "logs", "log.log");
 
-const string outputTemplate = "[{Timestamp:HH:mm:ss} {Level:u4}] [{SourceContext}] {Message:lj}{NewLine}{Exception}";
-
 var appConfigSection = builder.Configuration.GetSection("Tgb");
 
 builder.Services
@@ -69,16 +67,28 @@ builder.Services
     {
         loggingBuilder.ClearProviders();
 
+        var loggingConfig = appConfigSection
+            .GetSection("Logging")
+            .Get<LoggingConfig>() ?? throw new MissingConfigurationException();
+
+        var uriRedactor = new UriRedactor();
+        var uriRedactionEnricher = new UriRedactionEnricher(uriRedactor);
+
         var logger = new LoggerConfiguration()
+            .Enrich.FromLogContext()
+            .Enrich.WithThreadId()
+            .Enrich.WithShortTypeName()
+            .Enrich.With(uriRedactionEnricher)
+            .Destructure.ByTransforming<Uri>(uriRedactor.Redact)
             .MinimumLevel.Override("TrendingGiphyBotWorkerService", LogEventLevel.Verbose)
             .MinimumLevel.Override("Discord", LogEventLevel.Verbose)
             .MinimumLevel.Information()
             .WriteTo.Console(
-                outputTemplate: outputTemplate,
+                outputTemplate: loggingConfig.OutputTemplate,
                 theme: AnsiConsoleTheme.Code)
             .WriteTo.File(
                 logPath,
-                outputTemplate: outputTemplate,
+                outputTemplate: loggingConfig.OutputTemplate,
                 rollingInterval: RollingInterval.Day
             )
             .CreateLogger();

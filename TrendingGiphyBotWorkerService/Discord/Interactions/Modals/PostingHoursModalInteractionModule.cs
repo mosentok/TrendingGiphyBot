@@ -10,7 +10,8 @@ namespace TrendingGiphyBotWorkerService.Discord.Interactions.Modals;
 public class PostingHoursModalInteractionModule(
     IChannelSettingsMessageComponentFactory _settingsMessageComponentFactory,
     ITrendingGiphyBotDbContext _trendingGiphyBotContext,
-    IUtcOffsetParser _utcOffsetParser
+    IUtcOffsetParser _utcOffsetParser,
+    IChannelSettingsDtoBuilder _dtoBuilder
 ) : InteractionModuleBase<SocketInteractionContext<SocketModal>>
 {
     const string _utcOffsetErrorMessage = "Please input your time zone UTC offset in the format '+ab:xy' or '-ab:xy', like -03:00, +05:30, or 1245.";
@@ -63,7 +64,9 @@ public class PostingHoursModalInteractionModule(
 
         await _trendingGiphyBotContext.SaveChangesAsync();
 
-        var settingsMessageComponent = _settingsMessageComponentFactory.BuildChannelSettingsMessageComponent(channelSettings, Context.Channel.Name);
+        var dto = await _dtoBuilder.BuildFromChannelIdAsync(Context.Channel.Id);
+
+        var settingsMessageComponent = _settingsMessageComponentFactory.BuildChannelSettingsMessageComponent(dto, Context.Channel.Name);
 
         await Context.Interaction.UpdateAsync(async messageProperties => messageProperties.Components = settingsMessageComponent);
     }

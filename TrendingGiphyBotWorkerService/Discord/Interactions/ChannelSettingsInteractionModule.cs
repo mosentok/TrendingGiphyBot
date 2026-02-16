@@ -15,7 +15,8 @@ public class ChannelSettingsInteractionModule
     IChannelSettingsMessageComponentFactory _settingsMessageComponentFactory,
     ITrendingGiphyBotDbContext _trendingGiphyBotContext,
     IGifPostingBehaviorHelper _gifPostingBehaviorHelper,
-    IChannelSettingsInteractionUpdater _interactionUpdater
+    IChannelSettingsInteractionUpdater _interactionUpdater,
+    IChannelSettingsDtoBuilder _dtoBuilder
 ) : InteractionModuleBase<SocketInteractionContext<SocketMessageComponent>>
 {
     private enum PendingClearAction
@@ -38,13 +39,18 @@ public class ChannelSettingsInteractionModule
         _channelSettings = await _trendingGiphyBotContext.ChannelSettings.SingleAsync(s => s.ChannelId == Context.Channel.Id);
 
     [ComponentInteraction(InteractionId.BackButton)]
-    public async Task BackAsync() =>
-        await _interactionUpdater.RefreshInteractionAsync(_channelSettings!, Context.Channel.Name, Context.Interaction);
+    public async Task BackAsync()
+    {
+        var dto = await _dtoBuilder.BuildFromChannelIdAsync(Context.Channel.Id);
+
+        await _interactionUpdater.RefreshInteractionAsync(dto, Context.Channel.Name, Context.Interaction);
+    }
 
     [ComponentInteraction(InteractionId.HowOftenOpenButton)]
     public async Task OpenHowOftenAsync()
     {
-        var component = _settingsMessageComponentFactory.BuildHowOftenToggleModal(_channelSettings!);
+        var dto = await _dtoBuilder.BuildFromChannelIdAsync(Context.Channel.Id);
+        var component = _settingsMessageComponentFactory.BuildHowOftenToggleModal(dto);
 
         await Context.Interaction.UpdateAsync(messageProperties => messageProperties.Components = component);
     }
@@ -68,7 +74,8 @@ public class ChannelSettingsInteractionModule
 
         await _trendingGiphyBotContext.SaveChangesAsync();
 
-        var component = _settingsMessageComponentFactory.BuildHowOftenToggleModal(_channelSettings, howOftenValue);
+        var dto = await _dtoBuilder.BuildFromChannelIdAsync(Context.Channel.Id);
+        var component = _settingsMessageComponentFactory.BuildHowOftenToggleModal(dto, howOftenValue);
 
         await Context.Interaction.UpdateAsync(messageProperties => messageProperties.Components = component);
     }
@@ -86,7 +93,8 @@ public class ChannelSettingsInteractionModule
     [ComponentInteraction(InteractionId.PostingBehaviorOpenButton)]
     public async Task OpenPostingBehaviorAsync()
     {
-        var component = _settingsMessageComponentFactory.BuildPostingBehaviorToggleModal(_channelSettings!);
+        var dto = await _dtoBuilder.BuildFromChannelIdAsync(Context.Channel.Id);
+        var component = _settingsMessageComponentFactory.BuildPostingBehaviorToggleModal(dto);
 
         await Context.Interaction.UpdateAsync(messageProperties => messageProperties.Components = component);
     }
@@ -98,7 +106,9 @@ public class ChannelSettingsInteractionModule
 
         await _trendingGiphyBotContext.SaveChangesAsync();
 
-        await _interactionUpdater.RefreshInteractionAsync(_channelSettings!, Context.Channel.Name, Context.Interaction);
+        var dto = await _dtoBuilder.BuildFromChannelIdAsync(Context.Channel.Id);
+
+        await _interactionUpdater.RefreshInteractionAsync(dto, Context.Channel.Name, Context.Interaction);
     }
 
     [ComponentInteraction(InteractionId.PostingBehaviorTrendingWithRandomButton)]
@@ -108,7 +118,9 @@ public class ChannelSettingsInteractionModule
 
         await _trendingGiphyBotContext.SaveChangesAsync();
 
-        await _interactionUpdater.RefreshInteractionAsync(_channelSettings!, Context.Channel.Name, Context.Interaction);
+        var dto = await _dtoBuilder.BuildFromChannelIdAsync(Context.Channel.Id);
+
+        await _interactionUpdater.RefreshInteractionAsync(dto, Context.Channel.Name, Context.Interaction);
     }
 
     [ComponentInteraction(InteractionId.ResetPostingBehaviorButton)]
@@ -124,7 +136,8 @@ public class ChannelSettingsInteractionModule
     [ComponentInteraction(InteractionId.GifSourcesOpenButton)]
     public async Task OpenGifSourcesAsync()
     {
-        var component = _settingsMessageComponentFactory.BuildGifSourcesToggleModal(_channelSettings!);
+        var dto = await _dtoBuilder.BuildFromChannelIdAsync(Context.Channel.Id);
+        var component = _settingsMessageComponentFactory.BuildGifSourcesToggleModal(dto);
 
         await Context.Interaction.UpdateAsync(messageProperties => messageProperties.Components = component);
     }
@@ -143,7 +156,9 @@ public class ChannelSettingsInteractionModule
 
         await _trendingGiphyBotContext.SaveChangesAsync();
 
-        await _interactionUpdater.RefreshInteractionAsync(_channelSettings, Context.Channel.Name, Context.Interaction);
+        var dto = await _dtoBuilder.BuildFromChannelIdAsync(Context.Channel.Id);
+
+        await _interactionUpdater.RefreshInteractionAsync(dto, Context.Channel.Name, Context.Interaction);
     }
 
     [ComponentInteraction(InteractionId.GifSourceKlipyButton)]
@@ -160,7 +175,9 @@ public class ChannelSettingsInteractionModule
 
         await _trendingGiphyBotContext.SaveChangesAsync();
 
-        await _interactionUpdater.RefreshInteractionAsync(_channelSettings, Context.Channel.Name, Context.Interaction);
+        var dto = await _dtoBuilder.BuildFromChannelIdAsync(Context.Channel.Id);
+
+        await _interactionUpdater.RefreshInteractionAsync(dto, Context.Channel.Name, Context.Interaction);
     }
 
     [ComponentInteraction(InteractionId.ClearGifSourcesButton)]
@@ -176,7 +193,8 @@ public class ChannelSettingsInteractionModule
     [ComponentInteraction(InteractionId.GifRetentionOpenButton)]
     public async Task OpenGifRetentionAsync()
     {
-        var component = _settingsMessageComponentFactory.BuildGifRetentionToggleModal(_channelSettings!);
+        var dto = await _dtoBuilder.BuildFromChannelIdAsync(Context.Channel.Id);
+        var component = _settingsMessageComponentFactory.BuildGifRetentionToggleModal(dto);
 
         await Context.Interaction.UpdateAsync(messageProperties => messageProperties.Components = component);
     }
@@ -188,7 +206,9 @@ public class ChannelSettingsInteractionModule
 
         await _trendingGiphyBotContext.SaveChangesAsync();
 
-        await _interactionUpdater.RefreshInteractionAsync(_channelSettings, Context.Channel.Name, Context.Interaction);
+        var dto = await _dtoBuilder.BuildFromChannelIdAsync(Context.Channel.Id);
+
+        await _interactionUpdater.RefreshInteractionAsync(dto, Context.Channel.Name, Context.Interaction);
     }
 
     [ComponentInteraction(InteractionId.ResetRetentionPeriodButton)]
@@ -204,7 +224,8 @@ public class ChannelSettingsInteractionModule
     [ComponentInteraction(InteractionId.GiphyRatingOpenButton)]
     public async Task OpenGiphyRatingAsync()
     {
-        var component = _settingsMessageComponentFactory.BuildGiphyRatingToggleModal(_channelSettings!);
+        var dto = await _dtoBuilder.BuildFromChannelIdAsync(Context.Channel.Id);
+        var component = _settingsMessageComponentFactory.BuildGiphyRatingToggleModal(dto);
 
         await Context.Interaction.UpdateAsync(messageProperties => messageProperties.Components = component);
     }
@@ -216,7 +237,9 @@ public class ChannelSettingsInteractionModule
 
         await _trendingGiphyBotContext.SaveChangesAsync();
 
-        await _interactionUpdater.RefreshInteractionAsync(_channelSettings, Context.Channel.Name, Context.Interaction);
+        var dto = await _dtoBuilder.BuildFromChannelIdAsync(Context.Channel.Id);
+
+        await _interactionUpdater.RefreshInteractionAsync(dto, Context.Channel.Name, Context.Interaction);
     }
 
     [ComponentInteraction(InteractionId.GiphyRatingPgButton)]
@@ -226,7 +249,9 @@ public class ChannelSettingsInteractionModule
 
         await _trendingGiphyBotContext.SaveChangesAsync();
 
-        await _interactionUpdater.RefreshInteractionAsync(_channelSettings, Context.Channel.Name, Context.Interaction);
+        var dto = await _dtoBuilder.BuildFromChannelIdAsync(Context.Channel.Id);
+
+        await _interactionUpdater.RefreshInteractionAsync(dto, Context.Channel.Name, Context.Interaction);
     }
 
     [ComponentInteraction(InteractionId.GiphyRatingPg13Button)]
@@ -236,7 +261,9 @@ public class ChannelSettingsInteractionModule
 
         await _trendingGiphyBotContext.SaveChangesAsync();
 
-        await _interactionUpdater.RefreshInteractionAsync(_channelSettings, Context.Channel.Name, Context.Interaction);
+        var dto = await _dtoBuilder.BuildFromChannelIdAsync(Context.Channel.Id);
+
+        await _interactionUpdater.RefreshInteractionAsync(dto, Context.Channel.Name, Context.Interaction);
     }
 
     [ComponentInteraction(InteractionId.GiphyRatingRButton)]
@@ -246,7 +273,9 @@ public class ChannelSettingsInteractionModule
 
         await _trendingGiphyBotContext.SaveChangesAsync();
 
-        await _interactionUpdater.RefreshInteractionAsync(_channelSettings, Context.Channel.Name, Context.Interaction);
+        var dto = await _dtoBuilder.BuildFromChannelIdAsync(Context.Channel.Id);
+
+        await _interactionUpdater.RefreshInteractionAsync(dto, Context.Channel.Name, Context.Interaction);
     }
 
     [ComponentInteraction(InteractionId.GiphyRatingAllButton)]
@@ -256,7 +285,9 @@ public class ChannelSettingsInteractionModule
 
         await _trendingGiphyBotContext.SaveChangesAsync();
 
-        await _interactionUpdater.RefreshInteractionAsync(_channelSettings, Context.Channel.Name, Context.Interaction);
+        var dto = await _dtoBuilder.BuildFromChannelIdAsync(Context.Channel.Id);
+
+        await _interactionUpdater.RefreshInteractionAsync(dto, Context.Channel.Name, Context.Interaction);
     }
 
     [ComponentInteraction(InteractionId.ResetGiphyRatingButton)]
@@ -308,13 +339,13 @@ public class ChannelSettingsInteractionModule
     {
         if (!PendingConfirmations.TryGetValue(Context.Channel.Id, out var confirmation))
         {
-            await _interactionUpdater.RefreshInteractionAsync(_channelSettings!, Context.Channel.Name, Context.Interaction);
+            var dto = await _dtoBuilder.BuildFromChannelIdAsync(Context.Channel.Id);
+
+            await _interactionUpdater.RefreshInteractionAsync(dto, Context.Channel.Name, Context.Interaction);
             return;
         }
 
-        var action = confirmation.Action;
-
-        switch (action)
+        switch (confirmation.Action)
         {
             case PendingClearAction.HowOften:
                 _channelSettings!.Frequency = 30;
@@ -352,7 +383,9 @@ public class ChannelSettingsInteractionModule
 
         await _trendingGiphyBotContext.SaveChangesAsync();
 
-        await _interactionUpdater.RefreshInteractionAsync(_channelSettings!, Context.Channel.Name, Context.Interaction);
+        var confirmedDto = await _dtoBuilder.BuildFromChannelIdAsync(Context.Channel.Id);
+
+        await _interactionUpdater.RefreshInteractionAsync(confirmedDto, Context.Channel.Name, Context.Interaction);
     }
 
     [ComponentInteraction(InteractionId.CancelClearButton)]
@@ -360,7 +393,9 @@ public class ChannelSettingsInteractionModule
     {
         PendingConfirmations.Remove(Context.Channel.Id);
 
-        await _interactionUpdater.RefreshInteractionAsync(_channelSettings!, Context.Channel.Name, Context.Interaction);
+        var dto = await _dtoBuilder.BuildFromChannelIdAsync(Context.Channel.Id);
+
+        await _interactionUpdater.RefreshInteractionAsync(dto, Context.Channel.Name, Context.Interaction);
     }
 
     [ComponentInteraction(InteractionId.TrendingPostingHoursButton)]

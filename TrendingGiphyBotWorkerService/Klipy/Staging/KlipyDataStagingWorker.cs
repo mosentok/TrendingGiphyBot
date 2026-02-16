@@ -14,6 +14,7 @@ public class KlipyDataStagingWorker
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
+        {
             try
             {
                 await Task.Delay(_appConfig.CurrentValue.Klipy.Staging.TimeSpanBetweenRefreshes, stoppingToken);
@@ -30,5 +31,6 @@ public class KlipyDataStagingWorker
             {
                 _logger.LogGifStageHasRefreshed();
             }
+        }
     }
 }

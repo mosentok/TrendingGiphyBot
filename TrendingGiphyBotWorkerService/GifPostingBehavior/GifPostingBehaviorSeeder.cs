@@ -15,8 +15,8 @@ public class GifPostingBehaviorSeeder(
 
         var expectedGifPostingBehaviors = Enum.GetValues<GifPostingBehaviorKind>().Select(gifPostingBehavior => new GifPostingBehaviorModel
         {
-            GifPostingBehaviorId = (int)gifPostingBehavior,
-            Description = gifPostingBehavior.ToString()
+            GifPostingBehaviorId = gifPostingBehavior.AsInt(),
+            Description = gifPostingBehavior.GetDescription()
         });
 
         using var scope = _serviceScopeFactory.CreateScope();

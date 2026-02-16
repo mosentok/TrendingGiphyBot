@@ -1,5 +1,4 @@
 using Discord;
-using TrendingGiphyBotWorkerService.ChannelSettings;
 
 namespace TrendingGiphyBotWorkerService.Discord.Interactions;
 
@@ -8,7 +7,7 @@ public class ChannelSettingsButtonBuilder(
     IChannelSettingsDisplay _display
 ) : IChannelSettingsButtonBuilder
 {
-    public (ButtonBuilder setButton, ButtonBuilder resetButton) BuildGifRetentionButtons(ChannelSettingsModel channelSettings)
+    public (ButtonBuilder setButton, ButtonBuilder resetButton) BuildGifRetentionButtons(ChannelSettingsDto channelSettings)
     {
         var displayText = _display.DetermineGifRetentionDisplay(channelSettings);
         var setButtonLabel = _display.TrimLabelTo80Chars($"Set Retention Period ({displayText})");
@@ -26,7 +25,7 @@ public class ChannelSettingsButtonBuilder(
         return (setButton, resetButton);
     }
 
-    public (ButtonBuilder setButton, ButtonBuilder clearButton) BuildGifSourcesButtons(ChannelSettingsModel channelSettings)
+    public (ButtonBuilder setButton, ButtonBuilder clearButton) BuildGifSourcesButtons(ChannelSettingsDto channelSettings)
     {
         var displayText = _display.DetermineGifSourceDisplay(channelSettings);
         var setButtonLabel = _display.TrimLabelTo80Chars($"Set Gif Sources ({displayText})");
@@ -44,7 +43,7 @@ public class ChannelSettingsButtonBuilder(
         return (setButton, clearButton);
     }
 
-    public (ButtonBuilder setButton, ButtonBuilder clearButton) BuildGifKeywordButtons(ChannelSettingsModel channelSettings)
+    public (ButtonBuilder setButton, ButtonBuilder clearButton) BuildGifKeywordButtons(ChannelSettingsDto channelSettings)
     {
         var keywordDisplay = channelSettings.GifKeyword ?? "<none>";
         var setButtonLabel = _display.TrimLabelTo80Chars($"Set Random Gif Keywords ({keywordDisplay})");
@@ -63,7 +62,7 @@ public class ChannelSettingsButtonBuilder(
         return (setButton, clearButton);
     }
 
-    public (ButtonBuilder setButton, ButtonBuilder clearButton) BuildPostingHoursButtons(ChannelSettingsModel channelSettings)
+    public (ButtonBuilder setButton, ButtonBuilder clearButton) BuildPostingHoursButtons(ChannelSettingsDto channelSettings)
     {
         var displayText = _display.DeterminePostingHoursDisplay(channelSettings);
         var displaySuffix = string.IsNullOrEmpty(displayText) ? string.Empty : $" ({displayText})";
@@ -83,7 +82,7 @@ public class ChannelSettingsButtonBuilder(
         return (setButton, clearButton);
     }
 
-    public (ButtonBuilder setButton, ButtonBuilder resetButton) BuildPostingBehaviorButtons(ChannelSettingsModel channelSettings)
+    public (ButtonBuilder setButton, ButtonBuilder resetButton) BuildPostingBehaviorButtons(ChannelSettingsDto channelSettings)
     {
         var displayText = _display.DeterminePostingBehaviorDisplay(channelSettings);
         var displaySuffix = string.IsNullOrEmpty(displayText) ? string.Empty : $" ({displayText})";
@@ -102,7 +101,7 @@ public class ChannelSettingsButtonBuilder(
         return (setButton, resetButton);
     }
 
-    public (ButtonBuilder setButton, ButtonBuilder resetButton) BuildHowOftenButtons(ChannelSettingsModel channelSettings)
+    public (ButtonBuilder setButton, ButtonBuilder resetButton) BuildHowOftenButtons(ChannelSettingsDto channelSettings)
     {
         var displayText = _display.DetermineHowOftenDisplay(channelSettings);
         var displaySuffix = string.IsNullOrEmpty(displayText) ? string.Empty : $" ({displayText})";
@@ -121,7 +120,7 @@ public class ChannelSettingsButtonBuilder(
         return (setButton, resetButton);
     }
 
-    public (ButtonBuilder setButton, ButtonBuilder resetButton) BuildGiphyRatingButtons(ChannelSettingsModel channelSettings)
+    public (ButtonBuilder setButton, ButtonBuilder resetButton) BuildGiphyRatingButtons(ChannelSettingsDto channelSettings)
     {
         var displayText = _display.DetermineGiphyRatingDisplay(channelSettings);
         var setButtonLabel = _display.TrimLabelTo80Chars($"Set Giphy Rating ({displayText})");

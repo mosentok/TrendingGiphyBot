@@ -12,14 +12,14 @@ public class ChannelSettingsDisplay(
     IUtcOffsetParser _utcOffsetParser
 ) : IChannelSettingsDisplay
 {
-    public string DetermineGifRetentionDisplay(ChannelSettingsModel channelSettings)
+    public string DetermineGifRetentionDisplay(ChannelSettingsDto channelSettings)
     {
         var retentionDays = channelSettings.RetentionDays ?? _appConfig.CurrentValue.GifRetention.DefaultDays;
 
         return retentionDays == 1 ? "1 day" : $"{retentionDays} days";
     }
 
-    public string DetermineGifSourceDisplay(ChannelSettingsModel channelSettings)
+    public string DetermineGifSourceDisplay(ChannelSettingsDto channelSettings)
     {
         if (channelSettings.GifSource is null)
             return "<none>";
@@ -35,7 +35,7 @@ public class ChannelSettingsDisplay(
         return sources.Count == 0 ? "<none>" : string.Join(" & ", sources);
     }
 
-    public string DetermineGiphyRatingDisplay(ChannelSettingsModel channelSettings)
+    public string DetermineGiphyRatingDisplay(ChannelSettingsDto channelSettings)
     {
         var rating = channelSettings.GiphyRating ?? "pg";
 
@@ -50,7 +50,7 @@ public class ChannelSettingsDisplay(
         };
     }
 
-    public string DetermineHowOftenDisplay(ChannelSettingsModel channelSettings)
+    public string DetermineHowOftenDisplay(ChannelSettingsDto channelSettings)
     {
         if (channelSettings.IntervalId == (int)IntervalDescription.None || channelSettings.Frequency == 0)
             return string.Empty;
@@ -67,7 +67,7 @@ public class ChannelSettingsDisplay(
         };
     }
 
-    public string DeterminePostingBehaviorDisplay(ChannelSettingsModel channelSettings)
+    public string DeterminePostingBehaviorDisplay(ChannelSettingsDto channelSettings)
     {
         var behaviorKind = (GifPostingBehaviorKind)channelSettings.GifPostingBehaviorId;
 
@@ -79,7 +79,7 @@ public class ChannelSettingsDisplay(
         };
     }
 
-    public string DeterminePostingHoursDisplay(ChannelSettingsModel channelSettings)
+    public string DeterminePostingHoursDisplay(ChannelSettingsDto channelSettings)
     {
         if (channelSettings.PostingHoursFrom is null || channelSettings.PostingHoursTo is null)
             return string.Empty;

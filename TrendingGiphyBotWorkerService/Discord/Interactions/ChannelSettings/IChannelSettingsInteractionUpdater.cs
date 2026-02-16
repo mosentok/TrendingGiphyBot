@@ -1,5 +1,4 @@
 using Discord.WebSocket;
-using TrendingGiphyBotWorkerService.ChannelSettings;
 
 namespace TrendingGiphyBotWorkerService.Discord.Interactions.ChannelSettings;
 
@@ -15,7 +14,7 @@ public interface IChannelSettingsInteractionUpdater
     /// <param name="channelName">The name of the channel being configured</param>
     /// <param name="interaction">The interaction to update</param>
     Task RefreshInteractionAsync(
-        ChannelSettingsModel channelSettings,
+        ChannelSettingsDto channelSettings,
         string channelName,
         SocketMessageComponent interaction);
 }
