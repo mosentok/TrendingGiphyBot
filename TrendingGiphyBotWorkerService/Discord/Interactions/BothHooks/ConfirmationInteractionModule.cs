@@ -19,12 +19,12 @@ public class ConfirmationInteractionModule
     [ComponentInteraction(InteractionId.ConfirmClearButton)]
     public async Task ConfirmClearAsync()
     {
-        var found = await _confirmationManager.TryGetAndRemoveAsync(Context.Channel.Id, out var confirmation);
+        var found = _confirmationManager.TryRemove(Context.Channel.Id, out var action);
 
         if (!found)
             return;
 
-        switch (confirmation.Action)
+        switch (action)
         {
             case PendingClearAction.HowOften:
                 ChannelSettingsModel.Frequency = 30;

@@ -11,5 +11,5 @@ public class ConfirmationCancellationInteractionModule
 {
     [ComponentInteraction(InteractionId.CancelClearButton)]
     public async Task CancelClearAsync() =>
-        await _confirmationManager.TryGetAndRemoveAsync(Context.Channel.Id, out _);
+        _confirmationManager.TryRemove(Context.Channel.Id, out _);
 }

@@ -12,14 +12,16 @@ public class PendingConfirmationManager : IPendingConfirmationManager
         return Task.CompletedTask;
     }
 
-    public Task<bool> TryGetAndRemoveAsync(ulong channelId, out (PendingClearAction Action, string Message) confirmation)
+    public bool TryRemove(ulong channelId, out PendingClearAction action)
     {
-        var found = _pendingConfirmations.TryGetValue(channelId, out confirmation);
+        var found = _pendingConfirmations.TryGetValue(channelId, out var confirmation);
+
+        action = confirmation.Action;
 
         if (found)
             _pendingConfirmations.Remove(channelId);
 
-        return Task.FromResult(found);
+        return found;
     }
 
     public void Remove(ulong channelId) =>

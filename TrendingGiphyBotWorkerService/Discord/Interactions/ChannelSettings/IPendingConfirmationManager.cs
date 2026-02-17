@@ -4,7 +4,7 @@ public interface IPendingConfirmationManager
 {
     Task SetPendingAsync(ulong channelId, PendingClearAction action, string message);
 
-    Task<bool> TryGetAndRemoveAsync(ulong channelId, out (PendingClearAction Action, string Message) confirmation);
+    bool TryRemove(ulong channelId, out PendingClearAction action);
 
     void Remove(ulong channelId);
 }
