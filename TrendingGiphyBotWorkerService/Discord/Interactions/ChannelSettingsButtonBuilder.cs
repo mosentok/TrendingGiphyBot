@@ -3,18 +3,13 @@ using Discord;
 namespace TrendingGiphyBotWorkerService.Discord.Interactions;
 
 [RegisterSingleton]
-public class ChannelSettingsButtonBuilder(
-    IChannelSettingsDisplay _display
-) : IChannelSettingsButtonBuilder
+public class ChannelSettingsButtonBuilder : IChannelSettingsButtonBuilder
 {
     public (ButtonBuilder setButton, ButtonBuilder resetButton) BuildGifRetentionButtons(ChannelSettingsDto channelSettings)
     {
-        var displayText = _display.DetermineGifRetentionDisplay(channelSettings);
-        var setButtonLabel = _display.TrimLabelTo80Chars($"Set Retention Period ({displayText})");
-
         var setButton = new ButtonBuilder()
             .WithCustomId(InteractionId.GifRetentionOpenButton)
-            .WithLabel(setButtonLabel)
+            .WithLabel("Set Retention Period")
             .WithStyle(ButtonStyle.Primary);
 
         var resetButton = new ButtonBuilder()
@@ -27,12 +22,9 @@ public class ChannelSettingsButtonBuilder(
 
     public (ButtonBuilder setButton, ButtonBuilder clearButton) BuildGifSourcesButtons(ChannelSettingsDto channelSettings)
     {
-        var displayText = _display.DetermineGifSourceDisplay(channelSettings);
-        var setButtonLabel = _display.TrimLabelTo80Chars($"Set Gif Sources ({displayText})");
-
         var setButton = new ButtonBuilder()
             .WithCustomId(InteractionId.GifSourcesOpenButton)
-            .WithLabel(setButtonLabel)
+            .WithLabel("Set Gif Sources")
             .WithStyle(ButtonStyle.Primary);
 
         var clearButton = new ButtonBuilder()
@@ -45,12 +37,9 @@ public class ChannelSettingsButtonBuilder(
 
     public (ButtonBuilder setButton, ButtonBuilder clearButton) BuildGifKeywordButtons(ChannelSettingsDto channelSettings)
     {
-        var keywordDisplay = channelSettings.GifKeyword ?? "<none>";
-        var setButtonLabel = _display.TrimLabelTo80Chars($"Set Random Gif Keywords ({keywordDisplay})");
-
         var setButton = new ButtonBuilder()
             .WithCustomId(InteractionId.TrendingGifsWithKeywordButton)
-            .WithLabel(setButtonLabel)
+            .WithLabel("Set Random Gif Keywords")
             .WithStyle(ButtonStyle.Primary);
 
         var clearButton = new ButtonBuilder()
@@ -64,13 +53,9 @@ public class ChannelSettingsButtonBuilder(
 
     public (ButtonBuilder setButton, ButtonBuilder clearButton) BuildPostingHoursButtons(ChannelSettingsDto channelSettings)
     {
-        var displayText = _display.DeterminePostingHoursDisplay(channelSettings);
-        var displaySuffix = string.IsNullOrEmpty(displayText) ? string.Empty : $" ({displayText})";
-        var setButtonLabel = _display.TrimLabelTo80Chars($"Set Posting Hours{displaySuffix}");
-
         var setButton = new ButtonBuilder()
             .WithCustomId(InteractionId.TrendingPostingHoursButton)
-            .WithLabel(setButtonLabel)
+            .WithLabel("Set Posting Hours")
             .WithStyle(ButtonStyle.Primary);
 
         var clearButton = new ButtonBuilder()
@@ -84,13 +69,9 @@ public class ChannelSettingsButtonBuilder(
 
     public (ButtonBuilder setButton, ButtonBuilder resetButton) BuildPostingBehaviorButtons(ChannelSettingsDto channelSettings)
     {
-        var displayText = _display.DeterminePostingBehaviorDisplay(channelSettings);
-        var displaySuffix = string.IsNullOrEmpty(displayText) ? string.Empty : $" ({displayText})";
-        var setButtonLabel = _display.TrimLabelTo80Chars($"Set Posting Behavior{displaySuffix}");
-
         var setButton = new ButtonBuilder()
             .WithCustomId(InteractionId.PostingBehaviorOpenButton)
-            .WithLabel(setButtonLabel)
+            .WithLabel("Set Posting Behavior")
             .WithStyle(ButtonStyle.Primary);
 
         var resetButton = new ButtonBuilder()
@@ -103,13 +84,9 @@ public class ChannelSettingsButtonBuilder(
 
     public (ButtonBuilder setButton, ButtonBuilder resetButton) BuildHowOftenButtons(ChannelSettingsDto channelSettings)
     {
-        var displayText = _display.DetermineHowOftenDisplay(channelSettings);
-        var displaySuffix = string.IsNullOrEmpty(displayText) ? string.Empty : $" ({displayText})";
-        var setButtonLabel = _display.TrimLabelTo80Chars($"Set How Often to Post Gifs{displaySuffix}");
-
         var setButton = new ButtonBuilder()
             .WithCustomId(InteractionId.HowOftenOpenButton)
-            .WithLabel(setButtonLabel)
+            .WithLabel("Set How Often to Post Gifs")
             .WithStyle(ButtonStyle.Primary);
 
         var resetButton = new ButtonBuilder()
@@ -122,12 +99,9 @@ public class ChannelSettingsButtonBuilder(
 
     public (ButtonBuilder setButton, ButtonBuilder resetButton) BuildGiphyRatingButtons(ChannelSettingsDto channelSettings)
     {
-        var displayText = _display.DetermineGiphyRatingDisplay(channelSettings);
-        var setButtonLabel = _display.TrimLabelTo80Chars($"Set Giphy Rating ({displayText})");
-
         var setButton = new ButtonBuilder()
             .WithCustomId(InteractionId.GiphyRatingOpenButton)
-            .WithLabel(setButtonLabel)
+            .WithLabel("Set Giphy Rating")
             .WithStyle(ButtonStyle.Primary);
 
         var resetButton = new ButtonBuilder()

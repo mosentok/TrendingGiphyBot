@@ -31,4 +31,33 @@ public class CurrentChannelSettingsDisplayBuilder(
             $"-# **Posting Hours** {postingHoursValue}"
         );
     }
+
+    public string BuildMainSettingsDisplay(ChannelSettingsDto channelSettings)
+    {
+        var howOftenValue = _howOftenFormatter.Format(channelSettings.Frequency, channelSettings.IntervalId);
+
+        return string.Join(
+            Environment.NewLine,
+            $"-# **How Often** {howOftenValue}",
+            $"-# **Posting Behavior** {channelSettings.GifPostingBehaviorDescription}"
+        );
+    }
+
+    public string BuildOptionalSettingsDisplay(ChannelSettingsDto channelSettings)
+    {
+        var gifSourcesValue = _gifSourcesFormatter.Format(channelSettings.GifSource);
+        var effectiveRetentionDays = channelSettings.RetentionDays ?? _appConfig.CurrentValue.GifRetention.DefaultDays;
+        var effectiveGiphyRating = channelSettings.GiphyRating ?? "pg";
+        var effectiveGifKeyword = string.IsNullOrWhiteSpace(channelSettings.GifKeyword) ? "None" : channelSettings.GifKeyword;
+        var postingHoursValue = _postingHoursFormatter.Format(channelSettings.PostingHoursFrom, channelSettings.PostingHoursTo);
+
+        return string.Join(
+            Environment.NewLine,
+            $"-# **Gif Sources** {gifSourcesValue}",
+            $"-# **Retention Days** {effectiveRetentionDays}",
+            $"-# **Giphy Rating** {effectiveGiphyRating.ToUpper()}",
+            $"-# **Gif Keyword** {effectiveGifKeyword}",
+            $"-# **Posting Hours** {postingHoursValue}"
+        );
+    }
 }
