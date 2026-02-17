@@ -29,7 +29,7 @@ public class GifPostingBehaviorApplier(
 
         foreach (var channelSetting in channelSettings)
         {
-            var behavior = (GifPostingBehaviorKind)channelSetting.GifPostingBehaviorId;
+            var behavior = channelSetting.GifPostingBehavior;
 
             var enabledSources = _enabledGifSourceDeterminer.DetermineEnabledGifSources(channelSetting);
             var shuffledSources = enabledSources.OrderBy(_ => Random.Shared.Next());

@@ -56,7 +56,6 @@ public class GifPoster
         var trendingGiphyBotDbContext = scope.ServiceProvider.GetRequiredService<ITrendingGiphyBotDbContext>();
 
         var channelSettings = await trendingGiphyBotDbContext.ChannelSettings
-            .Include(c => c.GifPostingBehavior)
             .Where(c => channelIdsInPostingHours.Contains(c.ChannelId))
             .ToListAsync(stoppingToken);
 

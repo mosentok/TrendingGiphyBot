@@ -52,10 +52,10 @@ public class ChannelSettingsDisplay(
 
     public string DetermineHowOftenDisplay(ChannelSettingsDto channelSettings)
     {
-        if (channelSettings.IntervalId == (int)IntervalDescription.None || channelSettings.Frequency == 0)
+        if (channelSettings.Interval == IntervalDescription.None || channelSettings.Frequency == 0)
             return string.Empty;
 
-        var intervalDescription = (IntervalDescription)channelSettings.IntervalId;
+        var intervalDescription = channelSettings.Interval;
 
         return intervalDescription switch
         {
@@ -69,7 +69,7 @@ public class ChannelSettingsDisplay(
 
     public string DeterminePostingBehaviorDisplay(ChannelSettingsDto channelSettings)
     {
-        var behaviorKind = (GifPostingBehaviorKind)channelSettings.GifPostingBehaviorId;
+        var behaviorKind = channelSettings.GifPostingBehavior;
 
         return behaviorKind switch
         {

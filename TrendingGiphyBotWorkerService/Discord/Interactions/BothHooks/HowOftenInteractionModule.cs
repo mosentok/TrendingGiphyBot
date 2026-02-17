@@ -3,6 +3,7 @@ using Discord.Interactions;
 using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Database;
 using TrendingGiphyBotWorkerService.Discord.Interactions;
+using TrendingGiphyBotWorkerService.Intervals;
 
 namespace TrendingGiphyBotWorkerService.Discord.Interactions.BothHooks;
 
@@ -25,10 +26,10 @@ public class HowOftenInteractionModule
         var intervalDescription = howOftenPieces[1];
 
         var frequency = int.Parse(frequencyString);
-        var intervalId = int.Parse(intervalDescription);
+        var interval = (IntervalDescription)int.Parse(intervalDescription);
 
         ChannelSettingsModel.Frequency = frequency;
-        ChannelSettingsModel.IntervalId = intervalId;
+        ChannelSettingsModel.Interval = interval;
 
         await TrendingGiphyBotContext.SaveChangesAsync();
     }

@@ -13,7 +13,7 @@ public class CurrentChannelSettingsDisplayBuilder(
 {
     public string BuildDisplay(ChannelSettingsDto channelSettings)
     {
-        var howOftenValue = _howOftenFormatter.Format(channelSettings.Frequency, channelSettings.IntervalId);
+        var howOftenValue = _howOftenFormatter.Format(channelSettings.Frequency, channelSettings.Interval);
         var gifSourcesValue = _gifSourcesFormatter.Format(channelSettings.GifSource);
         var effectiveRetentionDays = channelSettings.RetentionDays ?? _appConfig.CurrentValue.GifRetention.DefaultDays;
         var effectiveGiphyRating = channelSettings.GiphyRating ?? "pg";
@@ -34,7 +34,7 @@ public class CurrentChannelSettingsDisplayBuilder(
 
     public string BuildMainSettingsDisplay(ChannelSettingsDto channelSettings)
     {
-        var howOftenValue = _howOftenFormatter.Format(channelSettings.Frequency, channelSettings.IntervalId);
+        var howOftenValue = _howOftenFormatter.Format(channelSettings.Frequency, channelSettings.Interval);
 
         return string.Join(
             Environment.NewLine,

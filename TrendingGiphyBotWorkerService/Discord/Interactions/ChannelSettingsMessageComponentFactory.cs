@@ -291,9 +291,9 @@ public class ChannelSettingsMessageComponentFactory(
                 .WithStyle(ButtonStyle.Primary)
         );
 
-        var selected = selectedValue ?? (channelSettings.Frequency == 0 || channelSettings.IntervalId == (int)IntervalDescription.None
+        var selected = selectedValue ?? (channelSettings.Frequency == 0 || channelSettings.Interval == IntervalDescription.None
             ? neverValue
-            : $"{channelSettings.Frequency}-{channelSettings.IntervalId}");
+            : $"{channelSettings.Frequency}-{(int)channelSettings.Interval}");
 
         var selectedButtonId = $"{InteractionId.HowOftenButtonPrefix}:{selected}";
 
@@ -331,7 +331,7 @@ public class ChannelSettingsMessageComponentFactory(
 
     public MessageComponent BuildPostingBehaviorToggleModal(ChannelSettingsDto channelSettings, string channelName, string? selectedValue = null)
     {
-        var gifPostingBehaviorKind = (GifPostingBehaviorKind)channelSettings.GifPostingBehaviorId;
+        var gifPostingBehaviorKind = channelSettings.GifPostingBehavior;
 
         var trendingOnlyButton = new ButtonBuilder()
             .WithCustomId(InteractionId.PostingBehaviorTrendingOnlyButton)

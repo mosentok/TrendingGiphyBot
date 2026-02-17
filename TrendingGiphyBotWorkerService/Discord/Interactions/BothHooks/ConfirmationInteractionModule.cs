@@ -28,12 +28,12 @@ public class ConfirmationInteractionModule
         {
             case PendingClearAction.HowOften:
                 ChannelSettingsModel.Frequency = 30;
-                ChannelSettingsModel.IntervalId = (int)IntervalDescription.Minutes;
+                ChannelSettingsModel.Interval = IntervalDescription.Minutes;
 
                 break;
 
             case PendingClearAction.PostingBehavior:
-                ChannelSettingsModel.GifPostingBehaviorId = (int)GifPostingBehaviorKind.TrendingGifsOnly;
+                ChannelSettingsModel.GifPostingBehavior = GifPostingBehaviorKind.TrendingGifsOnly;
 
                 break;
 

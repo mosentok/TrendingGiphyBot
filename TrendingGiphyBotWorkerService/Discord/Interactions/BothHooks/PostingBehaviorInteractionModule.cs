@@ -11,15 +11,14 @@ public class PostingBehaviorInteractionModule
 (
     ITrendingGiphyBotDbContext _trendingGiphyBotContext,
     IChannelSettingsDtoBuilder _dtoBuilder,
-    IChannelSettingsMessageComponentFactory _settingsMessageComponentFactory,
-    IGifPostingBehaviorHelper _gifPostingBehaviorHelper
+    IChannelSettingsMessageComponentFactory _settingsMessageComponentFactory
 ) : BothHooksToggleInteractionModuleBase(_trendingGiphyBotContext, _dtoBuilder, _settingsMessageComponentFactory)
 {
 
     [ComponentInteraction(InteractionId.PostingBehaviorTrendingOnlyButton)]
     public async Task SelectPostingBehaviorTrendingOnlyAsync()
     {
-        await _gifPostingBehaviorHelper.SetBehaviorAsync(ChannelSettingsModel, GifPostingBehaviorKind.TrendingGifsOnly);
+        ChannelSettingsModel.GifPostingBehavior = GifPostingBehaviorKind.TrendingGifsOnly;
 
         await TrendingGiphyBotContext.SaveChangesAsync();
     }
@@ -27,7 +26,7 @@ public class PostingBehaviorInteractionModule
     [ComponentInteraction(InteractionId.PostingBehaviorTrendingWithRandomButton)]
     public async Task SelectPostingBehaviorTrendingWithRandomAsync()
     {
-        await _gifPostingBehaviorHelper.SetBehaviorAsync(ChannelSettingsModel, GifPostingBehaviorKind.TrendingGifsWithRandomGifs);
+        ChannelSettingsModel.GifPostingBehavior = GifPostingBehaviorKind.TrendingGifsWithRandomGifs;
 
         await TrendingGiphyBotContext.SaveChangesAsync();
     }

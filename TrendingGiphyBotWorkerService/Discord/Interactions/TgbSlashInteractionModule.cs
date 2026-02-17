@@ -20,7 +20,7 @@ public class TgbSlashInteractionModule(
 
 		if (channelSettings is null)
 		{
-			channelSettings = new() { ChannelId = Context.Channel.Id, IntervalId = (int)IntervalDescription.None };
+			channelSettings = new() { ChannelId = Context.Channel.Id, Interval = IntervalDescription.None };
 
 			_trendingGiphyBotContext.ChannelSettings.Add(channelSettings);
 

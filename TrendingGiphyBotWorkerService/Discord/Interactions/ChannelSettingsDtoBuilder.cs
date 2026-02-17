@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TrendingGiphyBotWorkerService.Database;
+using TrendingGiphyBotWorkerService.GifPostingBehavior;
 
 namespace TrendingGiphyBotWorkerService.Discord.Interactions;
 
@@ -19,12 +20,12 @@ public class ChannelSettingsDtoBuilder(
             .Select(s => new ChannelSettingsDto(
                 s.ChannelId,
                 s.Frequency,
-                s.GifPostingBehaviorId,
-                s.GifPostingBehavior.Description,
+                s.GifPostingBehavior,
+                s.GifPostingBehavior.GetDescription(),
                 s.GifKeyword,
                 s.GiphyRating,
                 s.GifSource,
-                s.IntervalId,
+                s.Interval,
                 s.PostingHoursFrom,
                 s.PostingHoursTo,
                 s.RetentionDays,

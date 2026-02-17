@@ -1,17 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using TrendingGiphyBotWorkerService.ChannelSettings;
-using TrendingGiphyBotWorkerService.GifPostingBehavior;
-using TrendingGiphyBotWorkerService.Intervals;
 
 namespace TrendingGiphyBotWorkerService.Database;
 
 public class TrendingGiphyBotDbContext : DbContext, ITrendingGiphyBotDbContext
 {
 	public virtual DbSet<ChannelSettingsModel> ChannelSettings { get; set; }
-	public virtual DbSet<GifPostingBehaviorModel> GifPostingBehaviors { get; set; }
 	public virtual DbSet<GiphyPost> GiphyPosts { get; set; }
     public virtual DbSet<KlipyPost> KlipyPosts { get; set; }
-	public virtual DbSet<Interval> Intervals { get; set; }
 
     public TrendingGiphyBotDbContext() { }
 

@@ -4,8 +4,6 @@ public static class GifPostingBehaviorKindExtensions
 {
     extension(GifPostingBehaviorKind kind)
     {
-        public int AsInt() => (int)kind;
-
         public string GetDescription() =>
             kind switch
             {

@@ -139,13 +139,11 @@ if (!appConfig.Value.GifRetention.Days.Contains(appConfig.Value.GifRetention.Def
     throw new MissingConfigurationException();
 
 var discordSocketClientHandler = host.Services.GetRequiredService<IDiscordSocketClientHandler>();
-var gifPostingBehaviorSeeder = host.Services.GetRequiredService<IGifPostingBehaviorSeeder>();
 var giphyDataStage = host.Services.GetRequiredService<IGiphyDataStage>();
 var giphyRandomCache = host.Services.GetRequiredService<IGiphyRandomCache>();
 var giphySearchCacheRefresher = host.Services.GetRequiredService<IGiphySearchCacheRefresher>();
 var giphyTrendingCache = host.Services.GetRequiredService<IGiphyTrendingCache>();
 var interactionService = host.Services.GetRequiredService<InteractionService>();
-var intervalSeeder = host.Services.GetRequiredService<IIntervalSeeder>();
 var klipyDataStage = host.Services.GetRequiredService<IKlipyDataStage>();
 var klipyRandomCache = host.Services.GetRequiredService<IKlipyRandomCache>();
 var klipySearchCacheRefresher = host.Services.GetRequiredService<IKlipySearchCacheRefresher>();
@@ -191,9 +189,6 @@ try
 
         logger.LogDebugView(debugView);
     }
-
-    await gifPostingBehaviorSeeder.SeedGifPostingBehaviorsAsync();
-    await intervalSeeder.SeedIntervalsAsync();
 
     if (appConfig.Value.Startup.RefreshCachesOnStartup)
     {
