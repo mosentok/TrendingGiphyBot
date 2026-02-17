@@ -1,6 +1,3 @@
-using Microsoft.Extensions.Logging;
-using System.Diagnostics;
-
 namespace TrendingGiphyBotWorkerService.Logging;
 
 /// <summary>
