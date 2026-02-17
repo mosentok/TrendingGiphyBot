@@ -1,4 +1,5 @@
 using Discord;
+using TrendingGiphyBotWorkerService.ChannelSettings;
 
 namespace TrendingGiphyBotWorkerService.Discord.Interactions;
 
@@ -30,7 +31,8 @@ public class ChannelSettingsButtonBuilder : IChannelSettingsButtonBuilder
         var clearButton = new ButtonBuilder()
             .WithCustomId(InteractionId.ClearGifSourcesButton)
             .WithLabel("Clear Gif Sources")
-            .WithStyle(ButtonStyle.Danger);
+            .WithStyle(ButtonStyle.Danger)
+            .WithDisabled(channelSettings.GifSource == GifSourceKind.None);
 
         return (setButton, clearButton);
     }
