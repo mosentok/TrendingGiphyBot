@@ -1,16 +1,17 @@
+using Discord;
 using Discord.Interactions;
 using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Database;
-using TrendingGiphyBotWorkerService.Discord.Interactions.ChannelSettings;
+using TrendingGiphyBotWorkerService.Discord.Interactions;
 
 namespace TrendingGiphyBotWorkerService.Discord.Interactions.BothHooks;
 
 public class HowOftenInteractionModule
 (
-    ITrendingGiphyBotDbContext trendingGiphyBotContext,
-    IChannelSettingsDtoBuilder dtoBuilder,
-    IChannelSettingsInteractionUpdater interactionUpdater
-) : BothHooksInteractionModuleBase(trendingGiphyBotContext, dtoBuilder, interactionUpdater)
+    ITrendingGiphyBotDbContext _trendingGiphyBotContext,
+    IChannelSettingsDtoBuilder _dtoBuilder,
+    IChannelSettingsMessageComponentFactory _settingsMessageComponentFactory
+) : BothHooksToggleInteractionModuleBase(_trendingGiphyBotContext, _dtoBuilder, _settingsMessageComponentFactory)
 {
     [ComponentInteraction(InteractionId.HowOftenButtonWildcard)]
     public async Task SelectHowOftenAsync(string howOftenValue)
@@ -31,4 +32,7 @@ public class HowOftenInteractionModule
 
         await TrendingGiphyBotContext.SaveChangesAsync();
     }
+
+    protected override MessageComponent BuildToggleModal(ChannelSettingsDto channelSettings, string channelName) =>
+        SettingsMessageComponentFactory.BuildHowOftenToggleModal(channelSettings, channelName);
 }

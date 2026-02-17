@@ -1,17 +1,19 @@
+using Discord;
 using Discord.Interactions;
+using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Database;
-using TrendingGiphyBotWorkerService.Discord.Interactions.ChannelSettings;
+using TrendingGiphyBotWorkerService.Discord.Interactions;
 using TrendingGiphyBotWorkerService.GifPostingBehavior;
 
 namespace TrendingGiphyBotWorkerService.Discord.Interactions.BothHooks;
 
 public class PostingBehaviorInteractionModule
 (
-    ITrendingGiphyBotDbContext trendingGiphyBotContext,
-    IChannelSettingsDtoBuilder dtoBuilder,
-    IChannelSettingsInteractionUpdater interactionUpdater,
+    ITrendingGiphyBotDbContext _trendingGiphyBotContext,
+    IChannelSettingsDtoBuilder _dtoBuilder,
+    IChannelSettingsMessageComponentFactory _settingsMessageComponentFactory,
     IGifPostingBehaviorHelper _gifPostingBehaviorHelper
-) : BothHooksInteractionModuleBase(trendingGiphyBotContext, dtoBuilder, interactionUpdater)
+) : BothHooksToggleInteractionModuleBase(_trendingGiphyBotContext, _dtoBuilder, _settingsMessageComponentFactory)
 {
 
     [ComponentInteraction(InteractionId.PostingBehaviorTrendingOnlyButton)]
@@ -29,4 +31,7 @@ public class PostingBehaviorInteractionModule
 
         await TrendingGiphyBotContext.SaveChangesAsync();
     }
+
+    protected override MessageComponent BuildToggleModal(ChannelSettingsDto channelSettings, string channelName) =>
+        SettingsMessageComponentFactory.BuildPostingBehaviorToggleModal(channelSettings, channelName);
 }

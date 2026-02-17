@@ -1,16 +1,17 @@
+using Discord;
 using Discord.Interactions;
 using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Database;
-using TrendingGiphyBotWorkerService.Discord.Interactions.ChannelSettings;
+using TrendingGiphyBotWorkerService.Discord.Interactions;
 
 namespace TrendingGiphyBotWorkerService.Discord.Interactions.BothHooks;
 
 public class GifRetentionInteractionModule
 (
-    ITrendingGiphyBotDbContext trendingGiphyBotContext,
-    IChannelSettingsDtoBuilder dtoBuilder,
-    IChannelSettingsInteractionUpdater interactionUpdater
-) : BothHooksInteractionModuleBase(trendingGiphyBotContext, dtoBuilder, interactionUpdater)
+    ITrendingGiphyBotDbContext _trendingGiphyBotContext,
+    IChannelSettingsDtoBuilder _dtoBuilder,
+    IChannelSettingsMessageComponentFactory _settingsMessageComponentFactory
+) : BothHooksToggleInteractionModuleBase(_trendingGiphyBotContext, _dtoBuilder, _settingsMessageComponentFactory)
 {
     [ComponentInteraction(InteractionId.GifRetentionButtonWildcard)]
     public async Task SelectGifRetentionAsync(string gifRetention)
@@ -19,4 +20,7 @@ public class GifRetentionInteractionModule
 
         await TrendingGiphyBotContext.SaveChangesAsync();
     }
+
+    protected override MessageComponent BuildToggleModal(ChannelSettingsDto channelSettings, string channelName) =>
+        SettingsMessageComponentFactory.BuildGifRetentionToggleModal(channelSettings, channelName);
 }
