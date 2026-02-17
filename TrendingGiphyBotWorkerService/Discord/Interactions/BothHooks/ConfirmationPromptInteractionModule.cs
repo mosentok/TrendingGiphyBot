@@ -19,7 +19,7 @@ public class ConfirmationPromptInteractionModule
             "Are you sure you want to reset how often the bot posts gifs to 30 minutes?"
         );
 
-        Component = _settingsMessageComponentFactory.BuildConfirmationModal("Are you sure you want to reset how often the bot posts gifs to 30 minutes?");
+        Component = _settingsMessageComponentFactory.BuildConfirmationModal("Are you sure you want to reset how often the bot posts gifs to 30 minutes?", Context.Channel.Name);
     }
 
     [ComponentInteraction(InteractionId.ResetPostingBehaviorButton)]
@@ -31,7 +31,7 @@ public class ConfirmationPromptInteractionModule
             "Are you sure you want to reset the posting behavior to Trending Gifs Only?"
         );
 
-        Component = _settingsMessageComponentFactory.BuildConfirmationModal("Are you sure you want to reset the posting behavior to Trending Gifs Only?");
+        Component = _settingsMessageComponentFactory.BuildConfirmationModal("Are you sure you want to reset the posting behavior to Trending Gifs Only?", Context.Channel.Name);
     }
 
     [ComponentInteraction(InteractionId.ClearGifSourcesButton)]
@@ -43,7 +43,7 @@ public class ConfirmationPromptInteractionModule
             "Are you sure you want to clear gif sources?"
         );
 
-        Component = _settingsMessageComponentFactory.BuildConfirmationModal("Are you sure you want to clear gif sources?");
+        Component = _settingsMessageComponentFactory.BuildConfirmationModal("Are you sure you want to clear gif sources?", Context.Channel.Name);
     }
 
     [ComponentInteraction(InteractionId.ResetRetentionPeriodButton)]
@@ -55,7 +55,7 @@ public class ConfirmationPromptInteractionModule
             "Are you sure you want to reset the retention period to 14 days?"
         );
 
-        Component = _settingsMessageComponentFactory.BuildConfirmationModal("Are you sure you want to reset the retention period to 14 days?");
+        Component = _settingsMessageComponentFactory.BuildConfirmationModal("Are you sure you want to reset the retention period to 14 days?", Context.Channel.Name);
     }
 
     [ComponentInteraction(InteractionId.ResetGiphyRatingButton)]
@@ -67,7 +67,7 @@ public class ConfirmationPromptInteractionModule
             "Are you sure you want to reset the giphy rating to PG?"
         );
 
-        Component = _settingsMessageComponentFactory.BuildConfirmationModal("Are you sure you want to reset the giphy rating to PG?");
+        Component = _settingsMessageComponentFactory.BuildConfirmationModal("Are you sure you want to reset the giphy rating to PG?", Context.Channel.Name);
     }
 
     [ComponentInteraction(InteractionId.ClearKeywordButton)]
@@ -79,7 +79,7 @@ public class ConfirmationPromptInteractionModule
             "Are you sure you want to clear random gif keywords?"
         );
 
-        Component = _settingsMessageComponentFactory.BuildConfirmationModal("Are you sure you want to clear random gif keywords?");
+        Component = _settingsMessageComponentFactory.BuildConfirmationModal("Are you sure you want to clear random gif keywords?", Context.Channel.Name);
     }
 
     [ComponentInteraction(InteractionId.ClearPostingHoursButton)]
@@ -91,6 +91,6 @@ public class ConfirmationPromptInteractionModule
             "Are you sure you want to clear posting hours?"
         );
 
-        Component = _settingsMessageComponentFactory.BuildConfirmationModal("Are you sure you want to clear posting hours?");
+        Component = _settingsMessageComponentFactory.BuildConfirmationModal("Are you sure you want to clear posting hours?", Context.Channel.Name);
     }
 }

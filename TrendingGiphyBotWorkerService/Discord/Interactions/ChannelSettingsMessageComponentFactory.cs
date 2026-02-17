@@ -3,7 +3,6 @@ using Microsoft.Extensions.Options;
 using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Configuration;
 using TrendingGiphyBotWorkerService.Discord.Interactions.CurrentSettings;
-using TrendingGiphyBotWorkerService.Discord.Interactions.ToggleModal;
 using TrendingGiphyBotWorkerService.GifPostingBehavior;
 using TrendingGiphyBotWorkerService.Intervals;
 
@@ -13,7 +12,6 @@ namespace TrendingGiphyBotWorkerService.Discord.Interactions;
 public class ChannelSettingsMessageComponentFactory(
     IOptionsMonitor<AppConfig> _appConfig,
     IChannelSettingsButtonBuilder _buttonBuilder,
-    IToggleModalComponentBuilder _toggleModal,
     ICurrentChannelSettingsDisplayBuilder _currentSettingsDisplayBuilder
 ) : IChannelSettingsMessageComponentFactory
 {
@@ -32,15 +30,15 @@ public class ChannelSettingsMessageComponentFactory(
         var currentSettingsDisplay = _currentSettingsDisplayBuilder.BuildDisplay(channelSettings);
 
         var componentBuilder = new ComponentBuilderV2()
-            .WithTextDisplay($"# Settings for: **{channelName}**")
+            .WithTextDisplay("# Trending Gif Bot")
             .WithSeparator()
             .WithTextDisplay(currentSettingsDisplay)
             .WithSeparator()
-            .WithTextDisplay("## Main Settings")
+            .WithTextDisplay($"## Main Settings for {channelName}")
             .WithActionRow([howOftenButton, resetHowOftenButton])
             .WithActionRow([postingBehaviorButton, resetPostingBehaviorButton])
             .WithSeparator()
-            .WithTextDisplay("## Optional Settings")
+            .WithTextDisplay($"## Optional Settings for {channelName}")
             .WithActionRow([gifSourcesButton, clearGifSourcesButton])
             .WithActionRow([gifRetentionButton, resetGifRetentionButton])
             .WithActionRow([giphyRatingButton, resetGiphyRatingButton])
@@ -52,7 +50,7 @@ public class ChannelSettingsMessageComponentFactory(
         return componentBuilder.Build();
     }
 
-    public MessageComponent BuildConfirmationModal(string message)
+    public MessageComponent BuildConfirmationModal(string message, string channelName)
     {
         var confirmButton = new ButtonBuilder()
             .WithCustomId(InteractionId.ConfirmClearButton)
@@ -65,6 +63,8 @@ public class ChannelSettingsMessageComponentFactory(
             .WithStyle(ButtonStyle.Secondary);
 
         var componentBuilder = new ComponentBuilderV2()
+            .WithTextDisplay("# Trending Gif Bot")
+            .WithSeparator()
             .WithTextDisplay(message)
             .WithActionRow([cancelButton, confirmButton])
             .WithSeparator()
@@ -73,7 +73,7 @@ public class ChannelSettingsMessageComponentFactory(
         return componentBuilder.Build();
     }
 
-    public MessageComponent BuildGifRetentionToggleModal(ChannelSettingsDto channelSettings, string? selectedValue = null)
+    public MessageComponent BuildGifRetentionToggleModal(ChannelSettingsDto channelSettings, string channelName, string? selectedValue = null)
     {
         var defaultRetentionDays = _appConfig.CurrentValue.GifRetention.DefaultDays;
         var effectiveRetentionDays = channelSettings.RetentionDays ?? defaultRetentionDays;
@@ -104,10 +104,34 @@ public class ChannelSettingsMessageComponentFactory(
                 button.WithStyle(ButtonStyle.Success);
         }
 
-        return _toggleModal.BuildToggleModal("Set Retention Period", buttonsArray);
+        var componentBuilder = new ComponentBuilderV2();
+
+        componentBuilder = componentBuilder.WithTextDisplay("# Trending Gif Bot");
+
+        componentBuilder = componentBuilder.WithTextDisplay("## Set Retention Period");
+
+        var chunkedButtons = buttonsArray.Chunk(5);
+
+        foreach (var chunk in chunkedButtons)
+            componentBuilder = componentBuilder.WithActionRow(chunk);
+
+        componentBuilder = componentBuilder.WithSeparator();
+
+        var backButton = new ButtonBuilder()
+            .WithCustomId(InteractionId.BackButton)
+            .WithLabel("Back")
+            .WithStyle(ButtonStyle.Secondary);
+
+        componentBuilder = componentBuilder.WithActionRow([backButton]);
+
+        componentBuilder = componentBuilder
+            .WithSeparator()
+            .WithMediaGallery(_appConfig.CurrentValue.Attribution.Urls);
+
+        return componentBuilder.Build();
     }
 
-    public MessageComponent BuildGifSourcesToggleModal(ChannelSettingsDto channelSettings, string? selectedValue = null)
+    public MessageComponent BuildGifSourcesToggleModal(ChannelSettingsDto channelSettings, string channelName, string? selectedValue = null)
     {
         var allGifSources = Enum.GetValues<GifSourceKind>();
         var channelGifSource = channelSettings.GifSource ?? allGifSources.Aggregate((left, right) => left | right);
@@ -130,10 +154,34 @@ public class ChannelSettingsMessageComponentFactory(
         if (channelGifSource.HasFlag(GifSourceKind.Klipy))
             klipyButton.WithStyle(ButtonStyle.Success);
 
-        return _toggleModal.BuildToggleModal("Set Gif Sources", buttons);
+        var componentBuilder = new ComponentBuilderV2();
+
+        componentBuilder = componentBuilder.WithTextDisplay("# Trending Gif Bot");
+
+        componentBuilder = componentBuilder.WithTextDisplay("## Set Gif Sources");
+
+        var chunkedButtons = buttons.Chunk(5);
+
+        foreach (var chunk in chunkedButtons)
+            componentBuilder = componentBuilder.WithActionRow(chunk);
+
+        componentBuilder = componentBuilder.WithSeparator();
+
+        var backButton = new ButtonBuilder()
+            .WithCustomId(InteractionId.BackButton)
+            .WithLabel("Back")
+            .WithStyle(ButtonStyle.Secondary);
+
+        componentBuilder = componentBuilder.WithActionRow([backButton]);
+
+        componentBuilder = componentBuilder
+            .WithSeparator()
+            .WithMediaGallery(_appConfig.CurrentValue.Attribution.Urls);
+
+        return componentBuilder.Build();
     }
 
-    public MessageComponent BuildGiphyRatingToggleModal(ChannelSettingsDto channelSettings, string? selectedValue = null)
+    public MessageComponent BuildGiphyRatingToggleModal(ChannelSettingsDto channelSettings, string channelName, string? selectedValue = null)
     {
         var effectiveRating = channelSettings.GiphyRating ?? "pg";
 
@@ -189,10 +237,34 @@ public class ChannelSettingsMessageComponentFactory(
                 button.WithStyle(ButtonStyle.Success);
         }
 
-        return _toggleModal.BuildToggleModal("Set Giphy Rating", buttonsArray);
+        var componentBuilder = new ComponentBuilderV2();
+
+        componentBuilder = componentBuilder.WithTextDisplay("# Trending Gif Bot");
+
+        componentBuilder = componentBuilder.WithTextDisplay("## Set Giphy Rating");
+
+        var chunkedButtons = buttonsArray.Chunk(5);
+
+        foreach (var chunk in chunkedButtons)
+            componentBuilder = componentBuilder.WithActionRow(chunk);
+
+        componentBuilder = componentBuilder.WithSeparator();
+
+        var backButton = new ButtonBuilder()
+            .WithCustomId(InteractionId.BackButton)
+            .WithLabel("Back")
+            .WithStyle(ButtonStyle.Secondary);
+
+        componentBuilder = componentBuilder.WithActionRow([backButton]);
+
+        componentBuilder = componentBuilder
+            .WithSeparator()
+            .WithMediaGallery(_appConfig.CurrentValue.Attribution.Urls);
+
+        return componentBuilder.Build();
     }
 
-    public MessageComponent BuildHowOftenToggleModal(ChannelSettingsDto channelSettings, string? selectedValue = null)
+    public MessageComponent BuildHowOftenToggleModal(ChannelSettingsDto channelSettings, string channelName, string? selectedValue = null)
     {
         var buttons = new List<ButtonBuilder>();
 
@@ -249,10 +321,34 @@ public class ChannelSettingsMessageComponentFactory(
                 button.WithStyle(ButtonStyle.Success);
         }
 
-        return _toggleModal.BuildToggleModal("Post Gifs How Often? Every:", buttonsArray);
+        var componentBuilder = new ComponentBuilderV2();
+
+        componentBuilder = componentBuilder.WithTextDisplay("# Trending Gif Bot");
+
+        componentBuilder = componentBuilder.WithTextDisplay("## Post Gifs How Often? Every:");
+
+        var chunkedButtons = buttonsArray.Chunk(5);
+
+        foreach (var chunk in chunkedButtons)
+            componentBuilder = componentBuilder.WithActionRow(chunk);
+
+        componentBuilder = componentBuilder.WithSeparator();
+
+        var backButton = new ButtonBuilder()
+            .WithCustomId(InteractionId.BackButton)
+            .WithLabel("Back")
+            .WithStyle(ButtonStyle.Secondary);
+
+        componentBuilder = componentBuilder.WithActionRow([backButton]);
+
+        componentBuilder = componentBuilder
+            .WithSeparator()
+            .WithMediaGallery(_appConfig.CurrentValue.Attribution.Urls);
+
+        return componentBuilder.Build();
     }
 
-    public MessageComponent BuildPostingBehaviorToggleModal(ChannelSettingsDto channelSettings, string? selectedValue = null)
+    public MessageComponent BuildPostingBehaviorToggleModal(ChannelSettingsDto channelSettings, string channelName, string? selectedValue = null)
     {
         var gifPostingBehaviorKind = (GifPostingBehaviorKind)channelSettings.GifPostingBehaviorId;
 
@@ -280,6 +376,30 @@ public class ChannelSettingsMessageComponentFactory(
                 button.WithStyle(ButtonStyle.Success);
         }
 
-        return _toggleModal.BuildToggleModal("Set Posting Behavior", buttonsArray);
+        var componentBuilder = new ComponentBuilderV2();
+
+        componentBuilder = componentBuilder.WithTextDisplay("# Trending Gif Bot");
+
+        componentBuilder = componentBuilder.WithTextDisplay("## Set Posting Behavior");
+
+        var chunkedButtons = buttonsArray.Chunk(5);
+
+        foreach (var chunk in chunkedButtons)
+            componentBuilder = componentBuilder.WithActionRow(chunk);
+
+        componentBuilder = componentBuilder.WithSeparator();
+
+        var backButton = new ButtonBuilder()
+            .WithCustomId(InteractionId.BackButton)
+            .WithLabel("Back")
+            .WithStyle(ButtonStyle.Secondary);
+
+        componentBuilder = componentBuilder.WithActionRow([backButton]);
+
+        componentBuilder = componentBuilder
+            .WithSeparator()
+            .WithMediaGallery(_appConfig.CurrentValue.Attribution.Urls);
+
+        return componentBuilder.Build();
     }
 }
