@@ -24,7 +24,7 @@ public class PostingHoursModalInteractionModule(
 
         var fromSuccess = int.TryParse(postingHoursModal.From, out var from);
 
-        if (!fromSuccess || from is not (>= 1 and <= 24))
+        if (!fromSuccess || from is not (>= 0 and <= 24))
         {
             var fromError = postingHoursModal.From is null or ""
                 ? "<blank>"
@@ -35,7 +35,7 @@ public class PostingHoursModalInteractionModule(
 
         var toSuccess = int.TryParse(postingHoursModal.To, out var to);
 
-        if (!toSuccess || from is not (>= 1 and <= 24))
+        if (!toSuccess || from is not (>= 0 and <= 24))
         {
             var toError = postingHoursModal.To is null or ""
                 ? "<blank>"
