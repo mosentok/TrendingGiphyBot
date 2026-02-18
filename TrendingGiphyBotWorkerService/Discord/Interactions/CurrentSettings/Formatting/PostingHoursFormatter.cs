@@ -1,13 +1,17 @@
+using TrendingGiphyBotWorkerService.ChannelSettings;
+
 namespace TrendingGiphyBotWorkerService.Discord.Interactions.CurrentSettings.Formatting;
 
 [RegisterSingleton]
-public class PostingHoursFormatter : IPostingHoursFormatter
+public class PostingHoursFormatter(IUtcOffsetFormatter _utcOffsetFormatter) : IPostingHoursFormatter
 {
-    public string Format(int? postingHoursFrom, int? postingHoursTo)
+    public string Format(PostingHours? postingHours)
     {
-        if (postingHoursFrom is null || postingHoursTo is null)
+        if (postingHours is not { From: { } from, To: { } to, UtcOffset: { } utcOffset })
             return "Any Time";
 
-        return $"{postingHoursFrom:D2}:00 - {postingHoursTo:D2}:00";
+        var utcOffsetString = _utcOffsetFormatter.FormatUtcOffset(utcOffset);
+
+        return $"{from:D2}:00 - {to:D2}:00 UTC{utcOffsetString}";
     }
 }

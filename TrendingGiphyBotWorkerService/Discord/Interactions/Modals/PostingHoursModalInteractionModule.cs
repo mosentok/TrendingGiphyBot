@@ -21,51 +21,38 @@ public class PostingHoursModalInteractionModule(
     {
         var channelSettings = await _trendingGiphyBotContext.ChannelSettings.SingleAsync(s => s.ChannelId == Context.Channel.Id);
 
-        if (postingHoursModal.From is not null or "")
-        {
-            var fromSuccess = int.TryParse(postingHoursModal.From, out var from);
+        var from = postingHoursModal.From is null or ""
+            ? new int?()
+            : int.Parse(postingHoursModal.From);
 
-            if (!fromSuccess)
-                throw new ThisShouldBeImpossibleException();
+        var to = postingHoursModal.To is null or ""
+            ? new int?()
+            : int.Parse(postingHoursModal.To);
 
-            channelSettings.PostingHoursFrom = from;
-        }
+        var utcOffsetValue = ParseUtcOffset(postingHoursModal.UtcOffset);
 
-        if (postingHoursModal.To is not null or "")
-        {
-            var toSuccess = int.TryParse(postingHoursModal.To, out var to);
-
-            if (!toSuccess)
-                throw new ThisShouldBeImpossibleException();
-
-            channelSettings.PostingHoursTo = to;
-        }
-
-        if (postingHoursModal.UtcOffset is not null or "")
-        {
-            if (postingHoursModal.UtcOffset is not string { Length: 6 } utcOffsetString)
-            {
-                await Context.Interaction.FollowupAsync(_utcOffsetErrorMessage);
-
-                return;
-            }
-
-            var (success, utcOffset) = await _utcOffsetParser.TryParseUtcOffsetAsync(utcOffsetString);
-
-            if (!success || utcOffset is null)
-            {
-                await Context.Interaction.FollowupAsync(_utcOffsetErrorMessage);
-
-                return;
-            }
-
-            channelSettings.UtcOffset = utcOffset.ToString();
-        }
+        channelSettings.PostingHours = new(from, to, utcOffsetValue);
 
         await _trendingGiphyBotContext.SaveChangesAsync();
 
         var dto = await _dtoBuilder.BuildFromChannelIdAsync(Context.Channel.Id);
 
         Component = _settingsMessageComponentFactory.BuildChannelSettingsMessageComponent(dto, Context.Channel.Name);
+
+        string? ParseUtcOffset(string? utcOffsetValue)
+        {
+            if (utcOffsetValue is null or "")
+                return null;
+
+            if (utcOffsetValue is not string { Length: 6 } utcOffsetString)
+                throw new InvalidOperationException(_utcOffsetErrorMessage);
+
+            var (success, utcOffset) = _utcOffsetParser.TryParseUtcOffset(utcOffsetString);
+
+            if (!success || utcOffset is null)
+                throw new InvalidOperationException(_utcOffsetErrorMessage);
+
+            return utcOffset.ToString();
+        }
     }
 }

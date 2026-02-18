@@ -2,7 +2,6 @@ using Discord;
 using Discord.Interactions;
 using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Database;
-using TrendingGiphyBotWorkerService.Discord.Interactions;
 using TrendingGiphyBotWorkerService.GifPostingBehavior;
 
 namespace TrendingGiphyBotWorkerService.Discord.Interactions.BothHooks;

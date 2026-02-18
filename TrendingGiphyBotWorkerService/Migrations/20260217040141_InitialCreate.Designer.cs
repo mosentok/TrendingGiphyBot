@@ -8,143 +8,142 @@ using TrendingGiphyBotWorkerService.Database;
 
 #nullable disable
 
-namespace TrendingGiphyBotWorkerService.Migrations
+namespace TrendingGiphyBotWorkerService.Migrations;
+
+[DbContext(typeof(TrendingGiphyBotDbContext))]
+[Migration("20260217040141_InitialCreate")]
+partial class InitialCreate
 {
-    [DbContext(typeof(TrendingGiphyBotDbContext))]
-    [Migration("20260217040141_InitialCreate")]
-    partial class InitialCreate
+    /// <inheritdoc />
+    protected override void BuildTargetModel(ModelBuilder modelBuilder)
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
-        {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "10.0.2");
+        modelBuilder.HasAnnotation("ProductVersion", "10.0.2");
 
-            modelBuilder.Entity("TrendingGiphyBotWorkerService.ChannelSettings.ChannelSettingsModel", b =>
-                {
-                    b.Property<ulong>("ChannelId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+        modelBuilder.Entity("TrendingGiphyBotWorkerService.ChannelSettings.ChannelSettingsModel", b =>
+            {
+                b.Property<ulong>("ChannelId")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("INTEGER");
 
-                    b.Property<int>("Frequency")
-                        .HasColumnType("INTEGER");
+                b.Property<int>("Frequency")
+                    .HasColumnType("INTEGER");
 
-                    b.Property<string>("GifKeyword")
-                        .HasColumnType("TEXT");
+                b.Property<string>("GifKeyword")
+                    .HasColumnType("TEXT");
 
-                    b.Property<int>("GifPostingBehavior")
-                        .HasColumnType("INTEGER");
+                b.Property<int>("GifPostingBehavior")
+                    .HasColumnType("INTEGER");
 
-                    b.Property<int?>("GifSource")
-                        .HasColumnType("INTEGER");
+                b.Property<int?>("GifSource")
+                    .HasColumnType("INTEGER");
 
-                    b.Property<string>("GiphyRating")
-                        .HasColumnType("TEXT");
+                b.Property<string>("GiphyRating")
+                    .HasColumnType("TEXT");
 
-                    b.Property<int>("Interval")
-                        .HasColumnType("INTEGER");
+                b.Property<int>("Interval")
+                    .HasColumnType("INTEGER");
 
-                    b.Property<int?>("PostingHoursFrom")
-                        .HasColumnType("INTEGER");
+                b.Property<int?>("PostingHoursFrom")
+                    .HasColumnType("INTEGER");
 
-                    b.Property<int?>("PostingHoursTo")
-                        .HasColumnType("INTEGER");
+                b.Property<int?>("PostingHoursTo")
+                    .HasColumnType("INTEGER");
 
-                    b.Property<int?>("RetentionDays")
-                        .HasColumnType("INTEGER");
+                b.Property<int?>("RetentionDays")
+                    .HasColumnType("INTEGER");
 
-                    b.Property<string>("UtcOffset")
-                        .HasColumnType("TEXT");
+                b.Property<string>("UtcOffset")
+                    .HasColumnType("TEXT");
 
-                    b.HasKey("ChannelId");
+                b.HasKey("ChannelId");
 
-                    b.ToTable("ChannelSettings", (string)null);
-                });
+                b.ToTable("ChannelSettings", (string)null);
+            });
 
-            modelBuilder.Entity("TrendingGiphyBotWorkerService.ChannelSettings.GiphyPost", b =>
-                {
-                    b.Property<long>("GiphyPostId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+        modelBuilder.Entity("TrendingGiphyBotWorkerService.ChannelSettings.GiphyPost", b =>
+            {
+                b.Property<long>("GiphyPostId")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("INTEGER");
 
-                    b.Property<ulong>("ChannelId")
-                        .HasColumnType("INTEGER");
+                b.Property<ulong>("ChannelId")
+                    .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("CreatedUtc")
-                        .HasColumnType("TEXT");
+                b.Property<DateTime>("CreatedUtc")
+                    .HasColumnType("TEXT");
 
-                    b.Property<string>("GiphyDataId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                b.Property<string>("GiphyDataId")
+                    .IsRequired()
+                    .HasColumnType("TEXT");
 
-                    b.HasKey("GiphyPostId");
+                b.HasKey("GiphyPostId");
 
-                    b.HasIndex("CreatedUtc")
-                        .HasDatabaseName("IX_GiphyPosts_CreatedUtc");
+                b.HasIndex("CreatedUtc")
+                    .HasDatabaseName("IX_GiphyPosts_CreatedUtc");
 
-                    b.HasIndex("ChannelId", "CreatedUtc")
-                        .IsDescending(false, true)
-                        .HasDatabaseName("IX_GiphyPosts_ChannelId_CreatedUtc");
+                b.HasIndex("ChannelId", "CreatedUtc")
+                    .IsDescending(false, true)
+                    .HasDatabaseName("IX_GiphyPosts_ChannelId_CreatedUtc");
 
-                    b.ToTable("GiphyPosts");
-                });
+                b.ToTable("GiphyPosts");
+            });
 
-            modelBuilder.Entity("TrendingGiphyBotWorkerService.ChannelSettings.KlipyPost", b =>
-                {
-                    b.Property<long>("KlipyPostId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+        modelBuilder.Entity("TrendingGiphyBotWorkerService.ChannelSettings.KlipyPost", b =>
+            {
+                b.Property<long>("KlipyPostId")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("INTEGER");
 
-                    b.Property<ulong>("ChannelId")
-                        .HasColumnType("INTEGER");
+                b.Property<ulong>("ChannelId")
+                    .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("CreatedUtc")
-                        .HasColumnType("TEXT");
+                b.Property<DateTime>("CreatedUtc")
+                    .HasColumnType("TEXT");
 
-                    b.Property<ulong>("KlipyDataId")
-                        .HasColumnType("INTEGER");
+                b.Property<ulong>("KlipyDataId")
+                    .HasColumnType("INTEGER");
 
-                    b.HasKey("KlipyPostId");
+                b.HasKey("KlipyPostId");
 
-                    b.HasIndex("CreatedUtc")
-                        .HasDatabaseName("IX_KlipyPosts_CreatedUtc");
+                b.HasIndex("CreatedUtc")
+                    .HasDatabaseName("IX_KlipyPosts_CreatedUtc");
 
-                    b.HasIndex("ChannelId", "CreatedUtc")
-                        .IsDescending(false, true)
-                        .HasDatabaseName("IX_KlipyPosts_ChannelId_CreatedUtc");
+                b.HasIndex("ChannelId", "CreatedUtc")
+                    .IsDescending(false, true)
+                    .HasDatabaseName("IX_KlipyPosts_ChannelId_CreatedUtc");
 
-                    b.ToTable("KlipyPosts");
-                });
+                b.ToTable("KlipyPosts");
+            });
 
-            modelBuilder.Entity("TrendingGiphyBotWorkerService.ChannelSettings.GiphyPost", b =>
-                {
-                    b.HasOne("TrendingGiphyBotWorkerService.ChannelSettings.ChannelSettingsModel", "ChannelSettings")
-                        .WithMany("GiphyPosts")
-                        .HasForeignKey("ChannelId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+        modelBuilder.Entity("TrendingGiphyBotWorkerService.ChannelSettings.GiphyPost", b =>
+            {
+                b.HasOne("TrendingGiphyBotWorkerService.ChannelSettings.ChannelSettingsModel", "ChannelSettings")
+                    .WithMany("GiphyPosts")
+                    .HasForeignKey("ChannelId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.Navigation("ChannelSettings");
-                });
+                b.Navigation("ChannelSettings");
+            });
 
-            modelBuilder.Entity("TrendingGiphyBotWorkerService.ChannelSettings.KlipyPost", b =>
-                {
-                    b.HasOne("TrendingGiphyBotWorkerService.ChannelSettings.ChannelSettingsModel", "ChannelSettings")
-                        .WithMany("KlipyPosts")
-                        .HasForeignKey("ChannelId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+        modelBuilder.Entity("TrendingGiphyBotWorkerService.ChannelSettings.KlipyPost", b =>
+            {
+                b.HasOne("TrendingGiphyBotWorkerService.ChannelSettings.ChannelSettingsModel", "ChannelSettings")
+                    .WithMany("KlipyPosts")
+                    .HasForeignKey("ChannelId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.Navigation("ChannelSettings");
-                });
+                b.Navigation("ChannelSettings");
+            });
 
-            modelBuilder.Entity("TrendingGiphyBotWorkerService.ChannelSettings.ChannelSettingsModel", b =>
-                {
-                    b.Navigation("GiphyPosts");
+        modelBuilder.Entity("TrendingGiphyBotWorkerService.ChannelSettings.ChannelSettingsModel", b =>
+            {
+                b.Navigation("GiphyPosts");
 
-                    b.Navigation("KlipyPosts");
-                });
+                b.Navigation("KlipyPosts");
+            });
 #pragma warning restore 612, 618
-        }
     }
 }

@@ -28,7 +28,7 @@ public class ConfirmationInteractionModule
         {
             case PendingClearAction.HowOften:
                 ChannelSettingsModel.Frequency = 30;
-                ChannelSettingsModel.Interval = IntervalDescription.Minutes;
+                ChannelSettingsModel.Interval = Interval.Minutes;
 
                 break;
 
@@ -58,9 +58,7 @@ public class ConfirmationInteractionModule
                 break;
 
             case PendingClearAction.PostingHours:
-                ChannelSettingsModel.PostingHoursFrom = null;
-                ChannelSettingsModel.PostingHoursTo = null;
-                ChannelSettingsModel.UtcOffset = null;
+                ChannelSettingsModel.PostingHours = null;
 
                 break;
         }

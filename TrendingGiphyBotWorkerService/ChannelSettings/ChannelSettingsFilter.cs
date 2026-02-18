@@ -5,11 +5,11 @@ public class ChannelSettingsFilter(ILogger<ChannelSettingsFilter> _logger) : ICh
 {
     public bool InPostingHours(ChannelSettingsModel channelSettings, DateTimeOffset now)
     {
-        if (!channelSettings.PostingHoursFrom.HasValue || !channelSettings.PostingHoursTo.HasValue)
+        if (channelSettings.PostingHours?.From is null || channelSettings.PostingHours?.To is null)
             return true;
 
-        var from = TimeSpan.FromHours(channelSettings.PostingHoursFrom.Value);
-        var to = TimeSpan.FromHours(channelSettings.PostingHoursTo.Value);
+        var from = TimeSpan.FromHours(channelSettings.PostingHours.From.Value);
+        var to = TimeSpan.FromHours(channelSettings.PostingHours.To.Value);
 
         var localTimeOfDay = DetermineLocalTimeOfDay();
 
@@ -23,10 +23,10 @@ public class ChannelSettingsFilter(ILogger<ChannelSettingsFilter> _logger) : ICh
 
         TimeSpan DetermineLocalTimeOfDay()
         {
-            if (channelSettings.UtcOffset is null or "")
+            if (channelSettings.PostingHours.UtcOffset is null or "")
                 return now.TimeOfDay;
 
-            var offset = TimeSpan.Parse(channelSettings.UtcOffset);
+            var offset = TimeSpan.Parse(channelSettings.PostingHours.UtcOffset);
 
             var nowLocal = now + offset;
 

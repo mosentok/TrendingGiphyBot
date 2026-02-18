@@ -5,18 +5,14 @@ namespace TrendingGiphyBotWorkerService.Discord.Interactions.CurrentSettings.For
 [RegisterSingleton]
 public class HowOftenFormatter : IHowOftenFormatter
 {
-    public string Format(int frequency, IntervalDescription interval)
-    {
-        if (interval == IntervalDescription.None || frequency == 0)
-            return "Never";
-
-        var unit = interval switch
+    public string Format(int frequency, Interval interval) =>
+        new { interval, frequency } switch
         {
-            IntervalDescription.Minutes => frequency == 1 ? "Minute" : "Minutes",
-            IntervalDescription.Hours => frequency == 1 ? "Hour" : "Hours",
-            _ => ""
+            { interval: Interval.None } or { frequency: 0 } => "Never",
+            { interval: Interval.Minutes, frequency: 1 } => "1 Minute",
+            { interval: Interval.Minutes, frequency: not 1 } => $"{frequency} Minutes",
+            { interval: Interval.Hours, frequency: 1 } => "1 Hour",
+            { interval: Interval.Hours, frequency: not 1 } => $"{frequency} Hours",
+            _ => throw new ThisShouldBeImpossibleException()
         };
-
-        return $"{frequency} {unit}";
-    }
 }

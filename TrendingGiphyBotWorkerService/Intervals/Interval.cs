@@ -1,6 +1,6 @@
 namespace TrendingGiphyBotWorkerService.Intervals;
 
-public enum IntervalDescription
+public enum Interval
 {
     None,
     Minutes,

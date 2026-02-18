@@ -16,6 +16,7 @@ public class ChannelSettingsDtoBuilder(
         var trendingGiphyBotDbContext = scope.ServiceProvider.GetRequiredService<ITrendingGiphyBotDbContext>();
 
         return await trendingGiphyBotDbContext.ChannelSettings
+            .AsNoTracking()
             .Where(s => s.ChannelId == channelId)
             .Select(s => new ChannelSettingsDto(
                 s.ChannelId,
@@ -26,10 +27,8 @@ public class ChannelSettingsDtoBuilder(
                 s.GiphyRating,
                 s.GifSource,
                 s.Interval,
-                s.PostingHoursFrom,
-                s.PostingHoursTo,
-                s.RetentionDays,
-                s.UtcOffset
+                s.PostingHours,
+                s.RetentionDays
             ))
             .SingleAsync();
     }

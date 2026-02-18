@@ -19,7 +19,6 @@ using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Api;
 using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Caching.Random;
 using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Caching.Search;
 using TrendingGiphyBotWorkerService.Giphy.Staging.GifFinding.Caching.Trending;
-using TrendingGiphyBotWorkerService.Intervals;
 using TrendingGiphyBotWorkerService.Klipy.Staging;
 using TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding.Api;
 using TrendingGiphyBotWorkerService.Klipy.Staging.GifFinding.Caching.Random;

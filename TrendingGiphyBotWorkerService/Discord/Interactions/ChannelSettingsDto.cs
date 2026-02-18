@@ -12,9 +12,7 @@ public record ChannelSettingsDto(
     string? GifKeyword,
     string? GiphyRating,
     GifSourceKind? GifSource,
-    IntervalDescription Interval,
-    int? PostingHoursFrom,
-    int? PostingHoursTo,
-    int? RetentionDays,
-    string? UtcOffset
+    Interval Interval,
+    PostingHours? PostingHours,
+    int? RetentionDays
 );

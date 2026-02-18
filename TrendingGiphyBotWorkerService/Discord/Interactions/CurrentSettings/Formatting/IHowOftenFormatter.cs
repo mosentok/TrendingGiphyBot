@@ -4,5 +4,5 @@ namespace TrendingGiphyBotWorkerService.Discord.Interactions.CurrentSettings.For
 
 public interface IHowOftenFormatter
 {
-    string Format(int frequency, IntervalDescription interval);
+    string Format(int frequency, Interval interval);
 }

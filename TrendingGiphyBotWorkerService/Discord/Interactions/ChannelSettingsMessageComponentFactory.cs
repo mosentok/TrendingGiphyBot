@@ -257,7 +257,7 @@ public class ChannelSettingsMessageComponentFactory(
         foreach (var minute in _appConfig.CurrentValue.Intervals.Minutes)
         {
             var unit = minute == 1 ? "Minute" : "Minutes";
-            var value = $"{minute}-{(int)IntervalDescription.Minutes}";
+            var value = $"{minute}-{(int)Interval.Minutes}";
             var label = $"{minute} {unit}";
 
             buttons.Add(
@@ -271,7 +271,7 @@ public class ChannelSettingsMessageComponentFactory(
         foreach (var hour in _appConfig.CurrentValue.Intervals.Hours)
         {
             var unit = hour == 1 ? "Hour" : "Hours";
-            var value = $"{hour}-{(int)IntervalDescription.Hours}";
+            var value = $"{hour}-{(int)Interval.Hours}";
             var label = $"{hour} {unit}";
 
             buttons.Add(
@@ -282,7 +282,7 @@ public class ChannelSettingsMessageComponentFactory(
             );
         }
 
-        var neverValue = $"0-{(int)IntervalDescription.None}";
+        var neverValue = $"0-{(int)Interval.None}";
 
         buttons.Add(
             new ButtonBuilder()
@@ -291,7 +291,7 @@ public class ChannelSettingsMessageComponentFactory(
                 .WithStyle(ButtonStyle.Primary)
         );
 
-        var selected = selectedValue ?? (channelSettings.Frequency == 0 || channelSettings.Interval == IntervalDescription.None
+        var selected = selectedValue ?? (channelSettings.Frequency == 0 || channelSettings.Interval == Interval.None
             ? neverValue
             : $"{channelSettings.Frequency}-{(int)channelSettings.Interval}");
 

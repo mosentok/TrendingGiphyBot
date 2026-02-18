@@ -64,7 +64,7 @@ public class ChannelSettingsButtonBuilder : IChannelSettingsButtonBuilder
             .WithCustomId(InteractionId.ClearPostingHoursButton)
             .WithLabel("Clear Posting Hours")
             .WithStyle(ButtonStyle.Danger)
-            .WithDisabled(channelSettings.PostingHoursFrom is null || channelSettings.PostingHoursTo is null);
+            .WithDisabled(channelSettings.PostingHours?.From is null || channelSettings.PostingHours.To is null);
 
         return (setButton, clearButton);
     }

@@ -3,7 +3,7 @@ namespace TrendingGiphyBotWorkerService.Utc;
 [RegisterSingleton]
 public class UtcOffsetParser : IUtcOffsetParser
 {
-    public async Task<(bool Success, TimeSpan? UtcOffset)> TryParseUtcOffsetAsync(string utcOffsetString)
+    public (bool Success, TimeSpan? UtcOffset) TryParseUtcOffset(string utcOffsetString)
     {
         short sign;
 
@@ -53,14 +53,5 @@ public class UtcOffsetParser : IUtcOffsetParser
         var utcOffset = new TimeSpan(hours, minutes, 0) * sign;
 
         return (true, utcOffset);
-    }
-
-    public string FormatUtcOffsetString(string utcOffsetString)
-    {
-        var utcOffset = TimeSpan.Parse(utcOffsetString);
-
-        return utcOffset >= TimeSpan.Zero
-            ? $"+{utcOffset:hh\\:mm}"
-            : $"-{utcOffset:hh\\:mm}";
     }
 }

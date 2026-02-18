@@ -36,8 +36,8 @@ public class ChannelSettingsFinder
         var candidateChannelSettings = await trendingGiphyBotDbContext.ChannelSettings
             .Where(channelSettings =>
                 availableChannelIds.Contains(channelSettings.ChannelId) &&
-                ((channelSettings.Interval == IntervalDescription.Minutes && validMinutes.Contains(channelSettings.Frequency)) ||
-                (channelSettings.Interval == IntervalDescription.Hours && validHours.Contains(channelSettings.Frequency))))
+                ((channelSettings.Interval == Interval.Minutes && validMinutes.Contains(channelSettings.Frequency)) ||
+                (channelSettings.Interval == Interval.Hours && validHours.Contains(channelSettings.Frequency))))
             .ToListAsync(stoppingToken);
 
         return [.. candidateChannelSettings

@@ -2,7 +2,6 @@ using Discord;
 using Discord.Interactions;
 using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Database;
-using TrendingGiphyBotWorkerService.Discord.Interactions;
 
 namespace TrendingGiphyBotWorkerService.Discord.Interactions.BothHooks;
 
@@ -17,14 +16,9 @@ public class GifSourcesInteractionModule
     [ComponentInteraction(InteractionId.GifSourceGiphyButton)]
     public async Task ToggleGifSourceGiphyAsync()
     {
-        var sources = ChannelSettingsModel.GifSource ?? (GifSourceKind.Giphy | GifSourceKind.Klipy);
-
-        if (sources.HasFlag(GifSourceKind.Giphy))
-            sources &= ~GifSourceKind.Giphy;
-        else
-            sources |= GifSourceKind.Giphy;
-
-        ChannelSettingsModel.GifSource = sources;
+        ChannelSettingsModel.GifSource = ChannelSettingsModel.GifSource.HasFlag(GifSourceKind.Giphy)
+            ? ChannelSettingsModel.GifSource &= ~GifSourceKind.Giphy
+            : ChannelSettingsModel.GifSource |= GifSourceKind.Giphy;
 
         await TrendingGiphyBotContext.SaveChangesAsync();
     }
@@ -32,14 +26,9 @@ public class GifSourcesInteractionModule
     [ComponentInteraction(InteractionId.GifSourceKlipyButton)]
     public async Task ToggleGifSourceKlipyAsync()
     {
-        var sources = ChannelSettingsModel.GifSource ?? (GifSourceKind.Giphy | GifSourceKind.Klipy);
-
-        if (sources.HasFlag(GifSourceKind.Klipy))
-            sources &= ~GifSourceKind.Klipy;
-        else
-            sources |= GifSourceKind.Klipy;
-
-        ChannelSettingsModel.GifSource = sources;
+        ChannelSettingsModel.GifSource = ChannelSettingsModel.GifSource.HasFlag(GifSourceKind.Klipy)
+            ? ChannelSettingsModel.GifSource &= ~GifSourceKind.Klipy
+            : ChannelSettingsModel.GifSource |= GifSourceKind.Klipy;
 
         await TrendingGiphyBotContext.SaveChangesAsync();
     }
