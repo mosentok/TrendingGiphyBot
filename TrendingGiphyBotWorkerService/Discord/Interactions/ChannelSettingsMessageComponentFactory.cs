@@ -27,8 +27,7 @@ public class ChannelSettingsMessageComponentFactory(
         var (gifKeywordButton, clearGifKeywordButton) = _buttonBuilder.BuildGifKeywordButtons(channelSettings);
         var (setPostingHoursButton, clearPostingHoursButton) = _buttonBuilder.BuildPostingHoursButtons(channelSettings);
 
-        var mainSettingsDisplay = _currentSettingsDisplayBuilder.BuildMainSettingsDisplay(channelSettings);
-        var optionalSettingsDisplay = _currentSettingsDisplayBuilder.BuildOptionalSettingsDisplay(channelSettings);
+        var unifiedSettingsDisplay = _currentSettingsDisplayBuilder.BuildUnifiedSettingsDisplay(channelSettings);
 
         var howOftenButtons = new[] { howOftenButton, resetHowOftenButton }.Where(b => b is not null).ToArray();
         var postingBehaviorButtons = new[] { postingBehaviorButton, resetPostingBehaviorButton }.Where(b => b is not null).ToArray();
@@ -49,12 +48,11 @@ public class ChannelSettingsMessageComponentFactory(
         var componentBuilder = new ComponentBuilderV2()
             .WithTextDisplay("# Trending Gif Bot")
             .WithSeparator()
-            .WithTextDisplay($"## Main Settings for {channelName}")
-            .WithTextDisplay(mainSettingsDisplay);
+            .WithTextDisplay(unifiedSettingsDisplay);
 
         if (allMainResetButtonsDisabled)
         {
-            var mainSettingsButtons = new[] { howOftenButton, postingBehaviorButton, gifSourcesButton }
+            var mainSettingsButtons = new[] { howOftenButton, gifSourcesButton, postingBehaviorButton }
                 .Where(b => b is not null)
                 .ToArray();
 
@@ -64,28 +62,25 @@ public class ChannelSettingsMessageComponentFactory(
         {
             componentBuilder = componentBuilder
                 .WithActionRow(howOftenButtons)
-                .WithActionRow(postingBehaviorButtons)
-                .WithActionRow(gifSourcesButtons);
+                .WithActionRow(gifSourcesButtons)
+                .WithActionRow(postingBehaviorButtons);
         }
 
-        componentBuilder = componentBuilder
-            .WithSeparator()
-            .WithTextDisplay($"## Optional Settings for {channelName}")
-            .WithTextDisplay(optionalSettingsDisplay);
+        componentBuilder = componentBuilder.WithSeparator();
 
-        if (allOptionalResetButtonsDisabled && _appConfig.CurrentValue.Giphy.Staging.EnableRating)
+        var enableRating = _appConfig.CurrentValue.Giphy.Staging.EnableRating;
+
+        if (allOptionalResetButtonsDisabled && enableRating)
         {
-            var optionalSettingsButtons = new[] { gifRetentionButton, giphyRatingButton }
-                .Where(b => b is not null)
-                .ToArray();
+            var combinedButtons = gifRetentionButtons.Concat(giphyRatingButtons).ToArray();
 
-            componentBuilder = componentBuilder.WithActionRow(optionalSettingsButtons);
+            componentBuilder = componentBuilder.WithActionRow(combinedButtons);
         }
         else
         {
             componentBuilder = componentBuilder.WithActionRow(gifRetentionButtons);
 
-            if (_appConfig.CurrentValue.Giphy.Staging.EnableRating)
+            if (enableRating)
                 componentBuilder = componentBuilder.WithActionRow(giphyRatingButtons);
         }
 

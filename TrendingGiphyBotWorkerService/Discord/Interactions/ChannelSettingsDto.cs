@@ -7,6 +7,7 @@ namespace TrendingGiphyBotWorkerService.Discord.Interactions;
 public record ChannelSettingsDto(
     ulong ChannelId,
     int Frequency,
+    // TODO setter should throw an exception if value is None
     GifPostingBehaviorKind GifPostingBehavior,
     string GifPostingBehaviorDescription,
     string? GifKeyword,

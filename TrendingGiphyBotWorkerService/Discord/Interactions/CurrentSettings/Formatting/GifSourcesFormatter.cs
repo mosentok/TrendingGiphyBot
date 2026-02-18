@@ -10,6 +10,9 @@ public class GifSourcesFormatter : IGifSourcesFormatter
         if (gifSource is null)
             return "Giphy & Klipy";
 
+        if (gifSource.Value == GifSourceKind.None)
+            return "No sources";
+
         var sources = new List<string>();
 
         if (gifSource.Value.HasFlag(GifSourceKind.Giphy))

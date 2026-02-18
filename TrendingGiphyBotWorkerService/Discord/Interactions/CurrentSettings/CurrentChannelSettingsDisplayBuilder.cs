@@ -1,6 +1,9 @@
 using System.Text;
 using Microsoft.Extensions.Options;
+using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Discord.Interactions.CurrentSettings.Formatting;
+using TrendingGiphyBotWorkerService.GifPostingBehavior;
+using TrendingGiphyBotWorkerService.Intervals;
 
 namespace TrendingGiphyBotWorkerService.Discord.Interactions.CurrentSettings;
 
@@ -9,38 +12,53 @@ public class CurrentChannelSettingsDisplayBuilder(
     IOptionsMonitor<AppConfig> _appConfig,
     IHowOftenFormatter _howOftenFormatter,
     IGifSourcesFormatter _gifSourcesFormatter,
-    IPostingHoursFormatter _postingHoursFormatter
+    IUtcOffsetFormatter _utcOffsetFormatter
 ) : ICurrentChannelSettingsDisplayBuilder
 {
-    public string BuildMainSettingsDisplay(ChannelSettingsDto channelSettings)
+    public string BuildUnifiedSettingsDisplay(ChannelSettingsDto channelSettings)
     {
+        if (channelSettings.Interval == Interval.None && channelSettings.GifSource == GifSourceKind.None)
+            return "Never post gifs. The bot is set to **never post gifs**, and no **gif sources** are selected, either.";
+
+        if (channelSettings.Interval == Interval.None)
+            return "Never post gifs. The bot is set to **never post gifs**.";
+
+        if (channelSettings.GifSource == GifSourceKind.None)
+            return "Never post gifs. No **gif sources** are selected.";
+
         var howOftenValue = _howOftenFormatter.Format(channelSettings.Frequency, channelSettings.Interval);
         var gifSourcesValue = _gifSourcesFormatter.Format(channelSettings.GifSource);
-
-        return new StringBuilder()
-            .AppendLine($"-# **How Often** {howOftenValue}")
-            .AppendLine($"-# **Posting Behavior** {channelSettings.GifPostingBehaviorDescription}")
-            .AppendLine($"-# **Gif Sources** {gifSourcesValue}")
-            .ToString();
-    }
-
-    public string BuildOptionalSettingsDisplay(ChannelSettingsDto channelSettings)
-    {
         var effectiveRetentionDays = channelSettings.RetentionDays ?? _appConfig.CurrentValue.GifRetention.DefaultDays;
-        var effectiveGiphyRating = channelSettings.GiphyRating ?? "pg";
-        var effectiveGifKeyword = string.IsNullOrWhiteSpace(channelSettings.GifKeyword) ? "None" : channelSettings.GifKeyword;
-        var postingHoursValue = _postingHoursFormatter.Format(channelSettings.PostingHours);
 
-        var stringBuilder = new StringBuilder()
-            .AppendLine($"-# **Retention Days** {effectiveRetentionDays}");
+        switch (channelSettings.GifPostingBehavior)
+        {
+            case GifPostingBehaviorKind.TrendingGifsOnly:
+                var trendingOnlyPostingHoursMessage = BuildPostingHoursClause();
 
-        if (_appConfig.CurrentValue.Giphy.Staging.EnableRating)
-            stringBuilder.AppendLine($"-# **Giphy Rating** {effectiveGiphyRating.ToUpper()}");
+                return $"Post trending gifs from **{gifSourcesValue}** every **{howOftenValue}**. Remember them for up to **{effectiveRetentionDays}** days. {trendingOnlyPostingHoursMessage}";
 
-        stringBuilder
-            .AppendLine($"-# **Gif Keyword** {effectiveGifKeyword}")
-            .Append($"-# **Posting Hours** {postingHoursValue}");
+            case GifPostingBehaviorKind.TrendingGifsWithRandomGifs:
+                var hasKeyword = !string.IsNullOrWhiteSpace(channelSettings.GifKeyword);
+                var trendingWithRandomPostingHoursMessage = BuildPostingHoursClause();
 
-        return stringBuilder.ToString();
+                var randomGifsClause = hasKeyword
+                    ? $"post **random gifs** of **{channelSettings.GifKeyword}**"
+                    : "post **random gifs**";
+
+                return $"Post trending gifs from **{gifSourcesValue}** every **{howOftenValue}**. When there's no new trending gifs, {randomGifsClause}. Remember them for up to **{effectiveRetentionDays}** days. {trendingWithRandomPostingHoursMessage}";
+
+            default:
+                return "Never post gifs.";
+        }
+
+        string BuildPostingHoursClause()
+        {
+            if (channelSettings.PostingHours is not { From: { } from, To: { } to, UtcOffset: { } utcOffset })
+                return "Gifs can be posted anytime.";
+
+            var utcOffsetString = _utcOffsetFormatter.FormatUtcOffset(utcOffset);
+
+            return $"Only post gifs from **{from:D2}:00** to **{to:D2}:00** **UTC{utcOffsetString}**.";
+        }
     }
 }

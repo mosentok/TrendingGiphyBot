@@ -2,6 +2,7 @@ using Discord.Interactions;
 using Microsoft.EntityFrameworkCore;
 using TrendingGiphyBotWorkerService.ChannelSettings;
 using TrendingGiphyBotWorkerService.Database;
+using TrendingGiphyBotWorkerService.GifPostingBehavior;
 using TrendingGiphyBotWorkerService.Intervals;
 
 namespace TrendingGiphyBotWorkerService.Discord.Interactions;
@@ -22,6 +23,7 @@ public class TgbSlashInteractionModule(
 		{
 			channelSettings = new()
 			{
+				GifPostingBehavior = GifPostingBehaviorKind.TrendingGifsOnly,
 				ChannelId = Context.Channel.Id,
 				Frequency = 30,
 				GifSource = GifSourceKind.Giphy & GifSourceKind.Klipy,

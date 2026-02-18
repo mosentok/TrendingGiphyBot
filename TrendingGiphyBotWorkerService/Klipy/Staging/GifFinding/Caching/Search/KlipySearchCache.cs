@@ -31,7 +31,10 @@ public class KlipySearchCache
         _logger.LogKlipySearchCacheCount(_searchedKlipyDatas[searchTerms].Count);
     }
 
-    public KlipyData? GetFirstGif(string searchTerm) => _searchedKlipyDatas[searchTerm].FirstOrDefault();
+    public KlipyData? GetFirstGif(string searchTerm) =>
+        _searchedKlipyDatas.TryGetValue(searchTerm, out var result)
+            ? result.FirstOrDefault()
+            : null;
 
     public KlipyData? GetFirstUnseenGif(string searchTerm, ulong[] idsAlreadySeen) =>
         _searchedKlipyDatas.TryGetValue(searchTerm, out var result)

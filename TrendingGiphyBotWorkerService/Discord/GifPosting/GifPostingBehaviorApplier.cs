@@ -29,15 +29,13 @@ public class GifPostingBehaviorApplier(
 
         foreach (var channelSetting in channelSettings)
         {
-            var behavior = channelSetting.GifPostingBehavior;
-
             var enabledSources = _enabledGifSourceDeterminer.DetermineEnabledGifSources(channelSetting);
             var shuffledSources = enabledSources.OrderBy(_ => Random.Shared.Next());
 
             foreach (var source in shuffledSources)
             {
                 var giphySelection = _giphySourceTypeResolver.TryGetFromBehaviorAndSource(
-                    behavior,
+                    channelSetting.GifPostingBehavior,
                     source,
                     channelSetting.ChannelId,
                     channelSetting.GifKeyword,
@@ -52,7 +50,7 @@ public class GifPostingBehaviorApplier(
                 }
 
                 var klipySelection = _klipySourceTypeResolver.TryGetFromBehaviorAndSource(
-                    behavior,
+                    channelSetting.GifPostingBehavior,
                     source,
                     channelSetting.ChannelId,
                     channelSetting.GifKeyword,
