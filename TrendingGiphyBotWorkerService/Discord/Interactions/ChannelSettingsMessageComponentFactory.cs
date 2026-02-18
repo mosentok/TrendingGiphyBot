@@ -38,21 +38,56 @@ public class ChannelSettingsMessageComponentFactory(
         var gifKeywordButtons = new[] { gifKeywordButton, clearGifKeywordButton }.Where(b => b is not null).ToArray();
         var postingHoursButtons = new[] { setPostingHoursButton, clearPostingHoursButton }.Where(b => b is not null).ToArray();
 
+        var buttonVisibility = _appConfig.CurrentValue.ButtonVisibility;
+        var allMainResetButtonsDisabled = !buttonVisibility.EnableResetHowOftenButton
+            && !buttonVisibility.EnableResetPostingBehaviorButton
+            && !buttonVisibility.EnableClearGifSourcesButton;
+
+        var allOptionalResetButtonsDisabled = !buttonVisibility.EnableResetGifRetentionButton
+            && !buttonVisibility.EnableResetGiphyRatingButton;
+
         var componentBuilder = new ComponentBuilderV2()
             .WithTextDisplay("# Trending Gif Bot")
             .WithSeparator()
             .WithTextDisplay($"## Main Settings for {channelName}")
-            .WithTextDisplay(mainSettingsDisplay)
-            .WithActionRow(howOftenButtons)
-            .WithActionRow(postingBehaviorButtons)
-            .WithActionRow(gifSourcesButtons)
+            .WithTextDisplay(mainSettingsDisplay);
+
+        if (allMainResetButtonsDisabled)
+        {
+            var mainSettingsButtons = new[] { howOftenButton, postingBehaviorButton, gifSourcesButton }
+                .Where(b => b is not null)
+                .ToArray();
+
+            componentBuilder = componentBuilder.WithActionRow(mainSettingsButtons);
+        }
+        else
+        {
+            componentBuilder = componentBuilder
+                .WithActionRow(howOftenButtons)
+                .WithActionRow(postingBehaviorButtons)
+                .WithActionRow(gifSourcesButtons);
+        }
+
+        componentBuilder = componentBuilder
             .WithSeparator()
             .WithTextDisplay($"## Optional Settings for {channelName}")
-            .WithTextDisplay(optionalSettingsDisplay)
-            .WithActionRow(gifRetentionButtons);
+            .WithTextDisplay(optionalSettingsDisplay);
 
-        if (_appConfig.CurrentValue.Giphy.Staging.EnableRating)
-            componentBuilder = componentBuilder.WithActionRow(giphyRatingButtons);
+        if (allOptionalResetButtonsDisabled && _appConfig.CurrentValue.Giphy.Staging.EnableRating)
+        {
+            var optionalSettingsButtons = new[] { gifRetentionButton, giphyRatingButton }
+                .Where(b => b is not null)
+                .ToArray();
+
+            componentBuilder = componentBuilder.WithActionRow(optionalSettingsButtons);
+        }
+        else
+        {
+            componentBuilder = componentBuilder.WithActionRow(gifRetentionButtons);
+
+            if (_appConfig.CurrentValue.Giphy.Staging.EnableRating)
+                componentBuilder = componentBuilder.WithActionRow(giphyRatingButtons);
+        }
 
         componentBuilder = componentBuilder
             .WithActionRow(gifKeywordButtons)
