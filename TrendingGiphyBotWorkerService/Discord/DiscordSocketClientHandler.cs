@@ -69,8 +69,8 @@ public class DiscordSocketClientHandler(
 
 		if (_appConfig.CurrentValue.Discord.SocketClientHandler.GuildToRegisterCommands is { } guildToRegisterCommands)
 			await _interactionService.RegisterCommandsToGuildAsync(guildToRegisterCommands);
-		else
-			await _interactionService.RegisterCommandsGloballyAsync();
+
+        await _interactionService.RegisterCommandsGloballyAsync();
 	}
 
 	public async Task OnInteractionCreatedAsync(SocketInteraction socketInteraction)
