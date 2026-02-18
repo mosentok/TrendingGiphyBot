@@ -66,10 +66,6 @@ public class DiscordSocketClientHandler(
         var type = GetType();
 
         await _interactionService.AddModulesAsync(type.Assembly, _services);
-
-		if (_appConfig.CurrentValue.Discord.SocketClientHandler.GuildToRegisterCommands is { } guildToRegisterCommands)
-			await _interactionService.RegisterCommandsToGuildAsync(guildToRegisterCommands);
-
         await _interactionService.RegisterCommandsGloballyAsync();
 	}
 
