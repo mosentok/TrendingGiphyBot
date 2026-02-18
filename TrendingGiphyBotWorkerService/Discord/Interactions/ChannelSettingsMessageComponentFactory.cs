@@ -30,21 +30,33 @@ public class ChannelSettingsMessageComponentFactory(
         var mainSettingsDisplay = _currentSettingsDisplayBuilder.BuildMainSettingsDisplay(channelSettings);
         var optionalSettingsDisplay = _currentSettingsDisplayBuilder.BuildOptionalSettingsDisplay(channelSettings);
 
+        var howOftenButtons = new[] { howOftenButton, resetHowOftenButton }.Where(b => b is not null).ToArray();
+        var postingBehaviorButtons = new[] { postingBehaviorButton, resetPostingBehaviorButton }.Where(b => b is not null).ToArray();
+        var gifSourcesButtons = new[] { gifSourcesButton, clearGifSourcesButton }.Where(b => b is not null).ToArray();
+        var gifRetentionButtons = new[] { gifRetentionButton, resetGifRetentionButton }.Where(b => b is not null).ToArray();
+        var giphyRatingButtons = new[] { giphyRatingButton, resetGiphyRatingButton }.Where(b => b is not null).ToArray();
+        var gifKeywordButtons = new[] { gifKeywordButton, clearGifKeywordButton }.Where(b => b is not null).ToArray();
+        var postingHoursButtons = new[] { setPostingHoursButton, clearPostingHoursButton }.Where(b => b is not null).ToArray();
+
         var componentBuilder = new ComponentBuilderV2()
             .WithTextDisplay("# Trending Gif Bot")
             .WithSeparator()
             .WithTextDisplay($"## Main Settings for {channelName}")
             .WithTextDisplay(mainSettingsDisplay)
-            .WithActionRow([howOftenButton, resetHowOftenButton])
-            .WithActionRow([postingBehaviorButton, resetPostingBehaviorButton])
+            .WithActionRow(howOftenButtons)
+            .WithActionRow(postingBehaviorButtons)
+            .WithActionRow(gifSourcesButtons)
             .WithSeparator()
             .WithTextDisplay($"## Optional Settings for {channelName}")
             .WithTextDisplay(optionalSettingsDisplay)
-            .WithActionRow([gifSourcesButton, clearGifSourcesButton])
-            .WithActionRow([gifRetentionButton, resetGifRetentionButton])
-            .WithActionRow([giphyRatingButton, resetGiphyRatingButton])
-            .WithActionRow([gifKeywordButton, clearGifKeywordButton])
-            .WithActionRow([setPostingHoursButton, clearPostingHoursButton])
+            .WithActionRow(gifRetentionButtons);
+
+        if (_appConfig.CurrentValue.Giphy.Staging.EnableRating)
+            componentBuilder = componentBuilder.WithActionRow(giphyRatingButtons);
+
+        componentBuilder = componentBuilder
+            .WithActionRow(gifKeywordButtons)
+            .WithActionRow(postingHoursButtons)
             .WithSeparator()
             .WithMediaGallery(_appConfig.CurrentValue.Attribution.Urls);
 
@@ -256,7 +268,10 @@ public class ChannelSettingsMessageComponentFactory(
 
         foreach (var minute in _appConfig.CurrentValue.Intervals.Minutes)
         {
-            var unit = minute == 1 ? "Minute" : "Minutes";
+            var unit = minute == 1
+                ? "Minute"
+                : "Minutes";
+
             var value = $"{minute}-{(int)Interval.Minutes}";
             var label = $"{minute} {unit}";
 
@@ -270,7 +285,10 @@ public class ChannelSettingsMessageComponentFactory(
 
         foreach (var hour in _appConfig.CurrentValue.Intervals.Hours)
         {
-            var unit = hour == 1 ? "Hour" : "Hours";
+            var unit = hour == 1
+                ? "Hour"
+                : "Hours";
+
             var value = $"{hour}-{(int)Interval.Hours}";
             var label = $"{hour} {unit}";
 

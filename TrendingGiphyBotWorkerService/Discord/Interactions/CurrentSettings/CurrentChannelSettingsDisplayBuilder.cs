@@ -1,3 +1,4 @@
+using System.Text;
 using Microsoft.Extensions.Options;
 using TrendingGiphyBotWorkerService.Discord.Interactions.CurrentSettings.Formatting;
 
@@ -15,11 +16,10 @@ public class CurrentChannelSettingsDisplayBuilder(
     {
         var howOftenValue = _howOftenFormatter.Format(channelSettings.Frequency, channelSettings.Interval);
 
-        return string.Join(
-            Environment.NewLine,
-            $"-# **How Often** {howOftenValue}",
-            $"-# **Posting Behavior** {channelSettings.GifPostingBehaviorDescription}"
-        );
+        return new StringBuilder()
+            .AppendLine($"-# **How Often** {howOftenValue}")
+            .AppendLine($"-# **Posting Behavior** {channelSettings.GifPostingBehaviorDescription}")
+            .ToString();
     }
 
     public string BuildOptionalSettingsDisplay(ChannelSettingsDto channelSettings)
@@ -30,13 +30,17 @@ public class CurrentChannelSettingsDisplayBuilder(
         var effectiveGifKeyword = string.IsNullOrWhiteSpace(channelSettings.GifKeyword) ? "None" : channelSettings.GifKeyword;
         var postingHoursValue = _postingHoursFormatter.Format(channelSettings.PostingHours);
 
-        return string.Join(
-            Environment.NewLine,
-            $"-# **Gif Sources** {gifSourcesValue}",
-            $"-# **Retention Days** {effectiveRetentionDays}",
-            $"-# **Giphy Rating** {effectiveGiphyRating.ToUpper()}",
-            $"-# **Gif Keyword** {effectiveGifKeyword}",
-            $"-# **Posting Hours** {postingHoursValue}"
-        );
+        var stringBuilder = new StringBuilder()
+            .AppendLine($"-# **Gif Sources** {gifSourcesValue}")
+            .AppendLine($"-# **Retention Days** {effectiveRetentionDays}");
+
+        if (_appConfig.CurrentValue.Giphy.Staging.EnableRating)
+            stringBuilder.AppendLine($"-# **Giphy Rating** {effectiveGiphyRating.ToUpper()}");
+
+        stringBuilder
+            .AppendLine($"-# **Gif Keyword** {effectiveGifKeyword}")
+            .Append($"-# **Posting Hours** {postingHoursValue}");
+
+        return stringBuilder.ToString();
     }
 }

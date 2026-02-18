@@ -20,7 +20,9 @@ public class GiphyTrendingGifFinder
         if (!_appConfig.CurrentValue.Giphy.Staging.EnableTrendingGifs)
             return null;
 
-        var rating = channel.GiphyRating ?? "all";
+        var rating = _appConfig.CurrentValue.Giphy.Staging.EnableRating
+            ? channel.GiphyRating ?? "pg"
+            : "pg";
 
         var retentionDays = channel.RetentionDays ?? _appConfig.CurrentValue.GifRetention.DefaultDays;
         var cutoffDate = DateTime.UtcNow.AddDays(-retentionDays);

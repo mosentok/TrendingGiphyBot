@@ -8,6 +8,7 @@ public record GiphyStagingConfig
     GiphyCachingConfig TrendingCaching,
     GiphyCachingConfig RandomCaching,
     bool EnableRandomGifs,
+    bool EnableRating,
     bool EnableSearchGifs,
     bool EnableTrendingGifs,
     int MaxRandomGifAttempts,

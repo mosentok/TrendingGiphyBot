@@ -44,6 +44,8 @@ public class PostingHoursModalInteractionModule(
             errorMessagesBuilder.AppendLine($"To must be between 1 and 24. Input: {toError}");
         }
 
+        var utcOffsetValue = ParseUtcOffset(postingHoursModal.UtcOffset);
+
         var errorMessages = errorMessagesBuilder.ToString();
 
         if (errorMessages is not (null or ""))
@@ -59,8 +61,6 @@ public class PostingHoursModalInteractionModule(
             return;
         }
 
-        var utcOffsetValue = ParseUtcOffset(postingHoursModal.UtcOffset);
-
         channelSettings.PostingHours = new(from, to, utcOffsetValue);
 
         await _trendingGiphyBotContext.SaveChangesAsync();
@@ -71,9 +71,6 @@ public class PostingHoursModalInteractionModule(
 
         string? ParseUtcOffset(string? utcOffsetValue)
         {
-            if (utcOffsetValue is null or "")
-                return null;
-
             if (utcOffsetValue is not string { Length: 6 } utcOffsetString)
                 return AddErrorMessage();
 
