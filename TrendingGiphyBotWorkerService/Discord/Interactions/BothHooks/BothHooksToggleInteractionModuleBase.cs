@@ -18,6 +18,7 @@ public abstract class BothHooksToggleInteractionModuleBase
 
     protected ITrendingGiphyBotDbContext TrendingGiphyBotContext => _trendingGiphyBotContext;
 
+    // TODO make this an auto-property
     protected ChannelSettingsModel ChannelSettingsModel => _channelSettingsModel!;
 
     protected IChannelSettingsMessageComponentFactory SettingsMessageComponentFactory => _settingsMessageComponentFactory;

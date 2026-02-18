@@ -9,12 +9,10 @@ public class KeywordInteractionModule(ITrendingGiphyBotDbContext _trendingGiphyB
     [ComponentInteraction(InteractionId.TrendingGifsWithKeywordButton)]
     public async Task OpenKeywordModalAsync()
     {
-        var gifKeyword = ChannelSettingsModel.GifKeyword;
-
         var gifKeywordModal = new ModalBuilder()
             .WithTitle("Set keywords to post gifs of when up-to-date")
             .WithCustomId(InteractionId.TrendingGifsWithKeywordModal)
-            .AddTextInput("Keywords", InteractionId.TrendingGifsWithKeywordTextInput, placeholder: "cats", required: true, value: gifKeyword)
+            .AddTextInput("Keywords", InteractionId.TrendingGifsWithKeywordTextInput, placeholder: "cats", required: true, value: ChannelSettingsModel.GifKeyword)
             .Build();
 
         await Context.Interaction.RespondWithModalAsync(gifKeywordModal);

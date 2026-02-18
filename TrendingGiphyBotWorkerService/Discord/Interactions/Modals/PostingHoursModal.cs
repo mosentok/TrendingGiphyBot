@@ -4,7 +4,7 @@ namespace TrendingGiphyBotWorkerService.Discord.Interactions.Modals;
 
 public class PostingHoursModal : IModal
 {
-    public string Title => "Set the hours during which you want the bot to post.";
+    public string Title => "unused";
 
     [ModalTextInput(InteractionId.TrendingPostingHoursFromTextInput)]
     public string? From { get; set; }

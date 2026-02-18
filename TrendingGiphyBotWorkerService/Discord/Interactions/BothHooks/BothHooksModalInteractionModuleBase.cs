@@ -10,6 +10,9 @@ public abstract class BothHooksModalInteractionModuleBase : InteractionModuleBas
 
     public override async Task AfterExecuteAsync(ICommandInfo command)
     {
+        if (Context.Interaction.HasResponded)
+            return;
+
         ThisShouldBeImpossibleException.ThrowIf(Component is null);
 
         await Context.Interaction.UpdateAsync(messageProperties => messageProperties.Components = Component);

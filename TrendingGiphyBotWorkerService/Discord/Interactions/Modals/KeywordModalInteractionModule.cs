@@ -13,7 +13,7 @@ public class KeywordModalInteractionModule(
 ) : BothHooksModalInteractionModuleBase
 {
     [ModalInteraction(InteractionId.TrendingGifsWithKeywordModal)]
-    public async Task SetKeywordAsync(KeyboardModal keyboardModal)
+    public async Task SetKeywordAsync(KeywordModal keyboardModal)
     {
         var channelSettings = await _trendingGiphyBotContext.ChannelSettings.SingleAsync(s => s.ChannelId == Context.Channel.Id);
 
