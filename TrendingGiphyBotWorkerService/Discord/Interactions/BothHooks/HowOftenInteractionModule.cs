@@ -29,8 +29,6 @@ public class HowOftenInteractionModule
 
         ChannelSettingsModel.Frequency = frequency;
         ChannelSettingsModel.Interval = interval;
-
-        await TrendingGiphyBotContext.SaveChangesAsync();
     }
 
     protected override MessageComponent BuildToggleModal(ChannelSettingsDto channelSettings, string channelName) =>

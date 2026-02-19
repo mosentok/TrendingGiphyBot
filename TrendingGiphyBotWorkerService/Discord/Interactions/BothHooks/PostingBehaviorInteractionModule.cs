@@ -15,20 +15,12 @@ public class PostingBehaviorInteractionModule
 {
 
     [ComponentInteraction(InteractionId.PostingBehaviorTrendingOnlyButton)]
-    public async Task SelectPostingBehaviorTrendingOnlyAsync()
-    {
+    public async Task SelectPostingBehaviorTrendingOnlyAsync() =>
         ChannelSettingsModel.GifPostingBehavior = GifPostingBehaviorKind.TrendingGifsOnly;
 
-        await TrendingGiphyBotContext.SaveChangesAsync();
-    }
-
     [ComponentInteraction(InteractionId.PostingBehaviorTrendingWithRandomButton)]
-    public async Task SelectPostingBehaviorTrendingWithRandomAsync()
-    {
+    public async Task SelectPostingBehaviorTrendingWithRandomAsync() =>
         ChannelSettingsModel.GifPostingBehavior = GifPostingBehaviorKind.TrendingGifsWithRandomGifs;
-
-        await TrendingGiphyBotContext.SaveChangesAsync();
-    }
 
     protected override MessageComponent BuildToggleModal(ChannelSettingsDto channelSettings, string channelName) =>
         SettingsMessageComponentFactory.BuildPostingBehaviorToggleModal(channelSettings, channelName);

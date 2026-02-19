@@ -14,24 +14,16 @@ public class GifSourcesInteractionModule
 {
 
     [ComponentInteraction(InteractionId.GifSourceGiphyButton)]
-    public async Task ToggleGifSourceGiphyAsync()
-    {
+    public async Task ToggleGifSourceGiphyAsync() =>
         ChannelSettingsModel.GifSource = ChannelSettingsModel.GifSource.HasFlag(GifSourceKind.Giphy)
             ? ChannelSettingsModel.GifSource &= ~GifSourceKind.Giphy
             : ChannelSettingsModel.GifSource |= GifSourceKind.Giphy;
 
-        await TrendingGiphyBotContext.SaveChangesAsync();
-    }
-
     [ComponentInteraction(InteractionId.GifSourceKlipyButton)]
-    public async Task ToggleGifSourceKlipyAsync()
-    {
+    public async Task ToggleGifSourceKlipyAsync() =>
         ChannelSettingsModel.GifSource = ChannelSettingsModel.GifSource.HasFlag(GifSourceKind.Klipy)
             ? ChannelSettingsModel.GifSource &= ~GifSourceKind.Klipy
             : ChannelSettingsModel.GifSource |= GifSourceKind.Klipy;
-
-        await TrendingGiphyBotContext.SaveChangesAsync();
-    }
 
     protected override MessageComponent BuildToggleModal(ChannelSettingsDto channelSettings, string channelName) =>
         SettingsMessageComponentFactory.BuildGifSourcesToggleModal(channelSettings, channelName);

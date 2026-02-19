@@ -13,44 +13,24 @@ public class GiphyRatingInteractionModule
 ) : BothHooksToggleInteractionModuleBase(_trendingGiphyBotContext, _dtoBuilder, _settingsMessageComponentFactory)
 {
     [ComponentInteraction(InteractionId.GiphyRatingGButton)]
-    public async Task SelectGiphyRatingGAsync()
-    {
+    public async Task SelectGiphyRatingGAsync() =>
         ChannelSettingsModel.GiphyRating = "g";
 
-        await TrendingGiphyBotContext.SaveChangesAsync();
-    }
-
     [ComponentInteraction(InteractionId.GiphyRatingPgButton)]
-    public async Task SelectGiphyRatingPgAsync()
-    {
+    public async Task SelectGiphyRatingPgAsync() =>
         ChannelSettingsModel.GiphyRating = "pg";
 
-        await TrendingGiphyBotContext.SaveChangesAsync();
-    }
-
     [ComponentInteraction(InteractionId.GiphyRatingPg13Button)]
-    public async Task SelectGiphyRatingPg13Async()
-    {
+    public async Task SelectGiphyRatingPg13Async() =>
         ChannelSettingsModel.GiphyRating = "pg-13";
 
-        await TrendingGiphyBotContext.SaveChangesAsync();
-    }
-
     [ComponentInteraction(InteractionId.GiphyRatingRButton)]
-    public async Task SelectGiphyRatingRAsync()
-    {
+    public async Task SelectGiphyRatingRAsync() =>
         ChannelSettingsModel.GiphyRating = "r";
 
-        await TrendingGiphyBotContext.SaveChangesAsync();
-    }
-
     [ComponentInteraction(InteractionId.GiphyRatingAllButton)]
-    public async Task SelectGiphyRatingAllAsync()
-    {
+    public async Task SelectGiphyRatingAllAsync() =>
         ChannelSettingsModel.GiphyRating = "all";
-
-        await TrendingGiphyBotContext.SaveChangesAsync();
-    }
 
     protected override MessageComponent BuildToggleModal(ChannelSettingsDto channelSettings, string channelName) =>
         SettingsMessageComponentFactory.BuildGiphyRatingToggleModal(channelSettings, channelName);

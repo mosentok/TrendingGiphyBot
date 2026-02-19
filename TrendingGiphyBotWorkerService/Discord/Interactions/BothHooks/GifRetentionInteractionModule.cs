@@ -13,12 +13,8 @@ public class GifRetentionInteractionModule
 ) : BothHooksToggleInteractionModuleBase(_trendingGiphyBotContext, _dtoBuilder, _settingsMessageComponentFactory)
 {
     [ComponentInteraction(InteractionId.GifRetentionButtonWildcard)]
-    public async Task SelectGifRetentionAsync(string gifRetention)
-    {
+    public async Task SelectGifRetentionAsync(string gifRetention) =>
         ChannelSettingsModel.RetentionDays = int.Parse(gifRetention);
-
-        await TrendingGiphyBotContext.SaveChangesAsync();
-    }
 
     protected override MessageComponent BuildToggleModal(ChannelSettingsDto channelSettings, string channelName) =>
         SettingsMessageComponentFactory.BuildGifRetentionToggleModal(channelSettings, channelName);

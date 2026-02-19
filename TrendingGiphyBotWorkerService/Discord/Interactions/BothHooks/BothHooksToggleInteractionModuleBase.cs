@@ -28,7 +28,10 @@ public abstract class BothHooksToggleInteractionModuleBase
 
     public override async Task AfterExecuteAsync(ICommandInfo command)
     {
+        await TrendingGiphyBotContext.SaveChangesAsync();
+
         var dto = await _dtoBuilder.BuildFromChannelIdAsync(Context.Channel.Id);
+        
         var component = BuildToggleModal(dto, Context.Channel.Name);
 
         await Context.Interaction.UpdateAsync(messageProperties => messageProperties.Components = component);
